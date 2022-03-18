@@ -1,0 +1,1793 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: openspades\n"
+"Report-Msgid-Bugs-To: i at yvt.jp\n"
+"POT-Creation-Date: 2016-12-25 23:47-0200\n"
+"PO-Revision-Date: 2020-04-19 14:46\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Indonesian\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7.1\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Crowdin-Project: openspades\n"
+"X-Crowdin-Language: id\n"
+"X-Crowdin-File: openspades.pot\n"
+"Language: id_ID\n"
+
+#: Sources/Client/Client.cpp:585 Sources/Client/Client.cpp:586
+msgctxt "Client"
+msgid "Map saved: {0}"
+msgstr "Peta disimpan: {0}"
+
+#: Sources/Client/Client.cpp:589 Sources/Client/Client.cpp:595
+#: Sources/Client/Client.cpp:590 Sources/Client/Client.cpp:596
+msgctxt "Client"
+msgid "Saving map failed: "
+msgstr "Gagal menyimpan peta: "
+
+#. ! Prefix added to global chat messages.
+#. !
+#. ! Example: [Global] playername (Red) blah blah
+#. !
+#. ! Crowdin warns that this string shouldn't be translated,
+#. ! but it actually can be.
+#. ! The extra whitespace is not a typo.
+#: Sources/Client/Client.cpp:633 Sources/Client/Client.cpp:634
+msgctxt "Client"
+msgid "[Global] "
+msgstr "[Global] "
+
+#: Sources/Client/Client_Draw.cpp:119 Sources/Client/Client_Draw.cpp:135
+msgctxt "Client"
+msgid "Sceneshot saved: {0}"
+msgstr "Menyimpan cuplika: {0}"
+
+#: Sources/Client/Client_Draw.cpp:121 Sources/Client/Client_Draw.cpp:137
+msgctxt "Client"
+msgid "Screenshot saved: {0}"
+msgstr "Jepretan layar disimpan: {0}"
+
+#: Sources/Client/Client_Draw.cpp:125 Sources/Client/Client_Draw.cpp:131
+#: Sources/Client/Client_Draw.cpp:141 Sources/Client/Client_Draw.cpp:147
+msgctxt "Client"
+msgid "Screenshot failed: "
+msgstr "Jepretan layar gagal: "
+
+#: Sources/Client/Client_Draw.cpp:198 Sources/Client/Client_Draw.cpp:214
+msgctxt "Client"
+msgid "NOW LOADING"
+msgstr "SEDANG MEMUAT"
+
+#: Sources/Client/Client_Draw.cpp:220 Sources/Client/Client_Draw.cpp:236
+msgctxt "Client"
+msgid "Disconnecting..."
+msgstr "Memutus sambungan..."
+
+#: Sources/Client/Client_Draw.cpp:523 Sources/Client/Client_Draw.cpp:548
+msgctxt "Client"
+msgid "Out of Block"
+msgstr "Tanpa Blok"
+
+#: Sources/Client/Client_Draw.cpp:528 Sources/Client/Client_Draw.cpp:553
+msgctxt "Client"
+msgid "Out of Grenade"
+msgstr "Kehabisan Granat"
+
+#: Sources/Client/Client_Draw.cpp:534 Sources/Client/Client_Draw.cpp:559
+msgctxt "Client"
+msgid "Reloading"
+msgstr "Memuat ulang"
+
+#: Sources/Client/Client_Draw.cpp:536 Sources/Client/Client_Input.cpp:439
+#: Sources/Client/Client_Draw.cpp:561 Sources/Client/Client_Input.cpp:494
+msgctxt "Client"
+msgid "Out of Ammo"
+msgstr "Kehabisan Peluru"
+
+#: Sources/Client/Client_Draw.cpp:539 Sources/Client/Client_Draw.cpp:564
+msgctxt "Client"
+msgid "Press [{0}] to Reload"
+msgstr "Tekan [{0}] untuk Muat Ulang"
+
+#: Sources/Client/Client_Draw.cpp:584 Sources/Client/Client_Draw.cpp:608
+msgctxt "Client"
+msgid "You will respawn in: {0}"
+msgstr "Anda akan muncul kembali di: {0}"
+
+#: Sources/Client/Client_Draw.cpp:586 Sources/Client/Client_Draw.cpp:610
+msgctxt "Client"
+msgid "Waiting for respawn"
+msgstr "Menunggu untuk muncul kembali"
+
+#: Sources/Client/Client_Draw.cpp:764 Sources/Client/Client_Draw.cpp:646
+msgctxt "Client"
+msgid "Following {0}"
+msgstr "Mengikuti {0}"
+
+#: Sources/Client/Client_Input.cpp:427 Sources/Client/Client_Input.cpp:482
+msgctxt "Client"
+msgid "Out of Blocks"
+msgstr "Tanpa Blok"
+
+#: Sources/Client/Client_Input.cpp:451 Sources/Client/Client_Input.cpp:506
+msgctxt "Client"
+msgid "Out of Grenades"
+msgstr "Kehabisan Granat"
+
+#: Sources/Client/Client_NetHandler.cpp:89
+#: Sources/Client/Client_NetHandler.cpp:90
+msgctxt "Client"
+msgid "{0} captured {1}'s territory"
+msgstr "{0} telah mengambil wilayah {1}"
+
+#: Sources/Client/Client_NetHandler.cpp:91
+#: Sources/Client/Client_NetHandler.cpp:92
+msgctxt "Client"
+msgid "{0} captured an neutral territory"
+msgstr "{0} mengambil wilayah netral"
+
+#: Sources/Client/Client_NetHandler.cpp:99
+#: Sources/Client/Client_NetHandler.cpp:100
+msgctxt "Client"
+msgid "{0} captured {1}'s Territory"
+msgstr "{0} mengambil Wilayah {1}"
+
+#: Sources/Client/Client_NetHandler.cpp:101
+#: Sources/Client/Client_NetHandler.cpp:102
+msgctxt "Client"
+msgid "{0} captured an Neutral Territory"
+msgstr "{0} mengambil Wilayah Netral"
+
+#: Sources/Client/Client_NetHandler.cpp:127
+#: Sources/Client/Client_NetHandler.cpp:128
+msgctxt "Client"
+msgid "{0} captured {1}'s intel"
+msgstr "{0} menangkap intel {1}"
+
+#: Sources/Client/Client_NetHandler.cpp:134
+#: Sources/Client/Client_NetHandler.cpp:135
+msgctxt "Client"
+msgid "{0} captured {1}'s Intel."
+msgstr "{0} menangkap intel {1}."
+
+#: Sources/Client/Client_NetHandler.cpp:158
+#: Sources/Client/Client_NetHandler.cpp:159
+msgctxt "Client"
+msgid "{0} picked up {1}'s intel"
+msgstr "{0} menjemput intel {1}"
+
+#: Sources/Client/Client_NetHandler.cpp:165
+#: Sources/Client/Client_NetHandler.cpp:166
+msgctxt "Client"
+msgid "{0} picked up {1}'s Intel."
+msgstr "{0} menjemput intel {1}."
+
+#: Sources/Client/Client_NetHandler.cpp:183
+#: Sources/Client/Client_NetHandler.cpp:184
+msgctxt "Client"
+msgid "{0} dropped {1}'s intel"
+msgstr "{0} menjatuhkan intel {1}"
+
+#: Sources/Client/Client_NetHandler.cpp:190
+#: Sources/Client/Client_NetHandler.cpp:191
+msgctxt "Client"
+msgid "{0} dropped {1}'s Intel"
+msgstr "{0} menjatuhkan intel {1}"
+
+#: Sources/Client/Client_NetHandler.cpp:237
+#: Sources/Client/Client_NetHandler.cpp:243
+#: Sources/Client/Client_NetHandler.cpp:249
+#: Sources/Client/Client_NetHandler.cpp:255
+msgctxt "Client"
+msgid "Player {0} has left"
+msgstr "Pemain {0} telah pergi"
+
+#: Sources/Client/Client_NetHandler.cpp:257
+#: Sources/Client/Client_NetHandler.cpp:264
+#: Sources/Client/Client_NetHandler.cpp:276
+#: Sources/Client/Client_NetHandler.cpp:282
+msgctxt "Client"
+msgid "{0} joined {1} team"
+msgstr "{0} bergabung dengan tim {1}"
+
+#: Sources/Client/Client_NetHandler.cpp:294
+#: Sources/Client/Client_NetHandler.cpp:317
+msgctxt "Client"
+msgid "{0} wins!"
+msgstr "{0} menang!"
+
+#: Sources/Client/Client_NetHandler.cpp:298
+#: Sources/Client/Client_NetHandler.cpp:321
+msgctxt "Client"
+msgid "{0} Wins!"
+msgstr "{0} Menang!"
+
+#: Sources/Client/Client_Update.cpp:479 Sources/Client/Client_Update.cpp:505
+msgctxt "Client"
+msgid "{0} block"
+msgid_plural "{0} blocks"
+msgstr[0] "{0} blok"
+
+#: Sources/Client/Client_Update.cpp:486 Sources/Client/Client_Update.cpp:512
+msgctxt "Client"
+msgid "-- blocks"
+msgstr "-- blok"
+
+#: Sources/Client/Client_Update.cpp:842 Sources/Client/LimboView.cpp:68
+#: Sources/Client/Client_Update.cpp:868 Sources/Client/LimboView.cpp:68
+msgctxt "Client"
+msgid "Rifle"
+msgstr "Senapan"
+
+#: Sources/Client/Client_Update.cpp:843 Sources/Client/LimboView.cpp:71
+#: Sources/Client/Client_Update.cpp:869 Sources/Client/LimboView.cpp:71
+msgctxt "Client"
+msgid "SMG"
+msgstr "SMG"
+
+#: Sources/Client/Client_Update.cpp:844 Sources/Client/LimboView.cpp:74
+#: Sources/Client/Client_Update.cpp:870 Sources/Client/LimboView.cpp:74
+msgctxt "Client"
+msgid "Shotgun"
+msgstr "Senapan angin"
+
+#. ! A cause of death shown in the kill feed.
+#: Sources/Client/Client_Update.cpp:849 Sources/Client/Client_Update.cpp:875
+msgctxt "Client"
+msgid "Fall"
+msgstr "Parasut"
+
+#. ! A cause of death shown in the kill feed.
+#: Sources/Client/Client_Update.cpp:853 Sources/Client/Client_Update.cpp:879
+msgctxt "Client"
+msgid "Melee"
+msgstr "Pertempuran jarak dekat"
+
+#: Sources/Client/Client_Update.cpp:856 Sources/Client/Client_Update.cpp:882
+msgctxt "Client"
+msgid "Grenade"
+msgstr "Granat"
+
+#. ! A cause of death shown in the kill feed.
+#: Sources/Client/Client_Update.cpp:860 Sources/Client/Client_Update.cpp:886
+msgctxt "Client"
+msgid "Headshot"
+msgstr "Tembakan kepala"
+
+#. ! A cause of death shown in the kill feed.
+#: Sources/Client/Client_Update.cpp:864 Sources/Client/Client_Update.cpp:890
+msgctxt "Client"
+msgid "Team Change"
+msgstr "Perubahan Tim"
+
+#. ! A cause of death shown in the kill feed.
+#: Sources/Client/Client_Update.cpp:868 Sources/Client/Client_Update.cpp:894
+msgctxt "Client"
+msgid "Weapon Change"
+msgstr "Perubahan Senjata"
+
+#: Sources/Client/Client_Update.cpp:907 Sources/Client/Client_Update.cpp:933
+msgctxt "Client"
+msgid "You have killed {0}"
+msgstr "Kamu telah membunuh {0}"
+
+#: Sources/Client/Client_Update.cpp:909 Sources/Client/Client_Update.cpp:935
+msgctxt "Client"
+msgid "You were killed by {0}"
+msgstr "Kamu dibunuh oleh {0}"
+
+#: Sources/Client/Client_Update.cpp:1225 Sources/Client/Client_Update.cpp:1260
+msgctxt "Client"
+msgid "Insufficient blocks."
+msgstr "Blok tidak cukup."
+
+#: Sources/Client/Client_Update.cpp:1228 Sources/Client/Client_Update.cpp:1263
+msgctxt "Client"
+msgid "You cannot place a block there."
+msgstr "Kamu tidak bisa menempatkan satu blok di sana."
+
+#: Sources/Client/LimboView.cpp:79 Sources/Client/LimboView.cpp:79
+msgctxt "Client"
+msgid "Spawn"
+msgstr "Bermain"
+
+#: Sources/Client/LimboView.cpp:183 Sources/Client/LimboView.cpp:183
+msgctxt "Client"
+msgid "Select Team:"
+msgstr "Pilih Tim:"
+
+#: Sources/Client/LimboView.cpp:191 Sources/Client/LimboView.cpp:191
+msgctxt "Client"
+msgid "Select Weapon:"
+msgstr "Pilih Senjata:"
+
+#: Sources/Client/NetClient.cpp:422 Sources/Client/NetClient.cpp:425
+msgctxt "NetClient"
+msgid "Connecting to the server"
+msgstr "Menghubungkan ke server"
+
+#: Sources/Client/NetClient.cpp:434 Sources/Client/NetClient.cpp:437
+msgctxt "NetClient"
+msgid "Not connected"
+msgstr "Tidak terhubung"
+
+#: Sources/Client/NetClient.cpp:498 Sources/Client/NetClient.cpp:516
+msgctxt "NetClient"
+msgid "Awaiting for state"
+msgstr "Menunggu status"
+
+#: Sources/Client/NetClient.cpp:508 Sources/Client/NetClient.cpp:1277
+#: Sources/Client/NetClient.cpp:526 Sources/Client/NetClient.cpp:1346
+msgctxt "NetClient"
+msgid "Loading snapshot"
+msgstr "Memuat cuplikan"
+
+#: Sources/Client/NetClient.cpp:523 Sources/Client/NetClient.cpp:541
+msgctxt "NetClient"
+msgid "Loading snapshot ({0}/{1})"
+msgstr "Memuat cuplikan ({0}/{1})"
+
+#: Sources/Client/NetClient.cpp:528 Sources/Client/NetClient.cpp:562
+#: Sources/Client/NetClient.cpp:546 Sources/Client/NetClient.cpp:609
+msgctxt "NetClient"
+msgid "Connected"
+msgstr "Terhubung"
+
+#: Sources/Client/NetClient.cpp:540 Sources/Client/NetClient.cpp:575
+#: Sources/Client/NetClient.cpp:627 Sources/Client/NetClient.cpp:558
+#: Sources/Client/NetClient.cpp:622 Sources/Client/NetClient.cpp:674
+msgctxt "NetClient"
+msgid "Still loading..."
+msgstr "Sedang Memuat..."
+
+#: Sources/Client/NetClient.cpp:543 Sources/Client/NetClient.cpp:549
+#: Sources/Client/NetClient.cpp:579 Sources/Client/NetClient.cpp:584
+#: Sources/Client/NetClient.cpp:631 Sources/Client/NetClient.cpp:636
+#: Sources/Client/NetClient.cpp:561 Sources/Client/NetClient.cpp:567
+#: Sources/Client/NetClient.cpp:626 Sources/Client/NetClient.cpp:631
+#: Sources/Client/NetClient.cpp:678 Sources/Client/NetClient.cpp:683
+msgctxt "NetClient"
+msgid "Error"
+msgstr "Eror"
+
+#: Sources/Client/NetClient.cpp:702 Sources/Client/NetClient.cpp:749
+msgctxt "NetClient"
+msgid "You are banned from this server."
+msgstr "Kamu dilarang dari server ini."
+
+#: Sources/Client/NetClient.cpp:707 Sources/Client/NetClient.cpp:710
+#: Sources/Client/NetClient.cpp:754 Sources/Client/NetClient.cpp:757
+msgctxt "NetClient"
+msgid "You were kicked from this server."
+msgstr "Kamu telah dikeluarkan dari server."
+
+#: Sources/Client/NetClient.cpp:708 Sources/Client/NetClient.cpp:755
+msgctxt "NetClient"
+msgid "Incompatible client protocol version."
+msgstr "Versi klien protokol tidak kompatibel."
+
+#: Sources/Client/NetClient.cpp:709 Sources/Client/NetClient.cpp:756
+msgctxt "NetClient"
+msgid "Server full"
+msgstr "Server penuh"
+
+#: Sources/Client/NetClient.cpp:711 Sources/Client/NetClient.cpp:758
+msgctxt "NetClient"
+msgid "Unknown Reason"
+msgstr "Alasan Tidak Diketahui"
+
+#: Sources/Client/ScoreboardView.cpp:63 Sources/Client/ScoreboardView.cpp:345
+#: Sources/Client/ScoreboardView.cpp:63 Sources/Client/ScoreboardView.cpp:345
+msgctxt "Client"
+msgid "Spectator{1}"
+msgid_plural "Spectators{1}"
+msgstr[0] "Penonton{1}"
+
+#: Sources/Client/TCProgressView.cpp:151 Sources/Client/TCProgressView.cpp:151
+msgctxt "Client"
+msgid "Neutral Territory"
+msgstr "Penonton Netral"
+
+#: Sources/Client/TCProgressView.cpp:154 Sources/Client/TCProgressView.cpp:154
+msgctxt "Client"
+msgid "{0}'s Territory"
+msgstr "Wilayah {0}"
+
+#: Sources/Gui/Main.cpp:548 Sources/Gui/Main.cpp:577
+msgctxt "Main"
+msgid "Localization System Loaded"
+msgstr "Sistem Pelokalan Dimuat"
+
+#: Sources/Gui/Main.cpp:604 Sources/Gui/Runner.cpp:56 Sources/Gui/Main.cpp:633
+#: Sources/Gui/Runner.cpp:56
+msgctxt "Main"
+msgid "A serious error caused OpenSpades to stop working:\n\n"
+"{0}\n\n"
+"See SystemMessages.log for more details."
+msgstr "Kesalahan serius menyebabkan OpenSpades berhenti bekerja:\n\n"
+"{0}\n\n"
+"Lihat SystemMessages.log untuk detail lebih."
+
+#: Sources/Gui/Main.cpp:612 Sources/Gui/Runner.cpp:62 Sources/Gui/Main.cpp:641
+#: Sources/Gui/Runner.cpp:62
+msgctxt "Main"
+msgid "OpenSpades Fatal Error"
+msgstr "Kesalahan Fatal OpenSpades"
+
+#: Sources/Gui/MainScreen.cpp:225 Sources/Gui/MainScreen.cpp:220
+msgctxt "MainScreen"
+msgid "NOW LOADING"
+msgstr "SEDANG MEMUAT"
+
+#: Resources/Scripts/Gui/ClientUI.as:198 Resources/Scripts/Gui/ClientUI.as:198
+msgctxt "Client"
+msgid "Back to Game"
+msgstr "Kembali ke Permainan"
+
+#: Resources/Scripts/Gui/ClientUI.as:205 Resources/Scripts/Gui/ClientUI.as:205
+msgctxt "Client"
+msgid "Chat Log"
+msgstr "Log Obrolan"
+
+#: Resources/Scripts/Gui/ClientUI.as:212 Resources/Scripts/Gui/ClientUI.as:212
+msgctxt "Client"
+msgid "Setup"
+msgstr "Penyetelan"
+
+#: Resources/Scripts/Gui/ClientUI.as:219 Resources/Scripts/Gui/ClientUI.as:219
+msgctxt "Client"
+msgid "Disconnect"
+msgstr "Memutuskan"
+
+#: Resources/Scripts/Gui/ClientUI.as:484 Resources/Scripts/Gui/ClientUI.as:484
+msgctxt "Client"
+msgid "Say"
+msgstr "Mengatakan"
+
+#: Resources/Scripts/Gui/ClientUI.as:492 Resources/Scripts/Gui/ClientUI.as:492
+msgctxt "Client"
+msgid "Cancel"
+msgstr "Batal"
+
+#: Resources/Scripts/Gui/ClientUI.as:500 Resources/Scripts/Gui/ClientUI.as:500
+msgctxt "Client"
+msgid "Chat Text"
+msgstr "Teks Obrolan"
+
+#: Resources/Scripts/Gui/ClientUI.as:508 Resources/Scripts/Gui/ClientUI.as:508
+msgctxt "Client"
+msgid "Global"
+msgstr "Global"
+
+#: Resources/Scripts/Gui/ClientUI.as:517 Resources/Scripts/Gui/ClientUI.as:517
+msgctxt "Client"
+msgid "Team"
+msgstr "Tim"
+
+#: Resources/Scripts/Gui/ClientUI.as:661 Resources/Scripts/Gui/ClientUI.as:662
+msgctxt "Client"
+msgid "Close"
+msgstr "Tutup"
+
+#: Resources/Scripts/Gui/ClientUI.as:671 Resources/Scripts/Gui/ClientUI.as:672
+msgctxt "Client"
+msgid "Say Global"
+msgstr "Berbicara"
+
+#: Resources/Scripts/Gui/ClientUI.as:682 Resources/Scripts/Gui/ClientUI.as:683
+msgctxt "Client"
+msgid "Say Team"
+msgstr "Bicara ke Tim"
+
+#: Resources/Scripts/Gui/CreateProfileScreen.as:58
+#: Resources/Scripts/Gui/CreateProfileScreen.as:58
+msgctxt "CreateProfileScreen"
+msgid "OK"
+msgstr "Oke"
+
+#: Resources/Scripts/Gui/CreateProfileScreen.as:70
+#: Resources/Scripts/Gui/CreateProfileScreen.as:70
+msgctxt "CreateProfileScreen"
+msgid "Decide later"
+msgstr "Tentukan Nanti"
+
+#: Resources/Scripts/Gui/CreateProfileScreen.as:80
+#: Resources/Scripts/Gui/CreateProfileScreen.as:80
+msgctxt "CreateProfileScreen"
+msgid "Welcome to OpenSpades"
+msgstr "Selamat Datang di OpenSpades"
+
+#: Resources/Scripts/Gui/CreateProfileScreen.as:88
+#: Resources/Scripts/Gui/CreateProfileScreen.as:88
+msgctxt "CreateProfileScreen"
+msgid "Choose a player name:"
+msgstr "Pilih nama pemain:"
+
+#: Resources/Scripts/Gui/CreateProfileScreen.as:96
+#: Resources/Scripts/Gui/CreateProfileScreen.as:96
+msgctxt "CreateProfileScreen"
+msgid "Player name"
+msgstr "Nama pemain"
+
+#: Resources/Scripts/Gui/CreateProfileScreen.as:104
+#: Resources/Scripts/Gui/CreateProfileScreen.as:104
+msgctxt "CreateProfileScreen"
+msgid "You can change it later in the Setup dialog."
+msgstr "Kamu dapat mengubahnya nanti di dialog Penyetelan."
+
+#: Resources/Scripts/Gui/MainScreen.as:376
+#: Resources/Scripts/Gui/MainScreen.as:376
+msgctxt "MainScreen"
+msgid "Connect"
+msgstr "Sambungkan"
+
+#: Resources/Scripts/Gui/MainScreen.as:384
+#: Resources/Scripts/Gui/MainScreen.as:384
+msgctxt "MainScreen"
+msgid "Quick Connect"
+msgstr "Sambungkan Cepat"
+
+#: Resources/Scripts/Gui/MainScreen.as:393
+#: Resources/Scripts/Gui/MainScreen.as:447
+#: Resources/Scripts/Gui/MainScreen.as:393
+#: Resources/Scripts/Gui/MainScreen.as:447
+msgctxt "MainScreen"
+msgid "0.75"
+msgstr "0.75"
+
+#: Resources/Scripts/Gui/MainScreen.as:403
+#: Resources/Scripts/Gui/MainScreen.as:456
+#: Resources/Scripts/Gui/MainScreen.as:403
+#: Resources/Scripts/Gui/MainScreen.as:456
+msgctxt "MainScreen"
+msgid "0.76"
+msgstr "0.76"
+
+#: Resources/Scripts/Gui/MainScreen.as:411
+#: Resources/Scripts/Gui/MainScreen.as:411
+msgctxt "MainScreen"
+msgid "Quit"
+msgstr "Keluar"
+
+#: Resources/Scripts/Gui/MainScreen.as:418
+#: Resources/Scripts/Gui/MainScreen.as:418
+msgctxt "MainScreen"
+msgid "Credits"
+msgstr "Kredit"
+
+#: Resources/Scripts/Gui/MainScreen.as:425
+#: Resources/Scripts/Gui/MainScreen.as:425
+msgctxt "MainScreen"
+msgid "Setup"
+msgstr "Penyetelan"
+
+#: Resources/Scripts/Gui/MainScreen.as:438
+#: Resources/Scripts/Gui/MainScreen.as:482
+#: Resources/Scripts/Gui/MainScreen.as:438
+#: Resources/Scripts/Gui/MainScreen.as:482
+msgctxt "MainScreen"
+msgid "Filter"
+msgstr "Filter"
+
+#: Resources/Scripts/Gui/MainScreen.as:465
+#: Resources/Scripts/Gui/MainScreen.as:465
+msgctxt "MainScreen"
+msgid "Empty"
+msgstr "Kosong"
+
+#: Resources/Scripts/Gui/MainScreen.as:474
+#: Resources/Scripts/Gui/MainScreen.as:474
+msgctxt "MainScreen"
+msgid "Not Full"
+msgstr "Tidak Penuh"
+
+#: Resources/Scripts/Gui/MainScreen.as:494
+#: Resources/Scripts/Gui/MainScreen.as:494
+msgctxt "MainScreen"
+msgid "Server Name"
+msgstr "Nama Server"
+
+#: Resources/Scripts/Gui/MainScreen.as:501
+#: Resources/Scripts/Gui/MainScreen.as:501
+msgctxt "MainScreen"
+msgid "Players"
+msgstr "Pemain"
+
+#: Resources/Scripts/Gui/MainScreen.as:508
+#: Resources/Scripts/Gui/MainScreen.as:508
+msgctxt "MainScreen"
+msgid "Map Name"
+msgstr "Nama Peta"
+
+#: Resources/Scripts/Gui/MainScreen.as:515
+#: Resources/Scripts/Gui/MainScreen.as:515
+msgctxt "MainScreen"
+msgid "Game Mode"
+msgstr "Mode Permainan"
+
+#: Resources/Scripts/Gui/MainScreen.as:522
+#: Resources/Scripts/Gui/MainScreen.as:522
+msgctxt "MainScreen"
+msgid "Ver."
+msgstr "Ver."
+
+#: Resources/Scripts/Gui/MainScreen.as:529
+#: Resources/Scripts/Gui/MainScreen.as:529
+msgctxt "MainScreen"
+msgid "Loc."
+msgstr "Lok."
+
+#: Resources/Scripts/Gui/MainScreen.as:787
+#: Resources/Scripts/Gui/MainScreen.as:787
+msgctxt "MainScreen"
+msgid "You were disconnected from the server because of the following reason:\n\n"
+"{0}"
+msgstr "Kamu terputus dari server karena alasan berikut:\n\n"
+"{0}"
+
+#: Resources/Scripts/Gui/MainScreen.as:807
+#: Resources/Scripts/Gui/MainScreen.as:807
+msgctxt "MainScreen"
+msgid "Loading..."
+msgstr "Memuat..."
+
+#: Resources/Scripts/Gui/MainScreen.as:825
+#: Resources/Scripts/Gui/MainScreen.as:825
+msgctxt "MainScreen"
+msgid "Failed to fetch the server list."
+msgstr "Gagal mengambil daftar server."
+
+#: Resources/Scripts/Gui/MessageBox.as:130
+#: Resources/Scripts/Gui/MessageBox.as:144
+#: Resources/Scripts/Gui/MessageBox.as:130
+#: Resources/Scripts/Gui/MessageBox.as:144
+msgctxt "MessageBox"
+msgid "OK"
+msgstr "Oke"
+
+#: Resources/Scripts/Gui/MessageBox.as:144
+#: Resources/Scripts/Gui/MessageBox.as:144
+msgctxt "MessageBox"
+msgid "Cancel"
+msgstr "Batal"
+
+#: Resources/Scripts/Gui/Preferences.as:60
+#: Resources/Scripts/Gui/Preferences.as:60
+msgctxt "Preferences"
+msgid "Game Options"
+msgstr "Pilihan Permainan"
+
+#: Resources/Scripts/Gui/Preferences.as:61
+#: Resources/Scripts/Gui/Preferences.as:61
+msgctxt "Preferences"
+msgid "Controls"
+msgstr "Kendali"
+
+#: Resources/Scripts/Gui/Preferences.as:62
+#: Resources/Scripts/Gui/Preferences.as:663
+#: Resources/Scripts/Gui/Preferences.as:708
+#: Resources/Scripts/Gui/Preferences.as:62
+#: Resources/Scripts/Gui/Preferences.as:663
+#: Resources/Scripts/Gui/Preferences.as:708
+msgctxt "Preferences"
+msgid "Misc"
+msgstr "Lain"
+
+#: Resources/Scripts/Gui/Preferences.as:66
+#: Resources/Scripts/Gui/Preferences.as:66
+msgctxt "Preferences"
+msgid "Back"
+msgstr "Kembali"
+
+#: Resources/Scripts/Gui/Preferences.as:407
+#: Resources/Scripts/Gui/Preferences.as:407
+msgctxt "Preferences"
+msgid "Press Key to Bind or [Escape] to Cancel..."
+msgstr "Tekan Tombol untuk Mengikat atau [Escape] untuk Batal..."
+
+#: Resources/Scripts/Gui/Preferences.as:418
+#: Resources/Scripts/Gui/Preferences.as:418
+msgctxt "Preferences"
+msgid "Space"
+msgstr "Ruang"
+
+#: Resources/Scripts/Gui/Preferences.as:420
+#: Resources/Scripts/Gui/Preferences.as:420
+msgctxt "Preferences"
+msgid "Unbound"
+msgstr "Tidak ada asosiasi"
+
+#: Resources/Scripts/Gui/Preferences.as:423
+#: Resources/Scripts/Gui/Preferences.as:423
+msgctxt "Preferences"
+msgid "Shift"
+msgstr "Shift"
+
+#: Resources/Scripts/Gui/Preferences.as:425
+#: Resources/Scripts/Gui/Preferences.as:425
+msgctxt "Preferences"
+msgid "Control"
+msgstr "Kontrol"
+
+#: Resources/Scripts/Gui/Preferences.as:427
+#: Resources/Scripts/Gui/Preferences.as:427
+msgctxt "Preferences"
+msgid "Meta"
+msgstr "Meta"
+
+#: Resources/Scripts/Gui/Preferences.as:429
+#: Resources/Scripts/Gui/Preferences.as:429
+msgctxt "Preferences"
+msgid "Alt"
+msgstr "Alt"
+
+#: Resources/Scripts/Gui/Preferences.as:431
+#: Resources/Scripts/Gui/Preferences.as:431
+msgctxt "Preferences"
+msgid "Left Mouse Button"
+msgstr "Tombol Tetikus Kiri"
+
+#: Resources/Scripts/Gui/Preferences.as:433
+#: Resources/Scripts/Gui/Preferences.as:433
+msgctxt "Preferences"
+msgid "Right Mouse Button"
+msgstr "Tombol Tetikus Kanan"
+
+#: Resources/Scripts/Gui/Preferences.as:435
+#: Resources/Scripts/Gui/Preferences.as:435
+msgctxt "Preferences"
+msgid "Middle Mouse Button"
+msgstr "Tombol Tetikus Tengah"
+
+#: Resources/Scripts/Gui/Preferences.as:437
+#: Resources/Scripts/Gui/Preferences.as:437
+msgctxt "Preferences"
+msgid "Mouse Button 4"
+msgstr "Tombol Tetikus 4"
+
+#: Resources/Scripts/Gui/Preferences.as:439
+#: Resources/Scripts/Gui/Preferences.as:439
+msgctxt "Preferences"
+msgid "Mouse Button 5"
+msgstr "Tombol Tetikus 5"
+
+#: Resources/Scripts/Gui/Preferences.as:613
+#: Resources/Scripts/Gui/Preferences.as:619
+#: Resources/Scripts/Gui/Preferences.as:613
+#: Resources/Scripts/Gui/Preferences.as:619
+msgctxt "Preferences"
+msgid "ON"
+msgstr "NYALA"
+
+#: Resources/Scripts/Gui/Preferences.as:613
+#: Resources/Scripts/Gui/Preferences.as:619
+#: Resources/Scripts/Gui/Preferences.as:648
+#: Resources/Scripts/Gui/Preferences.as:651
+#: Resources/Scripts/Gui/Preferences.as:613
+#: Resources/Scripts/Gui/Preferences.as:619
+#: Resources/Scripts/Gui/Preferences.as:648
+#: Resources/Scripts/Gui/Preferences.as:651
+msgctxt "Preferences"
+msgid "OFF"
+msgstr "MATI"
+
+#: Resources/Scripts/Gui/Preferences.as:619
+#: Resources/Scripts/Gui/Preferences.as:619
+msgctxt "Preferences"
+msgid "REVERSED"
+msgstr "TERBALIK"
+
+#: Resources/Scripts/Gui/Preferences.as:637
+#: Resources/Scripts/Gui/Preferences.as:637
+msgctxt "Preferences"
+msgid "Player Information"
+msgstr "Informasi Pemain"
+
+#: Resources/Scripts/Gui/Preferences.as:638
+#: Resources/Scripts/Gui/Preferences.as:638
+msgctxt "Preferences"
+msgid "Player Name"
+msgstr "Nama Pemain"
+
+#: Resources/Scripts/Gui/Preferences.as:642
+#: Resources/Scripts/Gui/Preferences.as:642
+msgctxt "Preferences"
+msgid "Effects"
+msgstr "Efek"
+
+#: Resources/Scripts/Gui/Preferences.as:643
+#: Resources/Scripts/Gui/Preferences.as:643
+msgctxt "Preferences"
+msgid "Blood"
+msgstr "Darah"
+
+#: Resources/Scripts/Gui/Preferences.as:644
+#: Resources/Scripts/Gui/Preferences.as:644
+msgctxt "Preferences"
+msgid "Ejecting Brass"
+msgstr "Keluarkan Kuningan"
+
+#: Resources/Scripts/Gui/Preferences.as:645
+#: Resources/Scripts/Gui/Preferences.as:645
+msgctxt "Preferences"
+msgid "Ragdoll"
+msgstr "Ragdoll"
+
+#: Resources/Scripts/Gui/Preferences.as:646
+#: Resources/Scripts/Gui/Preferences.as:646
+msgctxt "Preferences"
+msgid "Animations"
+msgstr "Animasi"
+
+#: Resources/Scripts/Gui/Preferences.as:647
+#: Resources/Scripts/Gui/Preferences.as:647
+msgctxt "Preferences"
+msgid "Camera Shake"
+msgstr "Kamera Goyang"
+
+#: Resources/Scripts/Gui/Preferences.as:648
+#: Resources/Scripts/Gui/Preferences.as:648
+msgctxt "Preferences"
+msgid "MORE"
+msgstr "LEBIH"
+
+#: Resources/Scripts/Gui/Preferences.as:648
+#: Resources/Scripts/Gui/Preferences.as:651
+#: Resources/Scripts/Gui/Preferences.as:648
+#: Resources/Scripts/Gui/Preferences.as:651
+msgctxt "Preferences"
+msgid "NORMAL"
+msgstr "NORMAL"
+
+#: Resources/Scripts/Gui/Preferences.as:650
+#: Resources/Scripts/Gui/Preferences.as:650
+msgctxt "Preferences"
+msgid "Particles"
+msgstr "Partikel"
+
+#: Resources/Scripts/Gui/Preferences.as:651
+#: Resources/Scripts/Gui/Preferences.as:651
+msgctxt "Preferences"
+msgid "LESS"
+msgstr "KURANG"
+
+#: Resources/Scripts/Gui/Preferences.as:654
+#: Resources/Scripts/Gui/Preferences.as:654
+msgctxt "Preferences"
+msgid "Feedbacks"
+msgstr "Umpan Balik"
+
+#: Resources/Scripts/Gui/Preferences.as:655
+#: Resources/Scripts/Gui/Preferences.as:655
+msgctxt "Preferences"
+msgid "Chat Notify Sounds"
+msgstr "Suara Notifikasi Obrolan"
+
+#: Resources/Scripts/Gui/Preferences.as:656
+#: Resources/Scripts/Gui/Preferences.as:656
+msgctxt "Preferences"
+msgid "Hit Indicator"
+msgstr "Indikator Dampak"
+
+#: Resources/Scripts/Gui/Preferences.as:657
+#: Resources/Scripts/Gui/Preferences.as:657
+msgctxt "Preferences"
+msgid "Show Alerts"
+msgstr "Tampilkan Peringatan"
+
+#: Resources/Scripts/Gui/Preferences.as:659
+#: Resources/Scripts/Gui/Preferences.as:659
+msgctxt "Preferences"
+msgid "AoS 0.75/0.76 Compatibility"
+msgstr "Kesesuaian AoS 0.75/0.76"
+
+#: Resources/Scripts/Gui/Preferences.as:660
+#: Resources/Scripts/Gui/Preferences.as:660
+msgctxt "Preferences"
+msgid "Allow Unicode"
+msgstr "Izinkan Unikode"
+
+#: Resources/Scripts/Gui/Preferences.as:661
+#: Resources/Scripts/Gui/Preferences.as:661
+msgctxt "Preferences"
+msgid "Server Alert"
+msgstr "Peringatan Server"
+
+#: Resources/Scripts/Gui/Preferences.as:664
+#: Resources/Scripts/Gui/Preferences.as:664
+msgctxt "Preferences"
+msgid "Field of View"
+msgstr "Bidang Penglihatan"
+
+#: Resources/Scripts/Gui/Preferences.as:666
+#: Resources/Scripts/Gui/Preferences.as:666
+msgctxt "Preferences"
+msgid "Minimap size"
+msgstr "Ukuran peta mini"
+
+#: Resources/Scripts/Gui/Preferences.as:668
+#: Resources/Scripts/Gui/Preferences.as:668
+msgctxt "Preferences"
+msgid "Show Statistics"
+msgstr "Tampilkan Statistik"
+
+#: Resources/Scripts/Gui/Preferences.as:678
+#: Resources/Scripts/Gui/Preferences.as:678
+msgctxt "Preferences"
+msgid "Weapons/Tools"
+msgstr "Senjata/Alat"
+
+#: Resources/Scripts/Gui/Preferences.as:679
+#: Resources/Scripts/Gui/Preferences.as:679
+msgctxt "Preferences"
+msgid "Attack"
+msgstr "Serang"
+
+#: Resources/Scripts/Gui/Preferences.as:680
+#: Resources/Scripts/Gui/Preferences.as:680
+msgctxt "Preferences"
+msgid "Alt. Attack"
+msgstr "Serangan Alternatif"
+
+#: Resources/Scripts/Gui/Preferences.as:681
+#: Resources/Scripts/Gui/Preferences.as:681
+msgctxt "Preferences"
+msgid "Hold Aim Down Sight"
+msgstr "Tujuan"
+
+#: Resources/Scripts/Gui/Preferences.as:682
+#: Resources/Scripts/Gui/Preferences.as:682
+msgctxt "Preferences"
+msgid "Mouse Sensitivity"
+msgstr "Sensitivitas Tetikus"
+
+#: Resources/Scripts/Gui/Preferences.as:684
+#: Resources/Scripts/Gui/Preferences.as:684
+msgctxt "Preferences"
+msgid "ADS Mouse Sens. Scale"
+msgstr "Skala Sensivitas Tetikus"
+
+#: Resources/Scripts/Gui/Preferences.as:686
+#: Resources/Scripts/Gui/Preferences.as:686
+msgctxt "Preferences"
+msgid "Exponential Power"
+msgstr "Kekuatan Eksponensial"
+
+#: Resources/Scripts/Gui/Preferences.as:688
+#: Resources/Scripts/Gui/Preferences.as:688
+msgctxt "Preferences"
+msgid "Invert Y-axis Mouse Input"
+msgstr "Balikkan Sumbu Vertikal Tetikus"
+
+#: Resources/Scripts/Gui/Preferences.as:689
+#: Resources/Scripts/Gui/Preferences.as:689
+msgctxt "Preferences"
+msgid "Reload"
+msgstr "Segarkan"
+
+#: Resources/Scripts/Gui/Preferences.as:690
+#: Resources/Scripts/Gui/Preferences.as:690
+msgctxt "Preferences"
+msgid "Capture Color"
+msgstr "Terapkan Warna"
+
+#: Resources/Scripts/Gui/Preferences.as:691
+#: Resources/Scripts/Gui/Preferences.as:691
+msgctxt "Preferences"
+msgid "Equip Spade"
+msgstr "Gunakan Sekop"
+
+#: Resources/Scripts/Gui/Preferences.as:692
+#: Resources/Scripts/Gui/Preferences.as:692
+msgctxt "Preferences"
+msgid "Equip Block"
+msgstr "Blok Sekop"
+
+#: Resources/Scripts/Gui/Preferences.as:693
+#: Resources/Scripts/Gui/Preferences.as:693
+msgctxt "Preferences"
+msgid "Equip Weapon"
+msgstr "Melengkapi Senjata"
+
+#: Resources/Scripts/Gui/Preferences.as:694
+#: Resources/Scripts/Gui/Preferences.as:694
+msgctxt "Preferences"
+msgid "Equip Grenade"
+msgstr "Melengkapi Granat"
+
+#: Resources/Scripts/Gui/Preferences.as:695
+#: Resources/Scripts/Gui/Preferences.as:695
+msgctxt "Preferences"
+msgid "Last Used Tool"
+msgstr "Alat Terakhir Dipakai"
+
+#: Resources/Scripts/Gui/Preferences.as:696
+#: Resources/Scripts/Gui/Preferences.as:696
+msgctxt "Preferences"
+msgid "Switch Tools by Wheel"
+msgstr "Beralih Alat dengan Roda"
+
+#: Resources/Scripts/Gui/Preferences.as:698
+#: Resources/Scripts/Gui/Preferences.as:698
+msgctxt "Preferences"
+msgid "Movement"
+msgstr "Gerakan"
+
+#: Resources/Scripts/Gui/Preferences.as:699
+#: Resources/Scripts/Gui/Preferences.as:699
+msgctxt "Preferences"
+msgid "Walk Forward"
+msgstr "Berjalan Maju"
+
+#: Resources/Scripts/Gui/Preferences.as:700
+#: Resources/Scripts/Gui/Preferences.as:700
+msgctxt "Preferences"
+msgid "Backpedal"
+msgstr "Mundur"
+
+#: Resources/Scripts/Gui/Preferences.as:701
+#: Resources/Scripts/Gui/Preferences.as:701
+msgctxt "Preferences"
+msgid "Move Left"
+msgstr "Pindah ke Kiri"
+
+#: Resources/Scripts/Gui/Preferences.as:702
+#: Resources/Scripts/Gui/Preferences.as:702
+msgctxt "Preferences"
+msgid "Move Right"
+msgstr "Pindah ke Kanan"
+
+#: Resources/Scripts/Gui/Preferences.as:703
+#: Resources/Scripts/Gui/Preferences.as:703
+msgctxt "Preferences"
+msgid "Crouch"
+msgstr "Berjongkok"
+
+#: Resources/Scripts/Gui/Preferences.as:704
+#: Resources/Scripts/Gui/Preferences.as:704
+msgctxt "Preferences"
+msgid "Sneak"
+msgstr "Menyelinap"
+
+#: Resources/Scripts/Gui/Preferences.as:705
+#: Resources/Scripts/Gui/Preferences.as:705
+msgctxt "Preferences"
+msgid "Jump"
+msgstr "Melompat"
+
+#: Resources/Scripts/Gui/Preferences.as:706
+#: Resources/Scripts/Gui/Preferences.as:706
+msgctxt "Preferences"
+msgid "Sprint"
+msgstr "Lari"
+
+#: Resources/Scripts/Gui/Preferences.as:709
+#: Resources/Scripts/Gui/Preferences.as:709
+msgctxt "Preferences"
+msgid "Minimap Scale"
+msgstr "Skala Peta Mini"
+
+#: Resources/Scripts/Gui/Preferences.as:710
+#: Resources/Scripts/Gui/Preferences.as:710
+msgctxt "Preferences"
+msgid "Toggle Map"
+msgstr "Beralih ke Peta"
+
+#: Resources/Scripts/Gui/Preferences.as:711
+#: Resources/Scripts/Gui/Preferences.as:711
+msgctxt "Preferences"
+msgid "Flashlight"
+msgstr "Senter"
+
+#: Resources/Scripts/Gui/Preferences.as:712
+#: Resources/Scripts/Gui/Preferences.as:712
+msgctxt "Preferences"
+msgid "Global Chat"
+msgstr "Obrolan Global"
+
+#: Resources/Scripts/Gui/Preferences.as:713
+#: Resources/Scripts/Gui/Preferences.as:713
+msgctxt "Preferences"
+msgid "Team Chat"
+msgstr "Obrolan Tim"
+
+#: Resources/Scripts/Gui/Preferences.as:714
+#: Resources/Scripts/Gui/Preferences.as:714
+msgctxt "Preferences"
+msgid "Limbo Menu"
+msgstr "Menu Limbo"
+
+#: Resources/Scripts/Gui/Preferences.as:715
+#: Resources/Scripts/Gui/Preferences.as:715
+msgctxt "Preferences"
+msgid "Save Map"
+msgstr "Simpan Peta"
+
+#: Resources/Scripts/Gui/Preferences.as:716
+#: Resources/Scripts/Gui/Preferences.as:716
+msgctxt "Preferences"
+msgid "Save Sceneshot"
+msgstr "Simpan Pengambilan Gambar"
+
+#: Resources/Scripts/Gui/Preferences.as:717
+#: Resources/Scripts/Gui/Preferences.as:717
+msgctxt "Preferences"
+msgid "Save Screenshot"
+msgstr "Simpan Jepretan Layar"
+
+#: Resources/Scripts/Gui/Preferences.as:736
+#: Resources/Scripts/Gui/Preferences.as:736
+msgctxt "Preferences"
+msgid "Enable Startup Window"
+msgstr "Aktifkan Jendela Peluncuran"
+
+#: Resources/Scripts/Gui/Preferences.as:757
+#: Resources/Scripts/Gui/Preferences.as:757
+msgctxt "Preferences"
+msgid "Quit and restart OpenSpades to access the startup window."
+msgstr "Keluar dan hidupkan ulang OpenSpades untuk mengakses jendela peluncuran."
+
+#: Resources/Scripts/Gui/Preferences.as:758
+#: Resources/Scripts/Gui/Preferences.as:758
+msgctxt "Preferences"
+msgid "Some settings only can be changed in the startup window."
+msgstr "Beberapa pengaturan hanya bisa diubah di jendela peluncuran."
+
+#: Resources/Scripts/Gui/StartupScreen.as:160
+#: Resources/Scripts/Gui/StartupScreen.as:160
+msgctxt "StartupScreen"
+msgid "Start"
+msgstr "Mulai"
+
+#: Resources/Scripts/Gui/StartupScreen.as:167
+#: Resources/Scripts/Gui/StartupScreen.as:167
+msgctxt "StartupScreen"
+msgid "Skip this screen next time"
+msgstr "Lewati layar ini lain kali"
+
+#: Resources/Scripts/Gui/StartupScreen.as:211
+#: Resources/Scripts/Gui/StartupScreen.as:211
+msgctxt "StartupScreen"
+msgid "Graphics"
+msgstr "Grafis"
+
+#: Resources/Scripts/Gui/StartupScreen.as:212
+#: Resources/Scripts/Gui/StartupScreen.as:212
+msgctxt "StartupScreen"
+msgid "Audio"
+msgstr "Audio"
+
+#: Resources/Scripts/Gui/StartupScreen.as:213
+#: Resources/Scripts/Gui/StartupScreen.as:213
+msgctxt "StartupScreen"
+msgid "Generic"
+msgstr "Umum"
+
+#: Resources/Scripts/Gui/StartupScreen.as:214
+#: Resources/Scripts/Gui/StartupScreen.as:214
+msgctxt "StartupScreen"
+msgid "System Info"
+msgstr "Sistem Informasi"
+
+#: Resources/Scripts/Gui/StartupScreen.as:215
+#: Resources/Scripts/Gui/StartupScreen.as:1679
+#: Resources/Scripts/Gui/StartupScreen.as:215
+#: Resources/Scripts/Gui/StartupScreen.as:1679
+msgctxt "StartupScreen"
+msgid "Advanced"
+msgstr "Lanjutan"
+
+#: Resources/Scripts/Gui/StartupScreen.as:288
+#: Resources/Scripts/Gui/StartupScreen.as:288
+msgctxt "StartupScreen"
+msgid "An unknown error has occurred while opening the update info website."
+msgstr "Terjadi kesalahan yang tidak diketahui saat membuka situs info pembaruan."
+
+#: Resources/Scripts/Gui/StartupScreen.as:853
+#: Resources/Scripts/Gui/StartupScreen.as:853
+msgctxt "StartupScreen"
+msgid "Custom"
+msgstr "Diedit"
+
+#: Resources/Scripts/Gui/StartupScreen.as:979
+#: Resources/Scripts/Gui/StartupScreen.as:979
+msgctxt "StartupScreen"
+msgid "Close"
+msgstr "Tutup"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1085
+#: Resources/Scripts/Gui/StartupScreen.as:1085
+msgctxt "StartupScreen"
+msgid "Graphics Settings"
+msgstr "Pengaturan Grafis"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1090
+#: Resources/Scripts/Gui/StartupScreen.as:1090
+msgctxt "StartupScreen"
+msgid "Resolution"
+msgstr "Resolusi"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1100
+#: Resources/Scripts/Gui/StartupScreen.as:1100
+msgctxt "StartupScreen"
+msgid "Fullscreen Mode"
+msgstr "Mode Layar Penuh"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1103
+#: Resources/Scripts/Gui/StartupScreen.as:1103
+msgctxt "StartupScreen"
+msgid "By running in fullscreen mode OpenSpades occupies the screen, making it easier for you to concentrate on playing the game."
+msgstr "Dengan berjalan di mode layar penuh, OpenSpades menempati layar, sehingga memudahkan Anda untuk berkonsentrasi dalam bermain."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1110
+#: Resources/Scripts/Gui/StartupScreen.as:1492
+#: Resources/Scripts/Gui/StartupScreen.as:1110
+#: Resources/Scripts/Gui/StartupScreen.as:1492
+msgctxt "StartupScreen"
+msgid "Backend"
+msgstr "Backend"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1113
+#: Resources/Scripts/Gui/StartupScreen.as:1113
+msgctxt "StartupScreen"
+msgid "OpenGL"
+msgstr "OpenGL"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1117
+#: Resources/Scripts/Gui/StartupScreen.as:1117
+msgctxt "StartupScreen"
+msgid "OpenGL renderer uses your computer's graphics accelerator to generate the game screen."
+msgstr "OpenGL menggunakan akselerator grafis komputermu untuk menghasilkan layar permainan."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1125
+#: Resources/Scripts/Gui/StartupScreen.as:1125
+msgctxt "StartupScreen"
+msgid "Software"
+msgstr "Perangkat lunak"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1129
+#: Resources/Scripts/Gui/StartupScreen.as:1129
+msgctxt "StartupScreen"
+msgid "Software renderer uses CPU to generate the game screen. Its quality and performance might be inferior to OpenGL renderer, but it works even with an unsupported GPU."
+msgstr "Perender perangkat lunak menggunakan CPU untuk menghasilkan layar permainan. Kualitas dan kinerjanya mungkin lebih rendah dari perender OpenGL, namun bekerja dengan GPU yang tidak didukung."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1143
+#: Resources/Scripts/Gui/StartupScreen.as:1143
+msgctxt "StartupScreen"
+msgid "Antialias:Enables a technique to improve the appearance of high-contrast edges.\n\n"
+"MSAA: Performs antialiasing by generating an intermediate high-resolution image. Looks best, but doesn't cope with some settings.\n\n"
+"FXAA: Performs antialiasing by smoothing artifacts out as a post-process.|Off|MSAA 2x|4x|FXAA"
+msgstr "Antialias: Memungkinkan teknik memperbaiki kemunculan tepi kontras tinggi.\n\n"
+"MSAA: Lakukan antialias dengan menghasilkan gambar beresolusi tinggi menengah. Terlihat terbaik, namun tidak mengatasi beberapa pengaturan.\n\n"
+"FXAA: Melakukan antialias dengan merapikan artefak sebagai pasca-proses. |Mati|MSAA 2x|4x|FXAA"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1150
+#: Resources/Scripts/Gui/StartupScreen.as:1150
+msgctxt "StartupScreen"
+msgid "Global Illumination"
+msgstr "Penerangan Global"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1152
+#: Resources/Scripts/Gui/StartupScreen.as:1152
+msgctxt "StartupScreen"
+msgid "Enables a physically based simulation of light path for more realistic lighting."
+msgstr "Mengaktifkan simulasi jalur cahaya secara fisik agar penerangan lebih realistis."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1155
+#: Resources/Scripts/Gui/StartupScreen.as:1155
+msgctxt "StartupScreen"
+msgid "Linear HDR Rendering"
+msgstr "Linear HDR Rendering"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1157
+#: Resources/Scripts/Gui/StartupScreen.as:1157
+msgctxt "StartupScreen"
+msgid "Uses a number representation which allows wider dynamic range during rendering process. Additionally, this allows color calculation whose value is in linear correspondence with actual energy, that is, physically accurate blending can be achieved."
+msgstr "Menggunakan representasi nomor yang memungkinkan jangkauan dinamis yang lebih luas selama proses rendering. Selain itu, ini memungkinkan perhitungan warna yang nilainya dalam hubungan linier dengan energi aktual, yaitu pencampuran akurat secara fisik dapat dicapai."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1164
+#: Resources/Scripts/Gui/StartupScreen.as:1164
+msgctxt "StartupScreen"
+msgid "Camera Blur"
+msgstr "Kamera Kabur"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1165
+#: Resources/Scripts/Gui/StartupScreen.as:1165
+msgctxt "StartupScreen"
+msgid "Blurs the screen when you turn quickly."
+msgstr "Layar kabur saat kamu berbalik cepat."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1167
+#: Resources/Scripts/Gui/StartupScreen.as:1167
+msgctxt "StartupScreen"
+msgid "Lens Effect"
+msgstr "Efek Lensa"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1168
+#: Resources/Scripts/Gui/StartupScreen.as:1168
+msgctxt "StartupScreen"
+msgid "Simulates distortion caused by a real camera lens."
+msgstr "Simulasikan distorsi yang disebabkan oleh lensa kamera yang nyata."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1170
+#: Resources/Scripts/Gui/StartupScreen.as:1170
+msgctxt "StartupScreen"
+msgid "Lens Scattering Filter"
+msgstr "Filter Penyaring Lensa"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1171
+#: Resources/Scripts/Gui/StartupScreen.as:1171
+msgctxt "StartupScreen"
+msgid "Simulates light being scattered by dust on the camera lens."
+msgstr "Mensimulasikan cahaya yang disebarkan oleh debu pada lensa kamera."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1174
+#: Resources/Scripts/Gui/StartupScreen.as:1174
+msgctxt "StartupScreen"
+msgid "Lens Flare"
+msgstr "Lensa Suar"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1175
+#: Resources/Scripts/Gui/StartupScreen.as:1175
+msgctxt "StartupScreen"
+msgid "The Sun causes lens flare."
+msgstr "Matahari menyebabkan lensa menyala."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1177
+#: Resources/Scripts/Gui/StartupScreen.as:1177
+msgctxt "StartupScreen"
+msgid "Flares for Dynamic Lights"
+msgstr "Flare untuk Lampu Dinamis"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1178
+#: Resources/Scripts/Gui/StartupScreen.as:1178
+msgctxt "StartupScreen"
+msgid "Enables lens flare for light sources other than the Sun."
+msgstr "Memungkinkan flare lensa untuk sumber cahaya selain Matahari."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1180
+#: Resources/Scripts/Gui/StartupScreen.as:1180
+msgctxt "StartupScreen"
+msgid "Color Correction"
+msgstr "Koreksi Warna"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1181
+#: Resources/Scripts/Gui/StartupScreen.as:1181
+msgctxt "StartupScreen"
+msgid "Applies cinematic color correction to make the image look better."
+msgstr "Aplikasikan koreksi warna sinematik agar gambar terlihat lebih baik."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1183
+#: Resources/Scripts/Gui/StartupScreen.as:1183
+msgctxt "StartupScreen"
+msgid "Depth of Field"
+msgstr "Kedalaman"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1184
+#: Resources/Scripts/Gui/StartupScreen.as:1184
+msgctxt "StartupScreen"
+msgid "Blurs out-of-focus objects."
+msgstr "Kabur memfokuskan objek."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1186
+#: Resources/Scripts/Gui/StartupScreen.as:1186
+msgctxt "StartupScreen"
+msgid "Screen Space Ambient Occlusion"
+msgstr "Ruang Layar Ambient Oklusi"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1187
+#: Resources/Scripts/Gui/StartupScreen.as:1187
+msgctxt "StartupScreen"
+msgid "Simulates soft shadows that occur between nearby objects."
+msgstr "Simulasikan bayangan lembut yang terjadi di antara benda-benda di dekatnya."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1189
+#: Resources/Scripts/Gui/StartupScreen.as:1228
+#: Resources/Scripts/Gui/StartupScreen.as:1250
+#: Resources/Scripts/Gui/StartupScreen.as:1189
+#: Resources/Scripts/Gui/StartupScreen.as:1228
+#: Resources/Scripts/Gui/StartupScreen.as:1250
+msgctxt "StartupScreen"
+msgid "Low"
+msgstr "Rendah"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1190
+#: Resources/Scripts/Gui/StartupScreen.as:1229
+#: Resources/Scripts/Gui/StartupScreen.as:1190
+#: Resources/Scripts/Gui/StartupScreen.as:1229
+msgctxt "StartupScreen"
+msgid "Medium"
+msgstr "Sedang"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1191
+#: Resources/Scripts/Gui/StartupScreen.as:1230
+#: Resources/Scripts/Gui/StartupScreen.as:1252
+#: Resources/Scripts/Gui/StartupScreen.as:1191
+#: Resources/Scripts/Gui/StartupScreen.as:1230
+#: Resources/Scripts/Gui/StartupScreen.as:1252
+msgctxt "StartupScreen"
+msgid "High"
+msgstr "Tinggi"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1192
+#: Resources/Scripts/Gui/StartupScreen.as:1253
+#: Resources/Scripts/Gui/StartupScreen.as:1192
+#: Resources/Scripts/Gui/StartupScreen.as:1253
+msgctxt "StartupScreen"
+msgid "Ultra"
+msgstr "Ultra"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1195
+#: Resources/Scripts/Gui/StartupScreen.as:1195
+msgctxt "StartupScreen"
+msgid "Post-process"
+msgstr "Pasca-proses"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1196
+#: Resources/Scripts/Gui/StartupScreen.as:1196
+msgctxt "StartupScreen"
+msgid "Post-process modifies the image to make it look better and more realistic."
+msgstr "Pasca-proses memodifikasi gambar agar terlihat lebih baik dan lebih realistis."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1203
+#: Resources/Scripts/Gui/StartupScreen.as:1203
+msgctxt "StartupScreen"
+msgid "Particles|Low:Artifact occurs when a particle intersects other objects.|Medium:Particle intersects objects smoothly.|High:Particle intersects objects smoothly, and some objects casts their shadow to particles."
+msgstr "Partikel melintang benda dengan lancar, dan beberapa benda melemparkan bayangannya ke partikel."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1213
+#: Resources/Scripts/Gui/StartupScreen.as:1213
+msgctxt "StartupScreen"
+msgid "Dynamic Lights"
+msgstr "Lampu Dinamis"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1215
+#: Resources/Scripts/Gui/StartupScreen.as:1215
+msgctxt "StartupScreen"
+msgid "Gives some objects an ability to emit light to give them an energy-emitting impression."
+msgstr "Memberikan beberapa objek kemampuan untuk memancarkan cahaya untuk memberi mereka kesan memancarkan energi."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1218
+#: Resources/Scripts/Gui/StartupScreen.as:1218
+msgctxt "StartupScreen"
+msgid "Shadows"
+msgstr "Bayangan"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1219
+#: Resources/Scripts/Gui/StartupScreen.as:1219
+msgctxt "StartupScreen"
+msgid "Non-static object casts a shadow."
+msgstr "Objek non-statis menghasilkan bayangan."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1221
+#: Resources/Scripts/Gui/StartupScreen.as:1221
+msgctxt "StartupScreen"
+msgid "Volumetric Fog"
+msgstr "Kabut Volumetrik"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1222
+#: Resources/Scripts/Gui/StartupScreen.as:1222
+msgctxt "StartupScreen"
+msgid "Simulates shadow being casted to the fog particles using a super highly computationally demanding algorithm. "
+msgstr "Simulasikan bayangan yang dicor pada partikel kabut dengan menggunakan algoritma super computational menuntut. "
+
+#: Resources/Scripts/Gui/StartupScreen.as:1225
+#: Resources/Scripts/Gui/StartupScreen.as:1225
+msgctxt "StartupScreen"
+msgid "Physically Based Lighting"
+msgstr "Pencahayaan Berbasis Fisik"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1226
+#: Resources/Scripts/Gui/StartupScreen.as:1226
+msgctxt "StartupScreen"
+msgid "Uses more accurate approximation techniques to decide the brightness of objects."
+msgstr "Menggunakan teknik perkiraan yang lebih akurat untuk menentukan kecerahan benda."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1233
+#: Resources/Scripts/Gui/StartupScreen.as:1233
+msgctxt "StartupScreen"
+msgid "Direct Lights"
+msgstr "Lampu Langsung"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1234
+#: Resources/Scripts/Gui/StartupScreen.as:1234
+msgctxt "StartupScreen"
+msgid "Controls how light encounting a material and atmosphere directly affects its appearance."
+msgstr "Menentukan bagaimana cahaya bersentuhan dengan material dan mempengaruhi atmosfir secara langsung pada tampilan."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1244
+#: Resources/Scripts/Gui/StartupScreen.as:1244
+msgctxt "StartupScreen"
+msgid "Water Shader|None:Water is rendered in the same way that normal blocks are done.|Level 1:Refraction and the reflected Sun are simulated.|Level 2:Waving water is simulated as well as reflection and refraction.|Level 3:Reflections and refractions are rendered at the highest quality using screen-space techniques."
+msgstr "Bayangan Air | Tidak ada: Air diberikan dengan cara yang sama seperti blok normal selesai. |Level 1: Refraksi dan Matahari yang dipantulkan disimulasikan. |Level 2: Air yang melambai disimulasikan sebaik refleksi dan pembiasan. |Level 3: Refleksi dan refraksi diberikan pada kualitas tertinggi dengan menggunakan teknik layar-spasi."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1251
+#: Resources/Scripts/Gui/StartupScreen.as:1251
+msgctxt "StartupScreen"
+msgid "Med"
+msgstr "Cara"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1256
+#: Resources/Scripts/Gui/StartupScreen.as:1256
+msgctxt "StartupScreen"
+msgid "Shader Effects"
+msgstr "Efek Bayangan"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1256
+#: Resources/Scripts/Gui/StartupScreen.as:1256
+msgctxt "StartupScreen"
+msgid "Special effects."
+msgstr "Efek spesial."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1273
+#: Resources/Scripts/Gui/StartupScreen.as:1273
+msgctxt "StartupScreen"
+msgid "Fast Mode:Reduces the image resolution to make the rendering faster.|Off|2x|4x"
+msgstr "Mode Cepat: Mengurangi resolusi gambar untuk membuat rendering lebih cepat. | Mati | 2x | 4x"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1486
+#: Resources/Scripts/Gui/StartupScreen.as:1486
+msgctxt "StartupScreen"
+msgid "Audio Settings"
+msgstr "Pengaturan Audio"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1495
+#: Resources/Scripts/Gui/StartupScreen.as:1495
+msgctxt "StartupScreen"
+msgid "OpenAL"
+msgstr "OpenAL"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1499
+#: Resources/Scripts/Gui/StartupScreen.as:1499
+msgctxt "StartupScreen"
+msgid "Uses an OpenAL-capable sound card to process sound. In most cases where there isn't such a sound card, software emulation is used."
+msgstr "Menggunakan kartu suara berkemampuan OpenAL untuk memproses suara. Dalam kebanyakan kasus di mana tidak ada kartu suara semacam itu, emulasi perangkat lunak digunakan."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1508
+#: Resources/Scripts/Gui/StartupScreen.as:1508
+msgctxt "StartupScreen"
+msgid "YSR"
+msgstr "YSR"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1512
+#: Resources/Scripts/Gui/StartupScreen.as:1512
+msgctxt "StartupScreen"
+msgid "YSR is an experimental 3D HDR sound engine optimized for OpenSpades. It features several enhanced features including automatic load control, dynamics compressor, HRTF-based 3D audio, and high quality reverb."
+msgstr "YSR adalah mesin HDR eksperimental 3D yang dioptimalkan untuk OpenSpades. Ini fitur beberapa fitur yang disempurnakan termasuk kontrol beban otomatis, kompresor dinamika, audio 3D HRTF, dan reverb berkualitas tinggi."
+
+#. ! The name of audio driver that outputs no audio.
+#: Resources/Scripts/Gui/StartupScreen.as:1523
+#: Resources/Scripts/Gui/StartupScreen.as:1523
+msgctxt "StartupScreen"
+msgid "Null"
+msgstr "Batal"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1527
+#: Resources/Scripts/Gui/StartupScreen.as:1527
+msgctxt "StartupScreen"
+msgid "Disables audio output."
+msgstr "Nonaktifkan keluaran audio."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1538
+#: Resources/Scripts/Gui/StartupScreen.as:1562
+#: Resources/Scripts/Gui/StartupScreen.as:1538
+#: Resources/Scripts/Gui/StartupScreen.as:1562
+msgctxt "StartupScreen"
+msgid "Polyphonics"
+msgstr "Polifonik"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1539
+#: Resources/Scripts/Gui/StartupScreen.as:1539
+msgctxt "StartupScreen"
+msgid "Specifies how many sounds can be played simultaneously. Higher value needs more processing power, so setting this too high might cause an overload (especially with a software emulation)."
+msgstr "Menentukan berapa banyak suara yang bisa dimainkan secara bersamaan. Nilai yang lebih tinggi membutuhkan lebih banyak daya proses, sehingga pengaturan ini terlalu tinggi bisa menyebabkan kelebihan muatan (terutama dengan emulasi perangkat lunak)."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1546
+#: Resources/Scripts/Gui/StartupScreen.as:1546
+msgctxt "StartupScreen"
+msgid "EAX"
+msgstr "EAX"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1547
+#: Resources/Scripts/Gui/StartupScreen.as:1547
+msgctxt "StartupScreen"
+msgid "Enables extended features provided by the OpenAL driver to create more ambience."
+msgstr "Mengaktifkan fitur tambahan yang disediakan oleh driver OpenAL untuk menciptakan lebih banyak suasana."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1563
+#: Resources/Scripts/Gui/StartupScreen.as:1563
+msgctxt "StartupScreen"
+msgid "Specifies how many sounds can be played simultaneously. No matter what value is set, YSR might reduce the number of sounds when an overload is detected."
+msgstr "Menentukan berapa banyak suara yang bisa dimainkan secara bersamaan. Tidak peduli berapa nilai yang ditetapkan, YSR dapat mengurangi jumlah suara saat kelebihan muatan terdeteksi."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1623
+#: Resources/Scripts/Gui/StartupScreen.as:1623
+msgctxt "StartupScreen"
+msgid "Language"
+msgstr "Bahasa"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1635
+#: Resources/Scripts/Gui/StartupScreen.as:1635
+msgctxt "StartupScreen"
+msgid "Tools"
+msgstr "Alat"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1638
+#: Resources/Scripts/Gui/StartupScreen.as:1638
+msgctxt "StartupScreen"
+msgid "Reset All Settings"
+msgstr "Setel Ulang Semua Pengaturan"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1647
+#: Resources/Scripts/Gui/StartupScreen.as:1647
+msgctxt "StartupScreen"
+msgid "Open Config Folder in Explorer"
+msgstr "Buka Folder Config di Explorer"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1649
+#: Resources/Scripts/Gui/StartupScreen.as:1649
+msgctxt "StartupScreen"
+msgid "Reveal Config Folder in Finder"
+msgstr "Ungkapkan Folder Config di Finder"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1651
+#: Resources/Scripts/Gui/StartupScreen.as:1651
+msgctxt "StartupScreen"
+msgid "Browse Config Folder"
+msgstr "Cari Folder Config"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1668
+#: Resources/Scripts/Gui/StartupScreen.as:1668
+msgctxt "StartupScreen"
+msgid "An unknown error has occurred while opening the config directory."
+msgstr "Terjadi kesalahan yang tidak diketahui saat membuka direktori konfigurasi."
+
+#: Resources/Scripts/Gui/StartupScreen.as:1674
+#: Resources/Scripts/Gui/StartupScreen.as:1674
+msgctxt "StartupScreen"
+msgid "Are you sure to reset all settings? They include (but are not limited to):"
+msgstr "Anda yakin untuk mengatur ulang semua pengaturan? Mereka termasuk (namun tidak terbatas pada):"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1675
+#: Resources/Scripts/Gui/StartupScreen.as:1675
+msgctxt "StartupScreen"
+msgid "All graphics/audio settings"
+msgstr "Semua pengaturan grafis/audio"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1676
+#: Resources/Scripts/Gui/StartupScreen.as:1676
+msgctxt "StartupScreen"
+msgid "All key bindings"
+msgstr "Semua asosiasi kunci"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1677
+#: Resources/Scripts/Gui/StartupScreen.as:1677
+msgctxt "StartupScreen"
+msgid "Your player name"
+msgstr "Nama pemainmu"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1678
+#: Resources/Scripts/Gui/StartupScreen.as:1678
+msgctxt "StartupScreen"
+msgid "Other advanced settings only accessible through '{0}' tab and in-game commands"
+msgstr "Setelan lanjutan lainnya hanya dapat diakses melalui tab '{0}' dan perintah dalam permainan"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1748
+#: Resources/Scripts/Gui/StartupScreen.as:1748
+msgctxt "StartupScreen"
+msgid "Unknown ({0})"
+msgstr "Tidak diketahui ({0})"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1750
+#: Resources/Scripts/Gui/StartupScreen.as:1764
+#: Resources/Scripts/Gui/StartupScreen.as:1750
+#: Resources/Scripts/Gui/StartupScreen.as:1764
+msgctxt "StartupScreen"
+msgid "System default"
+msgstr "Sistem bawaan"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1813
+#: Resources/Scripts/Gui/StartupScreen.as:1813
+msgctxt "StartupScreen"
+msgid "Copy to Clipboard"
+msgstr "Salin ke Papan Klip"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1849
+#: Resources/Scripts/Gui/StartupScreen.as:1849
+msgctxt "StartupScreen"
+msgid "Advanced Settings"
+msgstr "Pengaturan Lanjutan"
+
+#: Resources/Scripts/Gui/StartupScreen.as:1858
+#: Resources/Scripts/Gui/StartupScreen.as:1858
+msgctxt "StartupScreen"
+msgid "Filter"
+msgstr "Filter"
+
+#: Resources/Scripts/Gui/UpdateCheckView.as:40
+#: Resources/Scripts/Gui/UpdateCheckView.as:40
+msgctxt "UpdateCheck"
+msgid "Enable"
+msgstr "Aktifkan"
+
+#: Resources/Scripts/Gui/UpdateCheckView.as:47
+#: Resources/Scripts/Gui/UpdateCheckView.as:47
+msgctxt "UpdateCheck"
+msgid "Show details..."
+msgstr "Tampilkan detail..."
+
+#: Resources/Scripts/Gui/UpdateCheckView.as:102
+#: Resources/Scripts/Gui/UpdateCheckView.as:102
+msgctxt "UpdateCheck"
+msgid "Version {0} is available! (You currently have {1})"
+msgstr "Versi {0} telah tersedia! (Versi yang kamu punya {1})"
+
+#: Resources/Scripts/Gui/UpdateCheckView.as:105
+#: Resources/Scripts/Gui/UpdateCheckView.as:105
+msgctxt "UpdateCheck"
+msgid "You're using the latest version of OpenSpades. ({0})"
+msgstr "Kamu menggunakan versi terbaru dari OpenSpades. ({0})"
+
+#: Resources/Scripts/Gui/UpdateCheckView.as:110
+#: Resources/Scripts/Gui/UpdateCheckView.as:110
+msgctxt "UpdateCheck"
+msgid "Checking for updates..."
+msgstr "Memeriksa pembaruan..."
+
+#: Resources/Scripts/Gui/UpdateCheckView.as:113
+#: Resources/Scripts/Gui/UpdateCheckView.as:113
+msgctxt "UpdateCheck"
+msgid "Failed to check for updates."
+msgstr "Gagal memeriksa pembaruan."
+
+#: Resources/Scripts/Gui/UpdateCheckView.as:116
+#: Resources/Scripts/Gui/UpdateCheckView.as:116
+msgctxt "UpdateCheck"
+msgid "Automatic update check is not enabled."
+msgstr "Pemeriksaan pembaruan otomatis tidak diaktifkan."
+
+#: Resources/Scripts/Gui/UpdateCheckView.as:119
+#: Resources/Scripts/Gui/UpdateCheckView.as:119
+msgctxt "UpdateCheck"
+msgid "Automatic update check is not available."
+msgstr "Pemeriksaan pembaruan otomatis tidak tersedia."
+
+#: Sources/Client/Client_NetHandler.cpp:258
+#: Sources/Client/Client_NetHandler.cpp:271
+msgctxt "Client"
+msgid "Spectator"
+msgstr "Penonton"
+
+#: Sources/Client/Client_Draw.cpp:99
+msgctxt "Client"
+msgid "Unbound"
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:655
+msgctxt "Client"
+msgid "[{0}] Cycle camera mode"
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:657
+msgctxt "Client"
+msgid "[{0}/{1}] Next/previous player"
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:661
+msgctxt "Client"
+msgid "[{0}] Unfollow"
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:664
+msgctxt "Client"
+msgid "[{0}/{1}] Follow a player"
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:669
+msgctxt "Client"
+msgid "[{0}/{1}] Go up/down"
+msgstr ""
+

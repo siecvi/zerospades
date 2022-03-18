@@ -1,0 +1,32 @@
+---
+BasedOnStyle: LLVM
+IndentWidth: 4
+---
+Language: Cpp
+TabWidth: 4
+ContinuationIndentWidth: 2
+UseTab: ForIndentation
+ColumnLimit: 100
+
+AccessModifierOffset: -4
+NamespaceIndentation: All
+IndentCaseLabels: true
+
+SpaceBeforeParens: ControlStatements
+PointerAlignment: Right
+
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortCaseLabelsOnASingleLine: true
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+---
+# The style for AngelScript source files
+Language: Java
+UseTab: Never
+ColumnLimit: 100
+
+NamespaceIndentation: All
+IndentCaseLabels: true
+
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortCaseLabelsOnASingleLine: true
+ConstructorInitializerAllOnOneLineOrOnePerLine: true

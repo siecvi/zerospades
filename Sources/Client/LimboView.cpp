@@ -1,0 +1,269 @@
+/*
+ Copyright (c) 2013 yvt
+
+ This file is part of OpenSpades.
+
+ OpenSpades is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ OpenSpades is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
+
+#include <sstream>
+
+#include "Client.h"
+#include "Fonts.h"
+#include "IAudioChunk.h"
+#include "IAudioDevice.h"
+#include "IFont.h"
+#include "IImage.h"
+#include "IRenderer.h"
+#include "LimboView.h"
+#include "World.h"
+#include <Core/Strings.h>
+
+namespace spades {
+	namespace client {
+
+		// TODO: make limbo view scriptable using the existing UI framework.
+
+		LimboView::LimboView(Client* client) : client(client), renderer(client->GetRenderer()) {
+			// layout now!
+			float menuWidth = 200.0F;
+			float menuHeight = menuWidth / 8.0F;
+			float rowHeight = menuHeight + 3.0F;
+
+			float sw = renderer.ScreenWidth();
+			float sh = renderer.ScreenHeight();
+
+			float spacingW = 8.0F;
+			float contentsWidth = sw + spacingW;
+			float maxContentsWidth = 800.0F + spacingW;
+			if (contentsWidth >= maxContentsWidth)
+				contentsWidth = maxContentsWidth;
+
+			float left = (sw - contentsWidth) * 0.5F;
+			float top = sh - 150.0F;
+
+			float teamX = left + 10.0F;
+			float firstY = top + 35.0F;
+
+			World* w = client->GetWorld();
+
+			items.push_back(MenuItem(MenuTeam1, AABB2(teamX, firstY, menuWidth, menuHeight),
+			                         w ? w->GetTeam(0).name : "Team 1"));
+			items.push_back(MenuItem(MenuTeam2,
+			                         AABB2(teamX, firstY + rowHeight, menuWidth, menuHeight),
+			                         w ? w->GetTeam(1).name : "Team 2"));
+			items.push_back(MenuItem(MenuTeamSpectator,
+			                         AABB2(teamX, firstY + rowHeight * 2.0F, menuWidth, menuHeight),
+			                         w ? w->GetTeam(2).name : "Spectator"));
+
+			float weapX = left + 260.0F;
+
+			items.push_back(MenuItem(MenuWeaponRifle, AABB2(weapX, firstY, menuWidth, menuHeight),
+			                         _Tr("Client", "Rifle")));
+			items.push_back(MenuItem(MenuWeaponSMG,
+			                         AABB2(weapX, firstY + rowHeight, menuWidth, menuHeight),
+			                         _Tr("Client", "SMG")));
+			items.push_back(MenuItem(MenuWeaponShotgun,
+			                         AABB2(weapX, firstY + rowHeight * 2.0F, menuWidth, menuHeight),
+			                         _Tr("Client", "Shotgun")));
+
+			//! The "Spawn" button that you press when you're ready to "spawn".
+			items.push_back(MenuItem(
+			  MenuSpawn, AABB2(left + contentsWidth - 166.0F, firstY + 4.0F, 156.0F, 64.0F),
+			  _Tr("Client", "Spawn")));
+
+			cursorPos = MakeVector2(sw * 0.5F, sh * 0.5F);
+
+			selectedTeam = 2;
+			selectedWeapon = RIFLE_WEAPON;
+		}
+		LimboView::~LimboView() {}
+
+		void LimboView::MouseEvent(float x, float y) {
+			cursorPos.x = Clamp(x, 0.0F, renderer.ScreenWidth());
+			cursorPos.y = Clamp(y, 0.0F, renderer.ScreenHeight());
+		}
+
+		void LimboView::KeyEvent(const std::string& key) {
+			if (key == "LeftMouseButton") {
+				for (const auto& item : items) {
+					if (item.hover) {
+						IAudioDevice& dev = *client->audioDevice;
+						Handle<IAudioChunk> c = dev.RegisterSound("Sounds/Feedback/Limbo/Select.opus");
+						dev.PlayLocal(c.GetPointerOrNull(), AudioParam());
+						switch (item.type) {
+							case MenuTeam1: selectedTeam = 0; break;
+							case MenuTeam2: selectedTeam = 1; break;
+							case MenuTeamSpectator: selectedTeam = 2; break;
+							case MenuWeaponRifle: selectedWeapon = RIFLE_WEAPON; break;
+							case MenuWeaponSMG: selectedWeapon = SMG_WEAPON; break;
+							case MenuWeaponShotgun: selectedWeapon = SHOTGUN_WEAPON; break;
+							case MenuSpawn: client->SpawnPressed(); break;
+						}
+					}
+				}
+			} else if ("1" == key) {
+				if (selectedTeam == 2) {
+					selectedTeam = 0;
+				} else {
+					selectedWeapon = RIFLE_WEAPON;
+					client->SpawnPressed();
+				}
+			} else if ("2" == key) {
+				if (selectedTeam == 2) {
+					selectedTeam = 1;
+				} else {
+					selectedWeapon = SMG_WEAPON;
+					client->SpawnPressed();
+				}
+			} else if ("3" == key) {
+				if (selectedTeam != 2)
+					selectedWeapon = SHOTGUN_WEAPON;
+				client->SpawnPressed(); // if we have 3 and are already spec someone wants to spec..
+			}
+		}
+
+		void LimboView::Update(float dt) {
+			// spectator team was actually 255
+			if (selectedTeam > 2)
+				selectedTeam = 2;
+			for (size_t i = 0; i < items.size(); i++) {
+				MenuItem& item = items[i];
+				item.visible = true;
+
+				switch (item.type) {
+					case MenuWeaponRifle:
+					case MenuWeaponShotgun:
+					case MenuWeaponSMG:
+						if (selectedTeam == 2)
+							item.visible = false;
+					default:;
+				}
+
+				bool newHover = item.rect && cursorPos;
+				if (!item.visible)
+					newHover = false;
+				if (newHover && !item.hover) {
+					IAudioDevice& dev = *client->audioDevice;
+					Handle<IAudioChunk> c = dev.RegisterSound("Sounds/Feedback/Limbo/Hover.opus");
+					dev.PlayLocal(c.GetPointerOrNull(), AudioParam());
+				}
+				item.hover = newHover;
+			}
+		}
+
+		void LimboView::Draw() {
+			IFont& font = client->fontManager->GetGuiFont();
+
+			float sw = renderer.ScreenWidth();
+			float sh = renderer.ScreenHeight();
+
+			float spacingW = 8.0F;
+			float contentsWidth = sw + spacingW;
+			float maxContentsWidth = 800.0F + spacingW;
+			if (contentsWidth >= maxContentsWidth)
+				contentsWidth = maxContentsWidth;
+
+			float left = (sw - contentsWidth) * 0.5F;
+			float top = sh - 150.0F;
+			{
+				auto msg = _Tr("Client", "Select Team:");
+				Vector2 pos;
+				pos.x = left + 10.0F;
+				pos.y = top + 10.0F;
+				font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.4F));
+			}
+
+			if (selectedTeam != 2) {
+				auto msg = _Tr("Client", "Select Weapon:");
+				Vector2 pos;
+				pos.x = left + 260.0F;
+				pos.y = top + 10.0F;
+				font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.4F));
+			}
+
+			for (const auto& item : items) {
+				bool selected = false;
+
+				if (!item.visible)
+					continue;
+				int index = 0;
+				switch (item.type) {
+					case MenuTeam1:
+					case MenuTeam2:
+					case MenuTeamSpectator:
+						selected = (selectedTeam == item.type);
+						index = (selectedTeam == 2) ? (1 + item.type) : 0;
+						break;
+					case MenuWeaponRifle:
+					case MenuWeaponSMG:
+					case MenuWeaponShotgun:
+						selected = (selectedWeapon == (item.type - 3));
+						index = (selectedTeam != 2) ? (1 + (item.type - 3)) : 0;
+						break;
+					default: selected = false;
+				}
+
+				Vector4 fillColor = {0.2F, 0.2F, 0.2F, 0.5F};
+				if (item.hover)
+					fillColor = MakeVector4(0.4F, 0.4F, 0.4F, 1.0F) * 0.7F;
+				if (selected)
+					fillColor = MakeVector4(0.7F, 0.7F, 0.7F, 1.0F) * 0.9F;
+
+				renderer.SetColorAlphaPremultiplied(fillColor);
+				if (item.type == MenuSpawn) {
+					renderer.DrawImage(nullptr, item.rect);
+
+					auto msg = item.text;
+					IFont& bFont = client->fontManager->GetGuiFont();
+					Vector2 size = bFont.Measure(msg);
+					Vector2 pos;
+					pos.x = item.rect.GetMinX() + (item.rect.GetWidth() - size.x) / 2.0F + 2.0F;
+					pos.y = item.rect.GetMinY() + (item.rect.GetHeight() - size.y) / 2.0F;
+					bFont.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1),
+					                 MakeVector4(0, 0, 0, 0.4F));
+				} else {
+					renderer.DrawImage(nullptr, item.rect);
+
+					auto msg = item.text;
+					if (item.type == MenuTeam1)
+						msg = client->GetWorld()->GetTeam(0).name;
+					if (item.type == MenuTeam2)
+						msg = client->GetWorld()->GetTeam(1).name;
+
+					Vector2 size = font.Measure(msg);
+					Vector2 pos;
+					pos.x = item.rect.GetMinX() + 5.0F;
+					pos.y = item.rect.GetMinY() + (item.rect.GetHeight() - size.y) / 2.0F;
+					font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1),
+					                MakeVector4(0, 0, 0, 0.4F));
+					if (index > 0) {
+						std::stringstream ss;
+						ss << index;
+						msg = ss.str();
+						pos.x = item.rect.GetMaxX() - 5.0F - font.Measure(msg).x;
+						font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1),
+						                MakeVector4(0, 0, 0, 0.4F));
+					}
+				}
+			}
+
+			Handle<IImage> cursor = renderer.RegisterImage("Gfx/UI/Cursor.png");
+
+			renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1));
+			renderer.DrawImage(cursor, AABB2(cursorPos.x - 8, cursorPos.y - 8, 32, 32));
+		}
+	} // namespace client
+} // namespace spades
