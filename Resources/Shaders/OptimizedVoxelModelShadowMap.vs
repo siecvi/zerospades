@@ -18,8 +18,6 @@
 
  */
 
-
-
 uniform mat4 modelMatrix;
 uniform mat4 modelNormalMatrix;
 uniform vec3 modelOrigin;
@@ -32,20 +30,16 @@ attribute vec3 normalAttribute;
 
 varying vec4 color;
 varying vec3 fogDensity;
-//varying vec2 detailCoord;
 
 void PrepareForShadowMapRender(vec3 position, vec3 normal);
 
 void main() {
-
-	vec4 vertexPos = vec4(positionAttribute.xyz, 1.);
-
+	vec4 vertexPos = vec4(positionAttribute.xyz, 1.0);
 	vertexPos.xyz += modelOrigin;
 
 	vec3 normal = normalAttribute;
-	normal = (modelNormalMatrix * vec4(normal, 1.)).xyz;
+	normal = (modelNormalMatrix * vec4(normal, 1.0)).xyz;
 	normal = normalize(normal);
 
 	PrepareForShadowMapRender((modelMatrix * vertexPos).xyz, normal);
 }
-

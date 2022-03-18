@@ -18,14 +18,11 @@
 
  */
 
-
-
 uniform mat4 projectionViewModelMatrix;
 uniform mat4 modelMatrix;
 uniform mat4 modelNormalMatrix;
 uniform mat4 viewModelMatrix;
 uniform vec3 modelOrigin;
-uniform float fogDistance;
 uniform vec2 texScale;
 uniform vec3 viewOriginVector;
 
@@ -40,31 +37,26 @@ attribute vec3 normalAttribute;
 
 varying vec2 textureCoord;
 varying vec3 fogDensity;
-//varying vec2 detailCoord;
 
 void PrepareForDynamicLightNoBump(vec3 vertexCoord, vec3 normal);
-vec4 FogDensity(float poweredLength);
+vec4 ComputeFogDensity(float poweredLength);
 
 void main() {
-
-	vec4 vertexPos = vec4(positionAttribute.xyz, 1.);
-
+	vec4 vertexPos = vec4(positionAttribute.xyz, 1.0);
 	vertexPos.xyz += modelOrigin;
 
 	gl_Position = projectionViewModelMatrix * vertexPos;
 
 	textureCoord = textureCoordAttribute.xy * texScale.xy;
 
-	vec4 viewPos = viewModelMatrix * vertexPos;
 	vec2 horzRelativePos = (modelMatrix * vertexPos).xy - viewOriginVector.xy;
 	float horzDistance = dot(horzRelativePos, horzRelativePos);
-	fogDensity = FogDensity(horzDistance).xyz;
+	fogDensity = ComputeFogDensity(horzDistance).xyz;
 
 	// compute normal
 	vec3 normal = normalAttribute;
-	normal = (modelNormalMatrix * vec4(normal, 1.)).xyz;
+	normal = (modelNormalMatrix * vec4(normal, 1.0)).xyz;
 	normal = normalize(normal);
 
 	PrepareForDynamicLightNoBump((modelMatrix * vertexPos).xyz, normal);
 }
-

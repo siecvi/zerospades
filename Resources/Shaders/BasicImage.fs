@@ -18,7 +18,6 @@
  
  */
 
-
 uniform sampler2D mainTexture;
 
 varying vec4 color;
@@ -30,4 +29,3 @@ void main() {
 	col *= color;
 	gl_FragColor = col;
 }
-

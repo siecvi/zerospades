@@ -18,12 +18,10 @@
 
  */
 
-
-
 varying vec4 textureCoord;
-//varying vec2 detailCoord;
 varying vec3 fogDensity;
 varying float flatShading;
+varying float staticShading;
 
 uniform sampler2D ambientOcclusionTexture;
 uniform sampler2D modelTexture;
@@ -36,44 +34,44 @@ vec3 EvaluateAmbientLight(float detailAmbientOcclusion);
 
 void main() {
 	vec4 texData = texture2D(modelTexture, textureCoord.xy);
-
+	
+	// Emissive material flag is encoded in AOID
+	bool isEmissive = (texData.w == 1.0);
+	
 	// model color
-	gl_FragColor = vec4(texData.xyz, 1.);
-	if(dot(gl_FragColor.xyz, vec3(1.)) < 0.0001){
+	gl_FragColor = vec4(texData.xyz, 1.0);
+	if (dot(gl_FragColor.xyz, vec3(1.0)) < 0.0001)
 		gl_FragColor.xyz = customColor;
-	}
 
 	// ambient occlusion
-	float aoID = texData.w * (255. / 256.);
+	float aoID = texData.w * (255.0 / 256.0);
 
-	float aoY = aoID * 16.;
+	float aoY = aoID * 16.0;
 	float aoX = fract(aoY);
-	aoY = floor(aoY) / 16.;
+	aoY = floor(aoY) / 16.0;
 
 	vec2 ambientOcclusionCoord = vec2(aoX, aoY);
-	ambientOcclusionCoord += fract(textureCoord.zw) *
-		(15. / 256.);
-	ambientOcclusionCoord += .5 / 256.;
-
-	// Emissive material flag is encoded in AOID
-	bool isEmissive = texData.w == 1.0;
+	ambientOcclusionCoord += fract(textureCoord.zw) * (15.0 / 256.0);
+	ambientOcclusionCoord += 0.5 / 256.0;
 
 	// linearize
 	gl_FragColor.xyz *= gl_FragColor.xyz;
 
 	// shading
 	vec3 shading = vec3(flatShading);
-
 	shading *= EvaluateSunLight();
+	
+	if (modelOpacity > 1.0)
+		shading = vec3(staticShading);
+		
+	float ao = texture2D(ambientOcclusionTexture, ambientOcclusionCoord).x;
+	shading += EvaluateAmbientLight(ao);
 
-	vec3 ao = texture2D(ambientOcclusionTexture, ambientOcclusionCoord).xyz;
-	shading += EvaluateAmbientLight(ao.x);
-
-	if (!isEmissive) {
+	if (!isEmissive)
 		gl_FragColor.xyz *= shading;
-	}
 
-	gl_FragColor.xyz = mix(gl_FragColor.xyz, fogColor, fogDensity);
+	if (modelOpacity < 2.0)
+		gl_FragColor.xyz = mix(gl_FragColor.xyz, fogColor, fogDensity);
 
 #if !LINEAR_FRAMEBUFFER
 	gl_FragColor.xyz = sqrt(gl_FragColor.xyz);
@@ -82,4 +80,3 @@ void main() {
 	// Only valid in the ghost pass - Blending is disabled for most models
 	gl_FragColor.w = modelOpacity;
 }
-

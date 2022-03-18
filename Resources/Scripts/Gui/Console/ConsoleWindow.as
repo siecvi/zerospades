@@ -17,43 +17,44 @@
  along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
 
  */
+
 #include "../UIFramework/UIFramework.as"
 #include "ConsoleCommandField.as"
 
 namespace spades {
     class ConsoleWindow : spades::ui::UIElement {
-        private ConsoleHelper @helper;
-        private array<spades::ui::CommandHistoryItem @> history = {};
-        private FieldWithHistory @field;
-        private spades::ui::TextViewer @viewer;
+        private ConsoleHelper@ helper;
+        private array<spades::ui::CommandHistoryItem@> history = {};
+        private FieldWithHistory@ field;
+        private spades::ui::TextViewer@ viewer;
 
         private ConfigItem cl_consoleScrollbackLines("cl_consoleScrollbackLines", "1000");
 
-        ConsoleWindow(ConsoleHelper @helper, spades::ui::UIManager @manager) {
+        ConsoleWindow(ConsoleHelper@ helper, spades::ui::UIManager@ manager) {
             super(manager);
             @this.helper = helper;
 
-            float screenWidth = Manager.Renderer.ScreenWidth;
-            float screenHeight = Manager.Renderer.ScreenHeight;
-            float height = floor(screenHeight * 0.4);
+            auto sw = Manager.ScreenWidth;
+            auto sh = Manager.ScreenHeight;
+
+            float height = floor(sh * 0.4F);
 
             {
                 spades::ui::Label label(Manager);
-                label.BackgroundColor = Vector4(0, 0, 0, 0.8f);
-                label.Bounds = AABB2(0.f, 0.f, Manager.Renderer.ScreenWidth, height);
+                label.BackgroundColor = Vector4(0, 0, 0, 0.8F);
+                label.Bounds = AABB2(0.0F, 0.0F, sw, height);
                 AddChild(label);
             }
             {
                 spades::ui::Label label(Manager);
-                label.BackgroundColor = Vector4(0, 0, 0, 0.5f);
-                label.Bounds = AABB2(0.f, height, Manager.Renderer.ScreenWidth,
-                                     Manager.Renderer.ScreenHeight - height);
+                label.BackgroundColor = Vector4(0, 0, 0, 0.5F);
+                label.Bounds = AABB2(0.0F, height, sw, sh - height);
                 AddChild(label);
             }
 
             {
                 @field = ConsoleCommandField(Manager, this.history, helper);
-                field.Bounds = AABB2(10.0, height - 35.0, screenWidth - 20.0, 30.f);
+                field.Bounds = AABB2(10.0F, height - 35.0F, sw - 20.0F, 30.0F);
                 field.Placeholder = _Tr("Console", "Command");
                 @field.Changed = spades::ui::EventHandler(this.OnFieldChanged);
                 AddChild(field);
@@ -61,7 +62,7 @@ namespace spades {
             {
                 spades::ui::TextViewer viewer(Manager);
                 AddChild(viewer);
-                viewer.Bounds = AABB2(10.0, 5.0, screenWidth - 20.0, height - 45.0);
+                viewer.Bounds = AABB2(10.0F, 5.0F, sw - 20.0F, height - 45.0F);
                 viewer.MaxNumLines = uint(cl_consoleScrollbackLines.IntValue);
                 @this.viewer = viewer;
             }
@@ -75,9 +76,8 @@ namespace spades {
 
         void HotKey(string key) {
             if (key == "Enter") {
-                if (field.Text.length == 0) {
+                if (field.Text.length == 0)
                     return;
-                }
                 field.CommandSent();
                 helper.ExecCommand(field.Text);
                 field.Clear();

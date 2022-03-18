@@ -18,8 +18,6 @@
 
  */
 
-
-
 uniform mat4 projectionViewMatrix;
 uniform mat4 viewMatrix;
 uniform vec3 chunkPosition;
@@ -45,15 +43,12 @@ attribute vec3 fixedPositionAttribute;
 varying vec2 ambientOcclusionCoord;
 varying vec4 color;
 varying vec3 fogDensity;
-varying vec2 detailCoord;
 
 void PrepareForShadowForMap(vec3 vertexCoord, vec3 fixedVertexCoord, vec3 normal);
-vec4 FogDensity(float poweredLength);
+vec4 ComputeFogDensity(float poweredLength);
 
 void main() {
-
-	vec4 vertexPos = vec4(chunkPosition, 1.);
-
+	vec4 vertexPos = vec4(chunkPosition, 1.0);
 	vertexPos.xyz += positionAttribute.xyz;
 
 	gl_Position = projectionViewMatrix * vertexPos;
@@ -62,12 +57,11 @@ void main() {
 	color.xyz *= color.xyz; // linearize
 
 	// ambient occlusion
-	ambientOcclusionCoord = (ambientOcclusionCoordAttribute + .5) * (1. / 256.);
+	ambientOcclusionCoord = (ambientOcclusionCoordAttribute + 0.5) * (1.0 / 256.0);
 
-	vec4 viewPos = viewMatrix * vertexPos;
 	vec2 horzRelativePos = vertexPos.xy - viewOriginVector.xy;
 	float horzDistance = dot(horzRelativePos, horzRelativePos);
-	fogDensity = FogDensity(horzDistance).xyz;
+	fogDensity = ComputeFogDensity(horzDistance).xyz;
 
 	vec3 fixedPosition = chunkPosition;
 	fixedPosition += fixedPositionAttribute * 0.5;
@@ -76,4 +70,3 @@ void main() {
 	vec3 shadowVertexPos = vertexPos.xyz;
 	PrepareForShadowForMap(shadowVertexPos, fixedPosition, normal);
 }
-

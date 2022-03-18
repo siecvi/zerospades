@@ -24,13 +24,13 @@ namespace spades {
     namespace ui {
 
         class SliderKnob : UIElement {
-            private Slider @slider;
+            private Slider@ slider;
             private bool dragging = false;
             private double startValue;
             private float startCursorPos;
             private bool hover = false;
 
-            SliderKnob(Slider @slider) {
+            SliderKnob(Slider@ slider) {
                 super(slider.Manager);
                 @this.slider = slider;
                 IsMouseInteractive = true;
@@ -39,9 +39,8 @@ namespace spades {
             private float GetCursorPos(Vector2 pos) { return pos.x + Position.x; }
 
             void MouseDown(MouseButton button, Vector2 clientPosition) {
-                if (button != spades::ui::MouseButton::LeftMouseButton) {
+                if (button != spades::ui::MouseButton::LeftMouseButton)
                     return;
-                }
                 dragging = true;
                 startValue = slider.Value;
                 startCursorPos = GetCursorPos(clientPosition);
@@ -56,9 +55,8 @@ namespace spades {
                 }
             }
             void MouseUp(MouseButton button, Vector2 clientPosition) {
-                if (button != spades::ui::MouseButton::LeftMouseButton) {
+                if (button != spades::ui::MouseButton::LeftMouseButton)
                     return;
-                }
                 dragging = false;
             }
             void MouseEnter() {
@@ -71,31 +69,27 @@ namespace spades {
             }
 
             void Render() {
-                Renderer @renderer = Manager.Renderer;
+                Renderer@ r = Manager.Renderer;
                 Vector2 pos = ScreenPosition;
                 Vector2 size = Size;
-                Image @img = renderer.RegisterImage("Gfx/White.tga");
 
-                if (hover) {
-                    renderer.ColorNP = Vector4(1.f, 1.f, 1.f, 0.5f);
-                } else {
-                    renderer.ColorNP = Vector4(1.f, 1.f, 1.f, 0.3f);
-                }
-                renderer.DrawImage(img, AABB2(pos.x + size.x * 0.5f - 3.f, pos.y, 6.f, size.y));
+                if (hover)
+                    r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.5F);
+                else
+                    r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.3F);
+                r.DrawImage(null, AABB2(pos.x + size.x * 0.5F - 3.0F, pos.y, 6.0F, size.y));
 
-                renderer.ColorNP = Vector4(0.f, 0.f, 0.f, 0.6f);
-                renderer.DrawImage(
-                    img, AABB2(pos.x + size.x * 0.5f - 2.f, pos.y + 1.f, 4.f, size.y - 2.f));
+                r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 0.6F);
+                r.DrawImage(null, AABB2(pos.x + size.x * 0.5F - 2.0F, pos.y + 1.0F, 4.0F, size.y - 2.0F));
             }
         }
 
         class Slider : ScrollBarBase {
+            private SliderKnob@ knob;
+            private ScrollBarFill@ fill1;
+            private ScrollBarFill@ fill2;
 
-            private SliderKnob @knob;
-            private ScrollBarFill @fill1;
-            private ScrollBarFill @fill2;
-
-            Slider(UIManager @manager) {
+            Slider(UIManager@ manager) {
                 super(manager);
 
                 @knob = SliderKnob(this);
@@ -109,16 +103,10 @@ namespace spades {
                 AddChild(fill2);
             }
 
-            private void LargeDown(UIElement @e) { ScrollBy(-LargeChange); }
-            private void LargeUp(UIElement @e) {
+            private void LargeDown(UIElement@ e) { ScrollBy(-LargeChange); }
+            private void LargeUp(UIElement@ e) {
                 ScrollBy(LargeChange);
-            } /*
-             private void SmallDown(UIElement@ e) {
-                 ScrollBy(-SmallChange);
-             }
-             private void SmallUp(UIElement@ e) {
-                 ScrollBy(SmallChange);
-             }*/
+            }
 
             void OnChanged() {
                 Layout();
@@ -130,9 +118,9 @@ namespace spades {
                 Vector2 size = Size;
                 float tPos = TrackBarPosition;
                 float tLen = TrackBarLength;
-                fill1.Bounds = AABB2(0.f, 0.f, tPos, size.y);
-                fill2.Bounds = AABB2(tPos + tLen, 0.f, size.x - tPos - tLen, size.y);
-                knob.Bounds = AABB2(tPos, 0.f, tLen, size.y);
+                fill1.Bounds = AABB2(0.0F, 0.0F, tPos, size.y);
+                fill2.Bounds = AABB2(tPos + tLen, 0.0F, size.x - tPos - tLen, size.y);
+                knob.Bounds = AABB2(tPos, 0.0F, tLen, size.y);
             }
 
             void OnResized() {
@@ -142,51 +130,33 @@ namespace spades {
 
             float Length {
                 get {
-                    if (Orientation == spades::ui::ScrollBarOrientation::Horizontal) {
+                    if (Orientation == spades::ui::ScrollBarOrientation::Horizontal)
                         return Size.x;
-                    } else {
+                    else
                         return Size.y;
-                    }
                 }
             }
 
-            float TrackBarAreaLength {
-                get { return Length; }
-            }
-
-            float TrackBarLength {
-                get { return 16.0F; }
-            }
-
-            float TrackBarMovementRange {
-                get { return TrackBarAreaLength - TrackBarLength; }
-            }
-
-            float TrackBarPosition {
-                get {
-                    return float((Value - MinValue) / (MaxValue - MinValue) *
-                                 TrackBarMovementRange);
-                }
-            }
+            float TrackBarAreaLength { get { return Length; } }
+            float TrackBarLength { get { return 16.0F; } }
+            float TrackBarMovementRange { get { return TrackBarAreaLength - TrackBarLength; } }
+            float TrackBarPosition { get { return float((Value - MinValue) / (MaxValue - MinValue) * TrackBarMovementRange); } }
 
             void Render() {
                 Layout();
 
-                Renderer @renderer = Manager.Renderer;
+                Renderer@ r = Manager.Renderer;
                 Vector2 pos = ScreenPosition;
                 Vector2 size = Size;
-                Image @img = renderer.RegisterImage("Gfx/White.tga");
 
-                renderer.ColorNP = Vector4(1.f, 1.f, 1.f, 0.1f);
-                renderer.DrawImage(img, AABB2(pos.x, pos.y + size.y * 0.5f - 3.f, size.x, 6.f));
+                r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.1F);
+                r.DrawImage(null, AABB2(pos.x, pos.y + size.y * 0.5F - 3.0F, size.x, 6.0F));
 
-                renderer.ColorNP = Vector4(0.f, 0.f, 0.f, 0.2f);
-                renderer.DrawImage(
-                    img, AABB2(pos.x + 1.f, pos.y + size.y * 0.5f - 2.f, size.x - 2.f, 4.f));
+                r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 0.2F);
+                r.DrawImage(null, AABB2(pos.x + 1.0F, pos.y + size.y * 0.5F - 2.0F, size.x - 2.0F, 4.0F));
 
                 ScrollBarBase::Render();
             }
         }
-
     }
 }

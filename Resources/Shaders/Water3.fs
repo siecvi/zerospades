@@ -19,9 +19,6 @@
 
  */
 
-
-
-//varying vec2 detailCoord;
 varying vec3 fogDensity;
 varying vec3 screenPosition;
 varying vec3 viewPosition;
@@ -48,7 +45,7 @@ vec3 EvaluateSunLight();
 vec3 EvaluateAmbientLight(float detailAmbientOcclusion);
 float GGXDistribution(float m, float dotHalf);
 
-float decodeDepth(float w, float near, float far){
+float decodeDepth(float w, float near, float far) {
 	return far * near / mix(far, near, w);
 }
 
@@ -340,4 +337,3 @@ void main() {
 
 	gl_FragColor.w = 1.;
 }
-

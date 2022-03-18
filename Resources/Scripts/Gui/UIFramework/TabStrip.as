@@ -24,9 +24,9 @@ namespace spades {
     namespace ui {
 
         class SimpleTabStripItem : ButtonBase {
-            UIElement @linkedElement;
+            UIElement@ linkedElement;
 
-            SimpleTabStripItem(UIManager @manager, UIElement @linkedElement) {
+            SimpleTabStripItem(UIManager@ manager, UIElement@ linkedElement) {
                 super(manager);
                 @this.linkedElement = linkedElement;
             }
@@ -39,42 +39,41 @@ namespace spades {
             void Render() {
                 this.Toggled = linkedElement.Visible;
 
-                Renderer @renderer = Manager.Renderer;
+                Renderer@ r = Manager.Renderer;
                 Vector2 pos = ScreenPosition;
                 Vector2 size = Size;
-                Vector4 textColor(0.9f, 0.9f, 0.9f, 1.0f);
-                Image @img = renderer.RegisterImage("Gfx/White.tga");
+                Vector4 textColor(0.9F, 0.9F, 0.9F, 1.0F);
+
                 if (Toggled) {
-                    renderer.ColorNP = Vector4(0.9f, 0.9f, 0.9f, 1.0f);
-                    textColor = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+                    r.ColorNP = Vector4(0.9F, 0.9F, 0.9F, 1.0F);
+                    textColor = Vector4(0.0F, 0.0F, 0.0F, 1.0F);
                 } else if (Hover) {
-                    renderer.ColorNP = Vector4(1.f, 1.f, 1.f, 0.3f);
+                    r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.3F);
                 } else {
-                    renderer.ColorNP = Vector4(1.f, 1.f, 1.f, 0.0f);
+                    r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.0F);
                 }
-                renderer.DrawImage(img, AABB2(pos.x, pos.y, size.x, size.y));
+                r.DrawImage(null, AABB2(pos.x, pos.y, size.x, size.y));
 
                 Vector2 txtSize = Font.Measure(Caption);
-                Font.Draw(Caption, pos + (size - txtSize) * 0.5f, 1.f, textColor);
+                Font.Draw(Caption, pos + (size - txtSize) * 0.5F, 1.0F, textColor);
             }
         }
 
         class SimpleTabStrip : UIElement {
             private float nextX = 0.0F;
 
-            EventHandler @Changed;
+            EventHandler@ Changed;
 
             SimpleTabStrip(UIManager @manager) { super(manager); }
 
             private void OnChanged() {
-                if (Changed !is null) {
+                if (Changed !is null)
                     Changed(this);
-                }
             }
 
             private void OnItemActivated(UIElement @sender) {
-                SimpleTabStripItem @item = cast<SimpleTabStripItem>(sender);
-                UIElement @linked = item.linkedElement;
+                SimpleTabStripItem@ item = cast<SimpleTabStripItem>(sender);
+                UIElement@ linked = item.linkedElement;
                 UIElement @[] @children = this.GetChildren();
                 for (uint i = 0, count = children.length; i < count; i++) {
                     SimpleTabStripItem @otherItem = cast<SimpleTabStripItem>(children[i]);
@@ -83,11 +82,11 @@ namespace spades {
                 OnChanged();
             }
 
-            void AddItem(string title, UIElement @linkedElement) {
+            void AddItem(string title, UIElement@ linkedElement) {
                 SimpleTabStripItem item(this.Manager, linkedElement);
                 item.Caption = title;
                 float w = this.Font.Measure(title).x + 18.0F;
-                item.Bounds = AABB2(nextX, 0.f, w, 24.f);
+                item.Bounds = AABB2(nextX, 0.0F, w, 24.0F);
                 nextX += w + 4.0F;
 
                 @item.Activated = EventHandler(this.OnItemActivated);
@@ -98,14 +97,13 @@ namespace spades {
             void Render() {
                 UIElement::Render();
 
-                Renderer @renderer = Manager.Renderer;
+                Renderer@ renderer = Manager.Renderer;
                 Vector2 pos = ScreenPosition;
                 Vector2 size = Size;
-                Image @img = renderer.RegisterImage("Gfx/White.tga");
-                renderer.ColorNP = Vector4(0.9f, 0.9f, 0.9f, 1.0f);
-                renderer.DrawImage(img, AABB2(pos.x, pos.y + 24.f, size.x, 1.f));
+
+                renderer.ColorNP = Vector4(0.9F, 0.9F, 0.9F, 1.0F);
+                renderer.DrawImage(null, AABB2(pos.x, pos.y + 24.0F, size.x, 1.0F));
             }
         }
-
     }
 }

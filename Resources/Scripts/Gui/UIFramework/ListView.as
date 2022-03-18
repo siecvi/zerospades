@@ -27,20 +27,20 @@ namespace spades {
             int NumRows {
                 get { return 0; }
             }
-            UIElement @CreateElement(int row) { return null; }
+            UIElement@ CreateElement(int row) { return null; }
             void RecycleElement(UIElement @elem) {}
         }
 
         /** Simple virtual stack panel implementation. */
         class ListViewBase : UIElement {
-            private ScrollBar @scrollBar;
-            private ListViewModel @model;
+            private ScrollBar@ scrollBar;
+            private ListViewModel@ model;
             float RowHeight = 24.0F;
             float ScrollBarWidth = 16.0F;
             private UIElementDeque items;
             private int loadedStartIndex = 0;
 
-            ListViewBase(UIManager @manager) {
+            ListViewBase(UIManager@ manager) {
                 super(manager);
                 @scrollBar = ScrollBar(Manager);
                 scrollBar.Bounds = AABB2();
@@ -51,15 +51,10 @@ namespace spades {
                 @model = ListViewModel();
             }
 
-            private void OnScrolled(UIElement @sender) { Layout(); }
+            private void OnScrolled(UIElement@ sender) { Layout(); }
 
-            int NumVisibleRows {
-                get final { return int(floor(Size.y / RowHeight)); }
-            }
-
-            int MaxTopRowIndex {
-                get final { return Max(0, model.NumRows - NumVisibleRows); }
-            }
+            int NumVisibleRows { get final { return int(floor(Size.y / RowHeight)); } }
+            int MaxTopRowIndex { get final { return Max(0, model.NumRows - NumVisibleRows); } }
 
             int TopRowIndex {
                 get final {
@@ -121,17 +116,17 @@ namespace spades {
                 }
 
                 // relayout items
-                UIElementDeque @items = this.items;
+                UIElementDeque@ items = this.items;
                 int count = items.Count;
                 float y = 0.0F;
                 float w = ItemWidth;
                 for (int i = 0; i < count; i++) {
-                    items[i].Bounds = AABB2(0.f, y, w, RowHeight);
+                    items[i].Bounds = AABB2(0.0F, y, w, RowHeight);
                     y += RowHeight;
                 }
 
                 // move scroll bar
-                scrollBar.Bounds = AABB2(Size.x - ScrollBarWidth, 0.f, ScrollBarWidth, Size.y);
+                scrollBar.Bounds = AABB2(Size.x - ScrollBarWidth, 0.0F, ScrollBarWidth, Size.y);
             }
 
             float ItemWidth {
@@ -146,7 +141,7 @@ namespace spades {
             }
 
             private void UnloadAll() {
-                UIElementDeque @items = this.items;
+                UIElementDeque@ items = this.items;
                 int count = items.Count;
                 for (int i = 0; i < count; i++) {
                     RemoveChild(items[i]);
@@ -155,7 +150,7 @@ namespace spades {
                 items.Clear();
             }
 
-            ListViewModel @Model {
+            ListViewModel@ Model {
                 get final { return model; }
                 set {
                     UnloadAll();
@@ -165,31 +160,25 @@ namespace spades {
             }
 
             void ScrollToTop() { scrollBar.ScrollTo(0.0); }
-
             void ScrollToEnd() { scrollBar.ScrollTo(scrollBar.MaxValue); }
         }
 
         class ListView : ListViewBase {
-            ListView(UIManager @manager) { super(manager); }
+            ListView(UIManager@ manager) { super(manager); }
             void Render() {
                 // render background
-                Renderer @renderer = Manager.Renderer;
+                Renderer@ r = Manager.Renderer;
                 Vector2 pos = ScreenPosition;
                 Vector2 size = Size;
-                Image @img = renderer.RegisterImage("Gfx/White.tga");
-                renderer.ColorNP = Vector4(0.f, 0.f, 0.f, 0.2f);
-                renderer.DrawImage(img, AABB2(pos.x, pos.y, size.x, size.y));
 
-                renderer.ColorNP = Vector4(1.f, 1.f, 1.f, 0.06f);
-                renderer.DrawImage(img, AABB2(pos.x, pos.y, size.x, 1.f));
-                renderer.DrawImage(img, AABB2(pos.x, pos.y + size.y - 1.f, size.x, 1.f));
-                renderer.DrawImage(img, AABB2(pos.x, pos.y + 1.f, 1.f, size.y - 2.f));
-                renderer.DrawImage(img,
-                                   AABB2(pos.x + size.x - 1.f, pos.y + 1.f, 1.f, size.y - 2.f));
+                r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 0.2F);
+                r.DrawImage(null, AABB2(pos.x, pos.y, size.x, size.y));
+
+                r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.06F);
+                DrawOutlinedRect(r, pos.x, pos.y, pos.x + size.x, pos.y + size.y);
 
                 ListViewBase::Render();
             }
         }
-
     }
 }

@@ -24,14 +24,14 @@
 namespace spades {
 
     class MainScreenUI {
-        private Renderer @renderer;
-        private AudioDevice @audioDevice;
-        FontManager @fontManager;
-        MainScreenHelper @helper;
+        private Renderer@ renderer;
+        private AudioDevice@ audioDevice;
+        FontManager@ fontManager;
+        MainScreenHelper@ helper;
 
-        spades::ui::UIManager @manager;
+        spades::ui::UIManager@ manager;
 
-        MainScreenMainMenu @mainMenu;
+        MainScreenMainMenu@ mainMenu;
 
         bool shouldExit = false;
 
@@ -40,8 +40,7 @@ namespace spades {
         private ConfigItem cg_playerName("cg_playerName");
         private ConfigItem cg_playerNameIsSet("cg_playerNameIsSet", "0");
 
-        MainScreenUI(Renderer @renderer, AudioDevice @audioDevice, FontManager @fontManager,
-                     MainScreenHelper @helper) {
+        MainScreenUI(Renderer@ renderer, AudioDevice@ audioDevice, FontManager@ fontManager, MainScreenHelper@ helper) {
             @this.renderer = renderer;
             @this.audioDevice = audioDevice;
             @this.fontManager = fontManager;
@@ -57,10 +56,9 @@ namespace spades {
             manager.RootElement.AddChild(mainMenu);
 
             // Let the new player choose their IGN
-            if (cg_playerName.StringValue != "" && cg_playerName.StringValue != "Deuce") {
+            if (cg_playerName.StringValue != "" and cg_playerName.StringValue != "Deuce")
                 cg_playerNameIsSet.IntValue = 1;
-            }
-            if (cg_playerNameIsSet.IntValue == 0) {
+            if (!cg_playerNameIsSet.BoolValue) {
                 CreateProfileScreen al(mainMenu);
                 al.Run();
             }
@@ -69,7 +67,7 @@ namespace spades {
         void SetupRenderer() {
             // load map
             @renderer.GameMap = GameMap("Maps/Title.vxl");
-            renderer.FogColor = Vector3(0.1f, 0.10f, 0.1f);
+            renderer.FogColor = Vector3(195, 190, 225) / 255.0F;
             renderer.FogDistance = 128.0F;
             time = -1.0F;
 
@@ -82,13 +80,9 @@ namespace spades {
         }
 
         void MouseEvent(float x, float y) { manager.MouseEvent(x, y); }
-
         void WheelEvent(float x, float y) { manager.WheelEvent(x, y); }
-
         void KeyEvent(string key, bool down) { manager.KeyEvent(key, down); }
-
         void TextInputEvent(string text) { manager.TextInputEvent(text); }
-
         void TextEditingEvent(string text, int start, int len) {
             manager.TextEditingEvent(text, start, len);
         }
@@ -97,8 +91,7 @@ namespace spades {
 
         AABB2 GetTextInputRect() { return manager.TextInputRect; }
 
-        private SceneDefinition SetupCamera(SceneDefinition sceneDef, Vector3 eye, Vector3 at,
-                                            Vector3 up, float fov) {
+        private SceneDefinition SetupCamera(SceneDefinition sceneDef, Vector3 eye, Vector3 at, Vector3 up, float fov) {
             Vector3 dir = (at - eye).Normalized;
             Vector3 side = Cross(dir, up).Normalized;
             up = -Cross(dir, side);
@@ -106,60 +99,54 @@ namespace spades {
             sceneDef.viewAxisX = side;
             sceneDef.viewAxisY = up;
             sceneDef.viewAxisZ = dir;
-            sceneDef.fovY = fov * 3.141592654f / 180.0F;
-            sceneDef.fovX =
-                atan(tan(sceneDef.fovY * 0.5f) * renderer.ScreenWidth / renderer.ScreenHeight) *
-                2.0F;
+            sceneDef.fovY = fov * PiF / 180.0F;
+            sceneDef.fovX = 2.0F * atan(tan(sceneDef.fovY * 0.5F) * renderer.ScreenWidth / renderer.ScreenHeight);
             return sceneDef;
         }
 
         void RunFrame(float dt) {
-            if (time < 0.f) {
+            if (time < 0.0F)
                 time = 0.0F;
-            }
 
             SceneDefinition sceneDef;
             float cameraX = time;
-            cameraX -= floor(cameraX / 512.f) * 512.0F;
+            cameraX -= floor(cameraX / 512.f) * 512.f;
             cameraX = 512.f - cameraX;
-            sceneDef =
-                SetupCamera(sceneDef, Vector3(cameraX, 256.f, 12.f),
-                            Vector3(cameraX + .1f, 257.f, 12.5f), Vector3(0.f, 0.f, -1.f), 30.f);
+            sceneDef = SetupCamera(sceneDef, Vector3(cameraX, 256.f, 12.f),
+				Vector3(cameraX + .1f, 257.f, 12.5f), Vector3(0.f, 0.f, -1.f), 30.f);
             sceneDef.zNear = 0.1f;
-            sceneDef.zFar = 222.0F;
+            sceneDef.zFar = 222.f;
             sceneDef.time = int(time * 1000.f);
             sceneDef.viewportWidth = int(renderer.ScreenWidth);
             sceneDef.viewportHeight = int(renderer.ScreenHeight);
             sceneDef.denyCameraBlur = true;
-            sceneDef.depthOfFieldFocalLength = 100.0F;
+            sceneDef.depthOfFieldFocalLength = 100.f;
             sceneDef.skipWorld = false;
 
             // fade the map
             float fade = Clamp((time - 1.f) / 2.2f, 0.f, 1.f);
             sceneDef.globalBlur = Clamp((1.f - (time - 1.f) / 2.5f), 0.f, 1.f);
-            if (!mainMenu.IsEnabled) {
+            if (!mainMenu.IsEnabled)
                 sceneDef.globalBlur = Max(sceneDef.globalBlur, 0.5f);
-            }
 
             renderer.StartScene(sceneDef);
             renderer.EndScene();
 
             // fade the map (draw)
-            if (fade < 1.f) {
-                renderer.ColorNP = Vector4(0.f, 0.f, 0.f, 1.f - fade);
-                renderer.DrawImage(renderer.RegisterImage("Gfx/White.tga"),
-                                   AABB2(0.f, 0.f, renderer.ScreenWidth, renderer.ScreenHeight));
+            if (fade < 1.0F) {
+                renderer.ColorNP = Vector4(0, 0, 0, 1.0F - fade);
+                renderer.DrawImage(null, AABB2(0, 0, renderer.ScreenWidth, renderer.ScreenHeight));
             }
 
             // draw title logo
-            Image @img = renderer.RegisterImage("Gfx/Title/Logo.png");
-            renderer.ColorNP = Vector4(1.f, 1.f, 1.f, 1.f);
-            renderer.DrawImage(img, Vector2((renderer.ScreenWidth - img.Width) * 0.5f, 64.f));
+            Image@ img = renderer.RegisterImage("Gfx/Title/Logo.png");
+            renderer.ColorNP = Vector4(1, 1, 1, 1);
+            renderer.DrawImage(img, Vector2((renderer.ScreenWidth - img.Width) * 0.5F, 64.0F));
 
             manager.RunFrame(dt);
             manager.Render();
 
-            time += Min(dt, 0.05f);
+            time += Min(dt, 0.05F);
         }
 
         void RunFrameLate(float dt) {
@@ -175,9 +162,7 @@ namespace spades {
     /**
      * The entry point of the main screen.
      */
-    MainScreenUI @CreateMainScreenUI(Renderer @renderer, AudioDevice @audioDevice,
-                                     FontManager @fontManager, MainScreenHelper @helper) {
+    MainScreenUI @CreateMainScreenUI(Renderer@ renderer, AudioDevice@ audioDevice, FontManager@ fontManager, MainScreenHelper@ helper) {
         return MainScreenUI(renderer, audioDevice, fontManager, helper);
     }
-
 }

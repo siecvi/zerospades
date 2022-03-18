@@ -18,8 +18,6 @@
  
  */
 
-
-
 attribute vec2 positionAttribute;
 attribute vec4 colorAttribute;
 attribute vec2 textureCoordAttribute;
@@ -31,19 +29,16 @@ varying vec4 color;
 varying vec2 texCoord;
 
 void main() {
-	
 	vec2 pos = positionAttribute;
-	
-	pos = pos * invScreenSizeFactored + vec2(-1., 1.);
+	pos = pos * invScreenSizeFactored + vec2(-1.0, 1.0);
 	
 	/*
 	pos /= screenSize;
 	pos = pos * 2. - 1.;
 	pos.y = -pos.y; */
 	
-	gl_Position = vec4(pos, 0.5, 1.);
+	gl_Position = vec4(pos, 0.5, 1.0);
 	
 	color = colorAttribute;
 	texCoord = textureCoordAttribute * invTextureSize;
 }
-

@@ -18,7 +18,6 @@
  
  */
 
-
 uniform sampler2D depthTexture;
 uniform sampler2D mainTexture;
 
@@ -30,24 +29,21 @@ varying vec4 texCoord;
 varying vec4 fogDensity;
 varying vec4 depthRange;
 
-float decodeDepth(float w, float near, float far){
-	return 1. /*far * near*/ / mix(far, near, w);
+float decodeDepth(float w, float near, float far) {
+	return 1.0 /*far * near*/ / mix(far, near, w);
 }
 
-float depthAt(vec2 pt){
+float depthAt(vec2 pt) {
 	float w = texture2D(depthTexture, pt).x;
 	return decodeDepth(w, zNearFar.x, zNearFar.y);
 }
 
 void main() {
-	
 	// get depth
 	float depth = depthAt(texCoord.zw);
-	
-	if(depth < /*depthRange.x*/ depthRange.y){
+	if (depth < depthRange.y)
 		discard;
-	}
-	
+
 	gl_FragColor = texture2D(mainTexture, texCoord.xy);
 #if LINEAR_FRAMEBUFFER
 	gl_FragColor.xyz *= gl_FragColor.xyz;
@@ -59,13 +55,11 @@ void main() {
 	fogColorPremuld *= gl_FragColor.w;
 	gl_FragColor.xyz = mix(gl_FragColor.xyz, fogColorPremuld, fogDensity.xyz);
 	
-	
 	//float soft = (depth - depthRange.x) / (depthRange.y - depthRange.w);
 	float soft = depth * depthRange.z + depthRange.x;
-	soft = smoothstep(0., 1., soft);
+	soft = smoothstep(0.0, 1.0, soft);
 	gl_FragColor *= soft;
 	
-	if(dot(gl_FragColor, vec4(1.)) < .002)
+	if (dot(gl_FragColor, vec4(1.0)) < 0.002)
 		discard;
 }
-

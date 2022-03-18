@@ -18,119 +18,85 @@
 
  */
 
-namespace spades {
-    class ViewBlockSkin : IToolSkin, IViewToolSkin, IBlockSkin {
-        private float sprintState;
-        private float raiseState;
-        private Vector3 teamColor;
-        private Matrix4 eyeMatrix;
-        private Vector3 swing;
-        private Vector3 leftHand;
-        private Vector3 rightHand;
-        private Vector3 blockColor;
-        private float readyState;
+ namespace spades {
+	class ViewBlockSkin : IToolSkin, IViewToolSkin, IBlockSkin {
+		private float sprintState;
+		private float raiseState;
+		private Vector3 teamColor;
+		private Matrix4 eyeMatrix;
+		private Vector3 swing;
+		private Vector3 leftHand;
+		private Vector3 rightHand;
+		private Vector3 blockColor;
+		private float readyState;
+		private float sprintStateSmooth;
 
-        private float sprintStateSmooth;
+		float SprintState { set { sprintState = value; } }
+		float RaiseState { set { raiseState = value; } }
+		Vector3 TeamColor { set { teamColor = value; } }
+		bool IsMuted { set {} } // nothing to do
+		Matrix4 EyeMatrix { set { eyeMatrix = value; } }
+		Vector3 Swing { set { swing = value; } }
+		Vector3 LeftHandPosition { get { return leftHand; } }
+		Vector3 RightHandPosition { get { return rightHand; } }
+		Vector3 BlockColor { set { blockColor = value; } }
+		float ReadyState { set { readyState = value; } }
 
-        float SprintState {
-            set { sprintState = value; }
-        }
+		private Renderer@ renderer;
+		private AudioDevice@ audioDevice;
+		private Model@ model;
+		private Image@ sightImage;
 
-        float RaiseState {
-            set { raiseState = value; }
-        }
+		ViewBlockSkin(Renderer@ r, AudioDevice@ dev) {
+			@renderer = r;
+			@audioDevice = dev;
+			@model = renderer.RegisterModel("Models/Weapons/Block/Block.kv6");
+			@sightImage = renderer.RegisterImage ("Gfx/Sight.tga");
+		}
 
-        Vector3 TeamColor {
-            set { teamColor = value; }
-        }
+		void Update(float dt) {
+			float sprintStateSS = sprintState * sprintState;
+			if (sprintStateSS > sprintStateSmooth)
+				sprintStateSmooth = Mix(sprintStateSmooth, sprintStateSS, 1.0F - pow(0.001F, dt));
+			else
+				sprintStateSmooth = sprintStateSS;
+		}
 
-        bool IsMuted {
-            set {
-                // nothing to do
-            }
-        }
+		void AddToScene() {
+			Matrix4 mat = CreateScaleMatrix(0.033F);
 
-        Matrix4 EyeMatrix {
-            set { eyeMatrix = value; }
-        }
+			if (sprintStateSmooth > 0.0F) {
+				mat = CreateRotateMatrix(Vector3(0.0F, 0.0F, 1.0F), sprintStateSmooth * -0.3F) * mat;
+				mat = CreateTranslateMatrix(Vector3(0.1F, -0.4F, -0.05F) * sprintStateSmooth) * mat;
+			}
 
-        Vector3 Swing {
-            set { swing = value; }
-        }
+			mat = CreateTranslateMatrix(Vector3(-0.1F, -0.3F, 0.2F) * (1.0F - raiseState)) * mat;
 
-        Vector3 LeftHandPosition {
-            get { return leftHand; }
-        }
-        Vector3 RightHandPosition {
-            get { return rightHand; }
-        }
+			if (readyState < 0.99F)
+				mat = CreateTranslateMatrix(Vector3(-0.25F, 0.0F, 0.4F) * (1.0F - readyState)) * mat;
 
-        Vector3 BlockColor {
-            set { blockColor = value; }
-        }
+			mat = CreateTranslateMatrix(-0.3F, 0.7F, 0.3F) * mat;
+			mat = CreateTranslateMatrix(swing) * mat;
 
-        float ReadyState {
-            set { readyState = value; }
-        }
+			leftHand = mat * Vector3(5.0F, -1.0F, 4.0F);
+			rightHand = mat * Vector3(-5.5F, 3.0F, -5.0F);
 
-        private Renderer @renderer;
-        private AudioDevice @audioDevice;
-        private Model @model;
-        private Image @sightImage;
+			ModelRenderParam param;
+			param.matrix = eyeMatrix * mat;
+			param.customColor = blockColor;
+			param.depthHack = true;
+			renderer.AddModel(model, param);
+		}
 
-        ViewBlockSkin(Renderer @r, AudioDevice @dev) {
-            @renderer = r;
-            @audioDevice = dev;
-            @model = renderer.RegisterModel("Models/Weapons/Block/Block2.kv6");
-            @sightImage = renderer.RegisterImage("Gfx/Sight.tga");
-        }
+		void Draw2D() {
+			renderer.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 1.0F);
+			renderer.DrawImage(sightImage,
+				Vector2((renderer.ScreenWidth - sightImage.Width) * 0.5F,
+						(renderer.ScreenHeight - sightImage.Height) * 0.5F));
+		}
+	}
 
-        void Update(float dt) {
-            float sprintStateSS = sprintState * sprintState;
-            if (sprintStateSS > sprintStateSmooth) {
-                sprintStateSmooth += (sprintStateSS - sprintStateSmooth) * (1.f - pow(0.001, dt));
-            } else {
-                sprintStateSmooth = sprintStateSS;
-            }
-        }
-
-        void AddToScene() {
-            if (readyState < .99f) {
-                // not ready
-                leftHand = Vector3(0.5f, 0.5f, 0.6f);
-                rightHand = Vector3(-0.5f, 0.5f, 0.6f);
-                return;
-            }
-
-            Matrix4 mat = CreateScaleMatrix(0.033f);
-
-            if (sprintStateSmooth > 0.f) {
-                mat = CreateRotateMatrix(Vector3(0.f, 0.f, 1.f), sprintStateSmooth * -0.3f) * mat;
-                mat = CreateTranslateMatrix(Vector3(0.1f, -0.4f, -0.05f) * sprintStateSmooth) * mat;
-            }
-
-            mat = CreateTranslateMatrix(-0.3f, 0.7f, 0.3f) * mat;
-            mat = CreateTranslateMatrix(swing) * mat;
-
-            mat = CreateTranslateMatrix(Vector3(-0.1f, -0.3f, 0.2f) * (1.f - raiseState)) * mat;
-
-            leftHand = mat * Vector3(5.f, -1.f, 4.f);
-            rightHand = mat * Vector3(-5.5f, 3.f, -5.f);
-
-            ModelRenderParam param;
-            param.matrix = eyeMatrix * mat;
-            param.customColor = blockColor;
-            param.depthHack = true;
-            renderer.AddModel(model, param);
-        }
-
-        void Draw2D() {
-            renderer.ColorNP = (Vector4(1.f, 1.f, 1.f, 1.f));
-            renderer.DrawImage(sightImage,
-                               Vector2((renderer.ScreenWidth - sightImage.Width) * 0.5f,
-                                       (renderer.ScreenHeight - sightImage.Height) * 0.5f));
-        }
-    }
-
-    IBlockSkin @CreateViewBlockSkin(Renderer @r, AudioDevice @dev) { return ViewBlockSkin(r, dev); }
+	IBlockSkin@ CreateViewBlockSkin(Renderer@ r, AudioDevice@ dev) {
+		return ViewBlockSkin(r, dev);
+	}
 }

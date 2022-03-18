@@ -23,10 +23,10 @@ namespace spades {
 
         private float contentsTop, contentsHeight;
 
-        spades::ui::EventHandler @Closed;
+        spades::ui::EventHandler@ Closed;
         private spades::ui::UIElement @owner;
-        private spades::ui::Field @nameField;
-        private spades::ui::Button @okButton;
+        private spades::ui::Field@ nameField;
+        private spades::ui::Button@ okButton;
 
         private ConfigItem cg_playerName("cg_playerName", "Deuce");
         private ConfigItem cg_playerNameIsSet("cg_playerNameIsSet", "0");
@@ -36,28 +36,28 @@ namespace spades {
             @this.owner = owner;
             @Font = Manager.RootElement.Font;
             this.Bounds = owner.Bounds;
-
+			
             float contentsWidth = 500.0F;
-            float contentsLeft = (Manager.Renderer.ScreenWidth - contentsWidth) * 0.5f;
+            float contentsLeft = (Manager.ScreenWidth - contentsWidth) * 0.5F;
             contentsHeight = 188.0F;
-            contentsTop = (Manager.Renderer.ScreenHeight - contentsHeight) * 0.5f;
+            contentsTop = (Manager.ScreenHeight - contentsHeight) * 0.5F;
             {
                 spades::ui::Label label(Manager);
-                label.BackgroundColor = Vector4(0, 0, 0, 0.4f);
+                label.BackgroundColor = Vector4(0, 0, 0, 0.4F);
                 label.Bounds = Bounds;
                 AddChild(label);
             }
             {
                 spades::ui::Label label(Manager);
-                label.BackgroundColor = Vector4(0, 0, 0, 0.8f);
-                label.Bounds = AABB2(0.f, contentsTop - 13.f, Size.x, contentsHeight + 27.f);
+                label.BackgroundColor = Vector4(0, 0, 0, 0.8F);
+                label.Bounds = AABB2(0.0F, contentsTop - 13.0F, Size.x, contentsHeight + 27.0F);
                 AddChild(label);
             }
             {
                 spades::ui::Button button(Manager);
                 button.Caption = _Tr("CreateProfileScreen", "OK");
-                button.Bounds = AABB2(contentsLeft + contentsWidth - 140.f,
-                                      contentsTop + contentsHeight - 40.f, 140.f, 30.f);
+                button.Bounds = AABB2(contentsLeft + contentsWidth - 140.0F,
+                                      contentsTop + contentsHeight - 40.0F, 140.0F, 30.0F);
                 @button.Activated = spades::ui::EventHandler(this.OnOkPressed);
                 button.Enable = false;
                 AddChild(button);
@@ -66,8 +66,7 @@ namespace spades {
             {
                 spades::ui::Button button(Manager);
                 button.Caption = _Tr("CreateProfileScreen", "Decide later");
-                button.Bounds =
-                    AABB2(contentsLeft, contentsTop + contentsHeight - 40.f, 140.f, 30.f);
+                button.Bounds = AABB2(contentsLeft, contentsTop + contentsHeight - 40.f, 140.f, 30.f);
                 @button.Activated = spades::ui::EventHandler(this.OnChooseLater);
                 AddChild(button);
             }
@@ -92,7 +91,7 @@ namespace spades {
                 nameField.Placeholder = _Tr("CreateProfileScreen", "Player name");
                 @nameField.Changed = spades::ui::EventHandler(this.OnNameChanged);
                 nameField.MaxLength = 15;
-                nameField.DenyNonAscii = true;
+                nameField.DenyNonAscii = false;
                 AddChild(nameField);
             }
             {
@@ -106,9 +105,8 @@ namespace spades {
         }
 
         private void OnClosed() {
-            if (Closed !is null) {
+            if (Closed !is null)
                 Closed(this);
-            }
         }
 
         void Close() {
@@ -124,9 +122,8 @@ namespace spades {
         }
 
         private void OnOkPressed(spades::ui::UIElement @sender) {
-            if (nameField.Text.length == 0) {
+            if (nameField.Text.length == 0)
                 return;
-            }
             cg_playerName = nameField.Text;
             cg_playerNameIsSet = 1;
             Close();
@@ -153,17 +150,14 @@ namespace spades {
         void Render() {
             Vector2 pos = ScreenPosition;
             Vector2 size = Size;
-            Renderer @r = Manager.Renderer;
-            Image @img = r.RegisterImage("Gfx/White.tga");
+            Renderer@ r = Manager.Renderer;
 
             r.ColorNP = Vector4(1, 1, 1, 0.08f);
-            r.DrawImage(img, AABB2(pos.x, pos.y + contentsTop - 15.f, size.x, 1.f));
-            r.DrawImage(img,
-                        AABB2(pos.x, pos.y + contentsTop + contentsHeight + 15.f, size.x, 1.f));
+            r.DrawImage(null, AABB2(pos.x, pos.y + contentsTop - 15.f, size.x, 1.f));
+            r.DrawImage(null, AABB2(pos.x, pos.y + contentsTop + contentsHeight + 15.f, size.x, 1.f));
             r.ColorNP = Vector4(1, 1, 1, 0.2f);
-            r.DrawImage(img, AABB2(pos.x, pos.y + contentsTop - 14.f, size.x, 1.f));
-            r.DrawImage(img,
-                        AABB2(pos.x, pos.y + contentsTop + contentsHeight + 14.f, size.x, 1.f));
+            r.DrawImage(null, AABB2(pos.x, pos.y + contentsTop - 14.f, size.x, 1.f));
+            r.DrawImage(null, AABB2(pos.x, pos.y + contentsTop + contentsHeight + 14.f, size.x, 1.f));
 
             UIElement::Render();
         }

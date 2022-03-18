@@ -19,8 +19,6 @@
 
  */
 
-
-
 uniform mat4 projectionViewMatrix;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
@@ -39,10 +37,9 @@ varying vec2 worldPositionOriginal;
 uniform sampler2DArray waveTextureArray;
 
 void PrepareForShadow(vec3 worldOrigin, vec3 normal);
-vec4 FogDensity(float poweredLength);
+vec4 ComputeFogDensity(float poweredLength);
 
-vec3 DisplaceWater(vec2 worldPos){
-
+vec3 DisplaceWater(vec2 worldPos) {
 	vec4 waveCoord = worldPos.xyxy * vec4(vec2(0.08), vec2(0.15704))
 	+ vec4(0., 0., 0.754, 0.1315);
 
@@ -66,7 +63,6 @@ vec3 DisplaceWater(vec2 worldPos){
 }
 
 void main() {
-
 	vec4 vertexPos = vec4(positionAttribute.xy, 0., 1.);
 
 	worldPosition = (modelMatrix * vertexPos).xyz;
@@ -81,11 +77,9 @@ void main() {
 	vec4 viewPos = viewMatrix * vec4(worldPosition, 1.);
 	vec2 horzRelativePos = worldPosition.xy - viewOrigin.xy;
 	float horzDistance = dot(horzRelativePos, horzRelativePos);
-	fogDensity = FogDensity(horzDistance).xyz;
+	fogDensity = ComputeFogDensity(horzDistance).xyz;
 
 	viewPosition = viewPos.xyz;
 
-
 	PrepareForShadow(worldPosition, vec3(0., 0., -1.));
 }
-

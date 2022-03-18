@@ -18,8 +18,6 @@
 
  */
 
-
-
 uniform mat4 projectionViewMatrix;
 uniform mat4 viewMatrix;
 uniform vec3 chunkPosition;
@@ -38,15 +36,12 @@ attribute vec3 normalAttribute;
 
 varying vec4 color;
 varying vec3 fogDensity;
-varying vec2 detailCoord;
 
 void PrepareForDynamicLightNoBump(vec3 vertexCoord, vec3 normal);
-vec4 FogDensity(float poweredLength);
+vec4 ComputeFogDensity(float poweredLength);
 
 void main() {
-
-	vec4 vertexPos = vec4(chunkPosition, 1.);
-
+	vec4 vertexPos = vec4(chunkPosition, 1.0);
 	vertexPos.xyz += positionAttribute.xyz;
 
 	gl_Position = projectionViewMatrix * vertexPos;
@@ -54,14 +49,12 @@ void main() {
 	color = colorAttribute;
 	color.xyz *= color.xyz; // linearize
 
-	vec4 viewPos = viewMatrix * vertexPos;
 	vec2 horzRelativePos = vertexPos.xy - viewOriginVector.xy;
 	float horzDistance = dot(horzRelativePos, horzRelativePos);
-	fogDensity = FogDensity(horzDistance).xyz;
+	fogDensity = ComputeFogDensity(horzDistance).xyz;
 
 	vec3 normal = normalAttribute;
 	vec3 shadowVertexPos = vertexPos.xyz;
 
 	PrepareForDynamicLightNoBump(shadowVertexPos, normal);
 }
-

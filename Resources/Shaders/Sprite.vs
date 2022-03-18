@@ -18,7 +18,6 @@
 
  */
 
-
 uniform mat4 projectionViewMatrix;
 uniform mat4 viewMatrix;
 uniform vec3 rightVector;
@@ -35,7 +34,7 @@ varying vec4 color;
 varying vec2 texCoord;
 varying vec4 fogDensity;
 
-vec4 FogDensity(float poweredLength);
+vec4 ComputeFogDensity(float poweredLength);
 
 void main() {
 	vec3 pos = positionAttribute.xyz;
@@ -53,18 +52,16 @@ void main() {
 	pos += right * sprP.x;
 	pos += up * sprP.y;
 
-	gl_Position = projectionViewMatrix * vec4(pos,1.);
+	gl_Position = projectionViewMatrix * vec4(pos, 1.0);
 
 	color = colorAttribute;
 
-	texCoord = spritePosAttribute.xy * .5 + .5;
+	texCoord = spritePosAttribute.xy * 0.5 + 0.5;
 
 	// fog.
 	// cannot gamma correct because sprite may be
 	// alpha-blended.
-	vec4 viewPos = viewMatrix * vec4(pos,1.);
 	vec2 horzRelativePos = pos.xy - viewOriginVector.xy;
 	float horzDistance = dot(horzRelativePos, horzRelativePos);
-	fogDensity = FogDensity(horzDistance);
+	fogDensity = ComputeFogDensity(horzDistance);
 }
-

@@ -17,6 +17,7 @@
  along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
 
  */
+ 
 #include "../UIFramework/Field.as"
 
 namespace spades {
@@ -36,11 +37,10 @@ namespace spades {
     // Field with bash-like history support
     class FieldWithHistory : spades::ui::Field {
         array<spades::ui::CommandHistoryItem @> @cmdhistory;
-        CommandHistoryItem @temporalLastHistory;
+        CommandHistoryItem@ temporalLastHistory;
         uint currentHistoryIndex;
 
-        FieldWithHistory(spades::ui::UIManager @manager,
-                         array<spades::ui::CommandHistoryItem @> @history) {
+        FieldWithHistory(spades::ui::UIManager@ manager, array<spades::ui::CommandHistoryItem @> @history) {
             super(manager);
 
             @this.cmdhistory = history;
@@ -48,7 +48,7 @@ namespace spades {
             @temporalLastHistory = this.CommandHistoryItemRep;
         }
 
-        private CommandHistoryItem @CommandHistoryItemRep {
+        private CommandHistoryItem@ CommandHistoryItemRep {
             get { return CommandHistoryItem(this.Text, this.SelectionStart, this.SelectionEnd); }
             set {
                 this.Text = value.text;
@@ -103,5 +103,4 @@ namespace spades {
 
         void Cancelled() { OverwriteItem(); }
     };
-
 }

@@ -24,15 +24,15 @@
 namespace spades {
 
     class RefreshButton : spades::ui::SimpleButton {
-        RefreshButton(spades::ui::UIManager @manager) { super(manager); }
+        RefreshButton(spades::ui::UIManager@ manager) { super(manager); }
         void Render() {
             SimpleButton::Render();
 
-            Renderer @renderer = Manager.Renderer;
+            Renderer@ r = Manager.Renderer;
             Vector2 pos = ScreenPosition;
             Vector2 size = Size;
-            Image @img = renderer.RegisterImage("Gfx/UI/Refresh.png");
-            renderer.DrawImage(img, pos + (size - Vector2(16.f, 16.f)) * 0.5f);
+            Image@ img = r.RegisterImage("Gfx/UI/Refresh.png");
+            r.DrawImage(img, pos + (size - Vector2(16.f, 16.f)) * 0.5f);
         }
     }
 
@@ -59,37 +59,36 @@ namespace spades {
     }
 
     class MainScreenMainMenu : spades::ui::UIElement {
+        MainScreenUI@ ui;
+        MainScreenHelper@ helper;
+        spades::ui::Field@ addressField;
 
-        MainScreenUI @ui;
-        MainScreenHelper @helper;
-        spades::ui::Field @addressField;
+        spades::ui::Button@ protocol3Button;
+        spades::ui::Button@ protocol4Button;
 
-        spades::ui::Button @protocol3Button;
-        spades::ui::Button @protocol4Button;
+        spades::ui::Button@ filterProtocol3Button;
+        spades::ui::Button@ filterProtocol4Button;
+        spades::ui::Button@ filterEmptyButton;
+        spades::ui::Button@ filterFullButton;
+        spades::ui::Field@ filterField;
 
-        spades::ui::Button @filterProtocol3Button;
-        spades::ui::Button @filterProtocol4Button;
-        spades::ui::Button @filterEmptyButton;
-        spades::ui::Button @filterFullButton;
-        spades::ui::Field @filterField;
-
-        spades::ui::ListView @serverList;
-        MainScreenServerListLoadingView @loadingView;
-        MainScreenServerListErrorView @errorView;
+        spades::ui::ListView@ serverList;
+        MainScreenServerListLoadingView@ loadingView;
+        MainScreenServerListErrorView@ errorView;
         bool loading = false, loaded = false;
 
         private ConfigItem cg_protocolVersion("cg_protocolVersion", "3");
         private ConfigItem cg_lastQuickConnectHost("cg_lastQuickConnectHost", "127.0.0.1");
         private ConfigItem cg_serverlistSort("cg_serverlistSort", "16385");
 
-        MainScreenMainMenu(MainScreenUI @ui) {
+        MainScreenMainMenu(MainScreenUI@ ui) {
             super(ui.manager);
             @this.ui = ui;
             @this.helper = ui.helper;
 
-            float contentsWidth = 750.0F;
-            float contentsLeft = (Manager.Renderer.ScreenWidth - contentsWidth) * 0.5f;
-            float footerPos = Manager.Renderer.ScreenHeight - 50.0F;
+            float contentsWidth = 750.f;
+            float contentsLeft = (Manager.ScreenWidth - contentsWidth) * 0.5f;
+            float footerPos = Manager.ScreenHeight - 50.f;
             {
                 spades::ui::Button button(Manager);
                 button.Caption = _Tr("MainScreen", "Connect");
@@ -206,47 +205,54 @@ namespace spades {
                 AddChild(serverList);
             }
             {
-                ServerListHeader header(Manager);
-                header.Bounds = AABB2(contentsLeft + 2.f, 240.f, 300.f - 2.f, 30.f);
-                header.Text = _Tr("MainScreen", "Server Name");
-                @header.Activated = spades::ui::EventHandler(this.SortServerListByName);
-                AddChild(header);
-            }
-            {
-                ServerListHeader header(Manager);
-                header.Bounds = AABB2(contentsLeft + 300.f, 240.f, 100.f, 30.f);
-                header.Text = _Tr("MainScreen", "Players");
-                @header.Activated = spades::ui::EventHandler(this.SortServerListByNumPlayers);
-                AddChild(header);
-            }
-            {
-                ServerListHeader header(Manager);
-                header.Bounds = AABB2(contentsLeft + 400.f, 240.f, 150.f, 30.f);
-                header.Text = _Tr("MainScreen", "Map Name");
-                @header.Activated = spades::ui::EventHandler(this.SortServerListByMapName);
-                AddChild(header);
-            }
-            {
-                ServerListHeader header(Manager);
-                header.Bounds = AABB2(contentsLeft + 550.f, 240.f, 80.f, 30.f);
-                header.Text = _Tr("MainScreen", "Game Mode");
-                @header.Activated = spades::ui::EventHandler(this.SortServerListByGameMode);
-                AddChild(header);
-            }
-            {
-                ServerListHeader header(Manager);
-                header.Bounds = AABB2(contentsLeft + 630.f, 240.f, 50.f, 30.f);
-                header.Text = _Tr("MainScreen", "Ver.");
-                @header.Activated = spades::ui::EventHandler(this.SortServerListByProtocol);
-                AddChild(header);
-            }
-            {
-                ServerListHeader header(Manager);
-                header.Bounds = AABB2(contentsLeft + 680.f, 240.f, 50.f, 30.f);
-                header.Text = _Tr("MainScreen", "Loc.");
-                @header.Activated = spades::ui::EventHandler(this.SortServerListByCountry);
-                AddChild(header);
-            }
+				ServerListHeader header(Manager);
+				header.Bounds = AABB2(contentsLeft + 2.0F, 240.0F, 260.0F, 30.0F);
+				header.Text = _Tr("MainScreen", "Server Name");
+				@header.Activated = spades::ui::EventHandler(this.SortServerListByName);
+				AddChild(header);
+			}
+			{
+				ServerListHeader header(Manager);
+				header.Bounds = AABB2(contentsLeft + 260.0F, 240.0F, 70.0F, 30.0F);
+				header.Text = _Tr("MainScreen", "Slots");
+				@header.Activated = spades::ui::EventHandler(this.SortServerListByNumPlayers);
+				AddChild(header);
+			}
+			{
+				ServerListHeader header(Manager);
+				header.Bounds = AABB2(contentsLeft + 330.0F, 240.0F, 140.0F, 30.0F);
+				header.Text = _Tr("MainScreen", "Map Name");
+				@header.Activated = spades::ui::EventHandler(this.SortServerListByMapName);
+				AddChild(header);
+			}
+			{
+				ServerListHeader header(Manager);
+				header.Bounds = AABB2(contentsLeft + 470.0F, 240.0F, 100.0F, 30.0F);
+				header.Text = _Tr("MainScreen", "Game Mode");
+				@header.Activated = spades::ui::EventHandler(this.SortServerListByGameMode);
+				AddChild(header);
+			}
+			{
+				ServerListHeader header(Manager);
+				header.Bounds = AABB2(contentsLeft + 570.0F, 240.0F, 60.0F, 30.0F);
+				header.Text = _Tr("MainScreen", "Ver.");
+				@header.Activated = spades::ui::EventHandler(this.SortServerListByProtocol);
+				AddChild(header);
+			}
+			{
+				ServerListHeader header(Manager);
+				header.Bounds = AABB2(contentsLeft + 630.0F, 240.0F, 60.0F, 30.0F);
+				header.Text = _Tr("MainScreen", "Loc.");
+				@header.Activated = spades::ui::EventHandler(this.SortServerListByCountry);
+				AddChild(header);
+			}
+			{
+				ServerListHeader header(Manager);
+				header.Bounds = AABB2(contentsLeft + 690.0F, 240.0F, 60.0F, 30.0F);
+				header.Text = _Tr("MainScreen", "Ping");
+				@header.Activated = spades::ui::EventHandler(this.SortServerListByPing);
+				AddChild(header);
+			}
             {
                 @loadingView = MainScreenServerListLoadingView(Manager);
                 loadingView.Bounds = AABB2(contentsLeft, 240.f, contentsWidth, 100.f);
@@ -407,7 +413,6 @@ namespace spades {
         }
 
         private void OnProtocol3Pressed(spades::ui::UIElement @sender) { SetProtocolVersion(3); }
-
         private void OnProtocol4Pressed(spades::ui::UIElement @sender) { SetProtocolVersion(4); }
 
         private void OnFilterProtocol3Pressed(spades::ui::UIElement @sender) {
@@ -493,5 +498,4 @@ namespace spades {
             }
         }
     }
-
 }

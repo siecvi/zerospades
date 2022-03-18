@@ -18,8 +18,6 @@
 
  */
 
-
-
 uniform mat4 projectionViewModelMatrix;
 uniform mat4 modelMatrix;
 uniform mat4 viewModelMatrix;
@@ -38,7 +36,7 @@ uniform sampler2D waveTexture;
 //varying vec2 detailCoord;
 
 void PrepareForShadow(vec3 worldOrigin, vec3 normal);
-vec4 FogDensity(float poweredLength);
+vec4 ComputeFogDensity(float poweredLength);
 
 void main() {
 
@@ -53,11 +51,9 @@ void main() {
 	vec4 viewPos = viewModelMatrix * vertexPos;
 	vec2 horzRelativePos = (modelMatrix * vertexPos).xy - viewOrigin.xy;
 	float horzDistance = dot(horzRelativePos, horzRelativePos);
-	fogDensity = FogDensity(horzDistance).xyz;
+	fogDensity = ComputeFogDensity(horzDistance).xyz;
 
 	viewPosition = viewPos.xyz;
 
-
 	PrepareForShadow((modelMatrix * vertexPos).xyz, vec3(0., 0., -1.));
 }
-

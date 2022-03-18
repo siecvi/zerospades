@@ -48,20 +48,17 @@ namespace spades {
             @this.handler = handler;
         }
         private void OnMouseHover(spades::ui::UIElement @elm) {
-            if (helpView !is null) {
+            if (helpView !is null)
                 helpView.Text = text;
-            }
-            if (handler !is null) {
+            if (handler !is null)
                 handler(text);
-            }
         }
         void Watch(spades::ui::UIElement @elm) {
             @elm.MouseEntered = spades::ui::EventHandler(this.OnMouseHover);
         }
         void WatchDeep(spades::ui::UIElement @elm) {
             if (elm.MouseEntered !is null) {
-                ChainedEventHandler chain(elm.MouseEntered,
-                                          spades::ui::EventHandler(this.OnMouseHover));
+                ChainedEventHandler chain(elm.MouseEntered, spades::ui::EventHandler(this.OnMouseHover));
                 @elm.MouseEntered = spades::ui::EventHandler(chain.Handler);
             } else {
                 Watch(elm);
@@ -105,23 +102,21 @@ namespace spades {
             }
             spades::ui::UIElement @[] newItems;
             for (uint i = 0, count = items.length; i < count; i++) {
-                StartupScreenConfigItemEditor @editor =
-                    cast<StartupScreenConfigItemEditor>(items[i]);
+                auto@ editor = cast<StartupScreenConfigItemEditor>(items[i]);
                 if (editor is null)
                     continue;
                 string label = editor.GetLabel();
-                if (StringContainsCaseInsensitive(label, text)) {
+                if (StringContainsCaseInsensitive(label, text))
                     newItems.insertLast(items[i]);
-                }
             }
             @items2 = newItems;
         }
-        spades::ui::UIElement @CreateElement(int row) {
+        spades::ui::UIElement@ CreateElement(int row) {
             if (items2 !is null)
                 return items2[row];
             return items[row];
         }
-        void RecycleElement(spades::ui::UIElement @elem) {}
+        void RecycleElement(spades::ui::UIElement@ elem) {}
     }
 
     interface StartupScreenGenericConfig {
@@ -164,11 +159,9 @@ namespace spades {
         string GetLabel();
     }
 
-    class StartupScreenConfigSelectItemEditor : spades::ui::UIElement,
-                                                LabelAddable,
-                                                StartupScreenConfigItemEditor,
-                                                StartupScreenConfigItemEditor {
-
+    class StartupScreenConfigSelectItemEditor :
+		spades::ui::UIElement, LabelAddable,
+		StartupScreenConfigItemEditor, StartupScreenConfigItemEditor {
         protected StartupScreenUI @ui;
         private string[] @descs;
         private string[] @values;
@@ -176,8 +169,8 @@ namespace spades {
         protected spades::ui::RadioButton @[] buttons;
         private string label;
 
-        StartupScreenConfigSelectItemEditor(StartupScreenUI @ui, StartupScreenGenericConfig @cfg,
-                                            string values, string descs) {
+        StartupScreenConfigSelectItemEditor(StartupScreenUI @ui,
+			StartupScreenGenericConfig @cfg, string values, string descs) {
             super(ui.manager);
             @this.ui = ui;
             @this.descs = descs.split("|");
@@ -187,9 +180,8 @@ namespace spades {
             {
                 string desc = this.descs[0];
                 int idx = desc.findFirst(":");
-                if (idx >= 0) {
+                if (idx >= 0)
                     desc = desc.substr(0, idx);
-                }
                 AddLabel(0, 0, 24.f, desc);
                 this.label = desc;
             }
@@ -198,9 +190,8 @@ namespace spades {
                 spades::ui::RadioButton b(Manager);
                 string desc = this.descs[i + 1];
                 int idx = desc.findFirst(":");
-                if (idx >= 0) {
+                if (idx >= 0)
                     desc = desc.substr(0, idx);
-                }
                 b.Caption = desc;
 
                 b.GroupName = "hoge";
@@ -238,20 +229,19 @@ namespace spades {
         void set_Bounds(AABB2 v) {
             UIElement::set_Bounds(v);
             Vector2 size = this.Size;
-            float h = 24.0F;
+            float h = 24.f;
             float x = size.x;
             for (uint i = buttons.length; i > 0; i--) {
-                spades::ui::RadioButton @b = buttons[i - 1];
-                float w = ui.fontManager.GuiFont.Measure(b.Caption).x + 26.0F;
-                x -= w + 2.0F;
+                spades::ui::RadioButton@ b = buttons[i - 1];
+                float w = ui.fontManager.GuiFont.Measure(b.Caption).x + 26.f;
+                x -= w + 2.f;
                 b.Bounds = AABB2(x, 0.f, w, h);
             }
         }
     }
 
-    class StartupScreenConfigCheckItemEditor : spades::ui::UIElement,
-                                               StartupScreenConfigItemEditor {
-
+    class StartupScreenConfigCheckItemEditor :
+		spades::ui::UIElement, StartupScreenConfigItemEditor {
         protected StartupScreenUI @ui;
         private string desc;
         private string valueOff;
@@ -297,15 +287,13 @@ namespace spades {
         void set_Bounds(AABB2 v) {
             UIElement::set_Bounds(v);
             Vector2 size = this.Size;
-            float h = 24.0F;
+            float h = 24.f;
             button.Bounds = AABB2(0.f, 0.f, size.x, h);
         }
     }
 
-    class StartupScreenConfigSliderItemEditor : spades::ui::UIElement,
-                                                StartupScreenConfigItemEditor,
-                                                LabelAddable {
-
+    class StartupScreenConfigSliderItemEditor :
+		spades::ui::UIElement, StartupScreenConfigItemEditor, LabelAddable {
         private StartupScreenUI @ui;
         private string desc;
         private double stepSize;
@@ -390,16 +378,14 @@ namespace spades {
         void set_Bounds(AABB2 v) {
             UIElement::set_Bounds(v);
             Vector2 size = this.Size;
-            float h = 24.0F;
+            float h = 24.f;
             slider.Bounds = AABB2(100.f, 2.f, size.x - 180.f, h - 4.f);
             valueLabel.Bounds = AABB2(size.x - 80.f, 0.f, 80.f, h);
         }
     }
 
-    class StartupScreenConfigFieldItemEditor : spades::ui::UIElement,
-                                               StartupScreenConfigItemEditor,
-                                               LabelAddable {
-
+    class StartupScreenConfigFieldItemEditor :
+		spades::ui::UIElement, StartupScreenConfigItemEditor, LabelAddable {
         private StartupScreenUI @ui;
         private string desc;
         private double stepSize;
@@ -407,8 +393,8 @@ namespace spades {
         private spades::ui::Field @field;
         private string label;
 
-        StartupScreenConfigFieldItemEditor(StartupScreenUI @ui, StartupScreenGenericConfig @cfg,
-                                           string label, string desc) {
+        StartupScreenConfigFieldItemEditor(StartupScreenUI @ui,
+			StartupScreenGenericConfig @cfg, string label, string desc) {
             super(ui.manager);
             @this.ui = ui;
             @config = cfg;
@@ -441,7 +427,7 @@ namespace spades {
         void set_Bounds(AABB2 v) {
             UIElement::set_Bounds(v);
             Vector2 size = this.Size;
-            float h = 24.0F;
+            float h = 24.f;
             field.Bounds = AABB2(240.f, 0.f, size.x - 240.f, h);
         }
     }
@@ -463,62 +449,53 @@ namespace spades {
         string GetValue() {
             string[] values;
 
-            for (uint i = 0; i < editors.length; i++) {
+            for (uint i = 0; i < editors.length; i++)
                 values.insertLast(editors[i].GetConfig().GetValue());
-            }
             for (uint i = 0; i < presets.length; i++) {
-                string[] @pval = presets[i].Values;
+				auto@ pval = presets[i].Values;
                 uint j = 0;
                 uint jc = pval.length;
                 for (; j < jc; j++) {
-                    if (values[j] != pval[j]) {
+                    if (values[j] != pval[j])
                         break;
-                    }
                 }
-                if (j == jc) {
+                if (j == jc)
                     return ToString(int(i));
-                }
             }
             return "custom";
         }
         void SetValue(string v) {
-            if (v == "custom") {
+            if (v == "custom")
                 return;
-            }
             uint pId = uint(ParseInt(v));
-            string[] @pval = presets[pId].Values;
-            for (uint i = 0; i < pval.length; i++) {
+            auto@ pval = presets[pId].Values;
+            for (uint i = 0; i < pval.length; i++)
                 editors[i].GetConfig().SetValue(pval[i]);
-            }
         }
         string CheckValueCapability(string v) {
-            if (v == "custom") {
+            if (v == "custom")
                 return "";
-            }
-            uint pId = uint(ParseInt(v));
-            string[] @pval = presets[pId].Values;
             string ret = "";
-            for (uint i = 0; i < pval.length; i++) {
+			uint pId = uint(ParseInt(v));
+			auto@ pval = presets[pId].Values;
+            for (uint i = 0; i < pval.length; i++)
                 ret += editors[i].GetConfig().CheckValueCapability(pval[i]);
-            }
             return ret;
         }
 
         // used for StartupScreenConfigSelectItemEditor's ctor param
         string GetValuesString() {
             string[] lst;
-            for (uint i = 0; i < presets.length; i++) {
+            for (uint i = 0; i < presets.length; i++)
                 lst.insertLast(ToString(int(i)));
-            }
             lst.insertLast("custom");
             return join(lst, "|");
         }
         // used for StartupScreenConfigSelectItemEditor's ctor param
         string GetDescriptionsString() {
             string[] lst;
-            for (uint i = 0; i < presets.length; i++) {
+            for (uint i = 0; i < presets.length; i++)
                 lst.insertLast(presets[i].Name);
-            }
             lst.insertLast(_Tr("StartupScreen", "Custom"));
             return join(lst, "|");
         }
@@ -536,21 +513,16 @@ namespace spades {
     class StartupScreenConfigComplexItemEditor : StartupScreenConfigSelectItemEditor {
         private string dlgTitle;
 
-        StartupScreenConfigComplexItemEditor(StartupScreenUI @ui, StartupScreenComplexConfig @cfg,
-                                             string label, string desc) {
-            super(ui, cfg, cfg.GetValuesString(),
-                  label + ":" + desc + "|" + cfg.GetDescriptionsString());
+        StartupScreenConfigComplexItemEditor(StartupScreenUI @ui, StartupScreenComplexConfig @cfg, string label, string desc) {
+            super(ui, cfg, cfg.GetValuesString(), label + ":" + desc + "|" + cfg.GetDescriptionsString());
             dlgTitle = label;
             @buttons[buttons.length - 1].Activated = spades::ui::EventHandler(this.CustomClicked);
         }
 
         private void CustomClicked(spades::ui::UIElement @) { RunDialog(); }
-
         private void DialogDone(spades::ui::UIElement @) { LoadConfig(); }
-
         private void RunDialog() {
-            StartupScreenComplexConfigDialog dlg(ui.manager,
-                                                 cast<StartupScreenComplexConfig>(config));
+            StartupScreenComplexConfigDialog dlg(ui.manager, cast<StartupScreenComplexConfig>(config));
             @dlg.DialogDone = spades::ui::EventHandler(this.DialogDone);
             dlg.Title = dlgTitle;
             dlg.RunDialog();
@@ -562,7 +534,7 @@ namespace spades {
 
         StartupScreenConfigView(spades::ui::UIManager @manager) {
             super(manager);
-            this.RowHeight = 30.0F;
+            this.RowHeight = 30.f;
         }
         void Finalize() { @this.Model = vmodel; }
         void AddRow(spades::ui::UIElement @elm) { vmodel.items.insertLast(elm); }
@@ -573,50 +545,45 @@ namespace spades {
         }
 
         void SetHelpTextHandler(HelpTextHandler @handler) {
-            spades::ui::UIElement @[] @elms = vmodel.items;
+           auto@ elms = vmodel.items;
             for (uint i = 0; i < elms.length; i++) {
-                StartupScreenConfigItemEditor @item = cast<StartupScreenConfigItemEditor>(elms[i]);
-                if (item !is null) {
+                auto@ item = cast<StartupScreenConfigItemEditor>(elms[i]);
+                if (item !is null)
                     item.SetHelpTextHandler(handler);
-                }
             }
         }
         void LoadConfig() {
-            spades::ui::UIElement @[] @elms = vmodel.items;
+            auto@ elms = vmodel.items;
             for (uint i = 0; i < elms.length; i++) {
-                StartupScreenConfigItemEditor @item = cast<StartupScreenConfigItemEditor>(elms[i]);
-                if (item !is null) {
+                auto@ item = cast<StartupScreenConfigItemEditor>(elms[i]);
+                if (item !is null)
                     item.LoadConfig();
-                }
             }
         }
     }
 
     class StartupScreenComplexConfigDialog : spades::ui::UIElement {
         StartupScreenComplexConfig @config;
-        float ContentsTop = 50.0F;
+        float ContentsTop = 50.f;
         float ContentsHeight;
         string Title;
 
         spades::ui::TextViewer @helpView;
         StartupScreenConfigView @configView;
-
         spades::ui::EventHandler @DialogDone;
 
         private spades::ui::UIElement @oldRoot;
 
-        StartupScreenComplexConfigDialog(spades::ui::UIManager @manager,
-                                         StartupScreenComplexConfig @config) {
+        StartupScreenComplexConfigDialog(spades::ui::UIManager @manager, StartupScreenComplexConfig @config) {
             super(manager);
             @this.config = config;
             Vector2 size = manager.RootElement.Size;
-            ContentsHeight = size.y - ContentsTop * 2.0F;
+            ContentsHeight = size.y - ContentsTop * 2.f;
 
-            float mainWidth = size.x - 250.0F;
+            float mainWidth = size.x - 250.f;
             {
                 spades::ui::TextViewer e(Manager);
-                e.Bounds = AABB2(mainWidth, ContentsTop + 30.f, size.x - mainWidth - 10.f,
-                                 ContentsHeight - 60.f);
+                e.Bounds = AABB2(mainWidth, ContentsTop + 30.f, size.x - mainWidth - 10.f, ContentsHeight - 60.f);
                 AddChild(e);
                 @helpView = e;
             }
@@ -624,15 +591,13 @@ namespace spades {
             {
                 StartupScreenConfigView cfg(Manager);
 
-                StartupScreenConfigItemEditor @[] @editors = config.editors;
-
+				auto@ editors = config.editors;
                 for (uint i = 0; i < editors.length; i++)
                     cfg.AddRow(cast<spades::ui::UIElement>(editors[i]));
 
                 cfg.Finalize();
                 cfg.SetHelpTextHandler(HelpTextHandler(this.HandleHelpText));
-                cfg.Bounds =
-                    AABB2(10.f, ContentsTop + 30.f, mainWidth - 20.f, ContentsHeight - 60.f);
+                cfg.Bounds = AABB2(10.f, ContentsTop + 30.f, mainWidth - 20.f, ContentsHeight - 60.f);
                 AddChild(cfg);
                 @configView = cfg;
             }
@@ -640,8 +605,7 @@ namespace spades {
             {
                 spades::ui::Button button(Manager);
                 button.Caption = _Tr("StartupScreen", "Close");
-                button.Bounds =
-                    AABB2(size.x - 160.f, ContentsTop + ContentsHeight - 30.f, 150.f, 30.f);
+                button.Bounds = AABB2(size.x - 160.f, ContentsTop + ContentsHeight - 30.f, 150.f, 30.f);
                 @button.Activated = spades::ui::EventHandler(this.CloseActivated);
                 AddChild(button);
             }
@@ -673,41 +637,34 @@ namespace spades {
 
             this.Bounds = root.Bounds;
             root.AddChild(this);
-
             configView.LoadConfig();
         }
 
         void Render() {
             Vector2 pos = ScreenPosition;
             Vector2 size = Size;
-            Renderer @r = Manager.Renderer;
-            Image @img = r.RegisterImage("Gfx/White.tga");
+            Renderer@ r = Manager.Renderer;
 
             r.ColorNP = Vector4(0, 0, 0, 0.8f);
-            r.DrawImage(img, AABB2(pos.x, pos.y, size.x, ContentsTop - 15.f));
-            r.DrawImage(
-                img, AABB2(pos.x, ContentsTop + ContentsHeight + 15.f, size.x, ContentsTop - 15.f));
+            r.DrawImage(null, AABB2(pos.x, pos.y, size.x, ContentsTop - 15.f));
+            r.DrawImage(null, AABB2(pos.x, ContentsTop + ContentsHeight + 15.f, size.x, ContentsTop - 15.f));
 
             r.ColorNP = Vector4(0, 0, 0, 0.95f);
-            r.DrawImage(img, AABB2(pos.x, ContentsTop - 15.f, size.x, ContentsHeight + 30.f));
+            r.DrawImage(null, AABB2(pos.x, ContentsTop - 15.f, size.x, ContentsHeight + 30.f));
 
             r.ColorNP = Vector4(1, 1, 1, 0.08f);
-            r.DrawImage(img, AABB2(pos.x, pos.y + ContentsTop - 15.f, size.x, 1.f));
-            r.DrawImage(img,
-                        AABB2(pos.x, pos.y + ContentsTop + ContentsHeight + 15.f, size.x, 1.f));
+            r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop - 15.f, size.x, 1.f));
+            r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop + ContentsHeight + 15.f, size.x, 1.f));
             r.ColorNP = Vector4(1, 1, 1, 0.2f);
-            r.DrawImage(img, AABB2(pos.x, pos.y + ContentsTop - 14.f, size.x, 1.f));
-            r.DrawImage(img,
-                        AABB2(pos.x, pos.y + ContentsTop + ContentsHeight + 14.f, size.x, 1.f));
+            r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop - 14.f, size.x, 1.f));
+            r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop + ContentsHeight + 14.f, size.x, 1.f));
 
-            Font @font = Font;
+            Font@ font = Font;
             r.ColorNP = Vector4(0.8f, 0.8f, 0.8f, 1.f);
-            r.DrawImage(img, AABB2(pos.x, pos.y + ContentsTop, size.x, 20.f));
-            font.Draw(Title, Vector2(pos.x + 10.f, pos.y + ContentsTop), 1.f,
-                      Vector4(0.f, 0.f, 0.f, 1.f));
+            r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop, size.x, 20.f));
+            font.Draw(Title, Vector2(pos.x + 10.f, pos.y + ContentsTop), 1.f, Vector4(0.f, 0.f, 0.f, 1.f));
 
             UIElement::Render();
         }
     }
-
 }

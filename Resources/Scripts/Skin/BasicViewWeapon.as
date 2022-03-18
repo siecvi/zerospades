@@ -19,7 +19,64 @@
  */
 
 namespace spades {
-    class BasicViewWeapon : IToolSkin, IViewToolSkin, IWeaponSkin, IWeaponSkin2 {
+	class ViewWeaponSpring {
+        double position = 0;
+        double desired = 0;
+        double velocity = 0;
+        double frequency = 1;
+        double damping = 1;
+
+        ViewWeaponSpring() {}
+
+        ViewWeaponSpring(double f, double d) {
+            frequency = f;
+            damping = d;
+        }
+
+        ViewWeaponSpring(double f, double d, double des) {
+            frequency = f;
+            damping = d;
+            desired = des;
+        }
+
+        void Update(double updateLength) {
+			double timeStep = 1.0 / 240.0;
+
+            // Forces updates into at least 240 fps.
+            for (double timeLeft = updateLength; timeLeft > 0; timeLeft -= timeStep) {
+                double dt = Min(timeStep, timeLeft);
+                double acceleration = (desired - position) * frequency;
+                velocity = velocity + acceleration * dt;
+                velocity -= velocity * damping * dt;
+                position = position + velocity * dt;
+            }
+        }
+    }
+
+    class ViewWeaponEvent {
+        bool activated = false;
+        bool acknowledged = false;
+
+        void Activate() {
+            if (!acknowledged)
+                activated = true;
+        }
+
+        bool WasActivated() {
+			return acknowledged ? false : activated;
+        }
+
+        void Acknowledge() {
+            acknowledged = true;
+        }
+
+        void Reset() {
+            activated = false;
+            acknowledged = false;
+        }
+    }
+
+    class BasicViewWeapon : IToolSkin, IViewToolSkin, IWeaponSkin, IWeaponSkin2, IWeaponSkin3 {
         // IToolSkin
         protected float sprintState;
         protected float raiseState;
@@ -47,7 +104,6 @@ namespace spades {
         }
 
         // IWeaponSkin
-
         protected float aimDownSightState;
         protected float aimDownSightStateSmooth;
         protected float readyState;
@@ -55,7 +111,6 @@ namespace spades {
         protected float reloadProgress;
         protected int ammo, clipSize;
         protected float localFireVibration;
-
         protected float sprintStateSmooth;
 
         float AimDownSightState {
@@ -71,12 +126,12 @@ namespace spades {
         }
 
         bool IsReloading {
-            get { return reloading; }
             set { reloading = value; }
+			get { return reloading; }
         }
         float ReloadProgress {
-            get { return reloadProgress; }
             set { reloadProgress = value; }
+			get { return reloadProgress; }
         }
         int Ammo {
             set { ammo = value; }
@@ -93,7 +148,6 @@ namespace spades {
         }
 
         // IViewToolSkin
-
         protected Matrix4 eyeMatrix;
         protected Vector3 swing;
         protected Vector3 leftHand;
@@ -110,8 +164,8 @@ namespace spades {
         }
 
         Vector3 LeftHandPosition {
-            get { return leftHand; }
             set { leftHand = value; }
+			get { return leftHand; }
         }
         Vector3 RightHandPosition {
             get { return rightHand; }
@@ -127,89 +181,142 @@ namespace spades {
             environmentSize = size;
         }
         // set_SoundOrigin is not called for first-person skin scripts
-        Vector3 SoundOrigin {
-            set {}
-        }
+        Vector3 SoundOrigin { set {} }
 
-        protected Renderer @renderer;
-        protected Image @sightImage;
+		// IWeaponSkin3
+        Vector3 MuzzlePosition { get { return eyeMatrix * GetViewWeaponMatrix() * Vector3(0.0F, 0.35F, -0.05F); } }
+        Vector3 CaseEjectPosition { get { return eyeMatrix * GetViewWeaponMatrix() * Vector3(0.0F, -0.1F, -0.05F); } }
 
-        BasicViewWeapon(Renderer @renderer) {
+        protected Renderer@ renderer;
+
+        protected Image@ sightImage;
+		protected Image@ scopeImage;
+		protected Image@ dotSightImage;
+
+		protected ConfigItem cg_pngScope("cg_pngScope", "1");
+
+        BasicViewWeapon(Renderer@ renderer) {
             @this.renderer = renderer;
             localFireVibration = 0.0F;
-            @sightImage = renderer.RegisterImage("Gfx/Sight.tga");
+            @sightImage = renderer.RegisterImage("Gfx/Target.png");
+			@dotSightImage  = renderer.RegisterImage("Gfx/DotSight.tga");
         }
 
         float GetLocalFireVibration() { return localFireVibration; }
-
-        float GetMotionGain() { return 1.f - AimDownSightStateSmooth * 0.4f; }
-
-        float GetZPos() { return 0.2f - AimDownSightStateSmooth * 0.05f; }
+        float GetMotionGain() { return 1.0F - AimDownSightStateSmooth * 0.4F; }
+        float GetZPos() { return 0.2F - AimDownSightStateSmooth * 0.05F; }
 
         Vector3 GetLocalFireVibrationOffset() {
             float vib = GetLocalFireVibration();
             float motion = GetMotionGain();
-            Vector3 hip =
-                Vector3(sin(vib * PiF * 2.f) * 0.008f * motion, vib * (vib - 1.f) * 0.14f * motion,
-                        vib * (1.f - vib) * 0.03f * motion);
-            Vector3 ads = Vector3(0.f, vib * (vib - 1.f) * vib * 0.3f * motion, 0.f);
+            Vector3 hip(0.0F, 0.0F, 0.0F);
+			hip.x = sin(vib * PiF * 2.0F) * 0.008F * motion;
+			hip.y = vib * (vib - 1.0F) * 0.14F * motion;
+			hip.z = vib * (1.0F - vib) * 0.03F * motion;
+            Vector3 ads = Vector3(0.0F, vib * (vib - 1.0F) * vib * 0.3F * motion, 0.0F);
             return Mix(hip, ads, AimDownSightStateSmooth);
+        }
+
+		// Creates a rotation matrix from euler angles (in the form of a Vector3) x-y-z
+        Matrix4 CreateEulerAnglesMatrix(Vector3 angles) {
+            Matrix4 mat = CreateRotateMatrix(Vector3(1, 0, 0), angles.x);
+            mat = CreateRotateMatrix(Vector3(0, 1, 0), angles.y) * mat;
+            mat = CreateRotateMatrix(Vector3(0, 0, 1), angles.z) * mat;
+            return mat;
+        }
+
+		// rotates gun matrix to ensure the sight is in the center of screen (0, ?, 0)
+        Matrix4 AdjustToAlignSight(Matrix4 mat, Vector3 sightPos, float fade) {
+            Vector3 p = mat * sightPos;
+            mat = CreateRotateMatrix(Vector3(0, 1, 1), atan(p.x / p.y) * fade) * mat;
+            mat = CreateRotateMatrix(Vector3(-1, 0, 0), atan(p.z / p.y) * fade) * mat;
+            return mat;
         }
 
         Matrix4 GetViewWeaponMatrix() {
             Matrix4 mat;
-            if (sprintStateSmooth > 0.f) {
-                mat = CreateRotateMatrix(Vector3(0.f, 1.f, 0.f), sprintStateSmooth * -0.1f) * mat;
-                mat = CreateRotateMatrix(Vector3(1.f, 0.f, 0.f), sprintStateSmooth * 0.3f) * mat;
-                mat = CreateRotateMatrix(Vector3(0.f, 0.f, 1.f), sprintStateSmooth * -0.55f) * mat;
-                mat =
-                    CreateTranslateMatrix(Vector3(0.23f, -0.05f, 0.15f) * sprintStateSmooth) * mat;
+
+            if (sprintStateSmooth > 0.0F) {
+                mat = CreateRotateMatrix(Vector3(0, 1, 0), sprintStateSmooth * -0.1F) * mat;
+                mat = CreateRotateMatrix(Vector3(1, 0, 0), sprintStateSmooth * 0.3F) * mat;
+                mat = CreateRotateMatrix(Vector3(0, 0, 1), sprintStateSmooth * -0.55F) * mat;
+                mat = CreateTranslateMatrix(Vector3(0.23F, -0.05F, 0.15F) * sprintStateSmooth) * mat;
             }
 
-            if (raiseState < 1.f) {
-                float putdown = 1.f - raiseState;
-                mat = CreateRotateMatrix(Vector3(0.f, 0.f, 1.f), putdown * -1.3f) * mat;
-                mat = CreateRotateMatrix(Vector3(0.f, 1.f, 0.f), putdown * 0.2f) * mat;
-                mat = CreateTranslateMatrix(Vector3(0.1f, -0.3f, 0.1f) * putdown) * mat;
+            if (raiseState < 1.0F) {
+                float putdown = 1.0F - raiseState;
+                mat = CreateRotateMatrix(Vector3(0, 0, 1), putdown * -1.3F) * mat;
+                mat = CreateRotateMatrix(Vector3(0, 1, 0), putdown * 0.2F) * mat;
+                mat = CreateTranslateMatrix(Vector3(0.1F, -0.3F, 0.1F) * putdown) * mat;
             }
 
-            Vector3 trans(0.f, 0.f, 0.f);
-            trans += Vector3(-0.13f * (1.f - AimDownSightStateSmooth), 0.5f, GetZPos());
+			float sp = 1.0F - AimDownSightStateSmooth;
+
+			if (readyState < 1.0F) {
+				float per = SmoothStep(1.0F - readyState);
+				mat = CreateTranslateMatrix(Vector3(-0.25F * sp, -0.5F, 0.25F * sp) * per * 0.1F) * mat;
+				mat = CreateRotateMatrix(Vector3(-1, 0, 0), per * 0.05F * sp) * mat;
+			}
+
+            Vector3 trans(0.0F, 0.0F, 0.0F);
+            trans += Vector3(-0.13F * sp, 0.5F, GetZPos());
             trans += swing * GetMotionGain();
-            trans += GetLocalFireVibrationOffset();
             mat = CreateTranslateMatrix(trans) * mat;
 
             return mat;
         }
 
         void Update(float dt) {
-            localFireVibration -= dt * 10.0F;
-            if (localFireVibration < 0.f) {
-                localFireVibration = 0.0F;
-            }
+			if (localFireVibration > 0.0F) {
+				localFireVibration -= dt * 10.0F;
+				if (localFireVibration < 0.0F)
+					localFireVibration = 0.0F;
+			}
 
             float sprintStateSS = sprintState * sprintState;
-            if (sprintStateSS > sprintStateSmooth) {
-                sprintStateSmooth += (sprintStateSS - sprintStateSmooth) * (1.f - pow(0.001, dt));
-            } else {
+            if (sprintStateSS > sprintStateSmooth)
+                sprintStateSmooth = Mix(sprintStateSmooth, sprintStateSS, 1.0F - pow(0.001F, dt));
+            else
                 sprintStateSmooth = sprintStateSS;
-            }
         }
 
-        void WeaponFired() { localFireVibration = 1.0F; }
+        void WeaponFired() {
+			localFireVibration = 1.0F;
+		}
 
         void AddToScene() {}
-
         void ReloadingWeapon() {}
-
         void ReloadedWeapon() {}
 
         void Draw2D() {
-            renderer.ColorNP = (Vector4(1.f, 1.f, 1.f, 1.f));
+			auto sw = renderer.ScreenWidth;
+			auto sh = renderer.ScreenHeight;
+
+			if (AimDownSightStateSmooth > 0.99F) {
+				if (cg_pngScope.IntValue == 1) {
+					Vector2 imgSize = Vector2(scopeImage.Width, scopeImage.Height);
+					imgSize *= Max(1.0F, sw / 800.0F);
+					imgSize *= Min(1.0F, sh / 600.0F);
+					imgSize *= Max(0.25F * (1.0F - readyState) + 1.0F, 1.0F);
+
+					Vector2 scrCenter = (Vector2(sw, sh) - imgSize) * 0.5F;
+
+					renderer.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 1.0F);
+					renderer.DrawImage(scopeImage, AABB2(scrCenter.x, scrCenter.y, imgSize.x, imgSize.y));
+				} else if (cg_pngScope.IntValue == 2) {
+					renderer.ColorOpaque = Vector3(1.0F, 0.0F, 1.0F);
+					renderer.DrawImage(dotSightImage,
+									   Vector2((sw - dotSightImage.Width) * 0.5F,
+											   (sh - dotSightImage.Height) * 0.5F));
+				}
+
+				return; // do not draw the target when aiming
+			}
+
+            renderer.ColorOpaque = Vector3(1.0F, 1.0F, 1.0F);
             renderer.DrawImage(sightImage,
-                               Vector2((renderer.ScreenWidth - sightImage.Width) * 0.5f,
-                                       (renderer.ScreenHeight - sightImage.Height) * 0.5f));
+                               Vector2((sw - sightImage.Width) * 0.5F,
+                                       (sh - sightImage.Height) * 0.5F));
         }
     }
-
 }

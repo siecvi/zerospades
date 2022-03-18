@@ -18,7 +18,6 @@
 
  */
 
-
 uniform mat4 projectionViewMatrix;
 uniform mat4 viewMatrix;
 uniform vec3 rightVector;
@@ -46,7 +45,7 @@ varying vec3 normal;
 varying vec4 dlR, dlG, dlB;
 
 void PrepareForShadow(vec3 worldOrigin, vec3 normal);
-vec4 FogDensity(float poweredLength);
+vec4 ComputeFogDensity(float poweredLength);
 
 void main() {
 	vec3 center = positionAttribute.xyz;
@@ -73,19 +72,17 @@ void main() {
 
 	// move sprite to the front of the volume
 	float centerDepth = dot(center - viewOriginVector, frontVector);
-	depthRange.xy = vec2(centerDepth) + vec2(-1., 1.) * radius;
+	depthRange.xy = vec2(centerDepth) + vec2(-1.0, 1.0) * radius;
 
 	// clip the volume by the near clip plane
 	float frontDepth = depthRange.x;
-	frontDepth = max(frontDepth, .3);
-	/*if(frontDepth > depthRange.y) // go beyond near clip plane
-		discard;*/ // cannot discard in vertex shader...
+	frontDepth = max(frontDepth, 0.3);
 	frontDepth = min(frontDepth, depthRange.y);
 	depthRange.w = frontDepth;
 
 	pos += frontVector * (frontDepth - centerDepth);
 
-	gl_Position = projectionViewMatrix * vec4(pos, 1.);
+	gl_Position = projectionViewMatrix * vec4(pos, 1.0);
 
 	color = colorAttribute;
 	emission = emissionAttribute;
@@ -94,26 +91,24 @@ void main() {
 	dlB = dlBAttribute;
 
 	// sprite texture coord
-	texCoord.xy = spritePosAttribute.xy * .5 + .5;
+	texCoord.xy = spritePosAttribute.xy * 0.5 + 0.5;
 
 	// depth texture coord
-	texCoord.zw = vec2(.5) + (gl_Position.xy / gl_Position.w) * .5;
+	texCoord.zw = vec2(0.5) + (gl_Position.xy / gl_Position.w) * 0.5;
 
 	// fog.
 	// FIXME: cannot gamma correct because sprite may be
 	// alpha-blended.
-	vec4 viewPos = viewMatrix * vec4(pos,1.);
 	vec2 horzRelativePos = pos.xy - viewOriginVector.xy;
 	float horzDistance = dot(horzRelativePos, horzRelativePos);
-	fogDensity = FogDensity(horzDistance);
+	fogDensity = ComputeFogDensity(horzDistance);
 
 	// precompute some value in vertex shader to
 	// reduce instruction count in frag. shader
-	depthRange.z = 1. / (depthRange.y - depthRange.w);
+	depthRange.z = 1.0 / (depthRange.y - depthRange.w);
 	depthRange.y = depthRange.x;
 	depthRange.x *= -depthRange.z;
 
 	depthRange.y /= (zNearFar.x * zNearFar.y);
 	depthRange.z *= (zNearFar.x * zNearFar.y);
 }
-

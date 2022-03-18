@@ -27,23 +27,22 @@ namespace spades {
             string Text;
             Vector4 BackgroundColor = Vector4(0, 0, 0, 0);
             Vector4 TextColor = Vector4(1, 1, 1, 1);
-            Vector2 Alignment = Vector2(0.f, 0.0f);
+            Vector2 Alignment = Vector2(0.0F, 0.0F);
             float TextScale = 1.0F;
 
-            Label(UIManager @manager) { super(manager); }
+            Label(UIManager@ manager) { super(manager); }
             void Render() {
-                Renderer @renderer = Manager.Renderer;
+                Renderer@ r = Manager.Renderer;
                 Vector2 pos = ScreenPosition;
                 Vector2 size = Size;
 
-                if (BackgroundColor.w > 0.f) {
-                    Image @img = renderer.RegisterImage("Gfx/White.tga");
-                    renderer.ColorNP = BackgroundColor;
-                    renderer.DrawImage(img, AABB2(pos.x, pos.y, size.x, size.y));
+                if (BackgroundColor.w > 0.0F) {
+                    r.ColorNP = BackgroundColor;
+                    r.DrawImage(null, AABB2(pos.x, pos.y, size.x, size.y));
                 }
 
                 if (Text.length > 0) {
-                    Font @font = this.Font;
+                    Font@ font = this.Font;
                     string text = this.Text;
                     Vector2 txtSize = font.Measure(text) * TextScale;
                     Vector2 txtPos;
@@ -53,6 +52,5 @@ namespace spades {
                 }
             }
         }
-
     }
 }

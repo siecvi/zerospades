@@ -17,12 +17,13 @@
  along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
 
  */
+
 #include "../UIFramework/UIFramework.as"
 #include "ConsoleWindow.as"
 
 namespace spades {
-    ConsoleUI @CreateConsoleUI(Renderer @renderer, AudioDevice @audioDevice,
-                               FontManager @fontManager, ConsoleHelper @helper) {
+    ConsoleUI@ CreateConsoleUI(Renderer@ renderer, AudioDevice@ audioDevice,
+                               FontManager@ fontManager, ConsoleHelper@ helper) {
         return ConsoleUI(renderer, audioDevice, fontManager, helper);
     }
 
@@ -34,13 +35,12 @@ namespace spades {
      * also intercepts all inputs.
      */
     class ConsoleUI {
-        private spades::ui::UIManager @manager;
+        private spades::ui::UIManager@ manager;
         private bool active = false;
 
-        private ConsoleWindow @console;
+        private ConsoleWindow@ console;
 
-        ConsoleUI(Renderer @renderer, AudioDevice @audioDevice, FontManager @fontManager,
-                  ConsoleHelper @helper) {
+        ConsoleUI(Renderer@ renderer, AudioDevice@ audioDevice, FontManager@ fontManager, ConsoleHelper@ helper) {
             @manager = spades::ui::UIManager(renderer, audioDevice);
             @manager.RootElement.Font = fontManager.GuiFont;
 
@@ -50,7 +50,6 @@ namespace spades {
         }
 
         void MouseEvent(float x, float y) { manager.MouseEvent(x, y); }
-
         void WheelEvent(float x, float y) { manager.WheelEvent(x, y); }
 
         void KeyEvent(string key, bool down) {
@@ -62,20 +61,17 @@ namespace spades {
         }
 
         void TextInputEvent(string text) { manager.TextInputEvent(text); }
-
         void TextEditingEvent(string text, int start, int len) {
             manager.TextEditingEvent(text, start, len);
         }
 
         bool AcceptsTextInput() { return manager.AcceptsTextInput; }
-
         AABB2 GetTextInputRect() { return manager.TextInputRect; }
 
         void RunFrame(float dt) {
             manager.RunFrame(dt);
-            if (active) {
+            if (active)
                 manager.Render();
-            }
         }
 
         void Closing() {}
@@ -84,9 +80,8 @@ namespace spades {
 
         void ToggleConsole() {
             active = !active;
-            if (active) {
+            if (active)
                 console.FocusField();
-            }
         }
 
         void AddLine(string line) { console.AddLine(line); }

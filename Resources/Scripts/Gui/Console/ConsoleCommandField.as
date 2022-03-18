@@ -17,6 +17,7 @@
  along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
 
  */
+
 #include "../Client/FieldWithHistory.as"
 
 namespace spades {
@@ -31,17 +32,16 @@ namespace spades {
 
     /** Displys console command candidates. */
     class ConsoleCommandFieldCandiateView : spades::ui::UIElement {
-        ConsoleCommandCandidate[] @candidates;
-        ConsoleCommandFieldCandiateView(spades::ui::UIManager @manager,
-                                        ConsoleCommandCandidate[] @candidates) {
+        ConsoleCommandCandidate[]@ candidates;
+        ConsoleCommandFieldCandiateView(spades::ui::UIManager@ manager, ConsoleCommandCandidate[]@ candidates) {
             super(manager);
             @this.candidates = candidates;
         }
         void Render() {
             float maxNameLen = 0.0F;
             float maxDescLen = 20.0F;
-            Font @font = this.Font;
-            Renderer @renderer = this.Manager.Renderer;
+            Font@ font = this.Font;
+            Renderer@ renderer = this.Manager.Renderer;
             float rowHeight = 25.0F;
 
             for (uint i = 0, len = candidates.length; i < len; i++) {
@@ -50,28 +50,28 @@ namespace spades {
             }
             Vector2 pos = this.ScreenPosition;
 
-            renderer.ColorNP = Vector4(0.f, 0.f, 0.f, 0.5f);
-            renderer.DrawImage(null, AABB2(pos.x, pos.y, maxNameLen + maxDescLen + 20.f,
-                                           float(candidates.length) * rowHeight + 10.f));
+            renderer.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 0.5F);
+            renderer.DrawImage(null, AABB2(pos.x, pos.y, maxNameLen + maxDescLen + 20.0F,
+                                           float(candidates.length) * rowHeight + 10.0F));
 
             for (uint i = 0, len = candidates.length; i < len; i++) {
-                font.DrawShadow(candidates[i].Name, pos + Vector2(5.f, 8.f + float(i) * rowHeight),
-                                1.f, Vector4(1, 1, 1, 0.7), Vector4(0, 0, 0, 0.3f));
+                font.DrawShadow(candidates[i].Name, pos + Vector2(5.0F, 8.0F + float(i) * rowHeight),
+                                1.0F, Vector4(1, 1, 1, 0.7F), Vector4(0, 0, 0, 0.3F));
                 font.DrawShadow(candidates[i].Description,
-                                pos + Vector2(15.f + maxNameLen, 8.f + float(i) * rowHeight), 1.f,
-                                Vector4(1, 1, 1, 1), Vector4(0, 0, 0, 0.4f));
+                                pos + Vector2(15.0F + maxNameLen, 8.0F + float(i) * rowHeight), 1.0F,
+                                Vector4(1, 1, 1, 1), Vector4(0, 0, 0, 0.4F));
             }
         }
     }
 
     /** A `Field` with a command name autocompletion feature. */
     class ConsoleCommandField : FieldWithHistory {
-        private ConsoleCommandFieldCandiateView @valueView;
-        private ConsoleHelper @helper;
+        private ConsoleCommandFieldCandiateView@ valueView;
+        private ConsoleHelper@ helper;
 
-        ConsoleCommandField(spades::ui::UIManager @manager,
+        ConsoleCommandField(spades::ui::UIManager@ manager,
                             array<spades::ui::CommandHistoryItem @> @history,
-                            ConsoleHelper @helper) {
+                            ConsoleHelper@ helper) {
             super(manager, history);
 
             @this.helper = helper;
@@ -80,32 +80,28 @@ namespace spades {
         void OnChanged() {
             FieldWithHistory::OnChanged();
 
-            if (valueView !is null) {
+            if (valueView !is null)
                 @valueView.Parent = null;
-            }
 
             // Find the command name part
             int whitespace = Text.findFirst(" ");
-            if (whitespace < 0) {
+            if (whitespace < 0)
                 whitespace = int(Text.length);
-            }
 
             if (whitespace > 0) {
                 string input = Text.substr(0, whitespace);
-                ConsoleCommandCandidateIterator @it = helper.AutocompleteCommandName(input);
-                ConsoleCommandCandidate[] @candidates = {};
+                ConsoleCommandCandidateIterator@ it = helper.AutocompleteCommandName(input);
+                ConsoleCommandCandidate[]@ candidates = {};
 
                 for (uint i = 0; i < 16; ++i) {
-                    if (!it.MoveNext()) {
+                    if (!it.MoveNext())
                         break;
-                    }
-
                     candidates.insertLast(it.Current);
                 }
 
                 if (candidates.length > 0) {
                     @valueView = ConsoleCommandFieldCandiateView(this.Manager, candidates);
-                    valueView.Bounds = AABB2(0.f, Size.y + 10.f, 0.f, 0.f);
+                    valueView.Bounds = AABB2(0.0F, Size.y + 10.0F, 0.0F, 0.0F);
                     @valueView.Parent = this;
                 }
             }
@@ -120,14 +116,13 @@ namespace spades {
             if (key == "Tab") {
                 // Find the command name part
                 int whitespace = Text.findFirst(" ");
-                if (whitespace < 0) {
+                if (whitespace < 0)
                     whitespace = int(Text.length);
-                }
 
-                if (SelectionLength == 0 && SelectionStart <= whitespace) {
+                if (SelectionLength == 0 and SelectionStart <= whitespace) {
                     // Command name auto completion
                     string input = Text.substr(0, whitespace);
-                    ConsoleCommandCandidateIterator @it = helper.AutocompleteCommandName(input);
+                    ConsoleCommandCandidateIterator@ it = helper.AutocompleteCommandName(input);
                     string commonPart;
                     bool foundOne = false;
                     while (it.MoveNext()) {

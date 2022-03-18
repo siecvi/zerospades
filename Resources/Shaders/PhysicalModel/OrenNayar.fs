@@ -20,13 +20,13 @@
 
 // http://en.wikipedia.org/wiki/Oren–Nayar_reflectance_model
 float OrenNayar(float sigma, float dotLight, float dotEye) {
-	if(dotLight < 0.)
-		return 0.;
+	if (dotLight < 0.0)
+		return 0.0;
 	
 	float sigma2 = sigma * sigma;
-	float A = 1. - 0.5 * sigma2 / (sigma2 + 0.33);
+	float A = 1.0 - 0.5 * sigma2 / (sigma2 + 0.33);
 	float B = 0.45 * sigma2 / (sigma2 + 0.09);
-	float scale = 1. / A;
+	float scale = 1.0 / A;
 	float scaledB = B * scale;
 	
 	vec2 dotLightEye = vec2(dotLight, dotEye);
@@ -39,14 +39,12 @@ float OrenNayar(float sigma, float dotLight, float dotEye) {
 	float betaCos2 = betaCos * betaCos;
 	
 	// rsq optimization; 1/x-1 = (1-x)/x
-	float betaTan = 1. / sqrt(betaCos2 / (1. - betaCos2)); //sqrt(1. / betaCos2 - 1.);
+	float betaTan = 1.0 / sqrt(betaCos2 / (1.0 - betaCos2)); //sqrt(1.0 / betaCos2 - 1.0);
 	
 	// cos(dotLight - dotEye)
 	vec4 vecs = vec4(dotLightEye, sinLightEye);
 	float diffCos = dot(vecs.xz, vecs.yw);
 	
 	// compute
-	return dotLight * (1. + scaledB * diffCos * alphaSin * betaTan);
+	return dotLight * (1.0 + scaledB * diffCos * alphaSin * betaTan);
 }
-
-

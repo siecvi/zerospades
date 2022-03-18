@@ -18,7 +18,6 @@
  
  */
 
-
 uniform sampler2D depthTexture;
 uniform sampler2D mainTexture;
 
@@ -36,39 +35,36 @@ varying vec4 dlR, dlG, dlB;
 vec3 EvaluateSunLight();
 vec3 EvaluateAmbientLight(float detailAmbientOcclusion);
 
-float decodeDepth(float w, float near, float far){
-	return 1. /*far * near*/ / mix(far, near, w);
+float decodeDepth(float w, float near, float far) {
+	return 1.0 /*far * near*/ / mix(far, near, w);
 }
 
-float depthAt(vec2 pt){
+float depthAt(vec2 pt) {
 	float w = texture2D(depthTexture, pt).x;
 	return decodeDepth(w, zNearFar.x, zNearFar.y);
 }
 
 void main() {
-	
 	// get depth
 	float depth = depthAt(texCoord.zw);
-	
-	if(depth < /*depthRange.x*/ depthRange.y){
+	if (depth < depthRange.y)
 		discard;
-	}
 	
 	vec3 nNormal = normalize(normal);
 	
 	// calculate diffuse color
 	vec4 computedColor = color;
 	vec3 diffuse = EvaluateSunLight();
-	vec3 sunDir = normalize(vec3(0., -1., -1.));
+	vec3 sunDir = normalize(vec3(0.0, -1.0, -1.0));
 	diffuse *= dot(nNormal, sunDir) * 0.4 + 0.6;
-	vec4 extNormal = vec4(nNormal, 1.);
+	vec4 extNormal = vec4(nNormal, 1.0);
 	diffuse.x += dot(extNormal, dlR);
 	diffuse.y += dot(extNormal, dlG);
 	diffuse.z += dot(extNormal, dlB);
-	diffuse += EvaluateAmbientLight(1.);
+	diffuse += EvaluateAmbientLight(1.0);
 	diffuse = sqrt(diffuse);
-	computedColor.xyz *= diffuse;
 	
+	computedColor.xyz *= diffuse;
 	computedColor.xyz += emission;
 	
 	gl_FragColor = texture2D(mainTexture, texCoord.xy);
@@ -82,15 +78,13 @@ void main() {
 	fogColorPremuld *= gl_FragColor.w;
 	gl_FragColor.xyz = mix(gl_FragColor.xyz, fogColorPremuld, fogDensity.xyz);
 	
-	
 	//float soft = (depth - depthRange.x) / (depthRange.y - depthRange.w);
 	float soft = depth * depthRange.z + depthRange.x;
-	soft = smoothstep(0., 1., soft);
+	soft = smoothstep(0.0, 1.0, soft);
 	gl_FragColor *= soft;
 	
-	gl_FragColor = max(gl_FragColor, 0.);
+	gl_FragColor = max(gl_FragColor, 0.0);
 	
-	if(dot(gl_FragColor, vec4(1.)) < .002)
+	if (dot(gl_FragColor, vec4(1.0)) < 0.002)
 		discard;
 }
-

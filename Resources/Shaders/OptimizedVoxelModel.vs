@@ -18,14 +18,11 @@
 
  */
 
-
-
 uniform mat4 projectionViewModelMatrix;
 uniform mat4 modelMatrix;
 uniform mat4 modelNormalMatrix;
 uniform mat4 viewModelMatrix;
 uniform vec3 modelOrigin;
-uniform float fogDistance;
 uniform vec3 sunLightDirection;
 uniform vec2 texScale;
 uniform vec3 viewOriginVector;
@@ -40,37 +37,32 @@ attribute vec2 textureCoordAttribute;
 attribute vec3 normalAttribute;
 
 varying vec4 textureCoord;
-varying vec4 color;
 varying vec3 fogDensity;
 varying float flatShading;
-//varying vec2 detailCoord;
+varying float staticShading;
 
 void PrepareForShadow(vec3 worldOrigin, vec3 normal);
-vec4 FogDensity(float poweredLength);
+vec4 ComputeFogDensity(float poweredLength);
 
 void main() {
-
-	vec4 vertexPos = vec4(positionAttribute.xyz, 1.);
-
+	vec4 vertexPos = vec4(positionAttribute.xyz, 1.0);
 	vertexPos.xyz += modelOrigin;
 
 	gl_Position = projectionViewModelMatrix * vertexPos;
 
-	textureCoord = textureCoordAttribute.xyxy * vec4(texScale.xy, vec2(1.));
+	textureCoord = textureCoordAttribute.xyxy * vec4(texScale.xy, vec2(1.0));
 
 	// direct sunlight
 	vec3 normal = normalAttribute;
-	normal = (modelNormalMatrix * vec4(normal, 1.)).xyz;
+	normal = (modelNormalMatrix * vec4(normal, 1.0)).xyz;
 	normal = normalize(normal);
-	float sunlight = dot(normal, sunLightDirection);
-	sunlight = max(sunlight, 0.);
-	flatShading = sunlight;
 
-	vec4 viewPos = viewModelMatrix * vertexPos;
+	flatShading = max(dot(normal, sunLightDirection), 0.0);
+	staticShading = max(dot(normalAttribute, sunLightDirection) * 0.5 + 0.5, 0.0);
+
 	vec2 horzRelativePos = (modelMatrix * vertexPos).xy - viewOriginVector.xy;
 	float horzDistance = dot(horzRelativePos, horzRelativePos);
-	fogDensity = FogDensity(horzDistance).xyz;
+	fogDensity = ComputeFogDensity(horzDistance).xyz;
 
 	PrepareForShadow((modelMatrix * vertexPos).xyz, normal);
 }
-

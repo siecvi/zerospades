@@ -19,7 +19,7 @@
  */
 
 namespace spades {
-    class ThirdPersonShotgunSkin : IToolSkin, IThirdPersonToolSkin, IWeaponSkin, IWeaponSkin2 {
+    class ThirdPersonShotgunSkin : IToolSkin, IThirdPersonToolSkin, IWeaponSkin, IWeaponSkin2, IWeaponSkin3 {
         private float sprintState;
         private float raiseState;
         private Vector3 teamColor;
@@ -36,50 +36,29 @@ namespace spades {
         private float environmentDistance;
         private Vector3 soundOrigin;
 
-        float SprintState {
-            set { sprintState = value; }
-        }
-
-        float RaiseState {
-            set { raiseState = value; }
-        }
-
-        Vector3 TeamColor {
-            set { teamColor = value; }
-        }
-
-        bool IsMuted {
-            set { muted = value; }
-        }
-
-        Matrix4 OriginMatrix {
-            set { originMatrix = value; }
-        }
+        float SprintState { set { sprintState = value; } }
+        float RaiseState { set { raiseState = value; } }
+        Vector3 TeamColor { set { teamColor = value; } }
+        bool IsMuted { set { muted = value; } }
+        Matrix4 OriginMatrix { set { originMatrix = value; } }
 
         float PitchBias {
-            get { return 0.0F; }
-        }
+			get {
+				float pitch = 0.0F;
+				if (readyState < 1.0F) {
+					float per = 1.0F - readyState;
+					pitch += per;
+				}
+				return pitch;
+			}
+		}
 
-        float AimDownSightState {
-            set { aimDownSightState = value; }
-        }
-
-        bool IsReloading {
-            set { reloading = value; }
-        }
-        float ReloadProgress {
-            set { reloadProgress = value; }
-        }
-        int Ammo {
-            set { ammo = value; }
-        }
-        int ClipSize {
-            set { clipSize = value; }
-        }
-
-        float ReadyState {
-            set { readyState = value; }
-        }
+        float AimDownSightState { set { aimDownSightState = value; } }
+        bool IsReloading { set { reloading = value; } }
+        float ReloadProgress { set { reloadProgress = value; } }
+        int Ammo { set { ammo = value; } }
+        int ClipSize { set { clipSize = value; } }
+        float ReadyState { set { readyState = value; } }
 
         // IWeaponSkin2
         void SetSoundEnvironment(float room, float size, float distance) {
@@ -87,23 +66,25 @@ namespace spades {
             environmentSize = size;
             environmentDistance = distance;
         }
-        Vector3 SoundOrigin {
-            set { soundOrigin = value; }
-        }
+        Vector3 SoundOrigin { set { soundOrigin = value; } }
 
-        private Renderer @renderer;
-        private AudioDevice @audioDevice;
-        private Model @model;
+		// IWeaponSkin3
+        Vector3 MuzzlePosition { get { return originMatrix * Vector3(0.35F, -1.55F, -0.15F); } }
+        Vector3 CaseEjectPosition { get { return originMatrix * Vector3(0.35F, -0.8F, -0.15F); } }
 
-        private AudioChunk @fireSound;
-        private AudioChunk @fireFarSound;
-        private AudioChunk @fireStereoSound;
-        private AudioChunk @fireSmallReverbSound;
-        private AudioChunk @fireLargeReverbSound;
-        private AudioChunk @reloadSound;
-        private AudioChunk @cockSound;
+        private Renderer@ renderer;
+        private AudioDevice@ audioDevice;
+        private Model@ model;
 
-        ThirdPersonShotgunSkin(Renderer @r, AudioDevice @dev) {
+        private AudioChunk@ fireSound;
+        private AudioChunk@ fireFarSound;
+        private AudioChunk@ fireStereoSound;
+        private AudioChunk@ fireSmallReverbSound;
+        private AudioChunk@ fireLargeReverbSound;
+        private AudioChunk@ reloadSound;
+        private AudioChunk@ cockSound;
+
+        ThirdPersonShotgunSkin(Renderer@ r, AudioDevice@ dev) {
             @renderer = r;
             @audioDevice = dev;
             @model = renderer.RegisterModel("Models/Weapons/Shotgun/Weapon.kv6");
@@ -114,10 +95,8 @@ namespace spades {
             @reloadSound = dev.RegisterSound("Sounds/Weapons/Shotgun/Reload.opus");
             @cockSound = dev.RegisterSound("Sounds/Weapons/Shotgun/Cock.opus");
 
-            @fireSmallReverbSound
-            = dev.RegisterSound("Sounds/Weapons/Shotgun/V2AmbienceSmall.opus");
-            @fireLargeReverbSound
-            = dev.RegisterSound("Sounds/Weapons/Shotgun/V2AmbienceLarge.opus");
+            @fireSmallReverbSound = dev.RegisterSound("Sounds/Weapons/Shotgun/V2AmbienceSmall.opus");
+            @fireLargeReverbSound = dev.RegisterSound("Sounds/Weapons/Shotgun/V2AmbienceLarge.opus");
         }
 
         void Update(float dt) {}
@@ -129,12 +108,9 @@ namespace spades {
                 param.volume = 8.0F;
                 audioDevice.Play(fireSound, origin, param);
 
-                param.volume = 8.f * environmentRoom;
-                if (environmentSize < 0.5f) {
-                    audioDevice.Play(fireSmallReverbSound, origin, param);
-                } else {
-                    audioDevice.Play(fireLargeReverbSound, origin, param);
-                }
+                param.volume = 8.0F * environmentRoom;
+                audioDevice.Play((environmentSize < 0.5F)
+					? fireSmallReverbSound : fireLargeReverbSound, origin, param);
 
                 param.volume = 2.0F;
                 param.referenceDistance = 4.0F;
@@ -147,24 +123,24 @@ namespace spades {
             if (!muted) {
                 Vector3 origin = soundOrigin;
                 AudioParam param;
-                param.volume = 0.2f;
+                param.volume = 0.2F;
                 audioDevice.Play(reloadSound, origin, param);
             }
         }
 
         void ReloadedWeapon() {
             if (!muted) {
-                Vector3 origin = originMatrix * Vector3(0.f, 0.f, 0.f);
+                Vector3 origin = originMatrix * Vector3(0.0F, 0.0F, 0.0F);
                 AudioParam param;
-                param.volume = 0.2f;
+                param.volume = 0.2F;
                 audioDevice.Play(cockSound, origin, param);
             }
         }
 
         void AddToScene() {
-            Matrix4 mat = CreateScaleMatrix(0.05f);
-            mat = mat * CreateScaleMatrix(-1.f, -1.f, 1.f);
-            mat = CreateTranslateMatrix(0.35f, -1.f, 0.0f) * mat;
+            Matrix4 mat = CreateScaleMatrix(0.05F);
+			mat = mat * CreateScaleMatrix(-1, -1, 1);
+            mat = CreateTranslateMatrix(0.35F, -1.0F, 0.0F) * mat;
 
             ModelRenderParam param;
             param.matrix = originMatrix * mat;

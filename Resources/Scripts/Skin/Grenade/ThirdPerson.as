@@ -18,73 +18,58 @@
 
  */
 
-namespace spades {
-    class ThirdPersonGrenadeSkin : IToolSkin, IThirdPersonToolSkin, IGrenadeSkin {
-        private float sprintState;
-        private float raiseState;
-        private Vector3 teamColor;
-        private Matrix4 originMatrix;
-        private float cookTime;
-        private float readyState;
+ namespace spades {
+	class ThirdPersonGrenadeSkin : IToolSkin, IThirdPersonToolSkin, IGrenadeSkin {
+		private float sprintState;
+		private float raiseState;
+		private Vector3 teamColor;
+		private Matrix4 originMatrix;
+		private float cookTime;
+		private float readyState;
 
-        float SprintState {
-            set { sprintState = value; }
-        }
+		float SprintState { set { sprintState = value; } }
+		float RaiseState { set { raiseState = value; } }
+		bool IsMuted { set {} } // nothing to do
+		Vector3 TeamColor { set { teamColor = value; } }
+		Matrix4 OriginMatrix { set { originMatrix = value; } }
 
-        float RaiseState {
-            set { raiseState = value; }
-        }
+		float PitchBias {
+			get {
+				float pitch = 0.0F;
+				if (readyState > 1.0F)
+					pitch += 0.5F * cookTime;
+				return pitch;
+			}
+		}
 
-        bool IsMuted {
-            set {
-                // nothing to do
-            }
-        }
+		float CookTime { set { cookTime = value; } }
+		float ReadyState { set { readyState = value; } }
 
-        Vector3 TeamColor {
-            set { teamColor = value; }
-        }
+		private Renderer@ renderer;
+		private AudioDevice@ audioDevice;
+		private Model@ model;
 
-        Matrix4 OriginMatrix {
-            set { originMatrix = value; }
-        }
+		ThirdPersonGrenadeSkin(Renderer@ r, AudioDevice@ dev) {
+			@renderer = r;
+			@audioDevice = dev;
+			@model = renderer.RegisterModel("Models/Weapons/Grenade/Grenade.kv6");
+		}
 
-        float PitchBias {
-            get { return 0.0F; }
-        }
+		void Update(float dt) {
+		}
 
-        float CookTime {
-            set { cookTime = value; }
-        }
+		void AddToScene() {
+			Matrix4 mat = CreateScaleMatrix(0.05F);
+			mat = mat * CreateScaleMatrix(-1, -1, 1);
+			mat = CreateTranslateMatrix(0.45F, -0.9F, -0.05F) * mat;
 
-        float ReadyState {
-            set { readyState = value; }
-        }
+			ModelRenderParam param;
+			param.matrix = originMatrix * mat;
+			renderer.AddModel(model, param);
+		}
+	}
 
-        private Renderer @renderer;
-        private AudioDevice @audioDevice;
-        private Model @model;
-
-        ThirdPersonGrenadeSkin(Renderer @r, AudioDevice @dev) {
-            @renderer = r;
-            @audioDevice = dev;
-            @model = renderer.RegisterModel("Models/Weapons/Grenade/Grenade.kv6");
-        }
-
-        void Update(float dt) {}
-
-        void AddToScene() {
-            Matrix4 mat = CreateScaleMatrix(0.05f);
-
-            mat = CreateTranslateMatrix(0.35f, -1.f, 0.0f) * mat;
-
-            ModelRenderParam param;
-            param.matrix = originMatrix * mat;
-            renderer.AddModel(model, param);
-        }
-    }
-
-    IGrenadeSkin @CreateThirdPersonGrenadeSkin(Renderer @r, AudioDevice @dev) {
-        return ThirdPersonGrenadeSkin(r, dev);
-    }
+	IGrenadeSkin@ CreateThirdPersonGrenadeSkin(Renderer@ r, AudioDevice@ dev) {
+		return ThirdPersonGrenadeSkin(r, dev);
+	}
 }
