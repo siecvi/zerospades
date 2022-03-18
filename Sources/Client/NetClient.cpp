@@ -701,8 +701,6 @@ namespace spades {
 		bool NetClient::HandleHandshakePackets(spades::client::NetPacketReader& r) {
 			SPADES_MARK_FUNCTION();
 
-			return false;
-
 			switch (r.GetType()) {
 				case PacketTypeHandShakeInit: SendHandShakeValid(r.ReadInt()); return true;
 				case PacketTypeExtensionInfo: HandleExtensionPacket(r); return true;
