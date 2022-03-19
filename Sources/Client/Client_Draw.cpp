@@ -789,14 +789,14 @@ namespace spades {
 			pos.x = floorf(pos.x);
 			pos.y = floorf(pos.y);
 
-			Vector4 color = {0, 0, 0, 1};
-			Vector4 shadow = {0, 0, 0, 0.5F * fade};
-
+			Vector4 color;
 			switch (alertType) {
-				case AlertType::Notice: color = Vector4(0, 0, 0, 0); break;
+				case AlertType::Notice: color = Vector4(0, 0, 0, 1); break;
 				case AlertType::Warning: color = Vector4(1, 1, 0, 1); break;
 				case AlertType::Error: color = Vector4(1, 0, 0, 1); break;
+				default: color = Vector4(0, 0, 0, 1); break;
 			}
+			Vector4 shadow = {0, 0, 0, 0.5F * fade};
 
 			float bw = 1.0F;
 			float bh = 6.0F;
