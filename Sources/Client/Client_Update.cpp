@@ -553,11 +553,7 @@ namespace spades {
 				  hurt ? audioDevice->RegisterSound("Sounds/Player/FallHurt.opus")
 				       : (p.GetWade() ? audioDevice->RegisterSound("Sounds/Player/WaterLand.opus")
 				                      : audioDevice->RegisterSound("Sounds/Player/Land.opus"));
-
-				Vector3 origin = p.GetEye();
-				origin.z += p.GetInput().crouch ? 1.2F : 2.0F;
-
-				audioDevice->Play(c.GetPointerOrNull(), origin, AudioParam());
+				audioDevice->Play(c.GetPointerOrNull(), p.GetOrigin(), AudioParam());
 			}
 		}
 
@@ -578,20 +574,17 @@ namespace spades {
 				  "Sounds/Player/Wade3.opus", "Sounds/Player/Wade4.opus"
 				};
 
-				Vector3 origin = p.GetEye();
-				origin.z += p.GetInput().crouch ? 1.2F : 2.0F;
-
 				bool sprinting = clientPlayers[p.GetId()]
 					? (clientPlayers[p.GetId()]->GetSprintState() > 0.5F) : false;
 
 				Handle<IAudioChunk> c =
 				  audioDevice->RegisterSound(SampleRandomElement(p.GetWade() ? wsnds : snds));
-				audioDevice->Play(c.GetPointerOrNull(), origin, AudioParam());
+				audioDevice->Play(c.GetPointerOrNull(), p.GetOrigin(), AudioParam());
 				if (sprinting && !p.GetWade()) {
 					AudioParam param;
 					param.volume *= clientPlayers[p.GetId()]->GetSprintState();
 					c = audioDevice->RegisterSound(SampleRandomElement(rsnds));
-					audioDevice->Play(c.GetPointerOrNull(), origin, param);
+					audioDevice->Play(c.GetPointerOrNull(), p.GetOrigin(), param);
 				}
 			}
 		}
@@ -734,6 +727,25 @@ namespace spades {
 
 		void Client::PlayerKilledPlayer(spades::client::Player& killer,
 			spades::client::Player& victim, KillType kt) {
+			// Don't play hit sound on local: see BullethitPlayer
+			if (kt == KillTypeWeapon || kt == KillTypeHeadshot && !victim.IsLocalPlayer()) {
+				if (!IsMuted()) {
+					Handle<IAudioChunk> c;
+					switch (SampleRandomInt(0, 2)) {
+						case 0: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh1.opus");
+							break;
+						case 1: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh2.opus");
+							break;
+						case 2: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh3.opus");
+							break;
+					}
+
+					AudioParam param;
+					param.volume = 4.0F;
+					audioDevice->Play(c.GetPointerOrNull(), victim.GetEye(), param);
+				}
+			}
+
 			// The local player is dead; initialize the look-you-are-dead cam
 			if (victim.IsLocalPlayer()) {
 				followCameraState.enabled = false;
@@ -741,50 +753,23 @@ namespace spades {
 				Vector3 o = victim.GetFront();
 				followAndFreeCameraState.yaw = atan2(o.y, o.x) + DEG2RAD(180);
 				followAndFreeCameraState.pitch = DEG2RAD(30);
+			}
 
+			// Register local kills
+			if (&killer != &victim && killer.IsLocalPlayer()) {
+				curKills++;
+				curStreak++;
+			}
+
+			// Register local deaths
+			if (victim.IsLocalPlayer()) {
 				curDeaths++;
 				lastStreak = curStreak;
 				if (curStreak > bestStreak)
 					bestStreak = curStreak;
 				curStreak = 0;
-			} else {
-				// play hit sound
-				if (kt == KillTypeWeapon || kt == KillTypeHeadshot) {
-					// don't play on local: see BullethitPlayer
-					if (!IsMuted()) {
-						Handle<IAudioChunk> c;
-						switch (SampleRandomInt(0, 2)) {
-							case 0:
-								c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh1.opus");
-								break;
-							case 1:
-								c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh2.opus");
-								break;
-							case 2:
-								c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh3.opus");
-								break;
-						}
-
-						AudioParam param;
-						param.volume = 4.0F;
-						audioDevice->Play(c.GetPointerOrNull(), victim.GetEye(), param);
-					}
-				}
-				
-				if (&killer != &victim) {
-					curKills++;
-					curStreak++;
-
-					if (kt == KillTypeGrenade)
-						hitFeedbackIconState = 1.0F;
-
-					if (cg_scoreMessages) {
-						std::string msg = "Enemy Neutralized +1 point";
-						chatWindow->AddMessage(ChatWindow::ColoredMessage(msg, MsgColorSysInfo));
-					}
-				}
 			}
-
+			
 			// emit blood (also for local player)
 			// FIXME: emiting blood for either
 			// client-side or server-side hit?
@@ -882,6 +867,11 @@ namespace spades {
 						msg = _Tr("Client", "You were killed by {0}", killer.GetName());
 					}
 					centerMessageView->AddMessage(msg);
+					
+					if (killer.IsLocalPlayer() && cg_scoreMessages) {
+						msg = "Enemy Neutralized +1 point";
+						chatWindow->AddMessage(ChatWindow::ColoredMessage(msg, MsgColorSysInfo));
+					}
 				}
 			}
 		}
