@@ -770,17 +770,19 @@ namespace spades {
 						audioDevice->Play(c.GetPointerOrNull(), victim.GetEye(), param);
 					}
 				}
-			}
+				
+				if (&killer != &victim) {
+					curKills++;
+					curStreak++;
 
-			// Turn off the follow cam mode when someone turns invisible
-			if (FollowsNonLocalPlayer(GetCameraMode())
-				&& &GetCameraTargetPlayer() == &victim
-				&& !victim.GetFront().IsValid()) {
-				followCameraState.enabled = false;
-				freeCameraState.position = MakeVector3(256, 256, 4);
-				freeCameraState.velocity = MakeVector3(0, 0, 0);
-				followAndFreeCameraState.yaw = -DEG2RAD(90);
-				followAndFreeCameraState.pitch = DEG2RAD(89);
+					if (kt == KillTypeGrenade)
+						hitFeedbackIconState = 1.0F;
+
+					if (cg_scoreMessages) {
+						std::string msg = "Enemy Neutralized +1 point";
+						chatWindow->AddMessage(ChatWindow::ColoredMessage(msg, MsgColorSysInfo));
+					}
+				}
 			}
 
 			// emit blood (also for local player)
@@ -880,19 +882,6 @@ namespace spades {
 						msg = _Tr("Client", "You were killed by {0}", killer.GetName());
 					}
 					centerMessageView->AddMessage(msg);
-				}
-
-				if (killer.IsLocalPlayer()) {
-					curKills++;
-					curStreak++;
-
-					if (cg_scoreMessages) {
-						std::string s = "Enemy Neutralized +1 point";
-						chatWindow->AddMessage(ChatWindow::ColoredMessage(s, MsgColorSysInfo));
-					}
-
-					if (kt == KillTypeGrenade)
-						hitFeedbackIconState = 1.0F;
 				}
 			}
 		}
