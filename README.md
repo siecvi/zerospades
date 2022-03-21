@@ -10,9 +10,9 @@
 * Open source, and cross platform.
 
 ## Ok but what the heck is ZeroSpades?
-ZeroSpades is just OpenSpades with some(many) extra features.
+ZeroSpades is just OpenSpades with some extra features and other improvements/fixes.
 
-Which some of the most important changes are:
+Some of the most important changes are:
 
 * In-Game HitTest Debugger(ty BR <3).
 * Extended block color palette(ty Liza&Vier <3).
@@ -23,8 +23,10 @@ Which some of the most important changes are:
 * Classic randomized dirt color.
 * Dead player corpse physics.
 * FallingBlocks physics.
-* Client-Side hit analyze.
+* Client-Side hit analyzer.
 * Players names while on spectator mode.
+* Damage dealt to players are now shown as floating text.
+* Player stats such as kill/death ratio and kill streak.
 
 ## How to Build/Install?
 See the [OpenSpades Building&Installing Guide](https://github.com/yvt/openspades#how-to-buildinstall)
