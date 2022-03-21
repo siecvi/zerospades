@@ -3,4 +3,4 @@
 	url = https://github.com/flathub/shared-modules.git
 [submodule "vcpkg"]
 	path = vcpkg
-	url = https://github.com/microsoft/vcpkg
+	url = https://github.com/microsoft/vcpkg.git
