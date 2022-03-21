@@ -1,4 +1,4 @@
-# ZeroSpades [![All releases downloads](https://img.shields.io/github/downloads/yvt/zerospades/total.svg)](https://github.com/siecvi/zerospades/releases) [![Latest release](https://img.shields.io/github/release/siecvi/zerospades.svg)](https://github.com/siecvi/zerospades/releases/latest)
+# ZeroSpades [![All releases downloads](https://img.shields.io/github/downloads/siecvi/zerospades/total.svg)](https://github.com/siecvi/zerospades/releases) [![Latest release](https://img.shields.io/github/release/siecvi/zerospades.svg)](https://github.com/siecvi/zerospades/releases)
 
 [Download](https://github.com/siecvi/zerospades/releases) — [Community](https://buildandshoot.com)
 
