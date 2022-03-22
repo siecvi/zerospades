@@ -585,7 +585,7 @@ namespace spades {
 		std::array<Vector3, 3> ClientPlayer::GetFlashlightAxes() {
 			std::array<Vector3, 3> axes;
 			axes[2] = flashlightOrientation;
-			axes[0] = Vector3::Cross(flashlightOrientation, player.GetUp()).Normalize();
+			axes[0] = Vector3::Cross(axes[2], player.GetUp()).Normalize();
 			axes[1] = Vector3::Cross(axes[0], axes[2]);
 			return axes;
 		}
