@@ -150,7 +150,7 @@ namespace spades {
 			world->GetLocalPlayer()->SetTool(type);
 
 			// TODO: We should send tool after raise cooldown, not before...
-			net->SendTool(type);
+			net->SendTool();
 
 			if (!quiet) {
 				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Weapons/SwitchLocal.opus");
@@ -769,7 +769,7 @@ namespace spades {
 					bestStreak = curStreak;
 				curStreak = 0;
 			}
-			
+
 			// emit blood (also for local player)
 			// FIXME: emiting blood for either
 			// client-side or server-side hit?
@@ -867,7 +867,7 @@ namespace spades {
 						msg = _Tr("Client", "You were killed by {0}", killer.GetName());
 					}
 					centerMessageView->AddMessage(msg);
-					
+
 					if (killer.IsLocalPlayer() && cg_scoreMessages) {
 						msg = "Enemy Neutralized +1 point";
 						chatWindow->AddMessage(ChatWindow::ColoredMessage(msg, MsgColorSysInfo));

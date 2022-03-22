@@ -188,7 +188,7 @@ namespace spades {
 			void SendBlockAction(IntVector3, BlockActionType);
 			void SendBlockLine(IntVector3 v1, IntVector3 v2);
 			void SendReload();
-			void SendTool(Player::ToolType);
+			void SendTool();
 			void SendGrenade(const Grenade&);
 			void SendHeldBlockColor();
 			void SendHit(int targetPlayerId, HitType type);

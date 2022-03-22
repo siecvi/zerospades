@@ -1216,7 +1216,7 @@ namespace spades {
 						break;
 					}
 
-					if (mode->ModeType() != IGameMode::m_TC) 
+					if (mode->ModeType() != IGameMode::m_TC)
 						SPRaise("Received PacketTypeTerritoryCapture in non-TC gamemode");
 
 					TCGameMode& tc = dynamic_cast<TCGameMode&>(*mode);
@@ -1252,7 +1252,7 @@ namespace spades {
 					}
 					if (mode->ModeType() != IGameMode::m_TC)
 						SPRaise("Received packet in non-TC gamemode");
-				
+
 					TCGameMode& tc = dynamic_cast<TCGameMode&>(*mode);
 
 					if (territoryId >= tc.GetNumTerritories()) {
@@ -1306,7 +1306,7 @@ namespace spades {
 					}
 					if (mode->ModeType() != IGameMode::m_CTF)
 						SPRaise("Received packet in non-TC gamemode");
-					
+
 					CTFGameMode& ctf = dynamic_cast<CTFGameMode&>(mode.value());
 					CTFGameMode::Team& team = ctf.GetTeam(p.GetTeamId());
 					team.hasIntel = true;
@@ -1323,7 +1323,7 @@ namespace spades {
 					}
 					if (mode->ModeType() != IGameMode::m_CTF)
 						SPRaise("Received packet in non-TC gamemode");
-				
+
 					CTFGameMode& ctf = dynamic_cast<CTFGameMode&>(mode.value());
 					CTFGameMode::Team& team = ctf.GetTeam(p.GetTeamId());
 					team.hasIntel = false;
@@ -1543,17 +1543,17 @@ namespace spades {
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
 
-		void NetClient::SendTool(Player::ToolType type) {
+		void NetClient::SendTool() {
 			SPADES_MARK_FUNCTION();
 
 			NetPacketWriter w(PacketTypeSetTool);
 			w.WriteByte((uint8_t)GetLocalPlayer().GetId());
-			switch (type) {
+			switch (GetLocalPlayer().GetTool()) {
 				case Player::ToolSpade: w.WriteByte((uint8_t)0); break;
 				case Player::ToolBlock: w.WriteByte((uint8_t)1); break;
 				case Player::ToolWeapon: w.WriteByte((uint8_t)2); break;
 				case Player::ToolGrenade: w.WriteByte((uint8_t)3); break;
-				default: SPInvalidEnum("tool", type);
+				default: SPInvalidEnum("tool", GetLocalPlayer().GetTool());
 			}
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
