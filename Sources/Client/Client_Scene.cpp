@@ -186,7 +186,7 @@ namespace spades {
 							def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
 						} else {
 							def.fovX = fov;
-							def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) * (1.0F / ratio));
+							def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) / ratio);
 						}
 
 						def.zNear = 0.05F;
@@ -208,7 +208,7 @@ namespace spades {
 							def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
 						} else {
 							def.fovX = fov;
-							def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) * (1.0F / ratio));
+							def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) / ratio);
 						}
 
 						if (shakeLevel >= 1) {
@@ -347,7 +347,7 @@ namespace spades {
 							def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
 						} else {
 							def.fovX = fov;
-							def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) * (1.0F / ratio));
+							def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) / ratio);
 						}
 
 						// Update initial floating camera pos
@@ -376,7 +376,7 @@ namespace spades {
 							def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
 						} else {
 							def.fovX = fov;
-							def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) * (1.0F / ratio));
+							def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) / ratio);
 						}
 
 						def.denyCameraBlur = false;
@@ -468,13 +468,8 @@ namespace spades {
 				def.viewAxis[1] = MakeVector3(0, 0, -1);
 				def.viewAxis[2] = MakeVector3(0, 0, 1);
 
-				if (!cg_horizontalFov) {
-					def.fovY = fov;
-					def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
-				} else {
-					def.fovX = fov;
-					def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) * (1.0F / ratio));
-				}
+				def.fovY = fov;
+				def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
 
 				def.zNear = 0.05F;
 				def.skipWorld = true;
