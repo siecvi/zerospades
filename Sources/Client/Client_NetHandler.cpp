@@ -131,8 +131,10 @@ namespace spades {
 			auto teamName = world->GetTeamName(otherTeamId);
 
 			if (p.IsLocalPlayer() && cg_scoreMessages) {
-				msg = "Enemy Flag Captured +10 points";
-				chatWindow->AddMessage(ChatWindow::ColoredMessage(msg, MsgColorSysInfo));
+				std::string s;
+				s += ChatWindow::ColoredMessage("+10", MsgColorSysInfo);
+				s += " points for capturing the enemy flag";
+				chatWindow->AddMessage(s);
 			}
 
 			{

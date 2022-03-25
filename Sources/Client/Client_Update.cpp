@@ -869,8 +869,10 @@ namespace spades {
 					centerMessageView->AddMessage(msg);
 
 					if (killer.IsLocalPlayer() && cg_scoreMessages) {
-						msg = "Enemy Neutralized +1 point";
-						chatWindow->AddMessage(ChatWindow::ColoredMessage(msg, MsgColorSysInfo));
+						std::string s;
+						s += ChatWindow::ColoredMessage("+1", MsgColorSysInfo);
+						s += " point for neutralizing an enemy";
+						chatWindow->AddMessage(s);
 					}
 				}
 			}
