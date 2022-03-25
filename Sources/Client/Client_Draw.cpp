@@ -610,7 +610,7 @@ namespace spades {
 				vsnprintf(buf, sizeof(buf), format, va);
 				va_end(va);
 
-				auto pos = MakeVector2(x, y);
+				Vector2 pos = MakeVector2(x, y);
 				pos.x -= font.Measure(buf).x;
 				y += 16.0F;
 				font.DrawShadow(buf, pos, 1.0F, MakeVector4(1, 1, 1, 0.8F),
@@ -710,7 +710,7 @@ namespace spades {
 			float textY = (float)cg_minimapSize + 64.0F;
 
 			auto addLine = [&](const std::string& text) {
-				auto pos = MakeVector2(textX, textY);
+				Vector2 pos = MakeVector2(textX, textY);
 				pos.x -= font.Measure(text).x;
 				textY += 20.0F;
 				font.DrawShadow(text, pos, 1.0F, MakeVector4(1, 1, 1, 1),
@@ -953,13 +953,15 @@ namespace spades {
 
 			IFont& font = fontManager->GetGuiFont();
 
-			auto str = net->GetStatusString();
-			auto sz = font.Measure(str);
+			auto statusStr = net->GetStatusString();
+			Vector2 size = font.Measure(statusStr);
+			Vector2 pos = MakeVector2((sw - size.x) * 0.5F, prgY - 10.0F);
+			pos.y -= size.y;
 
 			Vector4 grayCol = {0.5, 0.5, 0.5, 1};
 			Vector3 blueCol = {0, 0.5, 1};
 
-			font.Draw(str, MakeVector2((sw - sz.x) * 0.5F, prgY - sz.y - 10.0F), 1.0F, grayCol);
+			font.Draw(statusStr, pos, 1.0F, grayCol);
 
 			// background bar
 			renderer->SetColorAlphaPremultiplied(grayCol * 0.5F);
