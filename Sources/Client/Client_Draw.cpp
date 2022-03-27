@@ -83,6 +83,7 @@ DEFINE_SPADES_SETTING(cg_hudBorderY, "16");
 DEFINE_SPADES_SETTING(cg_netGraphSize, "128");
 DEFINE_SPADES_SETTING(cg_dbgHitTestSize, "128");
 DEFINE_SPADES_SETTING(cg_damageIndicators, "1");
+DEFINE_SPADES_SETTING(cg_hurtScreenEffects, "1");
 
 SPADES_SETTING(cg_minimapSize);
 
@@ -871,8 +872,10 @@ namespace spades {
 
 			stmp::optional<Player&> p = GetWorld()->GetLocalPlayer();
 			if (p) { // joined local player
-				DrawHurtSprites();
-				DrawHurtScreenEffect();
+				if (cg_hurtScreenEffects) {
+					DrawHurtSprites();
+					DrawHurtScreenEffect();
+				}
 
 				if (cg_playerNames)
 					DrawHottrackedPlayerName();
