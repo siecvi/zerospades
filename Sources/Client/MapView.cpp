@@ -173,11 +173,23 @@ namespace spades {
 			SPADES_MARK_FUNCTION_DEBUG();
 
 			x = div(x, 64).quot;
-			y = div(y, 64).quot;
+			y = div(y, 64).quot + 1;
 
-			char coordStr[2] = {char(x) + 'A', char(y) + '1'};
+			char buf[8];
 
-			return std::string(coordStr);
+			switch (x) {
+				case 0: sprintf(buf, "A%i", y); break;
+				case 1: sprintf(buf, "B%i", y); break;
+				case 2: sprintf(buf, "C%i", y); break;
+				case 3: sprintf(buf, "D%i", y); break;
+				case 4: sprintf(buf, "E%i", y); break;
+				case 5: sprintf(buf, "F%i", y); break;
+				case 6: sprintf(buf, "G%i", y); break;
+				case 7: sprintf(buf, "H%i", y); break;
+				default: return std::string("XY");
+			}
+
+			return std::string(buf);
 		}
 
 		// definite a palette of 32 color in RGB code
