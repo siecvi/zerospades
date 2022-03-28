@@ -281,7 +281,6 @@ namespace spades {
 			audioDevice->RegisterSound("Sounds/Weapons/RestockLocal.opus");
 			audioDevice->RegisterSound("Sounds/Weapons/AimDownSightLocal.opus");
 			renderer->RegisterImage("Gfx/Ball.png");
-			renderer->RegisterModel("Models/Player/Dead.kv6");
 			renderer->RegisterImage("Gfx/Spotlight.jpg");
 			renderer->RegisterModel("Models/Weapons/Spade/Spade.kv6");
 			renderer->RegisterModel("Models/Weapons/Block/Block.kv6");
@@ -295,14 +294,6 @@ namespace spades {
 			renderer->RegisterModel("Models/Weapons/Shotgun/Weapon.kv6");
 			renderer->RegisterModel("Models/Weapons/Shotgun/WeaponNoPump.kv6");
 			renderer->RegisterModel("Models/Weapons/Shotgun/Pump.kv6");
-			renderer->RegisterModel("Models/Player/Arm.kv6");
-			renderer->RegisterModel("Models/Player/UpperArm.kv6");
-			renderer->RegisterModel("Models/Player/LegCrouch.kv6");
-			renderer->RegisterModel("Models/Player/TorsoCrouch.kv6");
-			renderer->RegisterModel("Models/Player/Leg.kv6");
-			renderer->RegisterModel("Models/Player/Torso.kv6");
-			renderer->RegisterModel("Models/Player/Arms.kv6");
-			renderer->RegisterModel("Models/Player/Head.kv6");
 			renderer->RegisterModel("Models/MapObjects/Intel.kv6");
 			renderer->RegisterModel("Models/MapObjects/CheckPoint.kv6");
 			renderer->RegisterModel("Models/MapObjects/BlockCursorLine.kv6");
