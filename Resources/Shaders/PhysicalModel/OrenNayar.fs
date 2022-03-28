@@ -39,7 +39,7 @@ float OrenNayar(float sigma, float dotLight, float dotEye) {
 	float betaCos2 = betaCos * betaCos;
 	
 	// rsq optimization; 1/x-1 = (1-x)/x
-	float betaTan = 1.0 / sqrt(betaCos2 / (1.0 - betaCos2)); //sqrt(1.0 / betaCos2 - 1.0);
+	float betaTan = 1.0 / sqrt(betaCos2 / (1.0 - betaCos2));
 	
 	// cos(dotLight - dotEye)
 	vec4 vecs = vec4(dotLightEye, sinLightEye);

@@ -18,7 +18,6 @@
  
  */
 
-
 uniform sampler2D mainTexture;
 uniform sampler2D cocTexture;
 
@@ -40,11 +39,10 @@ vec4 sampleDoF(vec2 at) {
 }
 
 void main() {
-	
 	float coc = texture2D(cocTexture, texCoord).x;
-	vec4 v = vec4(0.);
+	vec4 v = vec4(0.0);
 	
-	vec4 offsets = vec4(0., 0.25, 0.5, 0.75) * coc;
+	vec4 offsets = vec4(0.0, 0.25, 0.5, 0.75) * coc;
 	vec4 offsets2 = offsets + coc * 0.125;
 	
 	v += sampleDoF(texCoord);
@@ -56,7 +54,7 @@ void main() {
 	v += sampleDoF(texCoord + offset * offsets2.y);
 	v += sampleDoF(texCoord + offset * offsets2.z);
 	v += sampleDoF(texCoord + offset * offsets2.w);
-	v.xyz *= 1. / v.w;
+	v.xyz *= 1.0 / v.w;
 #else
     v *= 0.25;
 #endif
@@ -65,6 +63,5 @@ void main() {
 #endif
 	
 	gl_FragColor = v;
-	gl_FragColor.w = 1.;
+	gl_FragColor.w = 1.0;
 }
-

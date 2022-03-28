@@ -18,7 +18,6 @@
  
  */
 
-
 uniform sampler2D depthTexture;
 uniform vec2 zNearFar;
 uniform vec2 pixelShift;
@@ -44,41 +43,39 @@ float depthAt(vec2 pt){
 
 float CoCAt(vec2 pt) {
 	float depth = depthAt(pt);
-	float blur = 1. - depth * depthScale;
-	return blur * (blur > 0. ? nearBlur : farBlur);
+	float blur = 1.0 - depth * depthScale;
+	return blur * (blur > 0.0 ? nearBlur : farBlur);
 }
 
 void main() {
-	
-	float val = 0.;
+	float val = 0.0;
 	
 	val += CoCAt(texCoord);
-	val += CoCAt(texCoord + pixelShift * vec2(1., 0.));
-	val += CoCAt(texCoord + pixelShift * vec2(2., 0.));
-	val += CoCAt(texCoord + pixelShift * vec2(3., 0.));
-	val += CoCAt(texCoord + pixelShift * vec2(0., 1.));
-	val += CoCAt(texCoord + pixelShift * vec2(1., 1.));
-	val += CoCAt(texCoord + pixelShift * vec2(2., 1.));
-	val += CoCAt(texCoord + pixelShift * vec2(3., 1.));
-	val += CoCAt(texCoord + pixelShift * vec2(0., 2.));
-	val += CoCAt(texCoord + pixelShift * vec2(1., 2.));
-	val += CoCAt(texCoord + pixelShift * vec2(2., 2.));
-	val += CoCAt(texCoord + pixelShift * vec2(3., 2.));
-	val += CoCAt(texCoord + pixelShift * vec2(0., 3.));
-	val += CoCAt(texCoord + pixelShift * vec2(1., 3.));
-	val += CoCAt(texCoord + pixelShift * vec2(2., 3.));
-	val += CoCAt(texCoord + pixelShift * vec2(3., 3.));
+	val += CoCAt(texCoord + pixelShift * vec2(1.0, 0.0));
+	val += CoCAt(texCoord + pixelShift * vec2(2.0, 0.0));
+	val += CoCAt(texCoord + pixelShift * vec2(3.0, 0.0));
+	val += CoCAt(texCoord + pixelShift * vec2(0.0, 1.0));
+	val += CoCAt(texCoord + pixelShift * vec2(1.0, 1.0));
+	val += CoCAt(texCoord + pixelShift * vec2(2.0, 1.0));
+	val += CoCAt(texCoord + pixelShift * vec2(3.0, 1.0));
+	val += CoCAt(texCoord + pixelShift * vec2(0.0, 2.0));
+	val += CoCAt(texCoord + pixelShift * vec2(1.0, 2.0));
+	val += CoCAt(texCoord + pixelShift * vec2(2.0, 2.0));
+	val += CoCAt(texCoord + pixelShift * vec2(3.0, 2.0));
+	val += CoCAt(texCoord + pixelShift * vec2(0.0, 3.0));
+	val += CoCAt(texCoord + pixelShift * vec2(1.0, 3.0));
+	val += CoCAt(texCoord + pixelShift * vec2(2.0, 3.0));
+	val += CoCAt(texCoord + pixelShift * vec2(3.0, 3.0));
 	
-	gl_FragColor.x = val * (1. / 16.);
+	gl_FragColor.x = val * (1.0 / 16.0);
 	
 	float sq = length((texCoord - 0.5) * vignetteScale);
 	float sq2 = sq * sq * maxVignetteBlur;
 	gl_FragColor.x += sq2;
 	
 	// don't blur the center
-	float scl = min(1., sq * 10.);
+	float scl = min(1.0, sq * 10.0);
 	gl_FragColor.x *= scl;
 	
-	gl_FragColor.x = min(gl_FragColor.x + globalBlur, 1.);
+	gl_FragColor.x = min(gl_FragColor.x + globalBlur, 1.0);
 }
-

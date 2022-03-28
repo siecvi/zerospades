@@ -18,21 +18,17 @@
  
  */
 
-
 uniform sampler2D cocTexture;
 uniform sampler2D cocBlurTexture;
 
 varying vec2 texCoord;
 
-
 void main() {
-	
 	float coc = texture2D(cocTexture, texCoord).x;
 	float cocBlur = texture2D(cocBlurTexture, texCoord).x;
 
-	float op = 2. * max(cocBlur, coc) - coc;
+	float op = 2.0 * max(cocBlur, coc) - coc;
 	op = max(op, coc);
 	gl_FragColor = vec4(op);
 	
 }
-

@@ -35,9 +35,8 @@ void main() {
 	brightness = sqrt(brightness);
 
 	// weaken the effect
-	// brightness = mix(brightness, 1., 0.05);
+	// brightness = mix(brightness, 1.0, 0.05);
 
-	gl_FragColor.xyz = vec3(clamp(.6 / brightness, minGain, maxGain));
+	gl_FragColor.xyz = vec3(clamp(0.6 / brightness, minGain, maxGain));
 	gl_FragColor.w = color.w;
 }
-

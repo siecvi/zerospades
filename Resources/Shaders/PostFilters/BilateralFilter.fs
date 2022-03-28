@@ -18,7 +18,6 @@
 
  */
 
-
 uniform sampler2D inputTexture;
 uniform sampler2D depthTexture;
 uniform vec2 unitShift;
@@ -28,7 +27,7 @@ uniform bool isUpsampling;
 
 varying vec2 texCoord;
 
-float decodeDepth(float w, float near, float far){
+float decodeDepth(float w, float near, float far) {
     return far * near / mix(far, near, w);
 }
 
@@ -68,7 +67,6 @@ void main() {
             sampledValue = sqrt(sampledValue); // gamma correction: reduces artifacts seen on corners
             sum += vec2(sampledValue, 1.0) * weight;
         }
-
     } else {
         for (float i = -4.0; i <= 4.0; i += 1.0) {
             // Extrapolate the depth value using the tangent
@@ -86,7 +84,6 @@ void main() {
             sampledValue = sqrt(sampledValue); // gamma correction: reduces artifacts seen on corners
             sum += vec2(sampledValue, 1.0) * weight;
         }
-
     }
 
     float weightedAverage = sum.x / sum.y;
@@ -94,4 +91,3 @@ void main() {
     gl_FragColor.xyz = vec3(weightedAverage);
     gl_FragColor.w = 1.0;
 }
-

@@ -18,7 +18,6 @@
  
  */
 
-
 uniform sampler2D mainTexture;
 uniform sampler2D cocTexture;
 
@@ -33,11 +32,10 @@ vec4 doGamma(vec4 col) {
 }
 
 void main() {
-	
 	float coc = texture2D(cocTexture, texCoord).x;
-	vec4 v = vec4(0.);
+	vec4 v = vec4(0.0);
 	
-	vec4 offsets = vec4(0., 0.25, 0.5, 0.75) * coc;
+	vec4 offsets = vec4(0.0, 0.25, 0.5, 0.75) * coc;
 	vec4 offsets2 = offsets + coc * 0.125;
 	
 	v += doGamma(texture2D(mainTexture, texCoord));
@@ -59,4 +57,3 @@ void main() {
 	
 	gl_FragColor = v;
 }
-

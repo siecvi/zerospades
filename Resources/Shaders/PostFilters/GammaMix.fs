@@ -18,7 +18,6 @@
  
  */
 
-
 uniform sampler2D texture1;
 uniform sampler2D texture2;
 
@@ -33,18 +32,11 @@ void main() {
 	color2 = texture2D(texture2, texCoord).xyz;
 	
 #if LINEAR_FRAMEBUFFER
-	
 	vec3 color = color1 * mix1 + color2 * mix2;
-	
 #else
-	
 	vec3 color = color1 * color1 * mix1;
 	color += color2 * color2 * mix2;
-	
 	color = sqrt(color);
-	
 #endif
-	
-	gl_FragColor = vec4(color, 1.);
+	gl_FragColor = vec4(color, 1.0);
 }
-

@@ -37,10 +37,11 @@ float GGXDistribution(float m, float dotHalf) {
 // http://en.wikipedia.org/wiki/Specular_highlight#Cook.E2.80.93Torrance_model
 float CockTorrance(vec3 eyeVec, vec3 lightVec, vec3 normal) {
 	float LN = dot(lightVec, normal);
-	if(LN <= 0.0) return 0.0;
+	if (LN <= 0.0) 
+		return 0.0;
 
 	vec3 halfVec = lightVec + eyeVec;
-	halfVec = dot(halfVec, halfVec) < 0.00000000001 ? vec3(1.0, 0.0, 0.0) : normalize(halfVec);
+	halfVec = (dot(halfVec, halfVec) < 0.00000000001) ? vec3(1.0, 0.0, 0.0) : normalize(halfVec);
 
 	// distribution term
 	float distribution = dot(halfVec, normal);

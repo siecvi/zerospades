@@ -20,11 +20,10 @@
 
 varying float hemisphereLighting;
 
-void PrepareForRadiosity_Map(vec3 vertexCoord, vec3 normal) {
-	hemisphereLighting = 1. - normal.z * .2;
+void PrepareForMapRadiosity(vec3 vertexCoord, vec3 normal) {
+	hemisphereLighting = 1.0 - normal.z * 0.2;
 }
 
 void PrepareForRadiosityForMap_Map(vec3 vertexCoord, vec3 centerCoord, vec3 normal) {
-	hemisphereLighting = 1. - normal.z * .2;
+	hemisphereLighting = 1.0 - normal.z * 0.2;
 }
-

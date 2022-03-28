@@ -18,22 +18,20 @@
 
  */
 
-
-
-void PrepareForShadow_Map(vec3 vertexCoord, vec3 normal) ;
-void PrepareForShadow_Model(vec3 vertexCoord, vec3 normal);
-void PrepareForRadiosity_Map(vec3 vertexCoord, vec3 normal);
+void PrepareForMapShadow(vec3 vertexCoord, vec3 normal) ;
+void PrepareForModelShadow(vec3 vertexCoord, vec3 normal);
+void PrepareForMapRadiosity(vec3 vertexCoord, vec3 normal);
 void PrepareForRadiosityForMap_Map(vec3 vertexCoord, vec3 centerCoord, vec3 normal);
 
 void PrepareForShadow(vec3 vertexCoord, vec3 normal) {
-	PrepareForShadow_Map(vertexCoord, normal);
-	PrepareForShadow_Model(vertexCoord, normal);
-	PrepareForRadiosity_Map(vertexCoord, normal);
+	PrepareForMapShadow(vertexCoord, normal);
+	PrepareForModelShadow(vertexCoord, normal);
+	PrepareForMapRadiosity(vertexCoord, normal);
 }
 
+// map uses specialized shadow coordinate calculation to avoid glitch
 void PrepareForShadowForMap(vec3 vertexCoord, vec3 centerCoord, vec3 normal) {
-	// map uses specialized shadow coordinate calculation to avoid glitch
-	PrepareForShadow_Map(centerCoord + normal * 0.1, normal);
-	PrepareForShadow_Model(vertexCoord, normal);
+	PrepareForMapShadow(centerCoord + normal * 0.1, normal);
+	PrepareForModelShadow(vertexCoord, normal);
 	PrepareForRadiosityForMap_Map(vertexCoord, centerCoord, normal);
 }

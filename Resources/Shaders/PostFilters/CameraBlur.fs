@@ -18,7 +18,6 @@
  
  */
 
-
 uniform sampler2D mainTexture;
 uniform sampler2D depthTexture;
 uniform float shutterTimeScale;
@@ -34,7 +33,7 @@ vec4 getSample(vec2 coord){
 	
 	float depth = texture2D(depthTexture, coord).x;
 	float weight = depth*depth; // [0,0.1] is for view weapon
-	weight = min(weight, 1.) + 0.0001;
+	weight = min(weight, 1.0) + 0.0001;
 	
 	return vec4(color * weight, weight);
 }
@@ -46,7 +45,7 @@ void main() {
 	
 	vec4 sum;
 	
-	coord = mix(nextCoord, prevCoord, 0.);
+	coord = mix(nextCoord, prevCoord, 0.0);
 	sum = getSample(coord);
 	
 	// use latest sample's weight for camera blur strength
@@ -75,6 +74,5 @@ void main() {
 	gl_FragColor.xyz = sqrt(gl_FragColor.xyz);
 #endif
 	
-	gl_FragColor.w = 1.;
+	gl_FragColor.w = 1.0;
 }
-

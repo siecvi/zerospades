@@ -18,7 +18,6 @@
  
  */
 
-
 uniform sampler2D mainTexture;
 uniform vec2 inverseVP;
 

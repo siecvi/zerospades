@@ -18,7 +18,6 @@
  
  */
 
-
 uniform sampler2D mainTexture;
 
 varying vec3 angleTan;
@@ -28,7 +27,7 @@ varying vec4 texCoord3;
 varying vec2 texCoord4;
 
 // linearize gamma
-vec3 linearlize(vec3 col){
+vec3 linearlize(vec3 col) {
 #if !LINEAR_FRAMEBUFFER
 	return col * col;
 #else
@@ -37,7 +36,7 @@ vec3 linearlize(vec3 col){
 }
 
 void main() {
-	vec3 sum = vec3(0.), val;
+	vec3 sum = vec3(0.0), val;
 	
 #if 1
 	// accurate color abberation
@@ -72,7 +71,7 @@ void main() {
 	val *= linearlize(texture2D(mainTexture, texCoord3.zw).xyz);
 	gl_FragColor.xyz += val;
 	
-	gl_FragColor.xyz *= 1. / sum;
+	gl_FragColor.xyz *= 1.0 / sum;
 #if !LINEAR_FRAMEBUFFER
 	gl_FragColor.xyz = sqrt(gl_FragColor.xyz);
 #endif
@@ -85,25 +84,23 @@ void main() {
 #else
 	// no color abberation effect
 	gl_FragColor = texture2D(mainTexture, texCoord4);
-	gl_FragColor.w = 1.;
+	gl_FragColor.w = 1.0;
 #endif
 	
 	// calc brightness (cos^4)
 	// note that this is gamma corrected
 	float tanValue = length(angleTan.xy);
-	float brightness = 1. / (1. + tanValue * tanValue);
+	float brightness = 1.0 / (1.0 + tanValue * tanValue);
 	brightness *= angleTan.z;
 #if LINEAR_FRAMEBUFFER
 	brightness *= brightness;
 #endif
 #if USE_HDR
-	brightness = mix(brightness, 1., 0.7); // weaken
+	brightness = mix(brightness, 1.0, 0.7); // weaken
 #else
-	brightness = mix(brightness, 1., 0.9); // weaken
+	brightness = mix(brightness, 1.0, 0.9); // weaken
 #endif
 	
 	gl_FragColor.xyz *= brightness;
-	
-	gl_FragColor.w = 1.;
+	gl_FragColor.w = 1.0;
 }
-

@@ -18,16 +18,13 @@
 
  */
 
-
-
 uniform vec3 fogColor;
 varying float hemisphereLighting;
 
-vec3 Radiosity_Map(float detailAmbientOcclusion, float ssao) {
-	return mix(fogColor, vec3(1.), 0.5) *
-	(0.5 * detailAmbientOcclusion * hemisphereLighting * ssao);
+vec3 EvaluateRadiosity(float detailAmbientOcclusion, float ssao) {
+	return mix(fogColor, vec3(1.0), 0.5) * (0.5 * detailAmbientOcclusion * hemisphereLighting * ssao);
 }
 
-vec3 BlurredReflection_Map(float detailAmbientOcclusion, vec3 direction, float ssao) {
+vec3 EvaluateSoftReflections(float detailAmbientOcclusion, vec3 direction, float ssao) {
     return fogColor * ((direction.z * -0.5 + 0.5) * detailAmbientOcclusion * ssao);
 }

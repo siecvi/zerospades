@@ -18,8 +18,6 @@
  
  */
 
-
-
 attribute vec2 positionAttribute;
 attribute vec4 colorAttribute;
 
@@ -32,19 +30,17 @@ varying vec4 texCoord3;
 varying vec2 texCoord4;
 
 void main() {
-	
 	vec2 pos = positionAttribute;
+	vec2 scrPos = pos * 2.0 - 1.0;
 	
-	vec2 scrPos = pos * 2. - 1.;
-	
-	gl_Position = vec4(scrPos, 0.5, 1.);
+	gl_Position = vec4(scrPos, 0.5, 1.0);
 	
 	// texture coords
 	vec2 startCoord = pos;
-	vec2 diff = vec2(.5) - startCoord;
+	vec2 diff = vec2(0.5) - startCoord;
 	diff *= 0.008;
 	
-	startCoord += diff * .7;
+	startCoord += diff * 0.7;
 	diff = -diff;
 	
 	texCoord1 = startCoord.xyxy + diff.xyxy * vec4(vec2(0.), vec2(.1));
@@ -57,14 +53,13 @@ void main() {
 	
 	// angleTan.z = brightness scale (to make brightness gain at corner (most darkest) become 1)
 	//            = 1 / cos(fovDiag)
-	angleTan.z = length(fov) * length(fov) + 1.;
+	angleTan.z = length(fov) * length(fov) + 1.0;
 	
 	// weaken the brightness adjust so that saturation doesn't occur
 #if USE_HDR
-	angleTan.z = mix(angleTan.z, 1., 0.6);
+	angleTan.z = mix(angleTan.z, 1.0, 0.6);
 #else
 	// saturation is likely to occur in LDR, so weaken more
-	angleTan.z = mix(angleTan.z, 1., 0.9);
+	angleTan.z = mix(angleTan.z, 1.0, 0.9);
 #endif
 }
-

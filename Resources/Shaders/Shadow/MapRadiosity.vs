@@ -26,20 +26,19 @@ varying vec3 radiosityTextureCoord;
 varying vec3 ambientShadowTextureCoord;
 varying vec3 normalVarying;
 
-void PrepareForRadiosity_Map(vec3 vertexCoord, vec3 normal) {
-	radiosityTextureCoord = (vertexCoord + vec3(0., 0., 0.)) / vec3(512., 512., 64.);
-	ambientShadowTextureCoord = (vertexCoord + vec3(0., 0., 1.)) / vec3(512., 512., 65.);
-
+void PrepareForMapRadiosity(vec3 vertexCoord, vec3 normal) {
+	radiosityTextureCoord = (vertexCoord + vec3(0.0, 0.0, 0.0)) / vec3(512.0, 512., 64.0);
+	ambientShadowTextureCoord = (vertexCoord + vec3(0.0, 0.0, 1.0)) / vec3(512.0, 512.0, 65.0);
 	normalVarying = normal;
 }
 
 void PrepareForRadiosityForMap_Map(vec3 vertexCoord, vec3 centerCoord, vec3 normal) {
-	radiosityTextureCoord = (vertexCoord + vec3(0., 0., 0.)) / vec3(512., 512., 64.);
-	ambientShadowTextureCoord = (vertexCoord + vec3(0., 0., 1.) + normal * 0.5) / vec3(512., 512., 65.);
+	radiosityTextureCoord = (vertexCoord + vec3(0.0, 0.0, 0.0)) / vec3(512.0, 512.0, 64.0);
+	ambientShadowTextureCoord = (vertexCoord + vec3(0.0, 0.0, 1.0) + normal * 0.5) / vec3(512.0, 512.0, 65.0);
 
-	vec3 centerAST = (centerCoord + vec3(0., 0., 1.) + normal * 0.5) / vec3(512., 512., 65.);
+	vec3 centerAST = (centerCoord + vec3(0.0, 0.0, 1.0) + normal * 0.5) / vec3(512.0, 512.0, 65.0);
 	vec3 rel = vertexCoord - centerCoord;
-	vec3 relAST = rel * 2.0 / vec3(512., 512., 65.);
+	vec3 relAST = rel * 2.0 / vec3(512.0, 512.0, 65.0);
 
 	// Detect the following pattern:
 	//
@@ -72,7 +71,7 @@ void PrepareForRadiosityForMap_Map(vec3 vertexCoord, vec3 centerCoord, vec3 norm
 
 	// Hide the light leaks by corners by modifying the AO texture coordinates
 	if (weightSum < -0.5) {
-		radiosityTextureCoord -= rel / vec3(512., 512., 64.);
+		radiosityTextureCoord -= rel / vec3(512.0, 512.0, 64.0);
 		ambientShadowTextureCoord = centerAST;
 	}
 

@@ -18,7 +18,6 @@
 
  */
 
-
 uniform sampler2D mainTexture;
 uniform sampler2D blurTexture1;
 uniform sampler2D blurTexture2;
@@ -35,15 +34,14 @@ vec4 doGamma(vec4 col) {
 }
 
 void main() {
-
 	float coc = texture2D(cocTexture, texCoord).x;
 
 	vec4 a = doGamma(texture2D(mainTexture, texCoord));
 	vec4 b = doGamma(texture2D(blurTexture1, texCoord));
-	b += doGamma(texture2D(blurTexture2, texCoord)) * 2.;
-	b *= (1. / 3.);
+	b += doGamma(texture2D(blurTexture2, texCoord)) * 2.0;
+	b *= (1.0 / 3.0);
 
-	float per = min(1., coc * 5.);
+	float per = min(1.0, coc * 5.0);
 	vec4 v = blurredOnly ? b : mix(a, b, per);
 
 #if !LINEAR_FRAMEBUFFER
@@ -52,4 +50,3 @@ void main() {
 
 	gl_FragColor = v;
 }
-

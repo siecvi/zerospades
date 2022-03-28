@@ -18,7 +18,6 @@
 
  */
 
-
 uniform sampler2D blurTexture1;
 uniform sampler2D dustTexture;
 uniform sampler2D inputTexture;
@@ -56,11 +55,10 @@ void main() {
 
 	// non-linearize
 #if !LINEAR_FRAMEBUFFER
-	final = sqrt(max(final, 0.));
+	final = sqrt(max(final, 0.0));
 #else
-	final = max(final, 0.);
+	final = max(final, 0.0);
 #endif
 
-	gl_FragColor = vec4(final, 1.);
+	gl_FragColor = vec4(final, 1.0);
 }
-

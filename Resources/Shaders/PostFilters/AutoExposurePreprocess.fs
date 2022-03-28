@@ -18,7 +18,6 @@
  
  */
 
-
 uniform sampler2D mainTexture;
 
 varying vec2 texCoord;
@@ -31,7 +30,7 @@ void main() {
 	float brightness = max(max(color.x, color.y), color.z);
 
 	// remove NaN and Infinity
-	if (!(brightness >= 0. && brightness <= 16.)) {
+	if (!(brightness >= 0.0 && brightness <= 16.0)) {
 		brightness = 0.05;
 	}
 
@@ -45,6 +44,5 @@ void main() {
 	brightness *= brightness;
 	brightness *= brightness;
 
-	gl_FragColor = vec4(brightness, brightness, brightness, 1.);
+	gl_FragColor = vec4(brightness, brightness, brightness, 1.0);
 }
-

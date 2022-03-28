@@ -18,43 +18,40 @@
 
  */
 
-
 // Common code for sunlight shadow rendering
-
 
 #if USE_SSAO
 uniform sampler2D ssaoTexture;
 uniform vec2 ssaoTextureUVScale;
 #endif
 
-float VisibilityOfSunLight_Map();
-float VisibilityOfSunLight_Model();
-vec3 Radiosity_Map(float detailAmbientOcclusion, float ssao);
-vec3 BlurredReflection_Map(float detailAmbientOcclusion, vec3 direction, float ssao);
+float EvaluateMapShadow();
+float EvaluteModelShadow();
+vec3 EvaluateRadiosity(float detailAmbientOcclusion, float ssao);
+vec3 EvaluateSoftReflections(float detailAmbientOcclusion, vec3 direction, float ssao);
 
 float VisibilityOfSunLight() {
-	return VisibilityOfSunLight_Map() *
-	VisibilityOfSunLight_Model();
+	return EvaluateMapShadow() * EvaluteModelShadow();
 }
 
-vec3 EvaluateSunLight(){
-	return vec3(.6) * VisibilityOfSunLight();
+vec3 EvaluateSunLight() {
+	return vec3(0.6) * VisibilityOfSunLight();
 }
 
 vec3 EvaluateAmbientLight(float detailAmbientOcclusion) {
 #if USE_SSAO
     float ssao = texture2D(ssaoTexture, gl_FragCoord.xy * ssaoTextureUVScale).x;
-#else
+#else // USE_SSAO
     float ssao = 1.0;
-#endif
-	return Radiosity_Map(detailAmbientOcclusion, ssao);
+#endif // USE_SSAO
+	return EvaluateRadiosity(detailAmbientOcclusion, ssao);
 }
 
 vec3 EvaluateDirectionalAmbientLight(float detailAmbientOcclusion, vec3 direction) {
 #if USE_SSAO
     float ssao = texture2D(ssaoTexture, gl_FragCoord.xy * ssaoTextureUVScale).x;
-#else
+#else // USE_SSAO
     float ssao = 1.0;
-#endif
-    return BlurredReflection_Map(detailAmbientOcclusion, direction, ssao);
+#endif // USE_SSAO
+    return EvaluateSoftReflections(detailAmbientOcclusion, direction, ssao);
 }

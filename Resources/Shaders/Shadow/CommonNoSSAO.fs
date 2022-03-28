@@ -20,24 +20,23 @@
 
 // Modified version of Common.fs; SSAO is removed to lower the texture stage pressure
 
-float VisibilityOfSunLight_Map();
-float VisibilityOfSunLight_Model();
-vec3 Radiosity_Map(float detailAmbientOcclusion, float ssao);
-vec3 BlurredReflection_Map(float detailAmbientOcclusion, vec3 direction, float ssao);
+float EvaluateMapShadow();
+float EvaluteModelShadow();
+vec3 EvaluateRadiosity(float detailAmbientOcclusion, float ssao);
+vec3 EvaluateSoftReflections(float detailAmbientOcclusion, vec3 direction, float ssao);
 
 float VisibilityOfSunLight() {
-	return VisibilityOfSunLight_Map() *
-	VisibilityOfSunLight_Model();
+	return EvaluateMapShadow() * EvaluteModelShadow();
 }
 
 vec3 EvaluateSunLight(){
-	return vec3(.6) * VisibilityOfSunLight();
+	return vec3(0.6) * VisibilityOfSunLight();
 }
 
 vec3 EvaluateAmbientLight(float detailAmbientOcclusion) {
-	return Radiosity_Map(detailAmbientOcclusion, 1.0);
+	return EvaluateRadiosity(detailAmbientOcclusion, 1.0);
 }
 
 vec3 EvaluateDirectionalAmbientLight(float detailAmbientOcclusion, vec3 direction) {
-    return BlurredReflection_Map(detailAmbientOcclusion, direction, 1.0);
+    return EvaluateSoftReflections(detailAmbientOcclusion, direction, 1.0);
 }

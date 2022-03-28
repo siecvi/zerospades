@@ -18,7 +18,6 @@
  
  */
 
-
 uniform sampler2D mainTexture;
 
 varying vec4 color;
@@ -28,4 +27,3 @@ void main() {
 	gl_FragColor = texture2D(mainTexture, texCoord);
 	gl_FragColor *= color;
 }
-
