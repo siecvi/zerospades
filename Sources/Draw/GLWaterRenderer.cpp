@@ -49,11 +49,11 @@ namespace spades {
 			int size, samples;
 
 		private:
-			uint32_t *bitmap;
+			uint32_t* bitmap;
 
 			int Encode8bit(float v) {
-				v = (v + 1.f) * .5f * 255.0F;
-				v = floorf(v + .5f);
+				v = (v + 1.0F) * 0.5F * 255.0F;
+				v = floorf(v + 0.5F);
 
 				int i = (int)v;
 				if (i < 0)
@@ -64,7 +64,7 @@ namespace spades {
 			}
 
 			uint32_t MakeBitmapPixel(float dx, float dy, float h) {
-				float x = dx, y = dy, z = 0.04f;
+				float x = dx, y = dy, z = 0.04F;
 				float scale = 200.0F;
 				x *= scale;
 				y *= scale;
@@ -74,24 +74,20 @@ namespace spades {
 				out = Encode8bit(z);
 				out |= Encode8bit(y) << 8;
 				out |= Encode8bit(x) << 16;
-				out |= Encode8bit(h * -10.f) << 24;
+				out |= Encode8bit(h * -10.0F) << 24;
 				return out;
 			}
 
-			void MakeBitmapRow(float *h1, float *h2, float *h3, uint32_t *out) {
+			void MakeBitmapRow(float* h1, float* h2, float* h3, uint32_t* out) {
 				out[0] = MakeBitmapPixel(h2[1] - h2[size - 1], h3[0] - h1[0], h2[0]);
-				out[size - 1] =
-				  MakeBitmapPixel(h2[0] - h2[size - 2], h3[size - 1] - h1[size - 1], h2[size - 1]);
-				for (int x = 1; x < size - 1; x++) {
+				out[size - 1] = MakeBitmapPixel(h2[0] - h2[size - 2], h3[size - 1] - h1[size - 1], h2[size - 1]);
+				for (int x = 1; x < size - 1; x++)
 					out[x] = MakeBitmapPixel(h2[x + 1] - h2[x - 1], h3[x] - h1[x], h2[x]);
-				}
 			}
 
 		public:
 			IWaveTank(int size) : size(size) {
-
 				bitmap = new uint32_t[size * size];
-
 				samples = size * size;
 			}
 			virtual ~IWaveTank() { delete[] bitmap; }
@@ -99,9 +95,9 @@ namespace spades {
 
 			int GetSize() const { return size; }
 
-			uint32_t *GetBitmap() const { return bitmap; }
+			uint32_t* GetBitmap() const { return bitmap; }
 
-			void MakeBitmap(float *height) {
+			void MakeBitmap(float* height) {
 				MakeBitmapRow(height + (size - 1) * size, height, height + size, bitmap);
 				MakeBitmapRow(height + (size - 2) * size, height + (size - 1) * size, height,
 				              bitmap + (size - 1) * size);
@@ -127,13 +123,13 @@ namespace spades {
 					sinCoarse[i] = sinf(ang);
 					cosCoarse[i] = cosf(ang);
 
-					ang = (float)i / (M_PI_F * 2.0F) * 65536.0F;
+					ang = (float)i / 65536.0F * (M_PI_F * 2.0F);
 					sinFine[i] = sinf(ang);
 					cosFine[i] = cosf(ang);
 				}
 			}
 
-			void Compute(unsigned int step, float &outSin, float &outCos) {
+			void Compute(unsigned int step, float& outSin, float& outCos) {
 				step &= 0xFFFF;
 				if (step == 0) {
 					outSin = 0;
@@ -187,26 +183,26 @@ namespace spades {
 
 		public:
 			FFTWaveTank() : IWaveTank(Size) {
-				auto *getRandom = SampleRandomFloat;
+				auto* getRandom = SampleRandomFloat;
 
 				fft = kiss_fft_alloc(Size, 1, NULL, NULL);
 
 				for (int x = 0; x < Size; x++) {
 					for (int y = 0; y <= SizeHalf; y++) {
-						Cell &cell = cells[y][x];
+						Cell& cell = cells[y][x];
 						if (x == 0 && y == 0) {
 							cell.magnitude = 0;
 							cell.phasePerSecond = 0.0F;
 							cell.phase = 0;
 						} else {
 							int cx = std::min(x, Size - x);
-							float dist = (float)sqrt(cx * cx + y * y);
-							float mag = 0.8f / dist / (float)Size;
+							float dist = (float)sqrtf(cx * cx + y * y);
+							float mag = 0.8F / dist / (float)Size;
 							mag /= dist;
 
 							float scal = dist / (float)SizeHalf;
 							scal *= scal;
-							mag *= expf(-scal * 3.f);
+							mag *= expf(-scal * 3.0F);
 
 							cell.magnitude = mag;
 							cell.phase = static_cast<uint32_t>(SampleRandom());
@@ -226,7 +222,7 @@ namespace spades {
 				// advance cells
 				for (int x = 0; x < Size; x++) {
 					for (int y = 0; y <= SizeHalf; y++) {
-						Cell &cell = cells[y][x];
+						Cell& cell = cells[y][x];
 						uint32_t dphase;
 						dphase = (uint32_t)(cell.phasePerSecond * dt);
 						cell.phase += dphase;
@@ -252,9 +248,8 @@ namespace spades {
 					kiss_fft(fft, temp1, temp2);
 
 					if (y == 0) {
-						for (int x = 0; x < Size; x++) {
+						for (int x = 0; x < Size; x++)
 							temp3[x][0] = temp2[x];
-						}
 					} else if (y == SizeHalf) {
 						for (int x = 0; x < Size; x++) {
 							temp3[x][SizeHalf].r = temp2[x].r;
@@ -270,23 +265,22 @@ namespace spades {
 				}
 				for (int x = 0; x < Size; x++) {
 					kiss_fft(fft, temp3[x], temp2);
-					for (int y = 0; y < Size; y++) {
+					for (int y = 0; y < Size; y++)
 						height[x][y] = temp2[y].r;
-					}
 				}
 
-				MakeBitmap((float *)height);
+				MakeBitmap((float*)height);
 			}
 		};
 
 #pragma mark - FTCS PDE Solver
 
 		class GLWaterRenderer::StandardWaveTank : public IWaveTank {
-			float *height;
-			float *heightFiltered;
-			float *velocity;
+			float* height;
+			float* heightFiltered;
+			float* velocity;
 
-			template <bool xy> void DoPDELine(float *vy, float *y1, float *y2, float *yy) {
+			template <bool xy> void DoPDELine(float* vy, float* y1, float* y2, float* yy) {
 				int pitch = xy ? size : 1;
 				for (int i = 0; i < size; i++) {
 					float v1 = *y1, v2 = *y2, v = *yy;
@@ -301,27 +295,27 @@ namespace spades {
 				}
 			}
 
-			template <bool xy> void Denoise(float *arr) {
+			template <bool xy> void Denoise(float* arr) {
 				int pitch = xy ? size : 1;
 #if 1
-				if ((arr[0] > 0.f && arr[(size - 1) * pitch] < 0.f && arr[pitch] < 0.f) ||
-				    (arr[0] < 0.f && arr[(size - 1) * pitch] > 0.f && arr[pitch] > 0.f)) {
-					float ttl = (arr[1] + arr[(size - 1) * pitch]) * .5f;
+				if ((arr[0] > 0.0F && arr[(size - 1) * pitch] < 0.0F && arr[pitch] < 0.0F) ||
+				    (arr[0] < 0.0F && arr[(size - 1) * pitch] > 0.0F && arr[pitch] > 0.0F)) {
+					float ttl = (arr[1] + arr[(size - 1) * pitch]) * 0.5F;
 					arr[0] = ttl;
 				}
-				if ((arr[(size - 1) * pitch] > 0.f && arr[(size - 2) * pitch] < 0.f &&
-				     arr[0] < 0.f) ||
-				    (arr[(size - 1) * pitch] < 0.f && arr[(size - 2) * pitch] > 0.f &&
-				     arr[0] > 0.f)) {
-					float ttl = (arr[0] + arr[(size - 2) * pitch]) * .5f;
+				if ((arr[(size - 1) * pitch] > 0.0F && arr[(size - 2) * pitch] < 0.0F &&
+				     arr[0] < 0.0F) ||
+				    (arr[(size - 1) * pitch] < 0.0F && arr[(size - 2) * pitch] > 0.0F &&
+				     arr[0] > 0.0F)) {
+					float ttl = (arr[0] + arr[(size - 2) * pitch]) * 0.5F;
 					arr[(size - 1) * pitch] = ttl;
 				}
 				for (int i = 1; i < size - 1; i++) {
-					if ((arr[i * pitch] > 0.f && arr[(i - 1) * pitch] < 0.f &&
-					     arr[(i + 1) * pitch] < 0.f) ||
-					    (arr[i * pitch] < 0.f && arr[(i - 1) * pitch] > 0.f &&
-					     arr[(i + 1) * pitch] > 0.f)) {
-						float ttl = (arr[(i + 1) * pitch] + arr[(i - 1) * pitch]) * .5f;
+					if ((arr[i * pitch] > 0.0F && arr[(i - 1) * pitch] < 0.0F &&
+					     arr[(i + 1) * pitch] < 0.0F) ||
+					    (arr[i * pitch] < 0.0F && arr[(i - 1) * pitch] > 0.0F &&
+					     arr[(i + 1) * pitch] > 0.0F)) {
+						float ttl = (arr[(i + 1) * pitch] + arr[(i - 1) * pitch]) * 0.5F;
 						arr[i * pitch] = ttl;
 					}
 				}
@@ -330,14 +324,13 @@ namespace spades {
 				float buf[256]; // TODO: variable size
 				SPAssert(size <= 256);
 				for (int i = 0; i < size; i++)
-					buf[i] = arr[i * pitch] * .5f;
+					buf[i] = arr[i * pitch] * 0.5F;
 
 				arr[0] = buf[1] + buf[size - 1];
 				arr[(size - 1) * pitch] = buf[size - 2] + buf[0];
 
 				for (int i = 1; i < size - 1; i++)
 					arr[i * pitch] = buf[i - 1] + buf[i + 1];
-
 #endif
 			}
 
@@ -346,8 +339,8 @@ namespace spades {
 				height = new float[size * size];
 				heightFiltered = new float[size * size];
 				velocity = new float[size * size];
-				std::fill(height, height + size * size, 0.f);
-				std::fill(velocity, velocity + size * size, 0.f);
+				std::fill(height, height + size * size, 0.0F);
+				std::fill(velocity, velocity + size * size, 0.0F);
 			}
 
 			~StandardWaveTank() {
@@ -373,7 +366,7 @@ namespace spades {
 				// do ddz/dyy
 				DoPDELine<false>(velocity, height + (size - 1) * size, height + size, height);
 				DoPDELine<false>(velocity + (size - 1) * size, height + (size - 2) * size, height,
-				                 height + (size - 1) * size);
+					height + (size - 1) * size);
 				for (int y = 1; y < size - 1; y++) {
 					DoPDELine<false>(velocity + y * size, height + (y - 1) * size,
 					                 height + (y + 1) * size, height + y * size);
@@ -381,11 +374,9 @@ namespace spades {
 
 				// do ddz/dxx
 				DoPDELine<true>(velocity, height + (size - 1), height + 1, height);
-				DoPDELine<true>(velocity + (size - 1), height + (size - 2), height,
-				                height + (size - 1));
-				for (int x = 1; x < size - 1; x++) {
+				DoPDELine<true>(velocity + (size - 1), height + (size - 2), height, height + (size - 1));
+				for (int x = 1; x < size - 1; x++)
 					DoPDELine<true>(velocity + x, height + (x - 1), height + (x + 1), height + x);
-				}
 
 				// make average 0
 				float sum = 0.0F;
@@ -401,9 +392,9 @@ namespace spades {
 					sum += height[i] * height[i];
 					sum += velocity[i] * velocity[i];
 				}
-				sum = sqrtf(sum / (float)samples / 2.f) * 80.0F;
-				if (sum > 1.f) {
-					sum = 1.f / sum;
+				sum = sqrtf(sum / (float)samples / 2.0F) * 80.0F;
+				if (sum > 1.0F) {
+					sum = 1.0F / sum;
 					for (int i = 0; i < samples; i++) {
 						height[i] *= sum;
 						velocity[i] *= sum;
@@ -411,28 +402,27 @@ namespace spades {
 				}
 
 				// denoise
-				for (int i = 0; i < size; i++) {
+				for (int i = 0; i < size; i++)
 					Denoise<true>(height + i);
-				}
-				for (int i = 0; i < size; i++) {
+				for (int i = 0; i < size; i++)
 					Denoise<false>(height + i * size);
-				}
 
 				// add randomness
-				int count = (int)floorf(dt * 600.f);
+				int count = (int)floorf(dt * 600.0F);
 				if (count > 400)
 					count = 400;
 
 				for (int i = 0; i < count; i++) {
 					int ox = SampleRandomInt(0, size - 3);
 					int oy = SampleRandomInt(0, size - 3);
-					static const float gauss[] = {0.225610111284052f, 0.548779777431897f,
-					                              0.225610111284052f};
-					float strength = (SampleRandomFloat() - SampleRandomFloat()) * 0.15f * 100.0F;
+					static const float gauss[] = {
+						0.225610111284052F, 0.548779777431897F, 0.225610111284052F
+					};
+					float strength = (SampleRandomFloat() - SampleRandomFloat()) * 0.15F * 100.0F;
 					for (int x = 0; x < 3; x++)
-						for (int y = 0; y < 3; y++) {
-							velocity[(x + ox) + (y + oy) * size] += strength * gauss[x] * gauss[y];
-						}
+					for (int y = 0; y < 3; y++) {
+						velocity[(x + ox) + (y + oy) * size] += strength * gauss[x] * gauss[y];
+					}
 				}
 
 				for (int i = 0; i < samples; i++)
@@ -445,8 +435,8 @@ namespace spades {
 
 #pragma mark - Water Renderer
 
-		void GLWaterRenderer::PreloadShaders(GLRenderer &renderer) {
-			auto &settings = renderer.GetSettings();
+		void GLWaterRenderer::PreloadShaders(GLRenderer& renderer) {
+			auto& settings = renderer.GetSettings();
 			if ((int)settings.r_water >= 3)
 				renderer.RegisterProgram("Shaders/Water3.program");
 			else if ((int)settings.r_water >= 2)
@@ -455,7 +445,7 @@ namespace spades {
 				renderer.RegisterProgram("Shaders/Water.program");
 		}
 
-		GLWaterRenderer::GLWaterRenderer(GLRenderer &renderer, client::GameMap *map)
+		GLWaterRenderer::GLWaterRenderer(GLRenderer& renderer, client::GameMap* map)
 		    : renderer(renderer),
 		      device(renderer.GetGLDevice()),
 		      settings(renderer.GetSettings()),
@@ -474,14 +464,10 @@ namespace spades {
 			device.TexImage2D(IGLDevice::Texture2D, 0, IGLDevice::DepthComponent24,
 			                  renderer.GetRenderWidth(), renderer.GetRenderHeight(), 0,
 			                  IGLDevice::DepthComponent, IGLDevice::UnsignedInt, NULL);
-			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMagFilter,
-			                    IGLDevice::Nearest);
-			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMinFilter,
-			                    IGLDevice::Nearest);
-			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureWrapS,
-			                    IGLDevice::ClampToEdge);
-			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureWrapT,
-			                    IGLDevice::ClampToEdge);
+			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMagFilter, IGLDevice::Nearest);
+			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMinFilter, IGLDevice::Nearest);
+			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureWrapS, IGLDevice::ClampToEdge);
+			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureWrapT, IGLDevice::ClampToEdge);
 
 			tempFramebuffer = device.GenFramebuffer();
 			device.BindFramebuffer(IGLDevice::Framebuffer, tempFramebuffer);
@@ -493,10 +479,8 @@ namespace spades {
 			device.BindTexture(IGLDevice::Texture2D, texture);
 			device.TexImage2D(IGLDevice::Texture2D, 0, IGLDevice::RGBA8, map->Width(),
 			                  map->Height(), 0, IGLDevice::RGBA, IGLDevice::UnsignedByte, NULL);
-			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMagFilter,
-			                    IGLDevice::Linear);
-			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMinFilter,
-			                    IGLDevice::Linear);
+			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMagFilter, IGLDevice::Linear);
+			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMinFilter, IGLDevice::Linear);
 			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureWrapS, IGLDevice::Repeat);
 			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureWrapT, IGLDevice::Repeat);
 
@@ -510,18 +494,17 @@ namespace spades {
 			std::fill(updateBitmap.begin(), updateBitmap.end(), 0xffffffffUL);
 			std::fill(bitmap.begin(), bitmap.end(), 0xffffffffUL);
 
-			device.TexSubImage2D(IGLDevice::Texture2D, 0, 0, 0, w, h, IGLDevice::BGRA,
-			                     IGLDevice::UnsignedByte, bitmap.data());
+			device.TexSubImage2D(IGLDevice::Texture2D, 0, 0, 0, w, h,
+				IGLDevice::BGRA, IGLDevice::UnsignedByte, bitmap.data());
 
 			size_t numLayers = ((int)settings.r_water >= 2) ? 3 : 1;
 
 			// create wave tank simlation
 			for (size_t i = 0; i < numLayers; i++) {
-				if ((int)settings.r_water >= 3) {
+				if ((int)settings.r_water >= 3)
 					waveTanks.push_back(new FFTWaveTank<8>());
-				} else {
+				else
 					waveTanks.push_back(new FFTWaveTank<7>());
-				}
 			}
 
 			// create heightmap texture
@@ -531,17 +514,13 @@ namespace spades {
 				device.TexImage2D(IGLDevice::Texture2D, 0, IGLDevice::RGBA8,
 				                  waveTanks[0]->GetSize(), waveTanks[0]->GetSize(), 0,
 				                  IGLDevice::BGRA, IGLDevice::UnsignedByte, NULL);
-				device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMagFilter,
-				                    IGLDevice::Linear);
-				device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMinFilter,
-				                    IGLDevice::LinearMipmapLinear);
-				device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureWrapS,
-				                    IGLDevice::Repeat);
-				device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureWrapT,
-				                    IGLDevice::Repeat);
-				if (settings.r_maxAnisotropy > 1.0f) {
-					device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMaxAnisotropy,
-					                    (float)settings.r_maxAnisotropy);
+				device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMagFilter, IGLDevice::Linear);
+				device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMinFilter, IGLDevice::LinearMipmapLinear);
+				device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureWrapS, IGLDevice::Repeat);
+				device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureWrapT, IGLDevice::Repeat);
+				if (settings.r_maxAnisotropy > 1.0F) {
+					device.TexParamater(IGLDevice::Texture2D,	
+						IGLDevice::TextureMaxAnisotropy, (float)settings.r_maxAnisotropy);
 				}
 			} else {
 				device.BindTexture(IGLDevice::Texture2DArray, waveTexture);
@@ -549,17 +528,14 @@ namespace spades {
 				                  waveTanks[0]->GetSize(), waveTanks[0]->GetSize(),
 				                  static_cast<IGLDevice::Sizei>(numLayers), 0, IGLDevice::BGRA,
 				                  IGLDevice::UnsignedByte, NULL);
-				device.TexParamater(IGLDevice::Texture2DArray, IGLDevice::TextureMagFilter,
-				                    IGLDevice::Linear);
-				device.TexParamater(IGLDevice::Texture2DArray, IGLDevice::TextureMinFilter,
-				                    IGLDevice::LinearMipmapLinear);
-				device.TexParamater(IGLDevice::Texture2DArray, IGLDevice::TextureWrapS,
-				                    IGLDevice::Repeat);
-				device.TexParamater(IGLDevice::Texture2DArray, IGLDevice::TextureWrapT,
-				                    IGLDevice::Repeat);
-				if (settings.r_maxAnisotropy > 1.0f) {
-					device.TexParamater(IGLDevice::Texture2DArray, IGLDevice::TextureMaxAnisotropy,
-					                    (float)settings.r_maxAnisotropy);
+				device.TexParamater(IGLDevice::Texture2DArray, IGLDevice::TextureMagFilter, IGLDevice::Linear);
+				device.TexParamater(IGLDevice::Texture2DArray, IGLDevice::TextureMinFilter, IGLDevice::LinearMipmapLinear);
+				device.TexParamater(IGLDevice::Texture2DArray, IGLDevice::TextureWrapS, IGLDevice::Repeat);
+				device.TexParamater(IGLDevice::Texture2DArray, IGLDevice::TextureWrapT, IGLDevice::Repeat);
+
+				if (settings.r_maxAnisotropy > 1.0F) {
+					device.TexParamater(IGLDevice::Texture2DArray,
+						IGLDevice::TextureMaxAnisotropy, (float)settings.r_maxAnisotropy);
 				}
 			}
 
@@ -578,7 +554,7 @@ namespace spades {
 			int meshSize = 16;
 			if ((int)settings.r_water >= 2)
 				meshSize = 128;
-			float meshSizeInv = 1.f / (float)meshSize;
+			float meshSizeInv = 1.0F / (float)meshSize;
 			for (int y = -meshSize; y <= meshSize; y++) {
 				for (int x = -meshSize; x <= meshSize; x++) {
 					Vertex v;
@@ -661,12 +637,12 @@ namespace spades {
 			Vector3 skyCol = renderer.GetFogColor();
 			skyCol *= skyCol; // linearize
 
-			const client::SceneDefinition &def = renderer.GetSceneDef();
+			const client::SceneDefinition& def = renderer.GetSceneDef();
 			float waterLevel = 63.0F;
 			float waterRange = 128.0F;
 
 			Matrix4 mat = Matrix4::Translate(def.viewOrigin.x, def.viewOrigin.y, waterLevel);
-			mat = mat * Matrix4::Scale(waterRange, waterRange, 1.f);
+			mat = mat * Matrix4::Scale(waterRange, waterRange, 1.0F);
 
 			GLProfiler::Context profiler2(renderer.GetGLProfiler(), "Draw Plane");
 
@@ -674,7 +650,7 @@ namespace spades {
 			device.DepthFunc(IGLDevice::Less);
 			device.ColorMask(true, true, true, true);
 			{
-				GLProgram *prg = program;
+				GLProgram* prg = program;
 				prg->Use();
 
 				static GLProgramUniform projectionViewModelMatrix("projectionViewModelMatrix");
@@ -715,11 +691,9 @@ namespace spades {
 				skyColor.SetValue(skyCol.x, skyCol.y, skyCol.z);
 				zNearFar.SetValue(def.zNear, def.zFar);
 				viewOrigin.SetValue(def.viewOrigin.x, def.viewOrigin.y, def.viewOrigin.z);
-				/*displaceScale.SetValue(1.f / renderer.ScreenWidth() / tanf(def.fovX * .5f),
-				                       1.f / renderer.ScreenHeight() / tanf(def.fovY) * .5f);*/
-				displaceScale.SetValue(1.f / tanf(def.fovX * .5f), 1.f / tanf(def.fovY * .5f));
-				fovTan.SetValue(tanf(def.fovX * .5f), -tanf(def.fovY * .5f), -tanf(def.fovX * .5f),
-				                tanf(def.fovY * .5f));
+				displaceScale.SetValue(1.0F / tanf(def.fovX * 0.5F), 1.0F / tanf(def.fovY * 0.5F));
+				fovTan.SetValue(tanf(def.fovX * 0.5F), -tanf(def.fovY * 0.5F), -tanf(def.fovX * 0.5F),
+				                tanf(def.fovY * 0.5F));
 
 				// make water plane in view coord
 				Matrix4 wmat = renderer.GetViewMatrix() * mat;
@@ -776,7 +750,7 @@ namespace spades {
 					device.ActiveTexture(4);
 					device.BindTexture(IGLDevice::Texture2D,
 					                   renderer.GetFramebufferManager()->GetMirrorTexture());
-					if ((float)settings.r_maxAnisotropy > 1.1f) {
+					if ((float)settings.r_maxAnisotropy > 1.1F) {
 						device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMaxAnisotropy,
 						                    (float)settings.r_maxAnisotropy);
 					}
@@ -804,10 +778,9 @@ namespace spades {
 				device.EnableVertexAttribArray(positionAttribute(), true);
 
 				device.BindBuffer(IGLDevice::ArrayBuffer, buffer);
-				device.VertexAttribPointer(positionAttribute(), 2, IGLDevice::FloatType, false,
-				                           sizeof(Vertex), NULL);
+				device.VertexAttribPointer(positionAttribute(), 2,
+					IGLDevice::FloatType, false, sizeof(Vertex), NULL);
 				device.BindBuffer(IGLDevice::ArrayBuffer, 0);
-
 				device.BindBuffer(IGLDevice::ElementArrayBuffer, idxBuffer);
 
 				if (occlusionQuery)
@@ -820,15 +793,12 @@ namespace spades {
 					device.EndQuery(IGLDevice::SamplesPassed);
 
 				device.BindBuffer(IGLDevice::ElementArrayBuffer, 0);
-
 				device.EnableVertexAttribArray(positionAttribute(), false);
 
 				device.ActiveTexture(0);
 				// restore filter mode for color buffer
-				device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMagFilter,
-				                    IGLDevice::Linear);
-				device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMinFilter,
-				                    IGLDevice::Linear);
+				device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMagFilter, IGLDevice::Linear);
+				device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMinFilter, IGLDevice::Linear);
 			}
 		}
 
@@ -848,11 +818,9 @@ namespace spades {
 
 			// update wavetank simulation
 			{
-				GLProfiler::Context profiler(renderer.GetGLProfiler(),
-				                             "Waiting for Simulation To Done");
-				for (size_t i = 0; i < waveTanks.size(); i++) {
+				GLProfiler::Context profiler(renderer.GetGLProfiler(), "Waiting for Simulation To Done");
+				for (size_t i = 0; i < waveTanks.size(); i++)
 					waveTanks[i]->Join();
-				}
 			}
 			{
 				{
@@ -883,18 +851,18 @@ namespace spades {
 					}
 				}
 			}
+
 			for (size_t i = 0; i < waveTanks.size(); i++) {
 				switch (i) {
 					case 0: waveTanks[i]->SetTimeStep(dt); break;
-					case 1: waveTanks[i]->SetTimeStep(dt * 0.15704f / .08f); break;
-					case 2: waveTanks[i]->SetTimeStep(dt * 0.02344f / .08f); break;
+					case 1: waveTanks[i]->SetTimeStep(dt * 0.15704F / 0.08F); break;
+					case 2: waveTanks[i]->SetTimeStep(dt * 0.02344F / 0.08F); break;
 				}
 				waveTanks[i]->Start();
 			}
 
 			{
-				GLProfiler::Context profiler(renderer.GetGLProfiler(),
-				                             "Upload Water Color Texture");
+				GLProfiler::Context profiler(renderer.GetGLProfiler(), "Upload Water Color Texture");
 				device.BindTexture(IGLDevice::Texture2D, texture);
 				bool fullUpdate = true;
 				for (size_t i = 0; i < updateBitmap.size(); i++) {
@@ -905,7 +873,7 @@ namespace spades {
 				}
 
 				if (fullUpdate) {
-					uint32_t *pixels = bitmap.data();
+					uint32_t* pixels = bitmap.data();
 					bool modified = false;
 					int x = 0, y = 0;
 					for (int i = w * h; i > 0; i--) {
@@ -929,13 +897,12 @@ namespace spades {
 					}
 
 					if (modified) {
-						device.TexSubImage2D(IGLDevice::Texture2D, 0, 0, 0, w, h, IGLDevice::BGRA,
-						                     IGLDevice::UnsignedByte, bitmap.data());
+						device.TexSubImage2D(IGLDevice::Texture2D, 0, 0, 0, w, h,
+							IGLDevice::BGRA, IGLDevice::UnsignedByte, bitmap.data());
 					}
 
-					for (size_t i = 0; i < updateBitmap.size(); i++) {
+					for (size_t i = 0; i < updateBitmap.size(); i++)
 						updateBitmap[i] = 0;
-					}
 				} else {
 					// partial update
 					for (size_t i = 0; i < updateBitmap.size(); i++) {
@@ -944,11 +911,10 @@ namespace spades {
 						if (updateBitmap[i] == 0)
 							continue;
 
-						uint32_t *pixels = bitmap.data() + x + y * w;
+						uint32_t* pixels = bitmap.data() + x + y * w;
 						bool modified = false;
 						for (int j = 0; j < 32; j++) {
 							uint32_t col = map->GetColor(x + j, y, 63);
-
 							col = LinearlizeColor(col);
 
 							if (pixels[j] != col)
@@ -956,12 +922,11 @@ namespace spades {
 							else
 								continue;
 							pixels[j] = col;
-							// pixels[j] = GeneratePixel(x + j, y);
 						}
 
 						if (modified) {
 							device.TexSubImage2D(IGLDevice::Texture2D, 0, x, y, 32, 1,
-							                     IGLDevice::BGRA, IGLDevice::UnsignedByte, pixels);
+								IGLDevice::BGRA, IGLDevice::UnsignedByte, pixels);
 						}
 
 						updateBitmap[i] = 0;
@@ -977,7 +942,7 @@ namespace spades {
 			updateBitmap[(x >> 5) + y * updateBitmapPitch] |= 1UL << (x & 31);
 		}
 
-		void GLWaterRenderer::GameMapChanged(int x, int y, int z, client::GameMap *map) {
+		void GLWaterRenderer::GameMapChanged(int x, int y, int z, client::GameMap* map) {
 			if (map != this->map)
 				return;
 			if (z < 63)
