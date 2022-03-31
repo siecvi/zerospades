@@ -21,7 +21,6 @@
 varying vec4 textureCoord;
 varying vec3 fogDensity;
 varying float flatShading;
-varying float staticShading;
 
 uniform sampler2D ambientOcclusionTexture;
 uniform sampler2D modelTexture;
@@ -34,14 +33,17 @@ vec3 EvaluateAmbientLight(float detailAmbientOcclusion);
 
 void main() {
 	vec4 texData = texture2D(modelTexture, textureCoord.xy);
-	
+
 	// Emissive material flag is encoded in AOID
 	bool isEmissive = (texData.w == 1.0);
-	
+
 	// model color
 	gl_FragColor = vec4(texData.xyz, 1.0);
 	if (dot(gl_FragColor.xyz, vec3(1.0)) < 0.0001)
 		gl_FragColor.xyz = customColor;
+
+	// linearize
+	gl_FragColor.xyz *= gl_FragColor.xyz;
 
 	// ambient occlusion
 	float aoID = texData.w * (255.0 / 256.0);
@@ -54,24 +56,15 @@ void main() {
 	ambientOcclusionCoord += fract(textureCoord.zw) * (15.0 / 256.0);
 	ambientOcclusionCoord += 0.5 / 256.0;
 
-	// linearize
-	gl_FragColor.xyz *= gl_FragColor.xyz;
-
-	// shading
-	vec3 shading = vec3(flatShading);
-	shading *= EvaluateSunLight();
-	
-	if (modelOpacity > 1.0)
-		shading = vec3(staticShading);
-		
 	float ao = texture2D(ambientOcclusionTexture, ambientOcclusionCoord).x;
-	shading += EvaluateAmbientLight(ao);
+	vec3 diffuseShading = EvaluateAmbientLight(ao);
+	diffuseShading += vec3(flatShading) * EvaluateSunLight();
 
 	if (!isEmissive)
-		gl_FragColor.xyz *= shading;
+		gl_FragColor.xyz *= diffuseShading;
 
-	if (modelOpacity < 2.0)
-		gl_FragColor.xyz = mix(gl_FragColor.xyz, fogColor, fogDensity);
+	// apply fog fading
+	gl_FragColor.xyz = mix(gl_FragColor.xyz, fogColor, fogDensity);
 
 #if !LINEAR_FRAMEBUFFER
 	gl_FragColor.xyz = sqrt(gl_FragColor.xyz);

@@ -41,8 +41,7 @@ void PrepareForDynamicLightNoBump(vec3 vertexCoord, vec3 normal);
 vec4 ComputeFogDensity(float poweredLength);
 
 void main() {
-	vec4 vertexPos = vec4(chunkPosition, 1.0);
-	vertexPos.xyz += positionAttribute.xyz;
+	vec4 vertexPos = vec4(chunkPosition + positionAttribute, 1.0);
 
 	gl_Position = projectionViewMatrix * vertexPos;
 
@@ -53,8 +52,5 @@ void main() {
 	float horzDistance = dot(horzRelativePos, horzRelativePos);
 	fogDensity = ComputeFogDensity(horzDistance).xyz;
 
-	vec3 normal = normalAttribute;
-	vec3 shadowVertexPos = vertexPos.xyz;
-
-	PrepareForDynamicLightNoBump(shadowVertexPos, normal);
+	PrepareForDynamicLightNoBump(vertexPos.xyz, normalAttribute);
 }

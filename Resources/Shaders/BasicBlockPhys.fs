@@ -42,36 +42,39 @@ void main() {
 	// color is linear
 	gl_FragColor = vec4(color.xyz, 1.0);
 
+	float ao = texture2D(ambientOcclusionTexture, ambientOcclusionCoord).x;
+	vec3 diffuseShading = EvaluateAmbientLight(ao);
+	vec3 sunLight = EvaluateSunLight();
+
 	vec3 eye = normalize(viewSpaceCoord);
 	float dotNE = dot(viewSpaceNormal, eye);
-	float dotNL = color.w;
 
-	vec3 shading = vec3(OrenNayar(0.8, dotNL, -dotNE));
-	vec3 sunLight = EvaluateSunLight();
-	shading *= sunLight;
-
-	float ao = texture2D(ambientOcclusionTexture, ambientOcclusionCoord).x;
-	shading += EvaluateAmbientLight(ao);
-
-	// apply diffuse shading
-	gl_FragColor.xyz *= shading;
-
-	// Fresnel term (be careful; viewSpaceNormal is a surface normal, not a microfacet one)
+	// Fresnel term
 	float fresnel2 = 1.0 + dotNE;
 	float fresnel = 0.03 + 0.1 * fresnel2 * fresnel2;
 
 	// Specular shading (blurred reflections, assuming roughness is high)
 	vec3 reflectWS = normalize(reflectionDir);
-	vec3 reflection = EvaluateDirectionalAmbientLight(ao, reflectWS);
-
-	gl_FragColor.xyz = mix(gl_FragColor.xyz, reflection, fresnel);
+	vec3 specularShading = EvaluateDirectionalAmbientLight(ao, reflectWS);
 
 	// Diffuse/specular shading for sunlight
-	if (dot(sunLight, vec3(1.0)) > 0.001 && dotNL > 0.1)
-		gl_FragColor.xyz += sunLight * CockTorrance(-eye, viewSpaceLight, viewSpaceNormal);
+	if (dot(sunLight, vec3(1.0)) > 0.001 && color.w > 0.1) {
+		// Diffuse shading
+		float sunDiffuseShading = OrenNayar(0.8, color.w, -dotNE);
+		diffuseShading += sunDiffuseShading * sunLight;
 
-	// apply fog
-	gl_FragColor.xyz = max(mix(gl_FragColor.xyz, fogColor, fogDensity), 0.0);
+		// Specular shading
+		float sunSpecularShading = CockTorrance(-eye, viewSpaceLight, viewSpaceNormal);
+		gl_FragColor.xyz += sunSpecularShading * sunLight;
+	}
+
+	gl_FragColor.xyz *= diffuseShading;
+	gl_FragColor.xyz = mix(gl_FragColor.xyz, specularShading, fresnel);
+
+	// apply fog fading
+	gl_FragColor.xyz = mix(gl_FragColor.xyz, fogColor, fogDensity);
+
+	gl_FragColor.xyz = max(gl_FragColor.xyz, 0.0);
 
 	// gamma correct
 #if !LINEAR_FRAMEBUFFER
@@ -81,7 +84,7 @@ void main() {
 #if USE_HDR
 	// somehow denormal occurs, so detect it here and remove
 	// (denormal destroys screen)
-	if(gl_FragColor.xyz != gl_FragColor.xyz)
+	if (gl_FragColor.xyz != gl_FragColor.xyz)
 		gl_FragColor.xyz = vec3(0.0);
 #endif
 }

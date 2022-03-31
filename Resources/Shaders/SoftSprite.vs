@@ -64,8 +64,6 @@ void main() {
 	// clip the volume by the near clip plane
 	float frontDepth = depthRange.x;
 	frontDepth = max(frontDepth, 0.3);
-	/*if(frontDepth > depthRange.y) // go beyond near clip plane
-		discard;*/ // cannot discard in vertex shader...
 	frontDepth = min(frontDepth, depthRange.y);
 	depthRange.w = frontDepth;
 

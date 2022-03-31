@@ -90,7 +90,7 @@ float EvaluateMapShadow() {
 	float dist = sharpVal - mapShadowCoord.z + 0.001;
 	sharpVal = step(0.0, dist);
 
-	float sharpWeight = clamp(4. + dist * 200.0, 0.0, 1.0);
+	float sharpWeight = clamp(4.0 + dist * 200.0, 0.0, 1.0);
 	sharpVal = mix(1.0, sharpVal, sharpWeight);
 
 	val *= sharpVal;

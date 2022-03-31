@@ -33,20 +33,18 @@ varying vec3 viewPosition;
 varying vec3 worldPosition;
 
 uniform sampler2D waveTexture;
-//varying vec2 detailCoord;
 
 void PrepareForShadow(vec3 worldOrigin, vec3 normal);
 vec4 ComputeFogDensity(float poweredLength);
 
 void main() {
-
-	vec4 vertexPos = vec4(positionAttribute.xy, 0., 1.);
+	vec4 vertexPos = vec4(positionAttribute.xy, 0.0, 1.0);
 
 	worldPosition = (modelMatrix * vertexPos).xyz;
 
 	gl_Position = projectionViewModelMatrix * vertexPos;
 	screenPosition = gl_Position.xyw;
-	screenPosition.xy = (screenPosition.xy + screenPosition.z) * .5;
+	screenPosition.xy = (screenPosition.xy + screenPosition.z) * 0.5;
 
 	vec4 viewPos = viewModelMatrix * vertexPos;
 	vec2 horzRelativePos = (modelMatrix * vertexPos).xy - viewOrigin.xy;
@@ -55,5 +53,5 @@ void main() {
 
 	viewPosition = viewPos.xyz;
 
-	PrepareForShadow((modelMatrix * vertexPos).xyz, vec3(0., 0., -1.));
+	PrepareForShadow((modelMatrix * vertexPos).xyz, vec3(0.0, 0.0, -1.0));
 }

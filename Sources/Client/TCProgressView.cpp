@@ -83,7 +83,7 @@ namespace spades {
 
 				// show approaching territory
 				stmp::optional<TCGameMode::Territory&> nearTerritory;
-				int nearTerId = 0;
+				int nearTerritoryId = 0;
 				float distance = 0.0F;
 				int myTeam = p.GetTeamId();
 
@@ -92,9 +92,9 @@ namespace spades {
 					Vector3 diff = t.pos - p.GetEye();
 					if (fabsf(diff.GetLength()) <= TC_CAPTURE_DISTANCE) {
 						float dist = diff.GetPoweredLength();
-						if (nearTerritory == NULL || dist < distance) {
+						if (!nearTerritory || dist < distance) {
 							nearTerritory = t;
-							nearTerId = i;
+							nearTerritoryId = i;
 							distance = dist;
 						}
 					}
@@ -102,7 +102,7 @@ namespace spades {
 
 				float fade = 1.0F;
 				if (nearTerritory) {
-					lastTerritoryId = nearTerId;
+					lastTerritoryId = nearTerritoryId;
 					lastTerritoryTime = w->GetTime();
 				} else if (lastTerritoryId != -1 && w->GetTime() - lastTerritoryTime < 2.0F) {
 					fade = 1.0F - (w->GetTime() - lastTerritoryTime) / 2.0F;
@@ -112,40 +112,38 @@ namespace spades {
 				if (nearTerritory) {
 					TCProgressState state = StateForTerritory(*nearTerritory, myTeam);
 
+					bool neutral = nearTerritory->ownerTeamId == 2;
+
 					float prgW = 440.0F;
 					float prgH = 8.0F;
 					float prgX = (sw - prgW) * 0.5F;
 					float prgY = sh - 64.0F;
 
 					// background bar
-					if (nearTerritory->ownerTeamId == 2)
-						renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.5F * fade));
-					else {
+					if (neutral) {
+						renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, fade * 0.5F));
+					} else {
 						auto c = w->GetTeam(nearTerritory->ownerTeamId).color;
 						renderer.SetColorAlphaPremultiplied((MakeVector4(c) / 255.0F) * fade);
 					}
 					renderer.DrawImage(nullptr, AABB2(prgX, prgY, prgW, prgH));
 
 					auto prg = 1.0F - state.progress;
-
 					if (state.team1 != 2) {
-						renderer.SetColorAlphaPremultiplied(
-						  (MakeVector4(w->GetTeam(state.team1).color) / 255.0F) * (fade * 0.8F));
-						renderer.DrawImage(nullptr, AABB2(prgX, prgY, prgW * prg, prgH));
+						auto c = MakeVector4(w->GetTeam(state.team1).color) / 255.0F;
+						renderer.SetColorAlphaPremultiplied(c * (fade * 0.8F));
+					} else if (state.team2 != 2) {
+						auto c = MakeVector4(w->GetTeam(state.team2).color) / 255.0F;
+						renderer.SetColorAlphaPremultiplied(c * (fade * 0.8F));
 					}
-
-					if (state.team2 != 2) {
-						renderer.SetColorAlphaPremultiplied(
-						  (MakeVector4(w->GetTeam(state.team2).color) / 255.0F) * (fade * 0.8F));
-						renderer.DrawImage(nullptr, AABB2(prgX, prgY, prgW * prg, prgH));
-					}
+					renderer.DrawImage(nullptr, AABB2(prgX, prgY, prgW * prg, prgH));
 
 					IFont& font = client.fontManager->GetGuiFont();
 
 					std::string str;
-					if (nearTerritory->ownerTeamId == 2)
+					if (neutral) {
 						str = _Tr("Client", "Neutral Territory");
-					else {
+					} else {
 						str = w->GetTeam(nearTerritory->ownerTeamId).name;
 						str = _Tr("Client", "{0}'s Territory", str);
 					}

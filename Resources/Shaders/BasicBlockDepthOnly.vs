@@ -28,8 +28,8 @@ uniform vec3 chunkPosition;
 attribute vec3 positionAttribute;
 
 void main() {
-	vec4 vertexPos = vec4(chunkPosition, 1.0);
-	vertexPos.xyz += positionAttribute.xyz;
+	vec4 vertexPos = vec4(chunkPosition + positionAttribute, 1.0);
+	
 	gl_Position = projectionViewMatrix * vertexPos;
 
     color = vec4(0.0);

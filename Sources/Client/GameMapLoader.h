@@ -29,7 +29,6 @@ namespace spades {
 	class IRunnable;
 
 	namespace client {
-
 		class GameMap;
 
 		/**

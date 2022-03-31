@@ -30,7 +30,7 @@ void PrepareForShadow(vec3 vertexCoord, vec3 normal) {
 }
 
 // map uses specialized shadow coordinate calculation to avoid glitch
-void PrepareForShadowForMap(vec3 vertexCoord, vec3 centerCoord, vec3 normal) {
+void PrepareShadowForMap(vec3 vertexCoord, vec3 centerCoord, vec3 normal) {
 	PrepareForMapShadow(centerCoord + normal * 0.1, normal);
 	PrepareForModelShadow(vertexCoord, normal);
 	PrepareForRadiosityForMap_Map(vertexCoord, centerCoord, normal);

@@ -381,7 +381,7 @@ namespace spades {
 				Vector2 jitter = temporalAAFilter->GetProjectionMatrixJitter();
 				jitterX *= jitter.x * 1.3F;
 				jitterY *= jitter.y * 1.3F;
-				mat = Matrix4::Translate(jitterX, jitterY, 0.0f) * mat;
+				mat = Matrix4::Translate(jitterX, jitterY, 0.0F) * mat;
 			}
 
 			projectionMatrix = mat;

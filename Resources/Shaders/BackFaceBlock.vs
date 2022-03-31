@@ -19,6 +19,7 @@
  */
 
 uniform mat4 projectionViewMatrix;
+
 // [x, y]
 attribute vec3 positionAttribute;
 

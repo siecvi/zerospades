@@ -24,7 +24,7 @@ varying vec3 fogDensity;
 vec3 EvaluateDynamicLightNoBump();
 
 void main() {
-	// color is linearized
+	// color is linear
 	gl_FragColor = vec4(color.xyz, 1.0);
 
 	vec3 shading = EvaluateDynamicLightNoBump();

@@ -39,14 +39,12 @@ attribute vec3 normalAttribute;
 varying vec4 textureCoord;
 varying vec3 fogDensity;
 varying float flatShading;
-varying float staticShading;
 
 void PrepareForShadow(vec3 worldOrigin, vec3 normal);
 vec4 ComputeFogDensity(float poweredLength);
 
 void main() {
-	vec4 vertexPos = vec4(positionAttribute.xyz, 1.0);
-	vertexPos.xyz += modelOrigin;
+	vec4 vertexPos = vec4(positionAttribute + modelOrigin, 1.0);
 
 	gl_Position = projectionViewModelMatrix * vertexPos;
 
@@ -56,9 +54,7 @@ void main() {
 	vec3 normal = normalAttribute;
 	normal = (modelNormalMatrix * vec4(normal, 1.0)).xyz;
 	normal = normalize(normal);
-
 	flatShading = max(dot(normal, sunLightDirection), 0.0);
-	staticShading = max(dot(normalAttribute, sunLightDirection) * 0.5 + 0.5, 0.0);
 
 	vec2 horzRelativePos = (modelMatrix * vertexPos).xy - viewOriginVector.xy;
 	float horzDistance = dot(horzRelativePos, horzRelativePos);

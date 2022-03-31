@@ -272,14 +272,14 @@ namespace spades {
 						// Apply ADS zoom
 						scale /= GetAimDownZoomScale();
 
-						// Update initial floating camera view
-						Vector3 o = def.viewAxis[2];
-						followAndFreeCameraState.yaw = atan2(o.y, o.x) + DEG2RAD(180);
-						followAndFreeCameraState.pitch = atan2f(o.z, o.GetLength2D());
-
 						// Update initial floating camera pos
 						freeCameraState.position = def.viewOrigin;
 						freeCameraState.velocity = MakeVector3(0, 0, 0);
+
+						// Update initial floating camera view
+						Vector3 o = def.viewAxis[2];
+						followAndFreeCameraState.yaw = atan2f(o.y, o.x) + DEG2RAD(180);
+						followAndFreeCameraState.pitch = atan2f(o.z, o.GetLength2D());
 						break;
 					}
 					case ClientCameraMode::ThirdPersonLocal:
@@ -428,6 +428,8 @@ namespace spades {
 					def.fovX = 2.0F * atanf(tanf(def.fovX * 0.5F) * scale);
 					def.fovY = 2.0F * atanf(tanf(def.fovY * 0.5F) * scale);
 				}
+
+				// Add pitch (up/down)
 				{
 					Vector3 u = def.viewAxis[1];
 					Vector3 v = def.viewAxis[2];
@@ -435,6 +437,8 @@ namespace spades {
 					def.viewAxis[1] = u * cosf(vibPitch) - v * sinf(vibPitch);
 					def.viewAxis[2] = v * cosf(vibPitch) + u * sinf(vibPitch);
 				}
+
+				// Add yaw (left/right)
 				{
 					Vector3 u = def.viewAxis[0];
 					Vector3 v = def.viewAxis[2];

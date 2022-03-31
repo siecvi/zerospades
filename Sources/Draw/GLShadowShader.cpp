@@ -63,11 +63,10 @@ namespace spades {
 		                                                      bool skipSSAO) {
 			std::vector<GLShader*> shaders;
 
-			if (skipSSAO) {
+			if (skipSSAO)
 				shaders.push_back(r->RegisterShader("Shaders/Shadow/CommonNoSSAO.fs"));
-			} else {
+			else
 				shaders.push_back(r->RegisterShader("Shaders/Shadow/Common.fs"));
-			}
 			shaders.push_back(r->RegisterShader("Shaders/Shadow/Common.vs"));
 
 			if (variance) {
@@ -102,8 +101,8 @@ namespace spades {
 			return shaders;
 		}
 
-		int GLShadowShader::operator()(GLRenderer* renderer, spades::draw::GLProgram* program,
-		                               int texStage) {
+		int GLShadowShader::operator()(GLRenderer* renderer,
+			spades::draw::GLProgram* program, int texStage) {
 			mapShadowTexture(program);
 			fogColor(program);
 			eyeOrigin(program);

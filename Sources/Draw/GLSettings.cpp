@@ -78,7 +78,7 @@ namespace spades {
 		}
 
 		bool GLSettings::ShouldUseFogFilter2() {
-			return this->r_fogShadow.operator int() == 2 && !!this->r_radiosity.operator int();
+			return this->r_fogShadow.operator int() == 2 && !this->r_radiosity.operator int();
 		}
 	} // namespace draw
 } // namespace spades

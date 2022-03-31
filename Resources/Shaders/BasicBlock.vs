@@ -44,12 +44,11 @@ varying vec2 ambientOcclusionCoord;
 varying vec4 color;
 varying vec3 fogDensity;
 
-void PrepareForShadowForMap(vec3 vertexCoord, vec3 fixedVertexCoord, vec3 normal);
+void PrepareShadowForMap(vec3 vertexCoord, vec3 fixedVertexCoord, vec3 normal);
 vec4 ComputeFogDensity(float poweredLength);
 
 void main() {
-	vec4 vertexPos = vec4(chunkPosition, 1.0);
-	vertexPos.xyz += positionAttribute.xyz;
+	vec4 vertexPos = vec4(chunkPosition + positionAttribute, 1.0);
 
 	gl_Position = projectionViewMatrix * vertexPos;
 
@@ -63,10 +62,7 @@ void main() {
 	float horzDistance = dot(horzRelativePos, horzRelativePos);
 	fogDensity = ComputeFogDensity(horzDistance).xyz;
 
-	vec3 fixedPosition = chunkPosition;
-	fixedPosition += fixedPositionAttribute * 0.5;
+	vec3 fixedWorldPosition = chunkPosition + fixedPositionAttribute * 0.5;
 
-	vec3 normal = normalAttribute;
-	vec3 shadowVertexPos = vertexPos.xyz;
-	PrepareForShadowForMap(shadowVertexPos, fixedPosition, normal);
+	PrepareShadowForMap(vertexPos.xyz, fixedWorldPosition, normalAttribute);
 }

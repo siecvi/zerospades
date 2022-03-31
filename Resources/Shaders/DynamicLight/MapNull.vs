@@ -18,4 +18,4 @@
 
  */
 
-void PrepareForShadow_Map(vec3 vertexCoord) {}
+void PrepareForMapShadow(vec3 vertexCoord) {}

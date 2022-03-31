@@ -87,7 +87,6 @@ namespace spades {
 				PositiveY,
 				NegativeZ,
 				PositiveZ,
-
 				Marked
 			};
 

@@ -36,6 +36,7 @@ namespace spades {
 				TCGameMode& mode;
 
 				Vector3 pos;
+
 				/** team that owns this territory, or 2 if this territory is currently neutral.*/
 				int ownerTeamId;
 

@@ -19,4 +19,3 @@
  */
 
 uniform sampler2D waveTexture;
-

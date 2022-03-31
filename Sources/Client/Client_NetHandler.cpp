@@ -87,26 +87,25 @@ namespace spades {
 		}
 
 		void Client::TeamCapturedTerritory(int teamId, int terId) {
-			TCGameMode::Territory& tr =
-			  dynamic_cast<TCGameMode&>(*world->GetMode()).GetTerritory(terId);
+			auto& tr = dynamic_cast<TCGameMode&>(*world->GetMode()).GetTerritory(terId);
 
 			std::string msg;
-			auto teamName = chatWindow->TeamColorMessage(world->GetTeamName(teamId), teamId);
+			std::string teamName = world->GetTeamName(teamId);
+			std::string coloredMsg = chatWindow->TeamColorMessage(teamName, teamId);
 
 			int old = tr.ownerTeamId;
 			if (old < 2) {
-				auto otherTeam = chatWindow->TeamColorMessage(world->GetTeamName(old), old);
-				msg = _Tr("Client", "{0} captured {1}'s territory", teamName, otherTeam);
+				std::string oldTeamName = chatWindow->TeamColorMessage(world->GetTeamName(old), old);
+				msg = _Tr("Client", "{0} captured {1}'s territory", coloredMsg, oldTeamName);
 			} else {
-				msg = _Tr("Client", "{0} captured an neutral territory", teamName);
+				msg = _Tr("Client", "{0} captured an neutral territory", coloredMsg);
 			}
 			chatWindow->AddMessage(msg);
 
 			if ((int)cg_centerMessage != 0) {
-				teamName = world->GetTeamName(teamId);
 				if (old < 2) {
-					auto otherTeam = world->GetTeamName(old);
-					msg = _Tr("Client", "{0} captured {1}'s Territory", teamName, otherTeam);
+					std::string oldTeamName = world->GetTeamName(old);
+					msg = _Tr("Client", "{0} captured {1}'s Territory", teamName, oldTeamName);
 				} else {
 					msg = _Tr("Client", "{0} captured an Neutral Territory", teamName);
 				}
@@ -128,18 +127,10 @@ namespace spades {
 
 			int teamId = p.GetTeamId();
 			int otherTeamId = 1 - teamId;
-			auto teamName = world->GetTeamName(otherTeamId);
-
-			if (p.IsLocalPlayer() && cg_scoreMessages) {
-				std::string s;
-				s += ChatWindow::ColoredMessage("+10", MsgColorSysInfo);
-				s += " points for capturing the enemy flag";
-				chatWindow->AddMessage(s);
-			}
+			std::string teamName = world->GetTeamName(otherTeamId);
 
 			{
-				msg =
-				  _Tr("Client", "{0} captured {1}'s intel",
+				msg = _Tr("Client", "{0} captured {1}'s intel",
 				          chatWindow->TeamColorMessage(p.GetName(), teamId),
 				          chatWindow->TeamColorMessage(teamName, otherTeamId));
 				chatWindow->AddMessage(msg);
@@ -158,6 +149,13 @@ namespace spades {
 				    : audioDevice->RegisterSound("Sounds/Feedback/CTF/EnemyCaptured.opus");
 				audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 			}
+
+			if (p.IsLocalPlayer() && cg_scoreMessages) {
+				std::string s;
+				s += ChatWindow::ColoredMessage("+10", MsgColorSysInfo);
+				s += " points for capturing the enemy flag";
+				chatWindow->AddMessage(s);
+			}
 		}
 
 		void Client::PlayerPickedIntel(Player& p) {
@@ -165,7 +163,7 @@ namespace spades {
 
 			int teamId = p.GetTeamId();
 			int otherTeamId = 1 - teamId;
-			auto teamName = world->GetTeamName(otherTeamId);
+			std::string teamName = world->GetTeamName(otherTeamId);
 
 			{
 				msg = _Tr("Client", "{0} picked up {1}'s intel",
@@ -192,7 +190,7 @@ namespace spades {
 
 			int teamId = p.GetTeamId();
 			int otherTeamId = 1 - teamId;
-			auto teamName = world->GetTeamName(otherTeamId);
+			std::string teamName = world->GetTeamName(otherTeamId);
 
 			{
 				msg = _Tr("Client", "{0} dropped {1}'s intel",
@@ -269,7 +267,7 @@ namespace spades {
 
 		void Client::PlayerJoinedTeam(Player& p) {
 			std::string msg;
-			auto teamName = p.IsSpectator() ? _Tr("Client", "Spectator") : p.GetTeamName();
+			std::string teamName = p.IsSpectator() ? _Tr("Client", "Spectator") : p.GetTeamName();
 
 			{
 				msg = chatWindow->TeamColorMessage(teamName, p.GetTeamId());
@@ -308,7 +306,7 @@ namespace spades {
 
 		void Client::TeamWon(int teamId) {
 			std::string msg;
-			auto teamName = world->GetTeamName(teamId);
+			std::string teamName = world->GetTeamName(teamId);
 
 			{
 				msg = chatWindow->TeamColorMessage(teamName, teamId);

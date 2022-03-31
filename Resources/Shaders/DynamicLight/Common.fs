@@ -45,27 +45,26 @@ varying vec3 lightNormal;
 varying vec3 lightTexCoord;
 
 vec3 EvaluateDynamicLightNoBump() {
-	vec3 texValue = texture2DProj(dynamicLightProjectionTexture, lightTexCoord).xyz;
-
 	if (lightTexCoord.z < 0.0 || any(lessThan(lightTexCoord.xy, vec2(0.0))) ||
 	    any(greaterThan(lightTexCoord.xy, vec2(lightTexCoord.z))))
 		discard;
 
 	// diffuse lighting
 	float intensity = dot(normalize(lightPos), normalize(lightNormal));
-	if (intensity < 0.0) 
+	if (intensity < 0.0)
 		discard;
 
 	// attenuation
 	float distance = length(lightPos);
-	if (distance >= dynamicLightRadius) 
+	if (distance >= dynamicLightRadius)
 		discard;
-	distance *= dynamicLightRadiusInversed;
-	distance = max(1.0 - distance, 0.0);
+	distance = max(1.0 - distance * dynamicLightRadiusInversed, 0.0);
 	float attenuation = distance * distance;
 
 	// apply attenuation
 	intensity *= attenuation;
+
+	vec3 texValue = texture2DProj(dynamicLightProjectionTexture, lightTexCoord).xyz;
 
 	// TODO: specular lighting?
 	return dynamicLightColor * intensity * EvaluateDynamicLightShadow() * texValue;

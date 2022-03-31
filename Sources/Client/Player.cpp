@@ -655,9 +655,7 @@ namespace spades {
 
 				if (listener)
 					listener->AddBulletTracer(*this, muzzle, finalHitPos);
-
-				// one pellet done
-			}
+			} // one pellet done
 
 			// do hit test debugging
 			auto* debugger = world.GetHitTestDebugger();

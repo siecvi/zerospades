@@ -39,9 +39,10 @@ uniform sampler2DArray waveTextureArray;
 void PrepareForShadow(vec3 worldOrigin, vec3 normal);
 vec4 ComputeFogDensity(float poweredLength);
 
-vec3 DisplaceWater(vec2 worldPos){
-	vec4 waveCoord = worldPos.xyxy * vec4(vec2(0.04), vec2(0.08704))
-	+ vec4(0., 0.0, 0.754, 0.1315);
+vec3 DisplaceWater(vec2 worldPos) {
+	vec4 waveCoord = worldPos.xyxy
+		* vec4(vec2(0.04), vec2(0.08704))
+		+ vec4(0.0, 0.0, 0.754, 0.1315);
 
 	vec2 waveCoord2 = worldPos.xy * 0.00844 + vec2(0.154, 0.7315);
 

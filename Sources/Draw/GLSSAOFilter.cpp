@@ -39,9 +39,7 @@ namespace spades {
 		GLSSAOFilter::GLSSAOFilter(GLRenderer& renderer)
 		    : renderer(renderer), settings(renderer.GetSettings()) {
 			ssaoProgram = renderer.RegisterProgram("Shaders/PostFilters/SSAO.program");
-			bilateralProgram =
-			  renderer.RegisterProgram("Shaders/PostFilters/BilateralFilter.program");
-
+			bilateralProgram = renderer.RegisterProgram("Shaders/PostFilters/BilateralFilter.program");
 			ditherPattern = renderer.RegisterImage("Gfx/DitherPattern4x4.png").Cast<GLImage>();
 		}
 
@@ -81,7 +79,7 @@ namespace spades {
 				fieldOfView.SetValue(std::tan(def.fovX * 0.5F), std::tan(def.fovY * 0.5F));
 				pixelShift.SetValue(1.0F / (float)width, 1.0F / (float)height);
 
-				float kernelSize = std::max(1.0f, std::min(width, height) * 0.0018F);
+				float kernelSize = std::max(1.0F, std::min(width, height) * 0.0018F);
 				sampleOffsetScale.SetValue(kernelSize / (float)width, kernelSize / (float)height);
 
 				if (width < renderer.GetRenderWidth()) {
@@ -123,8 +121,8 @@ namespace spades {
 			IGLDevice& dev = renderer.GetGLDevice();
 			GLQuadRenderer qr(dev);
 
-			int w = width == -1 ? tex.GetWidth() : width;
-			int h = height == -1 ? tex.GetHeight() : height;
+			int w = (width == -1) ? tex.GetWidth() : width;
+			int h = (height == -1) ? tex.GetHeight() : height;
 
 			GLColorBuffer buf2 = renderer.GetFramebufferManager()->CreateBufferHandle(w, h, 1);
 
@@ -163,10 +161,10 @@ namespace spades {
 			unitShift.SetValue(direction ? 1.0F / (float)width : 0.0F,
 			                   direction ? 0.0F : 1.0F / (float)height);
 
-			pixelShift.SetValue(1.0F / (float)width, 1.0F / (float)height, (float)width,
-			                    (float)height);
+			pixelShift.SetValue(1.0F / (float)width, 1.0F / (float)height,
+				(float)width, (float)height);
 
-			isUpsampling.SetValue(width > tex.GetWidth() ? 1 : 0);
+			isUpsampling.SetValue((width > tex.GetWidth()) ? 1 : 0);
 
 			const client::SceneDefinition& def = renderer.GetSceneDef();
 			zNearFar.SetValue(def.zNear, def.zFar);
@@ -193,14 +191,14 @@ namespace spades {
 
 			dev.Enable(IGLDevice::Blend, false);
 
-			bool useLowQualitySSAO =
-			  renderer.IsRenderingMirror() || renderer.GetSettings().r_ssao >= 2;
+			bool mirror = renderer.IsRenderingMirror();
+			bool useLowQualitySSAO = mirror || renderer.GetSettings().r_ssao >= 2;
 			GLColorBuffer ssao = useLowQualitySSAO
 			                       ? GenerateRawSSAOImage((width + 1) / 2, (height + 1) / 2)
 			                       : GenerateRawSSAOImage(width, height);
 			ssao = ApplyBilateralFilter(ssao, false, width, height);
 			ssao = ApplyBilateralFilter(ssao, true, width, height);
-			if (!renderer.IsRenderingMirror()) {
+			if (!mirror) {
 				ssao = ApplyBilateralFilter(ssao, false, width, height);
 				ssao = ApplyBilateralFilter(ssao, true, width, height);
 			}

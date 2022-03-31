@@ -33,7 +33,6 @@
 
 namespace spades {
 	namespace draw {
-
 		class IGLDevice;
 		class GLShader;
 		class GLProgram;

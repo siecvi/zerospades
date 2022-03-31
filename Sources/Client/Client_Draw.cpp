@@ -695,7 +695,7 @@ namespace spades {
 			}
 
 			if (!msg.empty()) {
-				IFont& font = fontManager->GetMediumFont();
+				IFont& font = fontManager->GetGuiFont();
 				Vector2 size = font.Measure(msg);
 				Vector2 pos = MakeVector2((w - size.x) * 0.5F, h / 3.0F);
 				font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.5));
@@ -918,19 +918,20 @@ namespace spades {
 						mapView->Draw();
 				}
 
+				centerMessageView->Draw();
+				if (scoreboardVisible) {
+					DrawPlayingTime();
+					scoreboard->Draw();
+				}
+
 				// --- end "player is there" render
 			} else {
 				// world exists, but no local player: not joined
 
-				DrawAlert(sw, sh);
-			}
-
-			if (shouldDraw)
+				scoreboard->Draw();
 				centerMessageView->Draw();
 
-			if (scoreboardVisible || !p) {
-				DrawPlayingTime();
-				scoreboard->Draw();
+				DrawAlert(sw, sh);
 			}
 
 			if (IsLimboViewActive())

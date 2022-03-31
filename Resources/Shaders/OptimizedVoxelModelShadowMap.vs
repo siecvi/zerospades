@@ -34,8 +34,7 @@ varying vec3 fogDensity;
 void PrepareForShadowMapRender(vec3 position, vec3 normal);
 
 void main() {
-	vec4 vertexPos = vec4(positionAttribute.xyz, 1.0);
-	vertexPos.xyz += modelOrigin;
+	vec4 vertexPos = vec4(positionAttribute.xyz + modelOrigin, 1.0);
 
 	vec3 normal = normalAttribute;
 	normal = (modelNormalMatrix * vec4(normal, 1.0)).xyz;

@@ -488,17 +488,13 @@ namespace spades {
 
 				Handle<IAudioChunk> c;
 				switch (SampleRandomInt(0, 3)) {
-					case 0:
-						c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal1.opus");
+					case 0: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal1.opus");
 						break;
-					case 1:
-						c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal2.opus");
+					case 1: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal2.opus");
 						break;
-					case 2:
-						c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal3.opus");
+					case 2: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal3.opus");
 						break;
-					case 3:
-						c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal4.opus");
+					case 3: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal4.opus");
 						break;
 				}
 				audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
@@ -566,8 +562,9 @@ namespace spades {
 				  "Sounds/Player/Footstep3.opus", "Sounds/Player/Footstep4.opus"
 				};
 				std::array<const char*, 6> rsnds = {
-				  "Sounds/Player/Run1.opus", "Sounds/Player/Run2.opus", "Sounds/Player/Run3.opus",
-				  "Sounds/Player/Run4.opus", "Sounds/Player/Run5.opus", "Sounds/Player/Run6.opus"
+				  "Sounds/Player/Run1.opus", "Sounds/Player/Run2.opus",
+				  "Sounds/Player/Run3.opus", "Sounds/Player/Run4.opus",
+				  "Sounds/Player/Run5.opus", "Sounds/Player/Run6.opus"
 				};
 				std::array<const char*, 4> wsnds = {
 				  "Sounds/Player/Wade1.opus", "Sounds/Player/Wade2.opus",
@@ -751,7 +748,7 @@ namespace spades {
 				followCameraState.enabled = false;
 
 				Vector3 o = victim.GetFront();
-				followAndFreeCameraState.yaw = atan2(o.y, o.x) + DEG2RAD(180);
+				followAndFreeCameraState.yaw = atan2f(o.y, o.x) + DEG2RAD(180);
 				followAndFreeCameraState.pitch = DEG2RAD(30);
 			}
 

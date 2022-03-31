@@ -25,14 +25,14 @@ uniform bool dynamicLightIsLinear;
 uniform vec3 dynamicLightLinearDirection;
 uniform float dynamicLightLinearLength;
 
-void PrepareForShadow_Map(vec3 vertexCoord);
+void PrepareForMapShadow(vec3 vertexCoord);
 
 varying vec3 lightPos;
 varying vec3 lightNormal;
 varying vec3 lightTexCoord;
 
 void PrepareForDynamicLightNoBump(vec3 vertexCoord, vec3 normal) {
-	PrepareForShadow_Map(vertexCoord);
+	PrepareForMapShadow(vertexCoord);
 
 	vec3 lightPosition = dynamicLightOrigin;
 

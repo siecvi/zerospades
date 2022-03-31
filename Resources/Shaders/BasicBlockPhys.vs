@@ -48,12 +48,11 @@ varying vec3 viewSpaceNormal;
 
 varying vec3 reflectionDir;
 
-void PrepareForShadowForMap(vec3 vertexCoord, vec3 fixedVertexCoord, vec3 normal);
+void PrepareShadowForMap(vec3 vertexCoord, vec3 fixedVertexCoord, vec3 normal);
 vec4 ComputeFogDensity(float poweredLength);
 
 void main() {
-	vec4 vertexPos = vec4(chunkPosition, 1.0);
-	vertexPos.xyz += positionAttribute.xyz;
+	vec4 vertexPos = vec4(chunkPosition + positionAttribute, 1.0);
 
 	gl_Position = projectionViewMatrix * vertexPos;
 
@@ -67,22 +66,20 @@ void main() {
 	// ambient occlusion
 	ambientOcclusionCoord = (ambientOcclusionCoordAttribute + 0.5) * (1.0 / 256.0);
 
-	vec4 viewPos = viewMatrix * vertexPos;
+	vec3 normal = normalAttribute;
+
 	vec2 horzRelativePos = vertexPos.xy - viewOriginVector.xy;
 	float horzDistance = dot(horzRelativePos, horzRelativePos);
 	fogDensity = ComputeFogDensity(horzDistance).xyz;
 
-	vec3 fixedPosition = chunkPosition;
-	fixedPosition += fixedPositionAttribute * 0.5;
+	vec3 fixedWorldPosition = chunkPosition + fixedPositionAttribute * 0.5;
 
-	vec3 normal = normalAttribute;
-	vec3 shadowVertexPos = vertexPos.xyz;
-	PrepareForShadowForMap(shadowVertexPos, fixedPosition, normal);
-
-	// reflection vector (used for specular lighting)
-	reflectionDir = reflect(vertexPos.xyz - viewOriginVector, normal);
+	PrepareShadowForMap(vertexPos.xyz, fixedWorldPosition, normal);
 
 	// used for diffuse lighting
-	viewSpaceCoord = viewPos.xyz;
+	viewSpaceCoord = (viewMatrix * vertexPos).xyz;
 	viewSpaceNormal = (viewMatrix * vec4(normal, 0.0)).xyz;
+
+	// used for specular lighting
+	reflectionDir = reflect(vertexPos.xyz - viewOriginVector, normal);
 }

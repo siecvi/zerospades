@@ -215,13 +215,13 @@ namespace spades {
 		void World::ApplyBlockActions() {
 			for (const auto& creation : createdBlocks) {
 				const auto& pos = creation.first;
-				const auto& color = creation.second;
-				uint32_t col = color.x | (color.y << 8) | (color.z << 16) | (100UL << 24);
+				const auto& col = creation.second;
+				uint32_t color = col.x | (col.y << 8) | (col.z << 16) | (100UL << 24);
 				if (map->IsSolid(pos.x, pos.y, pos.z)) {
-					map->Set(pos.x, pos.y, pos.z, true, col);
+					map->Set(pos.x, pos.y, pos.z, true, color);
 					continue;
 				}
-				mapWrapper->AddBlock(pos.x, pos.y, pos.z, col);
+				mapWrapper->AddBlock(pos.x, pos.y, pos.z, color);
 			}
 
 			std::vector<CellPos> cells;

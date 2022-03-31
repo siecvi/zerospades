@@ -669,7 +669,7 @@ namespace spades {
 		}
 		PlayerInput ParsePlayerInput(uint8_t bits) {
 			PlayerInput inp;
-			inp.moveForward = (bits & (1)) != 0;
+			inp.moveForward = (bits & (1 << 0)) != 0;
 			inp.moveBackward = (bits & (1 << 1)) != 0;
 			inp.moveLeft = (bits & (1 << 2)) != 0;
 			inp.moveRight = (bits & (1 << 3)) != 0;
@@ -682,7 +682,7 @@ namespace spades {
 
 		WeaponInput ParseWeaponInput(uint8_t bits) {
 			WeaponInput inp;
-			inp.primary = ((bits & (1)) != 0);
+			inp.primary = ((bits & (1 << 0)) != 0);
 			inp.secondary = ((bits & (1 << 1)) != 0);
 			return inp;
 		}
@@ -821,7 +821,7 @@ namespace spades {
 
 						WeaponInput inp = ParseWeaponInput(r.ReadByte());
 
-						if (GetWorld()->GetLocalPlayer() == p)
+						if (GetWorld()->GetLocalPlayer() == &p)
 							break;
 
 						p.SetWeaponInput(inp);
@@ -1222,8 +1222,8 @@ namespace spades {
 					TCGameMode& tc = dynamic_cast<TCGameMode&>(*mode);
 
 					if (territoryId >= tc.GetNumTerritories()) {
-						SPRaise("Invalid territory id %d specified (max = %d)", territoryId,
-						        tc.GetNumTerritories() - 1);
+						SPRaise("Invalid territory id %d specified (max = %d)",
+							territoryId, tc.GetNumTerritories() - 1);
 					}
 
 					client->TeamCapturedTerritory(state, territoryId);
@@ -1256,15 +1256,14 @@ namespace spades {
 					TCGameMode& tc = dynamic_cast<TCGameMode&>(*mode);
 
 					if (territoryId >= tc.GetNumTerritories()) {
-						SPRaise("Invalid territory id %d specified (max = %d)", territoryId,
-						        tc.GetNumTerritories() - 1);
+						SPRaise("Invalid territory id %d specified (max = %d)",
+							territoryId, tc.GetNumTerritories() - 1);
 					}
 
 					if (progress < -0.1F || progress > 1.1F)
 						SPRaise("Progress value out of range(%f)", progress);
 
 					TCGameMode::Territory& t = tc.GetTerritory(territoryId);
-
 					t.progressBasePos = progress;
 					t.progressRate = (float)rate * TC_CAPTURE_RATE;
 					t.progressStartTime = GetWorld()->GetTime();

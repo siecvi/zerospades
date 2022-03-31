@@ -42,8 +42,7 @@ void PrepareForDynamicLightNoBump(vec3 vertexCoord, vec3 normal);
 vec4 ComputeFogDensity(float poweredLength);
 
 void main() {
-	vec4 vertexPos = vec4(positionAttribute.xyz, 1.0);
-	vertexPos.xyz += modelOrigin;
+	vec4 vertexPos = vec4(positionAttribute + modelOrigin, 1.0);
 
 	gl_Position = projectionViewModelMatrix * vertexPos;
 

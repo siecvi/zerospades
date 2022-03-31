@@ -19,7 +19,6 @@
  */
 
 uniform sampler2D mapShadowTexture;
-
 varying vec3 mapShadowCoord;
 
 float EvaluateMapShadow() {

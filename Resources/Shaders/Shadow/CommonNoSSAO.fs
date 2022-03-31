@@ -29,7 +29,7 @@ float VisibilityOfSunLight() {
 	return EvaluateMapShadow() * EvaluteModelShadow();
 }
 
-vec3 EvaluateSunLight(){
+vec3 EvaluateSunLight() {
 	return vec3(0.6) * VisibilityOfSunLight();
 }
 

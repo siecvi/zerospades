@@ -196,7 +196,7 @@ namespace spades {
 							cell.phase = 0;
 						} else {
 							int cx = std::min(x, Size - x);
-							float dist = (float)sqrtf(cx * cx + y * y);
+							float dist = (float)sqrt(cx * cx + y * y);
 							float mag = 0.8F / dist / (float)Size;
 							mag /= dist;
 
