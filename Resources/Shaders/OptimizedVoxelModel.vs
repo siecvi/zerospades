@@ -50,10 +50,12 @@ void main() {
 
 	textureCoord = textureCoordAttribute.xyxy * vec4(texScale.xy, vec2(1.0));
 
-	// direct sunlight
+	// compute normal
 	vec3 normal = normalAttribute;
 	normal = (modelNormalMatrix * vec4(normal, 1.0)).xyz;
 	normal = normalize(normal);
+	
+	// direct sunlight
 	flatShading = max(dot(normal, sunLightDirection), 0.0);
 
 	vec2 horzRelativePos = (modelMatrix * vertexPos).xy - viewOriginVector.xy;
