@@ -937,7 +937,7 @@ namespace spades {
 			if (IsLimboViewActive())
 				limbo->Draw();
 
-			if (cg_stats)
+			if (shouldDraw && cg_stats)
 				DrawStats(sw, sh);
 		}
 
