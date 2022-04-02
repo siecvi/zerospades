@@ -1022,8 +1022,8 @@ namespace spades {
 
 			if (net) {
 				auto ping = net->GetPing();
-				auto upbps = (int)net->GetUplinkBps() / 1000;
-				auto downbps = (int)net->GetDownlinkBps() / 1000;
+				auto upbps = (int)(net->GetUplinkBps() / 1000);
+				auto downbps = (int)(net->GetDownlinkBps() / 1000);
 				sprintf(buf, "ping: %dms, up/down: %d/%dkbps", ping, upbps, downbps);
 				str += buf;
 			}
