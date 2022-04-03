@@ -172,16 +172,14 @@ namespace spades {
 						// TODO: mouse acceleration is framerate dependant
 						float rad = x * x + y * y;
 						if (rad > 0.0F && !cg_classicMouseSens) {
-							if ((float)cg_mouseExpPower < 0.001F ||
-							    isnan((float)cg_mouseExpPower)) {
+							float const expPower = (float)cg_mouseExpPower;
+							if (expPower < 0.001F || isnan(expPower)) {
 								SPLog("Invalid cg_mouseExpPower value, resetting to 1.0");
 								cg_mouseExpPower = 1.0F;
 							}
 
-							float factor = renderer->ScreenWidth() * 0.1F;
-							factor *= factor;
-							rad /= factor;
-							rad = powf(rad, (float)cg_mouseExpPower * 0.5F - 0.5F);
+							float const factor = powf(renderer->ScreenWidth() * 0.1F, 2);
+							rad = powf(rad / factor, (float)cg_mouseExpPower * 0.5F - 0.5F);
 
 							// shouldn't happen...
 							if (isnan(rad))
