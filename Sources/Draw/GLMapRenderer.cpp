@@ -186,8 +186,8 @@ namespace spades {
 
 			device.ActiveTexture(0);
 			aoImage->Bind(IGLDevice::Texture2D);
-			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMinFilter,
-			                    IGLDevice::Linear);
+			device.TexParamater(IGLDevice::Texture2D,
+				IGLDevice::TextureMinFilter, IGLDevice::Linear);
 
 			device.ActiveTexture(1);
 			device.BindTexture(IGLDevice::Texture2D, 0);
@@ -222,8 +222,7 @@ namespace spades {
 			device.BindBuffer(IGLDevice::ArrayBuffer, 0);
 
 			static GLProgramAttribute positionAttribute("positionAttribute");
-			static GLProgramAttribute ambientOcclusionCoordAttribute(
-			  "ambientOcclusionCoordAttribute");
+			static GLProgramAttribute ambientOcclusionCoordAttribute("ambientOcclusionCoordAttribute");
 			static GLProgramAttribute colorAttribute("colorAttribute");
 			static GLProgramAttribute normalAttribute("normalAttribute");
 			static GLProgramAttribute fixedPositionAttribute("fixedPositionAttribute");

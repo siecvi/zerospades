@@ -52,10 +52,8 @@ namespace spades {
 			GenerateTexture();
 
 			program = renderer.RegisterProgram("Shaders/OptimizedVoxelModel.program");
-			dlightProgram =
-			  renderer.RegisterProgram("Shaders/OptimizedVoxelModelDynamicLit.program");
-			shadowMapProgram =
-			  renderer.RegisterProgram("Shaders/OptimizedVoxelModelShadowMap.program");
+			dlightProgram = renderer.RegisterProgram("Shaders/OptimizedVoxelModelDynamicLit.program");
+			shadowMapProgram = renderer.RegisterProgram("Shaders/OptimizedVoxelModelShadowMap.program");
 			aoImage = renderer.RegisterImage("Gfx/AmbientOcclusion.png").Cast<GLImage>();
 
 			buffer = device.GenBuffer();
@@ -82,9 +80,11 @@ namespace spades {
 			Vector3 maxPos = MakeVector3(dimensions);
 			minPos += origin;
 			maxPos += origin;
-			Vector3 maxDiff = {std::max(fabsf(minPos.x), fabsf(maxPos.x)),
-			                   std::max(fabsf(minPos.y), fabsf(maxPos.y)),
-			                   std::max(fabsf(minPos.z), fabsf(maxPos.z))};
+			Vector3 maxDiff = {
+				std::max(fabsf(minPos.x), fabsf(maxPos.x)),
+			    std::max(fabsf(minPos.y), fabsf(maxPos.y)),
+			    std::max(fabsf(minPos.z), fabsf(maxPos.z))
+			};
 			radius = maxDiff.GetLength();
 
 			boundingBox.min = minPos;
@@ -296,16 +296,13 @@ namespace spades {
 							if ((v >= 0 && v < vsize) && u > 0 && slice[(u - 1) * vsize + (v)]) {
 								u--;
 								p3 -= uu;
-							} else if ((v >= 0 && v < vsize) && u < usize - 1 &&
-							           slice[(u + 1) * vsize + (v)]) {
+							} else if ((v >= 0 && v < vsize) && u < usize - 1 && slice[(u + 1) * vsize + (v)]) {
 								u++;
 								p3 += uu;
-							} else if ((u >= 0 && u < usize) && v > 0 &&
-							           slice[(u)*vsize + (v - 1)]) {
+							} else if ((u >= 0 && u < usize) && v > 0 && slice[(u)*vsize + (v - 1)]) {
 								v--;
 								p3 -= vv;
-							} else if ((u >= 0 && u < usize) && v < vsize - 1 &&
-							           slice[(u)*vsize + (v + 1)]) {
+							} else if ((u >= 0 && u < usize) && v < vsize - 1 && slice[(u)*vsize + (v + 1)]) {
 								v++;
 								p3 += vv;
 							} else if (u > 0 && v > 0 && slice[(u - 1) * vsize + (v - 1)]) {
@@ -323,8 +320,7 @@ namespace spades {
 								v--;
 								p3 += uu;
 								p3 -= vv;
-							} else if (u < usize - 1 && v < vsize - 1 &&
-							           slice[(u + 1) * vsize + (v + 1)]) {
+							} else if (u < usize - 1 && v < vsize - 1 && slice[(u + 1) * vsize + (v + 1)]) {
 								u++;
 								v++;
 								p3 += uu;
@@ -350,8 +346,7 @@ namespace spades {
 							p3 += nn;
 							SPAssert(!model->IsSolid(p3.x, p3.y, p3.z));
 
-							uint8_t aoId =
-							  calcAOID(model, p3.x, p3.y, p3.z, ux, uy, uz, vx, vy, vz);
+							uint8_t aoId = calcAOID(model, p3.x, p3.y, p3.z, ux, uy, uz, vx, vy, vz);
 
 							// These AOIDs are allocated for non-default materials.
 							if (aoId % 16 == 15)
@@ -513,15 +508,15 @@ namespace spades {
 			printf("%d vertices emit\n", (int)indices.size());
 		}
 
-		void GLOptimizedVoxelModel::Prerender(std::vector<client::ModelRenderParam> params,
-		                                      bool ghostPass) {
+		void GLOptimizedVoxelModel::Prerender(
+			std::vector<client::ModelRenderParam> params, bool ghostPass) {
 			SPADES_MARK_FUNCTION();
 
 			RenderSunlightPass(params, ghostPass);
 		}
 
-		void
-		GLOptimizedVoxelModel::RenderShadowMapPass(std::vector<client::ModelRenderParam> params) {
+		void GLOptimizedVoxelModel::RenderShadowMapPass(
+			std::vector<client::ModelRenderParam> params) {
 			SPADES_MARK_FUNCTION();
 
 			device.Enable(IGLDevice::CullFace, true);
@@ -544,11 +539,11 @@ namespace spades {
 			normalAttribute(shadowMapProgram);
 
 			device.BindBuffer(IGLDevice::ArrayBuffer, buffer);
-			device.VertexAttribPointer(positionAttribute(), 4, IGLDevice::UnsignedByte, false,
-			                           sizeof(Vertex), (void*)0);
+			device.VertexAttribPointer(positionAttribute(), 4,
+				IGLDevice::UnsignedByte, false, sizeof(Vertex), (void*)0);
 			if (normalAttribute() != -1)
-				device.VertexAttribPointer(normalAttribute(), 3, IGLDevice::Byte, false,
-				                           sizeof(Vertex), (void*)8);
+				device.VertexAttribPointer(normalAttribute(), 3,
+					IGLDevice::Byte, false, sizeof(Vertex), (void*)8);
 			device.BindBuffer(IGLDevice::ArrayBuffer, 0);
 
 			device.EnableVertexAttribArray(positionAttribute(), true);
@@ -581,8 +576,8 @@ namespace spades {
 				modelNormalMatrix(shadowMapProgram);
 				modelNormalMatrix.SetValue(modelMatrix);
 
-				device.DrawElements(IGLDevice::Triangles, numIndices, IGLDevice::UnsignedInt,
-				                    (void*)0);
+				device.DrawElements(IGLDevice::Triangles,
+					numIndices, IGLDevice::UnsignedInt, (void*)0);
 			}
 
 			device.BindBuffer(IGLDevice::ElementArrayBuffer, 0);
@@ -595,21 +590,21 @@ namespace spades {
 			device.BindTexture(IGLDevice::Texture2D, 0);
 		}
 
-		void GLOptimizedVoxelModel::RenderSunlightPass(std::vector<client::ModelRenderParam> params,
-		                                               bool ghostPass) {
+		void GLOptimizedVoxelModel::RenderSunlightPass(
+			std::vector<client::ModelRenderParam> params, bool ghostPass) {
 			SPADES_MARK_FUNCTION();
 
 			device.ActiveTexture(0);
 			aoImage->Bind(IGLDevice::Texture2D);
-			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMinFilter,
-			                    IGLDevice::Linear);
+			device.TexParamater(IGLDevice::Texture2D,
+				IGLDevice::TextureMinFilter, IGLDevice::Linear);
 
 			device.ActiveTexture(1);
 			image->Bind(IGLDevice::Texture2D);
-			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMinFilter,
-			                    IGLDevice::Nearest);
-			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMagFilter,
-			                    IGLDevice::Nearest);
+			device.TexParamater(IGLDevice::Texture2D,
+				IGLDevice::TextureMinFilter, IGLDevice::Nearest);
+			device.TexParamater(IGLDevice::Texture2D,
+				IGLDevice::TextureMagFilter, IGLDevice::Nearest);
 
 			device.Enable(IGLDevice::CullFace, true);
 			device.Enable(IGLDevice::DepthTest, true);
@@ -666,12 +661,12 @@ namespace spades {
 			normalAttribute(program);
 
 			device.BindBuffer(IGLDevice::ArrayBuffer, buffer);
-			device.VertexAttribPointer(positionAttribute(), 4, IGLDevice::UnsignedByte, false,
-			                           sizeof(Vertex), (void*)0);
-			device.VertexAttribPointer(textureCoordAttribute(), 2, IGLDevice::UnsignedShort, false,
-			                           sizeof(Vertex), (void*)4);
-			device.VertexAttribPointer(normalAttribute(), 3, IGLDevice::Byte, false, sizeof(Vertex),
-			                           (void*)8);
+			device.VertexAttribPointer(positionAttribute(), 4,
+				IGLDevice::UnsignedByte, false, sizeof(Vertex), (void*)0);
+			device.VertexAttribPointer(textureCoordAttribute(), 2,
+				IGLDevice::UnsignedShort, false, sizeof(Vertex), (void*)4);
+			device.VertexAttribPointer(normalAttribute(), 3,
+				IGLDevice::Byte, false, sizeof(Vertex), (void*)8);
 			device.BindBuffer(IGLDevice::ArrayBuffer, 0);
 
 			device.EnableVertexAttribArray(positionAttribute(), true);
@@ -696,10 +691,10 @@ namespace spades {
 				customColor.SetValue(param.customColor.x, param.customColor.y, param.customColor.z);
 
 				Matrix4 modelMatrix = param.matrix;
+
 				static GLProgramUniform projectionViewModelMatrix("projectionViewModelMatrix");
 				projectionViewModelMatrix(program);
-				projectionViewModelMatrix.SetValue(renderer.GetProjectionViewMatrix() *
-				                                   modelMatrix);
+				projectionViewModelMatrix.SetValue(renderer.GetProjectionViewMatrix() * modelMatrix);
 
 				static GLProgramUniform viewModelMatrix("viewModelMatrix");
 				viewModelMatrix(program);
@@ -723,8 +718,9 @@ namespace spades {
 				if (param.depthHack)
 					device.DepthRange(0.0F, 0.1F);
 
-				device.DrawElements(IGLDevice::Triangles, numIndices, IGLDevice::UnsignedInt,
-				                    (void*)0);
+				device.DrawElements(IGLDevice::Triangles,
+					numIndices, IGLDevice::UnsignedInt, (void*)0);
+
 				if (param.depthHack)
 					device.DepthRange(0.0F, 1.0F);
 			}
@@ -741,22 +737,21 @@ namespace spades {
 			device.BindTexture(IGLDevice::Texture2D, 0);
 		}
 
-		void
-		GLOptimizedVoxelModel::RenderDynamicLightPass(std::vector<client::ModelRenderParam> params,
-		                                              std::vector<GLDynamicLight> lights) {
+		void GLOptimizedVoxelModel::RenderDynamicLightPass(
+			std::vector<client::ModelRenderParam> params, std::vector<GLDynamicLight> lights) {
 			SPADES_MARK_FUNCTION();
 
 			device.ActiveTexture(0);
 			aoImage->Bind(IGLDevice::Texture2D);
-			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMinFilter,
-			                    IGLDevice::Linear);
+			device.TexParamater(IGLDevice::Texture2D,
+				IGLDevice::TextureMinFilter,IGLDevice::Linear);
 
 			device.ActiveTexture(1);
 			image->Bind(IGLDevice::Texture2D);
-			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMinFilter,
-			                    IGLDevice::Nearest);
-			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMagFilter,
-			                    IGLDevice::Nearest);
+			device.TexParamater(IGLDevice::Texture2D,
+				IGLDevice::TextureMinFilter, IGLDevice::Nearest);
+			device.TexParamater(IGLDevice::Texture2D,
+				IGLDevice::TextureMagFilter, IGLDevice::Nearest);
 
 			device.Enable(IGLDevice::CullFace, true);
 			device.Enable(IGLDevice::DepthTest, true);
@@ -796,12 +791,12 @@ namespace spades {
 			normalAttribute(dlightProgram);
 
 			device.BindBuffer(IGLDevice::ArrayBuffer, buffer);
-			device.VertexAttribPointer(positionAttribute(), 4, IGLDevice::UnsignedByte, false,
-			                           sizeof(Vertex), (void*)0);
-			device.VertexAttribPointer(textureCoordAttribute(), 2, IGLDevice::UnsignedShort, false,
-			                           sizeof(Vertex), (void*)4);
-			device.VertexAttribPointer(normalAttribute(), 3, IGLDevice::Byte, false, sizeof(Vertex),
-			                           (void*)8);
+			device.VertexAttribPointer(positionAttribute(), 4,
+				IGLDevice::UnsignedByte, false, sizeof(Vertex), (void*)0);
+			device.VertexAttribPointer(textureCoordAttribute(), 2,
+				IGLDevice::UnsignedShort, false, sizeof(Vertex), (void*)4);
+			device.VertexAttribPointer(normalAttribute(), 3,
+				IGLDevice::Byte, false, sizeof(Vertex), (void*)8);
 			device.BindBuffer(IGLDevice::ArrayBuffer, 0);
 
 			device.EnableVertexAttribArray(positionAttribute(), true);
@@ -828,8 +823,7 @@ namespace spades {
 				Matrix4 modelMatrix = param.matrix;
 				static GLProgramUniform projectionViewModelMatrix("projectionViewModelMatrix");
 				projectionViewModelMatrix(dlightProgram);
-				projectionViewModelMatrix.SetValue(renderer.GetProjectionViewMatrix() *
-				                                   modelMatrix);
+				projectionViewModelMatrix.SetValue(renderer.GetProjectionViewMatrix() * modelMatrix);
 
 				static GLProgramUniform viewModelMatrix("viewModelMatrix");
 				viewModelMatrix(dlightProgram);
@@ -854,8 +848,8 @@ namespace spades {
 						continue;
 
 					dlightShader(&renderer, dlightProgram, light, 2);
-					device.DrawElements(IGLDevice::Triangles, numIndices, IGLDevice::UnsignedInt,
-					                    (void*)0);
+					device.DrawElements(IGLDevice::Triangles,
+						numIndices, IGLDevice::UnsignedInt, (void*)0);
 				}
 
 				if (param.depthHack)
