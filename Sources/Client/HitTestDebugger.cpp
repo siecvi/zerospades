@@ -233,10 +233,8 @@ namespace spades {
 			for (const auto& v : bullets) {
 				auto vc = toViewCoord(v + def.viewOrigin);
 				vc /= vc.z * fov;
-				float x = size * (0.5F + 0.5F * vc.x);
-				float y = size * (0.5F - 0.5F * vc.y);
-				x = floorf(x);
-				y = floorf(y);
+				float x = floorf(size * (0.5F + 0.5F * vc.x));
+				float y = floorf(size * (0.5F - 0.5F * vc.y));
 				renderer->SetColorAlphaPremultiplied(Vector4(1.0F, 0.6F, 0.2F, 0.9F));
 				renderer->DrawImage(nullptr, AABB2(x - 1.0F, y - 1.0F, 3.0F, 3.0F));
 				renderer->SetColorAlphaPremultiplied(Vector4(1.0F, 1.0F, 0.0F, 0.9F));
