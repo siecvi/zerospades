@@ -596,13 +596,13 @@ namespace spades {
 
 			IFont& font = fontManager->GetSmallFont();
 
-			float x = w - 8.0F;
+			float x = 8.0F;
 			float y = cg_minimapSize;
 			if (y < 32)
 				y = 32;
 			if (y > 256)
 				y = 256;
-			y += 32;
+			y += 64;
 
 			auto addLine = [&](const char* format, ...) {
 				char buf[256];
@@ -612,7 +612,6 @@ namespace spades {
 				va_end(va);
 
 				Vector2 pos = MakeVector2(x, y);
-				pos.x -= font.Measure(buf).x;
 				y += 16.0F;
 				font.DrawShadow(buf, pos, 1.0F, MakeVector4(1, 1, 1, 0.8F),
 				                MakeVector4(0, 0, 0, 0.8F));
