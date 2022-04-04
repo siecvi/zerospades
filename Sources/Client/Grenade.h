@@ -39,16 +39,16 @@ namespace spades {
 
 			void Explode();
 
+			/** @return -1 if dropped under water, non-zero if bounced, 2 when sound should be
+			 * played. */
+			int MoveGrenade(float fsynctics);
+
 		public:
 			Grenade(World&, Vector3 pos, Vector3 vel, float fuse);
 			~Grenade();
 
 			/** @return true when exploded. */
 			bool Update(float dt);
-
-			/** @return -1 if dropped under water, non-zero if bounced, 2 when sound should be
-			 * played. */
-			int MoveGrenade(float fsynctics);
 
 			Vector3 GetPosition() const { return position; }
 			Vector3 GetVelocity() const { return velocity; }
