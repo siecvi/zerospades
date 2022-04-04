@@ -554,13 +554,17 @@ namespace spades {
 				}
 			}
 
+			// draw map sector in team color below minimap
 			if (!largeMap) {
 				IFont& font = client->fontManager->GetGuiFont();
 				auto msg = MapCoords((int)focusPlayerPos.x, (int)focusPlayerPos.y);
 				Vector2 pos = {(outRect.min.x + outRect.max.x) * 0.5F, outRect.max.y + 2.0F};
 				pos.x -= font.Measure(msg).x * 0.5F;
-				font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 0.8F),
-				                MakeVector4(0, 0, 0, 0.8F));
+				Vector4 color = localPlayer.GetTeamColor();
+				color.x = Mix(color.x, 1.0F, 0.5F);
+				color.y = Mix(color.y, 1.0F, 0.5F);
+				color.z = Mix(color.z, 1.0F, 0.5F);
+				font.DrawShadow(msg, pos, 1.0F, color, MakeVector4(0, 0, 0, 0.8F));
 			}
 		}
 
