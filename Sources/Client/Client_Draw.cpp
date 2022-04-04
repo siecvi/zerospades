@@ -203,8 +203,10 @@ namespace spades {
 			siz *= std::min(1.0F, sh / siz.y);
 			siz *= 1.0F - (scale * (scale * 0.25F));
 
+			Vector2 pos = (MakeVector2(sw, sh) - siz) * 0.5F;
+
 			renderer->SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1));
-			renderer->DrawImage(img, AABB2((sw - siz.x) * 0.5F, (sh - siz.y) * 0.5F, siz.x, siz.y));
+			renderer->DrawImage(img, AABB2(pos.x, pos.y, siz.x, siz.y));
 		}
 
 		void Client::DrawStartupScreen() {
@@ -290,8 +292,8 @@ namespace spades {
 				per = 1.0F - per;
 				renderer->MultiplyScreenColor({1, per, per});
 
-				float a = (1.0F - per) * 0.1F;
-				renderer->SetColorAlphaPremultiplied(MakeVector4(a, 0, 0, a));
+				float p = (1.0F - per) * 0.1F;
+				renderer->SetColorAlphaPremultiplied(MakeVector4(p, 0, 0, p));
 				renderer->DrawImage(nullptr, AABB2(0, 0, sw, sh));
 			}
 		}
@@ -299,7 +301,7 @@ namespace spades {
 		Vector4 Client::GetPlayerColor(Player& p) {
 			Vector4 playerColor = MakeVector4(1, 1, 1, 1);
 
-			auto origin = lastSceneDef.viewOrigin;
+			Vector3 origin = lastSceneDef.viewOrigin;
 
 			if (!map->CanSee(p.GetEye(), origin, FOG_DISTANCE))
 				playerColor = ModifyColor(p.GetColor());
@@ -378,8 +380,11 @@ namespace spades {
 			}
 		}
 
-		void Client::DrawDebugAim(float x, float y, float w, float h) {
+		void Client::DrawDebugAim() {
 			SPADES_MARK_FUNCTION();
+
+			float sw = renderer->ScreenWidth();
+			float sh = renderer->ScreenHeight();
 
 			Player& p = GetCameraTargetPlayer();
 
@@ -388,7 +393,7 @@ namespace spades {
 			if (GetAimDownZoomScale() == 1)
 				spread *= 2;
 
-			float size = h * 0.5F;
+			float size = sh * 0.5F;
 			float fovY = tanf(lastSceneDef.fovY * 0.5F);
 
 			AABB2 boundary(0, 0, 0, 0);
@@ -396,7 +401,7 @@ namespace spades {
 			boundary.max -= spread / fovY * size;
 
 			IntVector3 center;
-			center.x = (int)(w * 0.5F);
+			center.x = (int)(sw * 0.5F);
 			center.y = (int)size;
 
 			IntVector3 p1 = center;
@@ -414,8 +419,11 @@ namespace spades {
 			renderer->DrawOutlinedRect(p1.x + 1.0F, p1.y + 1.0F, p2.x - 1.0F, p2.y - 1.0F);
 		}
 
-		void Client::DrawFirstPersonHUD(float x, float y, float w, float h) {
+		void Client::DrawFirstPersonHUD() {
 			SPADES_MARK_FUNCTION();
+
+			float sw = renderer->ScreenWidth();
+			float sh = renderer->ScreenHeight();
 
 			int playerId = GetCameraTargetPlayerId();
 			Player& p = world->GetPlayer(playerId).value();
@@ -431,11 +439,11 @@ namespace spades {
 					: MakeVector4(1, 0.02F, 0.04F, 1);
 
 				renderer->SetColorAlphaPremultiplied(color * hitFeedbackIconState);
-				renderer->DrawImage(img, (MakeVector2(w, h) - size) * 0.5F);
+				renderer->DrawImage(img, (MakeVector2(sw, sh) - size) * 0.5F);
 			}
 
 			if (cg_debugAim && p.IsToolWeapon())
-				DrawDebugAim(x, y, w, h);
+				DrawDebugAim();
 		}
 
 		void Client::DrawJoinedAlivePlayerHUD(float x, float y, float w, float h) {
@@ -591,7 +599,7 @@ namespace spades {
 			}
 		}
 
-		void Client::DrawPlayerStats(float w, float h) {
+		void Client::DrawPlayerStats() {
 			SPADES_MARK_FUNCTION();
 
 			IFont& font = fontManager->GetSmallFont();
@@ -641,7 +649,7 @@ namespace spades {
 			}
 		}
 
-		void Client::DrawDamageIndicators(float x, float y, float w, float h) {
+		void Client::DrawDamageIndicators() {
 			SPADES_MARK_FUNCTION();
 
 			for (const auto& damages : damageIndicators) {
@@ -668,8 +676,11 @@ namespace spades {
 			}
 		}
 
-		void Client::DrawDeadPlayerHUD(float x, float y, float w, float h) {
+		void Client::DrawDeadPlayerHUD() {
 			SPADES_MARK_FUNCTION();
+
+			float sw = renderer->ScreenWidth();
+			float sh = renderer->ScreenHeight();
 
 			Player& p = GetWorld()->GetLocalPlayer().value();
 
@@ -696,23 +707,27 @@ namespace spades {
 			if (!msg.empty()) {
 				IFont& font = fontManager->GetGuiFont();
 				Vector2 size = font.Measure(msg);
-				Vector2 pos = MakeVector2((w - size.x) * 0.5F, h / 3.0F);
+				Vector2 pos = MakeVector2((sw - size.x) * 0.5F, sh / 3.0F);
 				font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.5));
 			}
 		}
 
-		void Client::DrawSpectateHUD(float x, float y, float w, float h) {
+		void Client::DrawSpectateHUD() {
 			SPADES_MARK_FUNCTION();
+
+			float sw = renderer->ScreenWidth();
+			float sh = renderer->ScreenHeight();
 
 			IFont& font = fontManager->GetGuiFont();
 
-			float textX = w - y;
-			float textY = (float)cg_minimapSize + 64.0F;
+			float x = sw - 8.0F;
+			float y = cg_minimapSize;
+			y += 64;
 
 			auto addLine = [&](const std::string& text) {
-				Vector2 pos = MakeVector2(textX, textY);
+				Vector2 pos = MakeVector2(x, y);
 				pos.x -= font.Measure(text).x;
-				textY += 20.0F;
+				y += 20.0F;
 				font.DrawShadow(text, pos, 1.0F, MakeVector4(1, 1, 1, 1),
 				                MakeVector4(0, 0, 0, 0.5));
 			};
@@ -726,7 +741,7 @@ namespace spades {
 					  world->GetPlayerName(targetId), targetId));
 			}
 
-			textY += 10.0F;
+			y += 10.0F;
 
 			// Help messages (make sure to synchronize these with the keyboard input handler)
 			if (FollowsNonLocalPlayer(cameraMode)) {
@@ -747,7 +762,7 @@ namespace spades {
 				addLine(_Tr("Client", "[{0}/{1}] Go up/down",
 					TrKey(cg_keyJump), TrKey(cg_keyCrouch)));
 
-			textY += 10.0F;
+			y += 10.0F;
 
 			if (GetWorld()->GetLocalPlayer()->IsSpectator() && !inGameLimbo)
 				addLine(_Tr("Client", "[{0}] Choose a Team/Weapon", TrKey(cg_keyLimbo)));
@@ -856,6 +871,7 @@ namespace spades {
 
 			float x = cg_hudBorderX;
 			float y = cg_hudBorderY;
+
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
@@ -879,26 +895,26 @@ namespace spades {
 				if (cg_playerNames)
 					DrawHottrackedPlayerName();
 				if (cg_damageIndicators)
-					DrawDamageIndicators(x, y, sw, sh);
+					DrawDamageIndicators();
 
 				if (shouldDraw) {
 					tcView->Draw();
 
 					if (IsFirstPerson(GetCameraMode()))
-						DrawFirstPersonHUD(x, y, sw, sh);
+						DrawFirstPersonHUD();
 
 					if (!p->IsSpectator()) { // player is not spectator
 						if (p->IsAlive()) {
 							DrawJoinedAlivePlayerHUD(x, y, sw, sh);
 						} else {
-							DrawDeadPlayerHUD(x, y, sw, sh);
-							DrawSpectateHUD(x, y, sw, sh);
+							DrawDeadPlayerHUD();
+							DrawSpectateHUD();
 						}
 
 						if (cg_playerStats)
-							DrawPlayerStats(sw, sh);
+							DrawPlayerStats();
 					} else {
-						DrawSpectateHUD(x, y, sw, sh);
+						DrawSpectateHUD();
 						DrawPUBOVL();
 					}
 
@@ -937,7 +953,7 @@ namespace spades {
 				limbo->Draw();
 
 			if (cg_stats)
-				DrawStats(sw, sh);
+				DrawStats();
 		}
 
 		void Client::Draw2DWithoutWorld() {
@@ -997,8 +1013,11 @@ namespace spades {
 			DrawAlert(sw, sh);
 		}
 
-		void Client::DrawStats(float w, float h) {
+		void Client::DrawStats() {
 			SPADES_MARK_FUNCTION();
+
+			float sw = renderer->ScreenWidth();
+			float sh = renderer->ScreenHeight();
 
 			char buf[256];
 			std::string str;
@@ -1032,7 +1051,8 @@ namespace spades {
 			Vector2 margin = {4.0F, 4.0F};
 
 			auto size = font.Measure(str) + (margin * 2.0F);
-			auto pos = (MakeVector2(w, h) - size) * MakeVector2(0.5F, 1.0F);
+			auto pos = (MakeVector2(sw, sh) - size);
+			pos.x *= 0.5F;
 			pos.y += margin.y;
 
 			auto shadow = MakeVector4(0, 0, 0, 0.5);

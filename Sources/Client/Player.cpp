@@ -887,7 +887,7 @@ namespace spades {
 			z = m;
 			float by = ny + (velocity.y > 0.0F ? 0.45F : -0.45F);
 			while (z >= -1.36F && !map->ClipBox(position.x - 0.45F, by, nz + z) &&
-			       !map->ClipBox(position.x + 0.45f, by, nz + z))
+			       !map->ClipBox(position.x + 0.45F, by, nz + z))
 				z -= 0.9F;
 			if (z < -1.36F)
 				position.y = ny;

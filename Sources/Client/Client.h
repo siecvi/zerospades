@@ -386,19 +386,20 @@ namespace spades {
 
 			/** Called when the local plyaer is alive. */
 			void DrawJoinedAlivePlayerHUD(float x, float y, float w, float h);
+
 			/** Called when the local plyaer is dead. */
-			void DrawDeadPlayerHUD(float x, float y, float w, float h);
+			void DrawDeadPlayerHUD();
 
 			/**
 			 * Called when `IsFirstPerson(GetCameraMode()).` Renders the follwing element:
 			 *  - The center reticule
 			 */
-			void DrawFirstPersonHUD(float x, float y, float w, float h);
+			void DrawFirstPersonHUD();
 
 			/**
 			 * Called when the local player is dead or a spectator.
 			 */
-			void DrawSpectateHUD(float x, float y, float w, float h);
+			void DrawSpectateHUD();
 
 			Vector4 GetPlayerColor(Player&);
 
@@ -411,13 +412,13 @@ namespace spades {
 			void DrawHurtSprites();
 			void DrawHealth(float x, float y, float w, float h);
 			void DrawAlert(float w, float h);
-			void DrawDebugAim(float x, float y, float w, float h);
-			void DrawStats(float w, float h);
+			void DrawDebugAim();
+			void DrawStats();
 			void DrawHitTestDebugger(float x, float y, float w, float h);
-			void DrawPlayerStats(float w, float h);
+			void DrawPlayerStats();
 
 			void UpdateDamageIndicators(float dt);
-			void DrawDamageIndicators(float x, float y, float w, float h);
+			void DrawDamageIndicators();
 
 			void DrawScene();
 			void AddGrenadeToScene(Grenade&);
