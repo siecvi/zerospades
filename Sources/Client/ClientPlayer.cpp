@@ -956,9 +956,7 @@ namespace spades {
 			{
 				model = renderer.RegisterModel((path + "/Head.kv6").c_str());
 
-				// Scale head according to orientation vector length
-				auto headScale = Matrix4::Scale(o.GetLength());
-				param.matrix = head * headScale * scaler;
+				param.matrix = head * scaler;
 				renderer.RenderModel(*model, param);
 			}
 
