@@ -768,8 +768,11 @@ namespace spades {
 				addLine(_Tr("Client", "[{0}] Choose a Team/Weapon", TrKey(cg_keyLimbo)));
 		}
 
-		void Client::DrawAlert(float w, float h) {
+		void Client::DrawAlert() {
 			SPADES_MARK_FUNCTION();
+
+			float sw = renderer->ScreenWidth();
+			float sh = renderer->ScreenHeight();
 
 			IFont& font = fontManager->GetGuiFont();
 
@@ -797,7 +800,7 @@ namespace spades {
 			cntsSiz.x = floorf(cntsSiz.x);
 			cntsSiz.y = floorf(cntsSiz.y);
 
-			Vector2 pos = MakeVector2(w, h) - cntsSiz;
+			Vector2 pos = MakeVector2(sw, sh) - cntsSiz;
 			pos *= MakeVector2(0.5F, 0.7F);
 			pos.y += 40.0F;
 
@@ -878,7 +881,7 @@ namespace spades {
 			// TODO: this should be done only for chat window https://github.com/yvt/openspades/issues/810
 			bool shouldDraw = !cg_hideHud || AcceptsTextInput();
 
-			// black fade
+			// fade the map (draw)
 			float fade = Clamp((world->GetTime() - 1.0F) / 2.2F, 0.0F, 1.0F);
 			if (fade < 1.0F) {
 				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1.0F - fade));
@@ -921,7 +924,7 @@ namespace spades {
 					chatWindow->Draw();
 					killfeedWindow->Draw();
 
-					DrawAlert(sw, sh);
+					DrawAlert();
 
 					if (!p->IsSpectator() && !p->IsToolBlock() || debugHitTestZoom)
 						DrawHitTestDebugger(x, y, sw, sh);
@@ -946,7 +949,7 @@ namespace spades {
 				scoreboard->Draw();
 				centerMessageView->Draw();
 
-				DrawAlert(sw, sh);
+				DrawAlert();
 			}
 
 			if (IsLimboViewActive())
@@ -1010,7 +1013,7 @@ namespace spades {
 				}
 			}
 
-			DrawAlert(sw, sh);
+			DrawAlert();
 		}
 
 		void Client::DrawStats() {

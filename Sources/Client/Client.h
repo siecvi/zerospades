@@ -411,7 +411,7 @@ namespace spades {
 			void DrawHurtScreenEffect();
 			void DrawHurtSprites();
 			void DrawHealth(float x, float y, float w, float h);
-			void DrawAlert(float w, float h);
+			void DrawAlert();
 			void DrawDebugAim();
 			void DrawStats();
 			void DrawHitTestDebugger(float x, float y, float w, float h);
