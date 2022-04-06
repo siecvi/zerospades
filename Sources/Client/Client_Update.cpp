@@ -986,16 +986,15 @@ namespace spades {
 					}
 
 					auto playerName = ChatWindow::TeamColorMessage(hurtPlayer.GetName(), hurtPlayer.GetTeamId());
-					auto weaponName = by.IsToolSpade() ? "Spade" : by.GetWeapon().GetName();
 					int dist = (int)(by.GetPosition() - hurtPlayer.GetPosition()).GetLength();
 					float dt = (world->GetTime() - lastHitTime) * 1000;
 
 					if (dt > 0.0F && lastHitTime > 0.0F)
-						sprintf(buf, "Bullet hit %s dist: %d blocks dT: %.0fms %s %s",
-						        playerName.c_str(), dist, dt, weaponName.c_str(), hitType.c_str());
+						sprintf(buf, "Bullet hit %s dist: %d blocks dT: %.0fms %s",
+						        playerName.c_str(), dist, dt, hitType.c_str());
 					else
-						sprintf(buf, "Bullet hit %s dist: %d blocks dT: NA %s %s",
-						        playerName.c_str(), dist, weaponName.c_str(), hitType.c_str());
+						sprintf(buf, "Bullet hit %s dist: %d blocks dT: NA %s",
+						        playerName.c_str(), dist, hitType.c_str());
 
 					scriptedUI->RecordChatLog(buf);
 					chatWindow->AddMessage(buf);
