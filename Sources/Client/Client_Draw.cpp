@@ -610,7 +610,7 @@ namespace spades {
 				y = 32;
 			if (y > 256)
 				y = 256;
-			y += 64;
+			y += 32;
 
 			auto addLine = [&](const char* format, ...) {
 				char buf[256];
