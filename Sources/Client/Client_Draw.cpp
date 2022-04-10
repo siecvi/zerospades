@@ -1030,6 +1030,8 @@ namespace spades {
 				if (fps > 0) {
 					sprintf(buf, "%dfps, ", fps);
 					str += buf;
+				} else {
+					str += "fps: NA, ";
 				}
 			}
 			{
@@ -1038,6 +1040,8 @@ namespace spades {
 				if (ups > 0) {
 					sprintf(buf, "%dups, ", ups);
 					str += buf;
+				} else {
+					str += "ups: NA, ";
 				}
 			}
 
