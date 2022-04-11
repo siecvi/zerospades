@@ -958,6 +958,7 @@ namespace spades {
 			velocity.z += fsynctics * 0.5F;
 
 			const Handle<GameMap>& map = world.GetMap();
+			SPAssert(map);
 
 			if (map->ClipBox(position.x, position.y, position.z)) {
 				lastClimbTime = world.GetTime();
@@ -971,14 +972,14 @@ namespace spades {
 
 			if (map->ClipWorld(lp.x, lp.y, lp.z)) {
 				IntVector3 lp2 = oldPos.Floor();
-				if (lp.z != lp2.z &&
-				    ((lp.x == lp2.x && lp.y == lp2.y) || !map->ClipWorld(lp.x, lp.y, lp2.z)))
+				if (lp.z != lp2.z && ((lp.x == lp2.x && lp.y == lp2.y)
+					|| !map->ClipWorld(lp.x, lp.y, lp2.z)))
 					velocity.z = -velocity.z;
-				else if (lp.x != lp2.x &&
-				         ((lp.y == lp2.y && lp.z == lp2.z) || !map->ClipWorld(lp2.x, lp.y, lp.z)))
+				else if (lp.x != lp2.x && ((lp.y == lp2.y && lp.z == lp2.z)
+					|| !map->ClipWorld(lp2.x, lp.y, lp.z)))
 					velocity.x = -velocity.x;
-				else if (lp.y != lp2.y &&
-				         ((lp.x == lp2.x && lp.z == lp2.z) || !map->ClipWorld(lp.x, lp2.y, lp.z)))
+				else if (lp.y != lp2.y && ((lp.x == lp2.x && lp.z == lp2.z)
+					|| !map->ClipWorld(lp.x, lp2.y, lp.z)))
 					velocity.y = -velocity.y;
 
 				position = oldPos; // set back to old position
