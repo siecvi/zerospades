@@ -607,9 +607,10 @@ namespace spades {
                                     array<int> = {2, 1, 0});
             layouter.AddToggleField(_Tr("Preferences", "Ragdoll"), "cg_ragdoll");
 			layouter.AddToggleField(_Tr("Preferences", "Tracers"), "cg_tracers");
-			layouter.AddToggleField(_Tr("Preferences", "FirstPerson Tracers"), "cg_tracersFirstPerson");
+			layouter.AddToggleField(_Tr("Preferences", "FP Tracers"), "cg_tracersFirstPerson");
             layouter.AddToggleField(_Tr("Preferences", "Casings"), "cg_ejectBrass");
             layouter.AddToggleField(_Tr("Preferences", "Animations"), "cg_animations");
+			layouter.AddToggleField(_Tr("Preferences", "Hurt Screen Effects"), "cg_hurtScreenEffects");
             layouter.AddChoiceField(_Tr("Preferences", "Camera Shake"), "cg_shake",
                                     array<string> = {_Tr("Preferences", "MORE"),
                                                      _Tr("Preferences", "NORMAL"),
@@ -622,6 +623,9 @@ namespace spades {
                                     array<int> = {2, 1, 0});
 
             layouter.AddHeading(_Tr("Preferences", "Feedbacks"));
+			layouter.AddToggleField(_Tr("Preferences", "Chat Messages"), "cg_playerMessages");
+			layouter.AddToggleField(_Tr("Preferences", "Score Messages"), "cg_scoreMessages");
+			layouter.AddToggleField(_Tr("Preferences", "Analyze Messages"), "cg_analyze");
 			layouter.AddChoiceField(_Tr("Preferences", "Center Messages"), "cg_centerMessage",
                                     array<string> = {_Tr("Preferences", "NORMAL"),
                                                      _Tr("Preferences", "LESS")},
@@ -647,6 +651,7 @@ namespace spades {
 			0, 100, 1, ConfigNumberFormatter(0, "%"));
 			layouter.AddVolumeSlider(_Tr("Preferences", "Hit Feedback Volume"), "cg_hitFeedbackSoundGain");
             layouter.AddToggleField(_Tr("Preferences", "Show Statistics"), "cg_stats");
+			layouter.AddToggleField(_Tr("Preferences", "Show Player Statistics"), "cg_playerStats");
 			layouter.AddToggleField(_Tr("Preferences", "Debug Hit Detection"), "cg_debugHitTest");
 			layouter.AddSliderField(_Tr("Preferences", "HitTest Debugger Size"), "cg_dbgHitTestSize",
 			64, 256, 8, ConfigNumberFormatter(0, "px"));
@@ -665,9 +670,6 @@ namespace spades {
 			2, 320, 2, ConfigNumberFormatter(0, "px"));
 			layouter.AddSliderField(_Tr("Preferences", "Hud Vertical Border"), "cg_hudBorderY",
 			2, 240, 2, ConfigNumberFormatter(0, "px"));
-			layouter.AddToggleField(_Tr("Preferences", "Chat Messages"), "cg_playerMessages");
-			layouter.AddToggleField(_Tr("Preferences", "Score Messages"), "cg_scoreMessages");
-			layouter.AddToggleField(_Tr("Preferences", "Analyze Messages"), "cg_analyze");
 			layouter.AddSliderField(_Tr("Preferences", "Chat Height"), "cg_chatHeight",
 			10, 100, 1, ConfigNumberFormatter(0, "px"));
 			layouter.AddSliderField(_Tr("Preferneces", "Killfeed Height"), "cg_killfeedHeight",
