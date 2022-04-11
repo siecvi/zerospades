@@ -13,7 +13,7 @@ NamespaceIndentation: All
 IndentCaseLabels: true
 
 SpaceBeforeParens: ControlStatements
-PointerAlignment: Right
+PointerAlignment: Left
 
 AllowShortFunctionsOnASingleLine: Inline
 AllowShortCaseLabelsOnASingleLine: true

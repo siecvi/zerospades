@@ -956,35 +956,36 @@ namespace spades {
 			// do velocity & gravity (friction is negligible)
 			float f = fsynctics * 32.0F;
 			velocity.z += fsynctics * 0.5F;
-			position += velocity * f;
+
+			const Handle<GameMap>& map = world.GetMap();
+
+			if (map->ClipBox(position.x, position.y, position.z)) {
+				lastClimbTime = world.GetTime();
+				position.z--;
+			} else {
+				position += velocity * f;
+			}
 
 			// Collision
 			IntVector3 lp = position.Floor();
 
-			const Handle<GameMap>& map = world.GetMap();
-
 			if (map->ClipWorld(lp.x, lp.y, lp.z)) {
 				IntVector3 lp2 = oldPos.Floor();
-				if (lp.z != lp2.z && ((lp.x == lp2.x && lp.y == lp2.y)
-					|| !map->ClipWorld(lp.x, lp.y, lp2.z)))
+				if (lp.z != lp2.z &&
+				    ((lp.x == lp2.x && lp.y == lp2.y) || !map->ClipWorld(lp.x, lp.y, lp2.z)))
 					velocity.z = -velocity.z;
-				else if (lp.x != lp2.x && ((lp.y == lp2.y && lp.z == lp2.z)
-					|| !map->ClipWorld(lp2.x, lp.y, lp.z)))
+				else if (lp.x != lp2.x &&
+				         ((lp.y == lp2.y && lp.z == lp2.z) || !map->ClipWorld(lp2.x, lp.y, lp.z)))
 					velocity.x = -velocity.x;
-				else if (lp.y != lp2.y && ((lp.x == lp2.x && lp.z == lp2.z)
-					|| !map->ClipWorld(lp.x, lp2.y, lp.z)))
+				else if (lp.y != lp2.y &&
+				         ((lp.x == lp2.x && lp.z == lp2.z) || !map->ClipWorld(lp.x, lp2.y, lp.z)))
 					velocity.y = -velocity.y;
 
 				position = oldPos; // set back to old position
 				velocity *= 0.36F; // lose some velocity due to friction
 			}
 
-			if (map->ClipBox(position.x, position.y, position.z)) {
-				velocity.z -= fsynctics * 6.0F;
-				position += velocity * f;
-			}
-
-			SetPosition(position);
+			RepositionPlayer(position);
 		}
 
 		void Player::MovePlayer(float fsynctics) {
