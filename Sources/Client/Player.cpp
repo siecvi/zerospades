@@ -956,12 +956,19 @@ namespace spades {
 			// do velocity & gravity (friction is negligible)
 			float f = fsynctics * 32.0F;
 			velocity.z += fsynctics * 0.5F;
-			position += velocity * f;
+
+			const Handle<GameMap>& map = world.GetMap();
+			SPAssert(map);
+
+			if (map->ClipBox(position.x, position.y, position.z)) {
+				lastClimbTime = world.GetTime();
+				position.z--;
+			} else {
+				position += velocity * f;
+			}
 
 			// Collision
 			IntVector3 lp = position.Floor();
-
-			const Handle<GameMap>& map = world.GetMap();
 
 			if (map->ClipWorld(lp.x, lp.y, lp.z)) {
 				IntVector3 lp2 = oldPos.Floor();
@@ -979,12 +986,7 @@ namespace spades {
 				velocity *= 0.36F; // lose some velocity due to friction
 			}
 
-			if (map->ClipBox(position.x, position.y, position.z)) {
-				velocity.z -= fsynctics * 6.0F;
-				position += velocity * f;
-			}
-
-			SetPosition(position);
+			RepositionPlayer(position);
 		}
 
 		void Player::MovePlayer(float fsynctics) {
