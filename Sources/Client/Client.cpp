@@ -662,8 +662,12 @@ namespace spades {
 				}
 			}
 
-			chatWindow->AddMessage(ChatWindow::ColoredMessage(msg,
-					system ? MsgColorBlue : MsgColorRestore));
+			if (system) {
+				chatWindow->AddMessage(ChatWindow::ColoredMessage(msg, MsgColorSystem));
+				return;
+			}
+
+			chatWindow->AddMessage(msg);
 		}
 
 #pragma mark - Follow / Spectate
