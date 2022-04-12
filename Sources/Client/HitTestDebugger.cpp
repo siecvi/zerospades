@@ -227,11 +227,10 @@ namespace spades {
 
 				// draw crosshair
 				{
-					float x = size * 0.5F;
-					float y = size * 0.5F;
+					float thickness = 2;
 					renderer->SetColorAlphaPremultiplied(Vector4(1.0F, 0.0F, 0.0F, 0.9F));
-					renderer->DrawImage(nullptr, AABB2(0, y, size, 2));
-					renderer->DrawImage(nullptr, AABB2(x, 0, 2, size));
+					renderer->DrawImage(nullptr, AABB2(0, size * 0.5F, size, thickness));
+					renderer->DrawImage(nullptr, AABB2(size * 0.5F, 0, thickness, size));
 				}
 
 				// draw bullet vectors
