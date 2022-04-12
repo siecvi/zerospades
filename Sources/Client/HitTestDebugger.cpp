@@ -103,10 +103,10 @@ namespace spades {
 				auto vc = toViewCoord(p->GetEye());
 				if (vc.GetPoweredLength() > 130.0F * 130.0F)
 					continue;
-				if (vc.z < -3.0F)
+				if (vc.z <= 0.0F)
 					continue;
 
-				vc.z = std::max(vc.z, 0.1F);
+				vc.z = std::max(vc.z, 0.001F);
 
 				const float bodySize = 3.5F;
 				if (fabsf(vc.x) > bodySize + 2.5F || fabsf(vc.y) > bodySize + 2.5F)
