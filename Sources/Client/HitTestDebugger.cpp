@@ -227,7 +227,7 @@ namespace spades {
 
 				// draw crosshair
 				{
-					float thickness = 2;
+					float thickness = 1; // (1 for single-pixel hairline)
 					renderer->SetColorAlphaPremultiplied(Vector4(1.0F, 0.0F, 0.0F, 0.9F));
 					renderer->DrawImage(nullptr, AABB2(0, size * 0.5F, size, thickness));
 					renderer->DrawImage(nullptr, AABB2(size * 0.5F, 0, thickness, size));
