@@ -51,8 +51,8 @@ namespace spades {
 		      fb(nullptr),
 		      inited(false),
 		      sceneUsedInThisFrame(false),
-		      fogDistance(128.f),
-		      fogColor(MakeVector3(0.f, 0.f, 0.f)),
+		      fogDistance(128.0F),
+		      fogColor(MakeVector3(0, 0, 0)),
 		      drawColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1)),
 		      legacyColorPremultiply(false),
 		      lastTime(0),
@@ -185,8 +185,7 @@ namespace spades {
 			if (this->map) {
 				this->map->AddListener(this);
 				flatMapRenderer = std::make_shared<SWFlatMapRenderer>(*this, map);
-				mapRenderer =
-				  std::make_shared<SWMapRenderer>(*this, map.get_pointer(), featureLevel);
+				mapRenderer = std::make_shared<SWMapRenderer>(*this, map.get_pointer(), featureLevel);
 			}
 		}
 
@@ -211,10 +210,10 @@ namespace spades {
 			frustrum[0].w -= sceneDef.zNear;
 			frustrum[1].w += sceneDef.zFar;
 
-			float xCos = cosf(sceneDef.fovX * .5f);
-			float xSin = sinf(sceneDef.fovX * .5f);
-			float yCos = cosf(sceneDef.fovY * .5f);
-			float ySin = sinf(sceneDef.fovY * .5f);
+			float xCos = cosf(sceneDef.fovX * 0.5F);
+			float xSin = sinf(sceneDef.fovX * 0.5F);
+			float yCos = cosf(sceneDef.fovY * 0.5F);
+			float ySin = sinf(sceneDef.fovY * 0.5F);
 
 			frustrum[2] = Plane3::PlaneWithPointOnPlane(
 			  sceneDef.viewOrigin, sceneDef.viewAxis[2] * xSin - sceneDef.viewAxis[0] * xCos);
@@ -230,11 +229,11 @@ namespace spades {
 			int fw = this->fb->GetWidth();
 			int fh = this->fb->GetHeight();
 
-			float fovX = tanf(sceneDef.fovX * 0.5f);
-			float fovY = tanf(sceneDef.fovY * 0.5f);
+			float fovX = tanf(sceneDef.fovX * 0.5F);
+			float fovY = tanf(sceneDef.fovY * 0.5F);
 
-			float dvx = -fovX * 2.f / static_cast<float>(fw);
-			float dvy = -fovY * 2.f / static_cast<float>(fh);
+			float dvx = -fovX * 2.0F / static_cast<float>(fw);
+			float dvy = -fovY * 2.0F / static_cast<float>(fh);
 
 			int minX = light.minX;
 			int minY = light.minY;
@@ -257,7 +256,7 @@ namespace spades {
 			int lightG = ToFixedFactor8(light.param.color.y);
 			int lightB = ToFixedFactor8(light.param.color.z);
 
-			float invRadius2 = 1.f / (light.param.radius * light.param.radius);
+			float invRadius2 = 1.0F / (light.param.radius * light.param.radius);
 
 			InvokeParallel2([=](unsigned int threadId, unsigned int numThreads) {
 				int startY = lightHeight * threadId / numThreads;
@@ -292,8 +291,8 @@ namespace spades {
 						float dist = pos.GetPoweredLength();
 						dist *= invRadius2;
 
-						if (dist < 1.f) {
-							float strength = 1.f - dist;
+						if (dist < 1.0F) {
+							float strength = 1.0F - dist;
 							strength *= strength;
 							strength *= 256.0F;
 
@@ -342,11 +341,11 @@ namespace spades {
 			int fw = this->fb->GetWidth();
 			int fh = this->fb->GetHeight();
 
-			float fovX = tanf(sceneDef.fovX * 0.5f);
-			float fovY = tanf(sceneDef.fovY * 0.5f);
+			float fovX = tanf(sceneDef.fovX * 0.5F);
+			float fovY = tanf(sceneDef.fovY * 0.5F);
 
-			float dvx = -fovX * 2.f / static_cast<float>(fw / 4);
-			float dvy = -fovY * 2.f / static_cast<float>(fh / 4);
+			float dvx = -fovX * 2.0F / static_cast<float>(fw / 4);
+			float dvy = -fovY * 2.0F / static_cast<float>(fh / 4);
 
 			int fogR = ToFixed8(fogColor.x);
 			int fogG = ToFixed8(fogColor.y);
@@ -354,7 +353,7 @@ namespace spades {
 			uint32_t fog1 = static_cast<uint32_t>(fogB + fogR * 0x10000);
 			uint32_t fog2 = static_cast<uint32_t>(fogG * 0x100);
 
-			float scale = 255.f / fogDistance;
+			float scale = 255.0F / fogDistance;
 
 			InvokeParallel2([&](unsigned int threadId, unsigned int numThreads) {
 				int startY = fh * threadId / numThreads;
@@ -374,7 +373,7 @@ namespace spades {
 					float vx = fovX;
 
 					for (int x = 0; x < fw; x += 4) {
-						float depthScale = (1.f + vx * vx + vy * vy);
+						float depthScale = (1.0F + vx * vx + vy * vy);
 						depthScale *= fastRSqrt(depthScale) * scale;
 						auto* fb2 = fb + x;
 						auto* db2 = db + x;
@@ -422,18 +421,18 @@ namespace spades {
 			int fw = this->fb->GetWidth();
 			int fh = this->fb->GetHeight();
 
-			float fovX = tanf(sceneDef.fovX * 0.5f);
-			float fovY = tanf(sceneDef.fovY * 0.5f);
+			float fovX = tanf(sceneDef.fovX * 0.5F);
+			float fovY = tanf(sceneDef.fovY * 0.5F);
 
-			float dvx = -fovX * 2.f / static_cast<float>(fw / 4);
-			float dvy = -fovY * 2.f / static_cast<float>(fh / 4);
+			float dvx = -fovX * 2.0F / static_cast<float>(fw / 4);
+			float dvy = -fovY * 2.0F / static_cast<float>(fh / 4);
 
 			int fogR = ToFixed8(fogColor.x);
 			int fogG = ToFixed8(fogColor.y);
 			int fogB = ToFixed8(fogColor.z);
 			__m128i fog = _mm_setr_epi16(fogB, fogG, fogR, 0, fogB, fogG, fogR, 0);
 
-			float scale = 255.f / fogDistance;
+			float scale = 255.0F / fogDistance;
 
 			InvokeParallel2([&](unsigned int threadId, unsigned int numThreads) {
 				int startY = fh * threadId / numThreads;
@@ -597,36 +596,33 @@ namespace spades {
 				light.minY = 0;
 				light.maxX = fb->GetWidth();
 				light.maxY = fb->GetHeight();
-			} else if (Vector3::Dot(diff, sceneDef.viewAxis[2]) < 0.f) {
+			} else if (Vector3::Dot(diff, sceneDef.viewAxis[2]) < 0.0F) {
 				// view plane cull
 				return;
 			} else {
 				auto viewRange = [](float cx, float cy, float fov,
 				                    float screenSize) -> std::array<int, 2> {
 					auto trans = [screenSize, fov](float v) {
-						v = (v / fov) * 0.5f + 0.5f;
-						v = std::max(v, 0.f);
-						v = std::min(v, 1.f);
+						v = (v / fov) * 0.5F + 0.5F;
+						v = std::max(v, 0.0F);
+						v = std::min(v, 1.0F);
 						v *= screenSize;
 						return static_cast<int>(v);
 					};
 					auto dist = cx * cx + cy * cy - 1.0F;
-					if (dist <= 0.0F) {
+					if (dist <= 0.0F)
 						return std::array<int, 2>{{0, static_cast<int>(screenSize)}};
-					}
 
 					auto denom = cx * cx - 1.0F;
-					if (fabsf(denom) < 1.e-10f) {
-						denom = 1.e-8f;
-					}
-					denom = 1.f / denom;
+					if (fabsf(denom) < 1.E-10F)
+						denom = 1.E-8F;
+					denom = 1.0F / denom;
 
 					dist = sqrtf(dist);
 
-					if (cx <= 1.f) {
-						if (cy > 0.f) {
-							return std::array<int, 2>{
-							  {trans(cx * cy - dist), static_cast<int>(screenSize)}};
+					if (cx <= 1.0F) {
+						if (cy > 0.0F) {
+							return std::array<int, 2>{{trans(cx * cy - dist), static_cast<int>(screenSize)}};
 						} else {
 							return std::array<int, 2>{{0, trans(cx * cy + dist)}};
 						}
@@ -634,13 +630,13 @@ namespace spades {
 						return std::array<int, 2>{{trans(cx * cy - dist), trans(cx * cy + dist)}};
 					}
 				};
-				auto invRad = 1.f / param.radius;
+				auto invRad = 1.0F / param.radius;
 				auto rangeX = viewRange(Vector3::Dot(diff, sceneDef.viewAxis[2]) * invRad,
 				                        Vector3::Dot(diff, sceneDef.viewAxis[0]) * invRad,
-				                        tanf(sceneDef.fovX * 0.5f), ScreenWidth());
+				                        tanf(sceneDef.fovX * 0.5F), ScreenWidth());
 				auto rangeY = viewRange(Vector3::Dot(diff, sceneDef.viewAxis[1]) * invRad,
 				                        Vector3::Dot(diff, sceneDef.viewAxis[0]) * invRad,
-				                        tanf(sceneDef.fovY * 0.5f), ScreenHeight());
+				                        tanf(sceneDef.fovY * 0.5F), ScreenHeight());
 				light.minX = rangeX[0];
 				light.maxX = rangeX[1];
 				light.minY = rangeY[0];
@@ -782,8 +778,8 @@ namespace spades {
 
 			// render debug lines
 			{
-				float cw = fb->GetWidth() * 0.5f;
-				float ch = fb->GetHeight() * 0.5f;
+				float cw = fb->GetWidth() * 0.5F;
+				float ch = fb->GetHeight() * 0.5F;
 				for (size_t i = 0; i < debugLines.size(); i++) {
 					auto& l = debugLines[i];
 					auto v1 = projectionViewMatrix * l.v1;
@@ -817,9 +813,8 @@ namespace spades {
 					if (x1 == x2 && y1 == y2) {
 						if (x1 >= 0 && y1 >= 0 && x1 < fw && y1 < fh) {
 							d1 = fastRcp(d1);
-							if (d1 < db[x1 + y1 * fw]) {
+							if (d1 < db[x1 + y1 * fw])
 								fb[x1 + y1 * fw] = col;
-							}
 						}
 						continue;
 					}
@@ -997,10 +992,10 @@ namespace spades {
 			vtx[2].color = col;
 			vtx[3].color = col;
 
-			vtx[0].position = MakeVector4(outTopLeft.x, outTopLeft.y, 1.f, 1.f);
-			vtx[1].position = MakeVector4(outTopRight.x, outTopRight.y, 1.f, 1.f);
-			vtx[2].position = MakeVector4(outBottomLeft.x, outBottomLeft.y, 1.f, 1.f);
-			vtx[3].position = MakeVector4(outBottomRight.x, outBottomRight.y, 1.f, 1.f);
+			vtx[0].position = MakeVector4(outTopLeft.x, outTopLeft.y, 1.0F, 1.0F);
+			vtx[1].position = MakeVector4(outTopRight.x, outTopRight.y, 1.0F, 1.0F);
+			vtx[2].position = MakeVector4(outBottomLeft.x, outBottomLeft.y, 1.0F, 1.0F);
+			vtx[3].position = MakeVector4(outBottomRight.x, outBottomRight.y, 1.0F, 1.0F);
 			if (img) {
 				Vector2 scl = {img->GetInvWidth(), img->GetInvHeight()};
 				vtx[0].uv = MakeVector2(inRect.min.x, inRect.min.y) * scl;

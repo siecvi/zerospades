@@ -565,8 +565,10 @@ namespace spades {
 				return;
 
 			auto bmp = debugger->GetBitmap();
-			if (bmp)
-				debugHitTestImage.Set(renderer->CreateImage(*bmp).GetPointerOrNull());
+			if (bmp) {
+				auto img = renderer->CreateImage(*bmp);
+				debugHitTestImage.Set(img.GetPointerOrNull());
+			}
 
 			if (debugHitTestImage) {
 				float cfgWndSize = cg_dbgHitTestSize;

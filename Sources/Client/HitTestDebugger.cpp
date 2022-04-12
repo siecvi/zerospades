@@ -97,8 +97,6 @@ namespace spades {
 					continue;
 				if (!p->IsAlive() || p->IsSpectator())
 					continue;
-				if (p->GetTeamId() == localPlayer->GetTeamId())
-					continue;
 				if (!p->RayCastApprox(def.viewOrigin, def.viewAxis[2]))
 					continue;
 
@@ -122,8 +120,8 @@ namespace spades {
 			// fit FoV to include all bullets
 			for (const auto& v : bullets) {
 				auto vc = toViewCoord(v + def.viewOrigin);
-				vc /= vc.z;
-				auto prange = atanf(std::max(fabsf(vc.x), fabsf(vc.y)) * 1.5F) * 2.0F;
+				float prange = std::max(fabsf(vc.x), fabsf(vc.y)) * 1.5F;
+				prange = atanf(prange / vc.z) * 2.0F;
 				range = std::max(range, prange);
 			}
 
@@ -207,7 +205,9 @@ namespace spades {
 						hit = it->second;
 				}
 
-				int numHits = hit.numHeadHits + hit.numTorsoHits;
+				int numHits = 0;
+				numHits += hit.numHeadHits;
+				numHits += hit.numTorsoHits;
 				for (std::size_t i = 0; i < 3; i++)
 					numHits += hit.numLimbHits[i];
 
@@ -221,24 +221,33 @@ namespace spades {
 
 			renderer->EndScene();
 
-			// draw crosshair
-			float size = renderer->ScreenWidth();
+			// 2D Layer
+			{
+				float size = renderer->ScreenWidth();
 
-			renderer->SetColorAlphaPremultiplied(Vector4(1.0F, 0.0F, 0.0F, 0.9F));
-			renderer->DrawImage(nullptr, AABB2(size * 0.5F - 1.0F, 0.0F, 2.0F, size));
-			renderer->DrawImage(nullptr, AABB2(0.0F, size * 0.5F - 1.0F, size, 2.0F));
+				// draw crosshair
+				{
+					float x = size * 0.5F;
+					float y = size * 0.5F;
+					renderer->SetColorAlphaPremultiplied(Vector4(1.0F, 0.0F, 0.0F, 0.9F));
+					renderer->DrawImage(nullptr, AABB2(0, y, size, 2));
+					renderer->DrawImage(nullptr, AABB2(x, 0, 2, size));
+				}
 
-			// draw bullet vectors
-			float fov = tanf(def.fovY * 0.5F);
-			for (const auto& v : bullets) {
-				auto vc = toViewCoord(v + def.viewOrigin);
-				vc /= vc.z * fov;
-				float x = floorf(size * (0.5F + 0.5F * vc.x));
-				float y = floorf(size * (0.5F - 0.5F * vc.y));
-				renderer->SetColorAlphaPremultiplied(Vector4(1.0F, 0.6F, 0.2F, 0.9F));
-				renderer->DrawImage(nullptr, AABB2(x - 1.0F, y - 1.0F, 3.0F, 3.0F));
-				renderer->SetColorAlphaPremultiplied(Vector4(1.0F, 1.0F, 0.0F, 0.9F));
-				renderer->DrawImage(nullptr, AABB2(x, y, 1.0F, 1.0F));
+				// draw bullet vectors
+				{
+					float fov = tanf(def.fovY * 0.5F);
+					for (const auto& v : bullets) {
+						auto vc = toViewCoord(v + def.viewOrigin);
+						vc /= vc.z * fov;
+						float x = floorf(size * (0.5F + 0.5F * vc.x));
+						float y = floorf(size * (0.5F - 0.5F * vc.y));
+						renderer->SetColorAlphaPremultiplied(Vector4(1.0F, 0.6F, 0.2F, 0.9F));
+						renderer->DrawImage(nullptr, AABB2(x - 1.0F, y - 1.0F, 3.0F, 3.0F));
+						renderer->SetColorAlphaPremultiplied(Vector4(1.0F, 1.0F, 0.0F, 0.9F));
+						renderer->DrawImage(nullptr, AABB2(x, y, 1.0F, 1.0F));
+					}
+				}
 			}
 
 			renderer->FrameDone();

@@ -42,14 +42,14 @@ namespace spades {
 		// special tan function whose value is finite.
 		static inline float SpecialTan(float v) {
 			static const float pi = M_PI_F;
-			if (v <= -pi * 0.5f) {
+			if (v <= -pi * 0.5F) {
 				return -2.0F;
-			} else if (v < -pi * 0.25f) {
-				v = -2.f - 1.f / tanf(v);
-			} else if (v < pi * 0.25f) {
+			} else if (v < -pi * 0.25F) {
+				v = -2.0F - 1.0F / tanf(v);
+			} else if (v < pi * 0.25F) {
 				v = tanf(v);
-			} else if (v < pi * 0.5f) {
-				v = 2.f - 1.f / tanf(v);
+			} else if (v < pi * 0.5F) {
+				v = 2.0F - 1.0F / tanf(v);
 			} else {
 				return v = 2.0F;
 			}
@@ -57,10 +57,10 @@ namespace spades {
 		}
 		// convert from tan value to special tan value.
 		static inline float ToSpecialTan(float v) {
-			if (v < -1.f)
-				return -2.f - fastRcp(v);
-			else if (v > 1.f)
-				return 2.f - fastRcp(v);
+			if (v < -1.0F)
+				return -2.0F - fastRcp(v);
+			else if (v > 1.0F)
+				return 2.0F - fastRcp(v);
 			else
 				return v;
 		}
@@ -122,18 +122,19 @@ namespace spades {
 
 			int idx = 0;
 			for (int y = 0; y < h; y++)
-				for (int x = 0; x < w; x++) {
-					BuildRle(x, y, rleBuf);
+			for (int x = 0; x < w; x++) {
+				BuildRle(x, y, rleBuf);
 
-					auto ref = rleHeap.Alloc(rleBuf.size() * sizeof(RleData));
-					short* ptr = rleHeap.Dereference<short>(ref);
-					std::memcpy(ptr, rleBuf.data(), rleBuf.size() * sizeof(RleData));
+				auto ref = rleHeap.Alloc(rleBuf.size() * sizeof(RleData));
+				short* ptr = rleHeap.Dereference<short>(ref);
+				std::memcpy(ptr, rleBuf.data(), rleBuf.size() * sizeof(RleData));
 
-					rle[idx] = ref;
-					rleLen[idx] = rleBuf.size() * sizeof(RleData);
+				rle[idx] = ref;
+				rleLen[idx] = rleBuf.size() * sizeof(RleData);
 
-					idx++;
-				}
+				idx++;
+			}
+
 			SPLog("RLE map created in %.6f seconds", sw.GetTime());
 		}
 
@@ -165,9 +166,8 @@ namespace spades {
 
 			for (int z = 0; z < 64; z++) {
 				bool b = (smap >> z) & 1;
-				if (b && !old) {
+				if (b && !old)
 					out.push_back(static_cast<RleData>(z));
-				}
 				old = b;
 			}
 			out.push_back(-1);
@@ -177,9 +177,8 @@ namespace spades {
 			old = true;
 			for (int z = 63; z >= 0; z--) {
 				bool b = (smap >> z) & 1;
-				if (b && !old) {
+				if (b && !old)
 					out.push_back(static_cast<RleData>(z));
-				}
 				old = b;
 			}
 			out.push_back(-1);
@@ -232,24 +231,23 @@ namespace spades {
 				const auto& frustrum = renderer.frustrum;
 				static const float pi = M_PI_F;
 				const auto& horz = line.horizonDir;
-				minPitch = -pi * 0.4999f;
-				maxPitch = pi * 0.4999f;
+				minPitch = -pi * 0.4999F;
+				maxPitch = pi * 0.4999F;
 
 				auto cull = [&minPitch, &maxPitch]() {
 					minPitch = 2.0F;
 					maxPitch = -2.0F;
 				};
 				auto clip = [&minPitch, &maxPitch, &horz, &cull](Vector3 plane) {
-					if (plane.x == 0.f && plane.y == 0.f) {
-						if (plane.z > 0.f) {
-							minPitch = std::max(minPitch, 0.f);
+					if (plane.x == 0.0F && plane.y == 0.0F) {
+						if (plane.z > 0.0F) {
+							minPitch = std::max(minPitch, 0.0F);
 						} else {
-							maxPitch = std::min(maxPitch, 0.f);
+							maxPitch = std::min(maxPitch, 0.0F);
 						}
-					} else if (plane.z == 0.f) {
-						if (Vector3::Dot(plane, horz) < 0.f) {
+					} else if (plane.z == 0.0F) {
+						if (Vector3::Dot(plane, horz) < 0.0F)
 							cull();
-						}
 					} else {
 						Vector3 prj = plane;
 						prj.z = 0.0F;
@@ -258,14 +256,14 @@ namespace spades {
 						float zv = fabsf(plane.z);
 						float cs = Vector3::Dot(prj, horz);
 
-						float ang = zv * zv * (1.f - cs * cs) / (cs * cs);
-						ang = -cs * fastSqrt(1.f + ang);
+						float ang = zv * zv * (1.0F - cs * cs) / (cs * cs);
+						ang = -cs * fastSqrt(1.0F + ang);
 						ang = zv / ang;
-						if (isnan(ang) || isinf(ang) || ang == 0.f)
+						if (isnan(ang) || isinf(ang) || ang == 0.0F)
 							return;
 
 						// convert to tan
-						ang = fastSqrt(1.f - ang * ang) / ang;
+						ang = fastSqrt(1.0F - ang * ang) / ang;
 
 						// convert to angle
 						ang = atanf(ang);
@@ -273,7 +271,7 @@ namespace spades {
 						if (isnan(ang) || isinf(ang))
 							return;
 
-						if (plane.z > 0.f) {
+						if (plane.z > 0.0F) {
 							minPitch = std::max(minPitch, ang - 0.01f);
 						} else {
 							maxPitch = std::min(maxPitch, -ang + 0.01f);
@@ -300,26 +298,26 @@ namespace spades {
 
 			line.pitchTanMin = minTan;
 			line.pitchScale = lineResolution / (maxTan - minTan);
-			line.pitchTanMinI = static_cast<int>(minTan * 65536.f);
-			line.pitchScaleI = static_cast<int>(line.pitchScale * 65536.f);
+			line.pitchTanMinI = static_cast<int>(minTan * 65536.0F);
+			line.pitchScaleI = static_cast<int>(line.pitchScale * 65536.0F);
 
 			// TODO: pitch culling
 
 			// ray direction
 			float dirX = line.horizonDir.x;
 			float dirY = line.horizonDir.y;
-			if (fabsf(dirY) < 1.e-4f)
-				dirY = 1.e-4f;
-			if (fabsf(dirX) < 1.e-4f)
-				dirX = 1.e-4f;
-			float invDirX = 1.f / dirX;
-			float invDirY = 1.f / dirY;
-			std::int_fast8_t signX = dirX > 0.f ? 1 : -1;
-			std::int_fast8_t signY = dirY > 0.f ? 1 : -1;
-			int invDirXI = static_cast<int>(invDirX * 256.f);
-			int invDirYI = static_cast<int>(invDirY * 256.f);
-			int dirXI = static_cast<int>(dirX * 512.f);
-			int dirYI = static_cast<int>(dirY * 512.f);
+			if (fabsf(dirY) < 1.E-4F)
+				dirY = 1.E-4F;
+			if (fabsf(dirX) < 1.E-4F)
+				dirX = 1.E-4F;
+			float invDirX = 1.0F / dirX;
+			float invDirY = 1.0F / dirY;
+			std::int_fast8_t signX = (dirX > 0.0F) ? 1 : -1;
+			std::int_fast8_t signY = (dirY > 0.0F) ? 1 : -1;
+			int invDirXI = static_cast<int>(invDirX * 256.0F);
+			int invDirYI = static_cast<int>(invDirY * 256.0F);
+			int dirXI = static_cast<int>(dirX * 512.0F);
+			int dirYI = static_cast<int>(dirY * 512.0F);
 			if (invDirXI < 0)
 				invDirXI = -invDirXI;
 			if (invDirYI < 0)
@@ -338,16 +336,16 @@ namespace spades {
 
 			// ray position
 			// float rx = cx, ry = cy;
-			int rx = static_cast<int>(cx * 512.f);
-			int ry = static_cast<int>(cy * 512.f);
+			int rx = static_cast<int>(cx * 512.0F);
+			int ry = static_cast<int>(cy * 512.0F);
 
 			// ray position in integer
 			std::int_fast16_t irx = rx >> 9; // static_cast<int>(floorf(rx));
 			std::int_fast16_t iry = ry >> 9; // static_cast<int>(floorf(ry));
 
 			float fogDist = 128.0F;
-			float distance = 1.e-20f; // traveled path
-			float invDist = 1.f / distance;
+			float distance = 1.E-20F; // traveled path
+			float invDist = 1.0F / distance;
 
 			// auto& pixels = line.pixels;
 
@@ -416,7 +414,7 @@ namespace spades {
 			}
 
 			std::uint_fast16_t count = 1;
-			std::uint_fast16_t cnt2 = static_cast<int>(fogDist * 8.f);
+			std::uint_fast16_t cnt2 = static_cast<int>(fogDist * 8.0F);
 
 			while (distance < fogDist && (--cnt2) > 0) {
 				std::int_fast16_t nextIRX, nextIRY;
@@ -438,14 +436,14 @@ namespace spades {
 							irx = nextIRX;
 							rx = irx << 9;
 							ry += (dirYI * timeToNextX) >> 17;
-							distance += static_cast<float>(timeToNextX) * (1.f / 512.f / 256.f);
+							distance += static_cast<float>(timeToNextX) * (1.0F / 512.0F / 256.0F);
 							wallFace = Face::NegX;
 						} else {
 							// go across y plane
 							iry = nextIRY;
 							rx += (dirXI * timeToNextY) >> 17;
 							ry = iry << 9;
-							distance += static_cast<float>(timeToNextY) * (1.f / 512.f / 256.f);
+							distance += static_cast<float>(timeToNextY) * (1.0F / 512.0F / 256.0F);
 							wallFace = Face::NegY;
 						}
 					} else /* (signY < 0) */ {
@@ -459,14 +457,14 @@ namespace spades {
 							irx = nextIRX;
 							rx = irx << 9;
 							ry -= (dirYI * timeToNextX) >> 17;
-							distance += static_cast<float>(timeToNextX) * (1.f / 512.f / 256.f);
+							distance += static_cast<float>(timeToNextX) * (1.0F / 512.0F / 256.0F);
 							wallFace = Face::NegX;
 						} else {
 							// go across y plane
 							iry = nextIRY;
 							rx += (dirXI * timeToNextY) >> 17;
 							ry = (iry << 9) - 1;
-							distance += static_cast<float>(timeToNextY) * (1.f / 512.f / 256.f);
+							distance += static_cast<float>(timeToNextY) * (1.0F / 512.0F / 256.0F);
 							wallFace = Face::PosY;
 						}
 					}
@@ -483,14 +481,14 @@ namespace spades {
 							irx = nextIRX;
 							rx = (irx << 9) - 1;
 							ry += (dirYI * timeToNextX) >> 17;
-							distance += static_cast<float>(timeToNextX) * (1.f / 512.f / 256.f);
+							distance += static_cast<float>(timeToNextX) * (1.0F / 512.0F / 256.0F);
 							wallFace = Face::PosX;
 						} else {
 							// go across y plane
 							iry = nextIRY;
 							rx -= (dirXI * timeToNextY) >> 17;
 							ry = iry << 9;
-							distance += static_cast<float>(timeToNextY) * (1.f / 512.f / 256.f);
+							distance += static_cast<float>(timeToNextY) * (1.0F / 512.0F / 256.0F);
 							wallFace = Face::NegY;
 						}
 					} else /* (signY < 0) */ {
@@ -504,14 +502,14 @@ namespace spades {
 							irx = nextIRX;
 							rx = (irx << 9) - 1;
 							ry -= (dirYI * timeToNextX) >> 17;
-							distance += static_cast<float>(timeToNextX) * (1.f / 512.f / 256.f);
+							distance += static_cast<float>(timeToNextX) * (1.0F / 512.0F / 256.0F);
 							wallFace = Face::PosX;
 						} else {
 							// go across y plane
 							iry = nextIRY;
 							rx -= (dirXI * timeToNextY) >> 17;
 							ry = (iry << 9) - 1;
-							distance += static_cast<float>(timeToNextY) * (1.f / 512.f / 256.f);
+							distance += static_cast<float>(timeToNextY) * (1.0F / 512.0F / 256.0F);
 							wallFace = Face::PosY;
 						}
 					}
@@ -521,7 +519,7 @@ namespace spades {
 
 				invDist = fastRcp(distance);
 
-				float medDist = distance * zscale + depthBias; //(distance + oldDistance) * 0.5f;
+				float medDist = distance * zscale + depthBias; //(distance + oldDistance) * 0.5F;
 
 				// check for new spans
 
@@ -545,9 +543,8 @@ namespace spades {
 								break;
 							default: break;
 						}
-						if ((col >> 24) < 100) {
+						if ((col >> 24) < 100)
 							m = _mm_srli_epi16(m, 1);
-						}
 						m = _mm_packus_epi16(m, m);
 						_mm_store_ss(reinterpret_cast<float*>(&px.combined), _mm_castsi128_ps(m));
 						px.filled = true;
@@ -557,7 +554,7 @@ namespace spades {
 					{
 						uint32_t col;
 						col = map.GetColorWrapped(x, y, z);
-						col = (col & 0xff00) | ((col & 0xff) << 16) | ((col & 0xff0000) >> 16);
+						col = (col & 0xFF00) | ((col & 0xFF) << 16) | ((col & 0xFF0000) >> 16);
 						switch (face) {
 							case Face::PosZ: col = (col & 0xfcfcfc) >> 2; break;
 							case Face::PosX:
@@ -585,14 +582,14 @@ namespace spades {
 							if (z > icz) {
 								std::uint_fast16_t p1 = transform(invDist, z);
 								std::uint_fast16_t p2 = transform(oldInvDist, z);
-								LinePixel pix = BuildLinePixel(oirx, oiry, z, Face::NegZ,
-								                               medDist + heightScaleVal[z]);
+								LinePixel px = BuildLinePixel(oirx, oiry, z,
+									Face::NegZ, medDist + heightScaleVal[z]);
 
 								for (std::uint_fast16_t j = p1; j < p2; j++) {
 									auto& p = pixels[j];
 									if (!p.IsEmpty())
 										continue;
-									p.Set(pix);
+									p.Set(px);
 								}
 							}
 							ptr++;
@@ -603,14 +600,14 @@ namespace spades {
 							if (z < icz) {
 								std::uint_fast16_t p1 = transform(invDist, z + 1);
 								std::uint_fast16_t p2 = transform(oldInvDist, z + 1);
-								LinePixel pix = BuildLinePixel(oirx, oiry, z, Face::PosZ,
-								                               medDist + heightScaleVal[z + 1]);
+								LinePixel px = BuildLinePixel(oirx, oiry, z,
+									Face::PosZ, medDist + heightScaleVal[z + 1]);
 
 								for (std::uint_fast16_t j = p2; j < p1; j++) {
 									auto& p = pixels[j];
 									if (!p.IsEmpty())
 										continue;
-									p.Set(pix);
+									p.Set(px);
 								}
 							}
 							ptr++;
@@ -641,14 +638,13 @@ namespace spades {
 						savedZ = z + 1;
 						savedP = p2;
 
-						LinePixel pix =
-						  BuildLinePixel(irx, iry, z, wallFace, medDist + heightScaleVal[z]);
+						LinePixel px = BuildLinePixel(irx, iry, z, wallFace, medDist + heightScaleVal[z]);
 
 						for (std::uint_fast16_t j = p1; j < p2; j++) {
 							auto& p = pixels[j];
 							if (!p.IsEmpty())
 								continue;
-							p.Set(pix);
+							p.Set(px);
 						}
 					}
 
@@ -677,7 +673,8 @@ namespace spades {
 
 			// [0, 2pi] -> [0, 65536]
 			static uint16_t ToFixed(float v) {
-				v /= (M_PI_F * 2.0F) * 65536.0F;
+				v /= (M_PI_F * 2.0F);
+				v *= 65536.0F;
 				int i = static_cast<int>(v);
 				return static_cast<uint16_t>(i & 65535);
 			}
@@ -693,13 +690,14 @@ namespace spades {
 		};
 		static AtanTable atanTable;
 		static inline uint16_t fastATan(float v) {
-			return (v < 0.0F)   ? (v > -1.0F) ? atanTable.smN[static_cast<int>(v * -titems)]
-			                                  : atanTable.lgN[static_cast<int>(fastDiv(-titems, v))]
-			         : (v < 1.0F) ? atanTable.sm[static_cast<int>(v * titems)]
-			                    : atanTable.lg[static_cast<int>(fastDiv(titems, v))];
+			return (v < 0.0F)
+				? (v > -1.0F) ? atanTable.smN[static_cast<int>(v * -titems)]
+				: atanTable.lgN[static_cast<int>(fastDiv(-titems, v))]
+				: (v < 1.0F) ? atanTable.sm[static_cast<int>(v * titems)]
+				: atanTable.lg[static_cast<int>(fastDiv(titems, v))];
 		}
 		static inline uint16_t fastATan2(float y, float x) {
-			return (x == 0.0F)  ? (y > 0.0F) ? 16384 : -16384
+			return (x == 0.0F) ? (y > 0.0F) ? 16384 : -16384
 			       : (x > 0.0F) ? fastATan(fastDiv(y, x))
 			                    : fastATan(fastDiv(y, x)) + 32768;
 		}
@@ -707,8 +705,8 @@ namespace spades {
 		template <SWFeatureLevel flevel, int under>
 		void SWMapRenderer::RenderFinal(float yawMin, float yawMax, unsigned int numLines,
 		                                unsigned int threadId, unsigned int numThreads) {
-			float fovX = tanf(sceneDef.fovX * 0.5f);
-			float fovY = tanf(sceneDef.fovY * 0.5f);
+			float fovX = tanf(sceneDef.fovX * 0.5F);
+			float fovY = tanf(sceneDef.fovY * 0.5F);
 			Vector3 front = sceneDef.viewAxis[2];
 			Vector3 right = sceneDef.viewAxis[0];
 			Vector3 down = sceneDef.viewAxis[1];
@@ -718,17 +716,17 @@ namespace spades {
 			uint32_t* fb = frameBuf->GetPixels();
 			float* depthBuf = this->depthBuf;
 			Vector3 v1 = front - right * fovX + down * fovY;
-			Vector3 deltaDown = -down * (fovY * 2.f / static_cast<float>(fh));
-			Vector3 deltaRight = right * (fovX * 2.f / static_cast<float>(fw) * under);
+			Vector3 deltaDown = -down * (fovY * 2.0F / static_cast<float>(fh));
+			Vector3 deltaRight = right * (fovX * 2.0F / static_cast<float>(fw) * under);
 
 			Vector2 screenPos = {-fovX, -fovY};
-			float deltaScreenPosRight = fovX * 2.f / static_cast<float>(fw);
-			float deltaScreenPosDown = fovY * 2.f / static_cast<float>(fh);
+			float deltaScreenPosRight = fovX * 2.0F / static_cast<float>(fw);
+			float deltaScreenPosDown = fovY * 2.0F / static_cast<float>(fh);
 
 			static const float pi = M_PI_F;
-			float yawScale = 65536.f / (pi * 2.f);
+			float yawScale = 65536.0F / (pi * 2.0F);
 			std::int32_t yawScale2 =
-			  static_cast<std::int32_t>(pi * 2.f / (yawMax - yawMin) * 65536.f);
+			  static_cast<std::int32_t>(pi * 2.0F / (yawMax - yawMin) * 65536.0F);
 			std::int32_t yawMin2 = static_cast<std::int32_t>(yawMin * yawScale);
 			auto& lineList = this->lines;
 
@@ -782,7 +780,7 @@ namespace spades {
 						float pitch;
 						pitch = vv.z * fastRSqrt(vv.x * vv.x + vv.y * vv.y);
 						pitch = ToSpecialTan(pitch);
-						return static_cast<int>(pitch * (65536.f * 8192.f));
+						return static_cast<int>(pitch * (65536.0F * 8192.0F));
 					};
 					std::int32_t yawIndex1 = calcYawindex(v2);
 					std::int32_t pitch1 = calcPitch(v2);
@@ -917,8 +915,8 @@ namespace spades {
 			int under = r_swUndersampling;
 
 			{
-				float fovX = tanf(def.fovX * 0.5f);
-				float fovY = tanf(def.fovY * 0.5f);
+				float fovX = tanf(def.fovX * 0.5F);
+				float fovY = tanf(def.fovY * 0.5F);
 				float fovDiag = sqrtf(fovX * fovX + fovY * fovY);
 				float fovDiagAng = atanf(fovDiag);
 				float pitch = asinf(def.viewAxis[2].z);
@@ -926,7 +924,7 @@ namespace spades {
 
 				// pitch = 0.0F;
 
-				if (fabsf(pitch) >= pi * 0.49f - fovDiagAng) {
+				if (fabsf(pitch) >= pi * 0.49F - fovDiagAng) {
 					// pole is visible
 					yawMin = 0.0F;
 					yawMax = pi * 2.0F;
@@ -939,13 +937,13 @@ namespace spades {
 
 				pitchMin = pitch - fovDiagAng;
 				pitchMax = pitch + fovDiagAng;
-				if (pitchMin < -pi * 0.5f) {
+				if (pitchMin < -pi * 0.5F) {
 					pitchMax = std::max(pitchMax, -pi - pitchMin);
-					pitchMin = -pi * 0.5f;
+					pitchMin = -pi * 0.5F;
 				}
-				if (pitchMax > pi * 0.5f) {
+				if (pitchMax > pi * 0.5F) {
 					pitchMin = std::min(pitchMin, pi - pitchMax);
-					pitchMax = pi * 0.5f;
+					pitchMax = pi * 0.5F;
 				}
 
 				// pitch of PI/2 will make tan(x) infinite
@@ -959,13 +957,6 @@ namespace spades {
 
 				for (int i = lineResolution, j = 1; j <= i; j <<= 1)
 					lineResolution = j;
-
-				/*
-				if (pitchMin > 0.0F)
-				    interval /= cosf(pitchMin);
-				else if (pitchMax < 0.0F)
-				    interval /= cosf(pitchMax);
-				*/
 
 				numLines = static_cast<size_t>((yawMax - yawMin) / interval);
 
@@ -983,7 +974,7 @@ namespace spades {
 			// calculate vector for each lines
 			{
 				float scl = (yawMax - yawMin) / numLines;
-				Vector3 horiz = Vector3::Make(cosf(yawMin), sinf(yawMin), 0.f);
+				Vector3 horiz = Vector3::Make(cosf(yawMin), sinf(yawMin), 0.0F);
 				float c = cosf(scl);
 				float s = sinf(scl);
 				for (size_t i = 0; i < numLines; i++) {
@@ -1010,14 +1001,11 @@ namespace spades {
 
 			InvokeParallel2([&](unsigned int th, unsigned int numThreads) {
 				if (under <= 1) {
-					RenderFinal<flevel, 1>(yawMin, yawMax, static_cast<unsigned int>(numLines), th,
-					                       numThreads);
+					RenderFinal<flevel, 1>(yawMin, yawMax, static_cast<unsigned int>(numLines), th, numThreads);
 				} else if (under <= 2) {
-					RenderFinal<flevel, 2>(yawMin, yawMax, static_cast<unsigned int>(numLines), th,
-					                       numThreads);
+					RenderFinal<flevel, 2>(yawMin, yawMax, static_cast<unsigned int>(numLines), th, numThreads);
 				} else {
-					RenderFinal<flevel, 4>(yawMin, yawMax, static_cast<unsigned int>(numLines), th,
-					                       numThreads);
+					RenderFinal<flevel, 4>(yawMin, yawMax, static_cast<unsigned int>(numLines), th, numThreads);
 				}
 			});
 
@@ -1031,9 +1019,8 @@ namespace spades {
 				SPInvalidArgument("depthBuffer");
 
 			auto p = def.viewOrigin.Floor();
-			if (map->IsSolidWrapped(p.x, p.y, p.z)) {
+			if (map->IsSolidWrapped(p.x, p.y, p.z))
 				return;
-			}
 
 #if ENABLE_SSE2
 			if (static_cast<int>(level) >= static_cast<int>(SWFeatureLevel::SSE2)) {

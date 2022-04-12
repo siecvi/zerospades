@@ -57,7 +57,8 @@ namespace spades {
 			};
 
 			/** Save hit detection debug image */
-			void SaveImage(const std::map<int, PlayerHit>& hits, const std::vector<Vector3>& bullets);
+			void SaveImage(const std::map<int, PlayerHit>& hits,
+			               const std::vector<Vector3>& bullets);
 			Handle<Bitmap> GetBitmap();
 		};
 	} // namespace client
