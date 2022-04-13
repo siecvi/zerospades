@@ -44,7 +44,6 @@
 DEFINE_SPADES_SETTING(cg_fov, "68");
 DEFINE_SPADES_SETTING(cg_horizontalFov, "0");
 DEFINE_SPADES_SETTING(cg_classicZoomedFov, "0");
-DEFINE_SPADES_SETTING(cg_er, "0");
 DEFINE_SPADES_SETTING(cg_thirdperson, "0");
 DEFINE_SPADES_SETTING(cg_manualFocus, "0");
 DEFINE_SPADES_SETTING(cg_depthOfFieldAmount, "1");

@@ -58,11 +58,10 @@ DEFINE_SPADES_SETTING(cg_environmentalAudio, "1");
 DEFINE_SPADES_SETTING(cg_viewWeaponX, "0");
 DEFINE_SPADES_SETTING(cg_viewWeaponY, "0");
 DEFINE_SPADES_SETTING(cg_viewWeaponZ, "0");
-DEFINE_SPADES_SETTING(cg_debugToolSkinAnchors, "0");
-DEFINE_SPADES_SETTING(cg_trueAimDownSight, "1");
-
 DEFINE_SPADES_SETTING(cg_hideBody, "0");
 DEFINE_SPADES_SETTING(cg_hideArms, "0");
+DEFINE_SPADES_SETTING(cg_debugToolSkinAnchors, "0");
+DEFINE_SPADES_SETTING(cg_trueAimDownSight, "1");
 
 namespace spades {
 	namespace client {
