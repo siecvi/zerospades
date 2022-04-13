@@ -663,15 +663,13 @@ namespace spades {
 			}
 
 			if (system) {
-				chatWindow->AddMessage(ChatWindow::ColoredMessage(msg, MsgColorSystem));
+				chatWindow->AddMessage(ChatWindow::ColoredMessage(msg, MsgColorSysInfo));
 				return;
 			}
 
 			// Display private messages in green
 			if (msg.substr(0, 8) == "PM from ") {
-				std::string s;
-				s = "PM from ";
-				s += msg.substr(8);
+				std::string s = "PM from " + msg.substr(8);
 				chatWindow->AddMessage(ChatWindow::ColoredMessage(s, MsgColorGreen));
 				return;
 			}
