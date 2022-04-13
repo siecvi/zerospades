@@ -152,7 +152,7 @@ namespace spades {
 
 			if (p.IsLocalPlayer() && cg_scoreMessages) {
 				std::string s;
-				s += ChatWindow::ColoredMessage("+10", MsgColorSysInfo);
+				s += ChatWindow::ColoredMessage("+10", MsgColorGreen);
 				s += " points for capturing the enemy flag";
 				chatWindow->AddMessage(s);
 			}
