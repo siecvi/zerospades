@@ -649,6 +649,7 @@ namespace spades {
 			45, 90, 1, ConfigNumberFormatter(0, "°"));
 			layouter.AddSliderField(_Tr("Preferences",	"Master Volume"), "s_volume",
 			0, 100, 1, ConfigNumberFormatter(0, "%"));
+			layouter.AddVolumeSlider(_Tr("Preferences", "Hitmarker Volume"), "cg_hitMarkSoundGain");
 			layouter.AddVolumeSlider(_Tr("Preferences", "Hit Feedback Volume"), "cg_hitFeedbackSoundGain");
             layouter.AddToggleField(_Tr("Preferences", "Show Statistics"), "cg_stats");
 			layouter.AddToggleField(_Tr("Preferences", "Show Player Statistics"), "cg_playerStats");
