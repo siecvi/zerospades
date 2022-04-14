@@ -53,6 +53,7 @@ DEFINE_SPADES_SETTING(cg_ragdoll, "1");
 SPADES_SETTING(cg_blood);
 DEFINE_SPADES_SETTING(cg_ejectBrass, "1");
 DEFINE_SPADES_SETTING(cg_hitFeedbackSoundGain, "0.2");
+DEFINE_SPADES_SETTING(cg_hitMarkSoundGain, "0.2");
 DEFINE_SPADES_SETTING(cg_tracers, "1");
 DEFINE_SPADES_SETTING(cg_tracersFirstPerson, "1");
 DEFINE_SPADES_SETTING(cg_analyze, "0");
@@ -956,6 +957,14 @@ namespace spades {
 					AudioParam param;
 					param.volume = 4.0F;
 					audioDevice->Play(c.GetPointerOrNull(), hitPos, param);
+				}
+
+				if (by.IsLocalPlayer() && type != HitTypeHead) {
+					Handle<IAudioChunk> c =
+					  audioDevice->RegisterSound("Sounds/Feedback/HitFeedback.opus");
+					AudioParam param;
+					param.volume = cg_hitMarkSoundGain;
+					audioDevice->PlayLocal(c.GetPointerOrNull(), param);
 				}
 
 				hitScanState.hasPlayedNormalHitSound = true;
