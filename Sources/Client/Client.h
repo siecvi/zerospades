@@ -151,7 +151,6 @@ namespace spades {
 			float lastOriSentTime;
 			int lastHealth;
 			float lastHurtTime;
-			float lastHealTime;
 			float lastAliveTime;
 			float lastHitTime;
 			int lastScore;

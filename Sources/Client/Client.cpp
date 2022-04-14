@@ -152,7 +152,6 @@ namespace spades {
 
 			lastHealth = 0;
 			lastHurtTime = -100.0F;
-			lastHealTime = -100.0F;
 			hurtRingView->ClearAll();
 
 			scoreboardVisible = false;

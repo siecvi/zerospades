@@ -513,9 +513,6 @@ namespace spades {
 						spr.strength *= 1.5F - hpper;
 				}
 			} else {
-				if (player.GetHealth() > lastHealth && lastHealth > 0)
-					lastHealTime = world->GetTime();
-
 				lastHealth = player.GetHealth();
 			}
 		}
