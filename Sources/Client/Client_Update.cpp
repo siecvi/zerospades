@@ -351,7 +351,7 @@ namespace spades {
 			if (playerInput.sprint)
 				f *= 3.0F;
 			else if (playerInput.sneak)
-				f *= 0.75F;
+				f *= 0.5F;
 
 			front *= f;
 			right *= f;
