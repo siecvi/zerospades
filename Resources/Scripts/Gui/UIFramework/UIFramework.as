@@ -132,8 +132,8 @@ namespace spades {
 
             void MouseEvent(float x, float y) {
                 // in current version, absolute mouse mode is supported.
-                MouseCursorPosition = Vector2(Clamp(x, 0.0F, ScreenWidth),
-                                              Clamp(y, 0.0F, ScreenHeight));
+                MouseCursorPosition.x = Clamp(x, 0.0F, ScreenWidth);
+				MouseCursorPosition.y = Clamp(y, 0.0F, ScreenHeight);
 
                 MouseEventDone();
             }

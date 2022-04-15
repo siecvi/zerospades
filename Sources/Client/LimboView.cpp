@@ -178,12 +178,16 @@ namespace spades {
 
 			float left = (sw - contentsWidth) * 0.5F;
 			float top = sh - 150.0F;
+
+			Vector4 whiteColor = MakeVector4(1, 1, 1, 1);
+			Vector4 blackColor = MakeVector4(0, 0, 0, 0.4F);
+
 			{
 				auto msg = _Tr("Client", "Select Team:");
 				Vector2 pos;
 				pos.x = left + 10.0F;
 				pos.y = top + 10.0F;
-				font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.4F));
+				font.DrawShadow(msg, pos, 1.0F, whiteColor, blackColor);
 			}
 
 			if (selectedTeam != 2) {
@@ -191,7 +195,7 @@ namespace spades {
 				Vector2 pos;
 				pos.x = left + 260.0F;
 				pos.y = top + 10.0F;
-				font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.4F));
+				font.DrawShadow(msg, pos, 1.0F, whiteColor, blackColor);
 			}
 
 			for (const auto& item : items) {
@@ -218,22 +222,21 @@ namespace spades {
 
 				Vector4 fillColor = {0.2F, 0.2F, 0.2F, 0.5F};
 				if (item.hover)
-					fillColor = MakeVector4(0.4F, 0.4F, 0.4F, 1.0F) * 0.7F;
+					fillColor = MakeVector4(0.4F, 0.4F, 0.4F, 1) * 0.7F;
 				if (selected)
-					fillColor = MakeVector4(0.7F, 0.7F, 0.7F, 1.0F) * 0.9F;
+					fillColor = MakeVector4(0.7F, 0.7F, 0.7F, 1) * 0.9F;
 
 				renderer.SetColorAlphaPremultiplied(fillColor);
 				if (item.type == MenuSpawn) {
 					renderer.DrawImage(nullptr, item.rect);
 
 					auto msg = item.text;
-					IFont& bFont = client->fontManager->GetGuiFont();
-					Vector2 size = bFont.Measure(msg);
+					IFont& font = client->fontManager->GetGuiFont();
+					Vector2 size = font.Measure(msg);
 					Vector2 pos;
 					pos.x = item.rect.GetMinX() + (item.rect.GetWidth() - size.x) / 2.0F + 2.0F;
 					pos.y = item.rect.GetMinY() + (item.rect.GetHeight() - size.y) / 2.0F;
-					bFont.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1),
-					                 MakeVector4(0, 0, 0, 0.4F));
+					font.DrawShadow(msg, pos, 1.0F, whiteColor, blackColor);
 				} else {
 					renderer.DrawImage(nullptr, item.rect);
 
@@ -247,22 +250,20 @@ namespace spades {
 					Vector2 pos;
 					pos.x = item.rect.GetMinX() + 5.0F;
 					pos.y = item.rect.GetMinY() + (item.rect.GetHeight() - size.y) / 2.0F;
-					font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1),
-					                MakeVector4(0, 0, 0, 0.4F));
+					font.DrawShadow(msg, pos, 1.0F, whiteColor, blackColor);
 					if (index > 0) {
 						std::stringstream ss;
 						ss << index;
 						msg = ss.str();
 						pos.x = item.rect.GetMaxX() - 5.0F - font.Measure(msg).x;
-						font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1),
-						                MakeVector4(0, 0, 0, 0.4F));
+						font.DrawShadow(msg, pos, 1.0F, whiteColor, blackColor);
 					}
 				}
 			}
 
 			Handle<IImage> cursor = renderer.RegisterImage("Gfx/UI/Cursor.png");
 
-			renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1));
+			renderer.SetColorAlphaPremultiplied(whiteColor);
 			renderer.DrawImage(cursor, AABB2(cursorPos.x - 8, cursorPos.y - 8, 32, 32));
 		}
 	} // namespace client
