@@ -514,8 +514,10 @@ namespace spades {
 
 					Handle<client::IAudioDevice> audio(CreateAudioDevice(), false);
 
-					if (rtype == RendererType::GL && SDL_GL_SetSwapInterval(r_vsync) != 0)
-						SPRaise("SDL_GL_SetSwapInterval failed: %s", SDL_GetError());
+					if (rtype == RendererType::GL) {
+						if (r_vsync != 0 && SDL_GL_SetSwapInterval(r_vsync) != 0)
+							SPRaise("SDL_GL_SetSwapInterval failed: %s", SDL_GetError());
+					}
 
 					RunClientLoop(renderer.GetPointerOrNull(), audio.GetPointerOrNull());
 

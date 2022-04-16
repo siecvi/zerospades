@@ -139,6 +139,11 @@ namespace spades {
 						"Additionally, this allows color calculation whose value is in linear correspondence with actual energy, "
 						"that is, physically accurate blending can be achieved.")));
 
+				 cfg.AddRow(StartupScreenConfigCheckItemEditor(
+                    ui, StartupScreenConfig(ui, "r_vsync"), "0", "1",
+                    _Tr("StartupScreen", "V-Sync"),
+                    _Tr("StartupScreen", "Enables frame rate synchronization.")));
+
                 {
                     StartupScreenComplexConfig cplx;
                     cplx.AddEditor(StartupScreenConfigCheckItemEditor(
