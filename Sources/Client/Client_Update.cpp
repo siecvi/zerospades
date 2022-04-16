@@ -59,9 +59,7 @@ DEFINE_SPADES_SETTING(cg_tracersFirstPerson, "1");
 DEFINE_SPADES_SETTING(cg_analyze, "0");
 DEFINE_SPADES_SETTING(cg_scoreMessages, "0");
 
-SPADES_SETTING(cg_alerts);
 SPADES_SETTING(cg_centerMessage);
-SPADES_SETTING(cg_shake);
 SPADES_SETTING(cg_holdAimDownSight);
 
 namespace spades {
@@ -856,7 +854,7 @@ namespace spades {
 				if (killer.IsLocalPlayer() || victim.IsLocalPlayer()) {
 					std::string msg;
 					if (killer.IsLocalPlayer()) {
-						if ((int)cg_centerMessage == 2)
+						if (cg_centerMessage == 2)
 							msg = _Tr("Client", "You've killed {0}", victim.GetName());
 					} else {
 						msg = _Tr("Client", "You were killed by {0}", killer.GetName());

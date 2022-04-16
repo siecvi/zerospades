@@ -450,7 +450,7 @@ namespace spades {
 				if (def.viewOrigin.z < 0.0F)
 					def.zFar -= def.viewOrigin.z;
 
-				if ((int)cg_manualFocus) {
+				if ((bool)cg_manualFocus) {
 					// Depth of field is manually controlled
 					def.depthOfFieldNearBlurStrength = def.depthOfFieldFarBlurStrength =
 					  0.5F * (float)cg_depthOfFieldAmount;

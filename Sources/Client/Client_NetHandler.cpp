@@ -102,7 +102,7 @@ namespace spades {
 			}
 			chatWindow->AddMessage(msg);
 
-			if ((int)cg_centerMessage != 0) {
+			if (cg_centerMessage != 0) {
 				if (old < 2) {
 					std::string oldTeamName = world->GetTeamName(old);
 					msg = _Tr("Client", "{0} captured {1}'s Territory", teamName, oldTeamName);
@@ -136,7 +136,7 @@ namespace spades {
 				chatWindow->AddMessage(msg);
 			}
 
-			if ((int)cg_centerMessage != 0) {
+			if (cg_centerMessage != 0) {
 				msg = _Tr("Client", "{0} captured {1}'s Intel.", p.GetName(), teamName);
 				NetLog("%s", msg.c_str());
 				centerMessageView->AddMessage(msg);
@@ -172,7 +172,7 @@ namespace spades {
 				chatWindow->AddMessage(msg);
 			}
 
-			if ((int)cg_centerMessage != 0) {
+			if (cg_centerMessage != 0) {
 				msg = _Tr("Client", "{0} picked up {1}'s Intel.", p.GetName(), teamName);
 				NetLog("%s", msg.c_str());
 				centerMessageView->AddMessage(msg);
@@ -199,7 +199,7 @@ namespace spades {
 				chatWindow->AddMessage(msg);
 			}
 
-			if ((int)cg_centerMessage != 0) {
+			if (cg_centerMessage != 0) {
 				msg = _Tr("Client", "{0} dropped {1}'s Intel", p.GetName(), teamName);
 				NetLog("%s", msg.c_str());
 				centerMessageView->AddMessage(msg);

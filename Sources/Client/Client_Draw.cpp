@@ -80,7 +80,6 @@ DEFINE_SPADES_SETTING(cg_playerNameX, "0");
 DEFINE_SPADES_SETTING(cg_playerNameY, "0");
 DEFINE_SPADES_SETTING(cg_hudBorderX, "16");
 DEFINE_SPADES_SETTING(cg_hudBorderY, "16");
-DEFINE_SPADES_SETTING(cg_netGraphSize, "128");
 DEFINE_SPADES_SETTING(cg_dbgHitTestSize, "128");
 DEFINE_SPADES_SETTING(cg_damageIndicators, "1");
 DEFINE_SPADES_SETTING(cg_hurtScreenEffects, "1");
@@ -326,7 +325,7 @@ namespace spades {
 				char buf[64];
 				auto playerNameStr = player.GetName();
 				sprintf(buf, "%s", playerNameStr.c_str());
-				if ((int)cg_playerNames == 1) {
+				if (cg_playerNames == 1) {
 					Vector3 diff = (origin - lastSceneDef.viewOrigin);
 					if (diff.GetLength2D() <= FOG_DISTANCE)
 						sprintf(buf, "%s [%.1f]", playerNameStr.c_str(), diff.GetLength());

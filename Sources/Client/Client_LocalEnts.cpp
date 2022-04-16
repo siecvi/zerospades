@@ -149,9 +149,9 @@ namespace spades {
 		void Client::Bleed(spades::Vector3 pos) {
 			SPADES_MARK_FUNCTION();
 
-			if (!(bool)cg_blood)
+			if (!cg_blood)
 				return;
-			if (!(bool)cg_particles)
+			if (!cg_particles)
 				return;
 			
 			// distance cull
@@ -199,7 +199,7 @@ namespace spades {
 		void Client::EmitBlockFragments(Vector3 pos, IntVector3 col) {
 			SPADES_MARK_FUNCTION();
 
-			if (!(bool)cg_particles)
+			if (!cg_particles)
 				return;
 
 			// distance cull
@@ -252,7 +252,7 @@ namespace spades {
 		void Client::EmitBlockDestroyFragments(IntVector3 pos, IntVector3 col) {
 			SPADES_MARK_FUNCTION();
 
-			if (!(bool)cg_particles)
+			if (!cg_particles)
 				return;
 
 			// distance cull
@@ -274,9 +274,9 @@ namespace spades {
 		}
 
 		void Client::MuzzleFire(spades::Vector3 pos, Vector3 dir) {
-			if (!(bool)cg_particles)
+			if (!cg_particles)
 				return;
-			if (!(bool)cg_muzzleFire)
+			if (!cg_muzzleFire)
 				return;
 
 			DynamicLightParam l;
@@ -321,7 +321,7 @@ namespace spades {
 		}
 
 		void Client::GrenadeExplosion(spades::Vector3 pos) {
-			if (!(bool)cg_particles)
+			if (!cg_particles)
 				return;
 
 			float dist = (pos - lastSceneDef.viewOrigin).GetLength2D();
@@ -423,7 +423,7 @@ namespace spades {
 		}
 
 		void Client::GrenadeExplosionUnderwater(spades::Vector3 pos) {
-			if (!(bool)cg_particles)
+			if (!cg_particles)
 				return;
 
 			float dist = (pos - lastSceneDef.viewOrigin).GetLength2D();
@@ -517,9 +517,9 @@ namespace spades {
 		}
 
 		void Client::BulletHitWaterSurface(spades::Vector3 pos) {
-			if (!(bool)cg_particles)
+			if (!cg_particles)
 				return;
-			if (!(bool)cg_waterImpact)
+			if (!cg_waterImpact)
 				return;
 
 			float dist = (pos - lastSceneDef.viewOrigin).GetLength2D();
