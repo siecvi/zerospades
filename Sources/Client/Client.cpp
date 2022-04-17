@@ -63,6 +63,8 @@ DEFINE_SPADES_SETTING(cg_serverAlert, "1");
 DEFINE_SPADES_SETTING(cg_skipDeadPlayersWhenDead, "1");
 DEFINE_SPADES_SETTING(cg_playerMessages, "1");
 
+DEFINE_SPADES_SETTING(cg_smallFont, "1");
+
 SPADES_SETTING(cg_playerName);
 
 namespace spades {
@@ -120,8 +122,10 @@ namespace spades {
 			renderer->SetFogColor(MakeVector3(0, 0, 0));
 			renderer->SetFogDistance(128.0F);
 
-			chatWindow = stmp::make_unique<ChatWindow>(this, &GetRenderer(), &fontManager->GetGuiFont(), false);
-			killfeedWindow = stmp::make_unique<ChatWindow>(this, &GetRenderer(), &fontManager->GetGuiFont(), true);
+			auto* chatFont = cg_smallFont ? &fontManager->GetSmallFont() : &fontManager->GetGuiFont();
+
+			chatWindow = stmp::make_unique<ChatWindow>(this, &GetRenderer(), chatFont, false);
+			killfeedWindow = stmp::make_unique<ChatWindow>(this, &GetRenderer(), chatFont, true);
 
 			hurtRingView = stmp::make_unique<HurtRingView>(this);
 			centerMessageView = stmp::make_unique<CenterMessageView>(this, &fontManager->GetLargeFont());

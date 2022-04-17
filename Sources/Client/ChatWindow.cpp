@@ -33,6 +33,8 @@
 DEFINE_SPADES_SETTING(cg_chatHeight, "30");
 DEFINE_SPADES_SETTING(cg_killfeedHeight, "26");
 
+SPADES_SETTING(cg_smallFont);
+
 namespace spades {
 	namespace client {
 
@@ -61,7 +63,7 @@ namespace spades {
 			}
 		}
 
-		float ChatWindow::GetLineHeight() { return 20.0F; }
+		float ChatWindow::GetLineHeight() { return cg_smallFont ? 16.0F : 20.0F; }
 
 		static bool isWordChar(char c) { return isalnum(c) || c == '\''; }
 
