@@ -525,7 +525,7 @@ namespace spades {
 					manager->CheckError(r);
 
 					r = eng->RegisterGlobalFunction("Vector3 HSV(float h, float s, float v)",
-					                                asFUNCTION(hsv2rgb), asCALL_CDECL);
+					                                asFUNCTION(HSV2RGB), asCALL_CDECL);
 					manager->CheckError(r);
 
 					struct Vector4Funcs {

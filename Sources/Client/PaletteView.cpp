@@ -165,7 +165,7 @@ namespace spades {
 					float x = sw - 132.0F + 8.0F * col;
 					float y = sh - 146.0F + 8.0F * row - 40.0F;
 
-					renderer.SetColorAlphaPremultiplied(MakeVector4(colors[i]) / 255.0F);
+					renderer.SetColorAlphaPremultiplied(ConvertColorRGBA(colors[i]));
 					renderer.DrawFilledRect(x, y, x + 6, y + 6);
 
 					if (sel == i) {

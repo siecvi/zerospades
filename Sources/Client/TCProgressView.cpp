@@ -124,16 +124,16 @@ namespace spades {
 						renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, fade * 0.5F));
 					} else {
 						auto c = w->GetTeam(nearTerritory->ownerTeamId).color;
-						renderer.SetColorAlphaPremultiplied((MakeVector4(c) / 255.0F) * fade);
+						renderer.SetColorAlphaPremultiplied(ConvertColorRGBA(c) * fade);
 					}
 					renderer.DrawImage(nullptr, AABB2(prgX, prgY, prgW, prgH));
 
 					auto prg = 1.0F - state.progress;
 					if (state.team1 != 2) {
-						auto c = MakeVector4(w->GetTeam(state.team1).color) / 255.0F;
+						auto c = ConvertColorRGBA(w->GetTeam(state.team1).color);
 						renderer.SetColorAlphaPremultiplied(c * (fade * 0.8F));
 					} else if (state.team2 != 2) {
-						auto c = MakeVector4(w->GetTeam(state.team2).color) / 255.0F;
+						auto c = ConvertColorRGBA(w->GetTeam(state.team2).color);
 						renderer.SetColorAlphaPremultiplied(c * (fade * 0.8F));
 					}
 					renderer.DrawImage(nullptr, AABB2(prgX, prgY, prgW * prg, prgH));

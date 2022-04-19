@@ -259,7 +259,7 @@ namespace spades {
 				msg = _Tr("Client", "Player {0} has left", p.GetName());
 
 				NetLog("%s", msg.c_str());
-				scriptedUI->RecordChatLog(msg, MakeVector4(p.GetColor()) / 255.0F);
+				scriptedUI->RecordChatLog(msg, ConvertColorRGBA(p.GetColor()));
 			}
 
 			RemoveCorpseForPlayer(p.GetId());
@@ -278,7 +278,7 @@ namespace spades {
 				msg = _Tr("Client", "{0} joined {1} team", p.GetName(), teamName);
 
 				NetLog("%s", msg.c_str());
-				scriptedUI->RecordChatLog(msg, MakeVector4(p.GetColor()) / 255.0F);
+				scriptedUI->RecordChatLog(msg, ConvertColorRGBA(p.GetColor()));
 			}
 		}
 

@@ -39,7 +39,7 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			playerId = p.GetId();
-			color = MakeVector3(p.GetColor()) / 255.0F;
+			color = ConvertColorRGB(p.GetColor());
 			weaponName = p.GetWeapon().GetName(); // a bit ghetto for my liking
 
 			Vector3 o = p.GetFront();

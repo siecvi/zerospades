@@ -374,7 +374,7 @@ namespace spades {
 				if (world->GetLocalPlayer()) {
 					Player& p = world->GetLocalPlayer().value();
 
-					if (p.IsAlive() && p.IsToolBlock() && down) {
+					if (!p.IsSpectator() && p.IsAlive() && p.IsToolBlock() && down) {
 						if (paletteView->KeyInput(name))
 							return;
 					}
@@ -530,7 +530,7 @@ namespace spades {
 						scriptedUI->EnterCommandWindow();
 						scriptedUI->SetIgnored(name);
 					} else if (CheckKey(cg_keyCaptureColor, name) && down) {
-						if (p.IsToolBlock())
+						if (!p.IsSpectator() && p.IsAlive() && p.IsToolBlock())
 							CaptureColor();
 					} else if (CheckKey(cg_keyChangeMapScale, name) && down) {
 						mapView->SwitchScale();

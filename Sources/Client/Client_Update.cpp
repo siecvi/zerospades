@@ -124,17 +124,15 @@ namespace spades {
 			if (!world)
 				return;
 			stmp::optional<Player&> p = world->GetLocalPlayer();
-			if (!p || !p->IsAlive())
+			if (!p)
 				return;
 
 			uint32_t col;
 			IntVector3 pos;
-			if (!world->GetMap()->CastRay(p->GetEye(), p->GetFront(), FOG_DISTANCE, pos)) {
-				auto c = world->GetFogColor();
-				col = c.x | c.y << 8 | c.z << 16;
-			} else {
+			if (!world->GetMap()->CastRay(p->GetEye(), p->GetFront(), FOG_DISTANCE, pos))
+				col = IntVectorToColor(world->GetFogColor());
+			else
 				col = world->GetMap()->GetColorWrapped(pos.x, pos.y, pos.z);
-			}
 
 			p->SetHeldBlockColor(IntVectorFromColor(col));
 			net->SendHeldBlockColor();

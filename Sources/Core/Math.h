@@ -109,7 +109,6 @@ namespace spades {
 		int GetManhattanLength() const {
 			return std::max(x, -x) + std::max(y, -y) + std::max(z, -z);
 		}
-
 		int GetChebyshevLength() const {
 			return std::max(std::max(x, -x), std::max(std::max(y, -y), std::max(z, -z)));
 		}
@@ -361,7 +360,6 @@ namespace spades {
 		float GetLength() const { return sqrtf(GetPoweredLength()); }
 		float GetLength2D() const { return sqrtf(x * x + y * y); }
 		float GetManhattanLength() const { return fabsf(x) + fabsf(y) + fabsf(z); }
-
 		float GetChebyshevLength() const {
 			return std::max(fabsf(x), std::max(fabsf(y), fabsf(z)));
 		}
@@ -480,7 +478,6 @@ namespace spades {
 		float GetPoweredLength() const { return x * x + y * y + z * z + w * w; }
 		float GetLength() const { return sqrtf(GetPoweredLength()); }
 		float GetManhattanLength() const { return fabsf(x) + fabsf(y) + fabsf(z) + fabsf(w); }
-
 		float GetChebyshevLength() const {
 			return std::max(std::max(fabsf(x), std::max(fabsf(y), fabsf(z))), fabsf(w));
 		}
@@ -493,33 +490,27 @@ namespace spades {
 		Vector3 GetXYZ() const { return Vector3::Make(x, y, z); }
 	};
 
-	// 16byte struct is faster to address
-	struct IntVector4 : public IntVector3 {
-		int w;
-
-		IntVector4() = default;
-		IntVector4(const IntVector4&) = default;
-		IntVector4(int x, int y, int z) : IntVector3(x, y, z) {}
-		IntVector4(int x, int y, int z, int w) : IntVector3(x, y, z), w(w) {}
-	};
-
-	static uint32_t IntVectorToColor(const IntVector4& v) { return v.x | v.y << 8 | v.z << 16; }
-	static IntVector4 IntVectorFromColor(uint32_t c) {
-		return IntVector4(c & 0xFF, (c >> 8) & 0xFF, (c >> 16) & 0xFF);
-	}
-
-	static inline IntVector3 MakeIntVector3(int x, int y, int z) { return IntVector3::Make(x, y, z); }
 	static inline IntVector3 MakeIntVector3(int v) { return IntVector3::Make(v, v, v); }
+	static inline IntVector3 MakeIntVector3(int x, int y, int z) { return IntVector3::Make(x, y, z); }
 	static inline Vector2 MakeVector2(float x, float y) { return Vector2::Make(x, y); }
 	static inline Vector3 MakeVector3(float x, float y, float z) { return Vector3::Make(x, y, z); }
+	static inline Vector4 MakeVector4(float x, float y, float z, float w) { return Vector4::Make(x, y, z, w); }
 	static inline Vector3 MakeVector3(IntVector3 v) {
 		return Vector3::Make(static_cast<float>(v.x), static_cast<float>(v.y), static_cast<float>(v.z));
 	}
-	static inline Vector4 MakeVector4(float x, float y, float z, float w) { return Vector4::Make(x, y, z, w); }
-	static inline Vector4 MakeVector4(Vector3 v) { return Vector4::Make(v.x, v.y, v.z, 1.0F); }
-	static inline Vector4 MakeVector4(IntVector3 v) {
-		return Vector4::Make(static_cast<float>(v.x), static_cast<float>(v.y),
-		                     static_cast<float>(v.z), static_cast<float>(255));
+
+	static inline uint32_t IntVectorToColor(const IntVector3& v) {
+		return v.x | v.y << 8 | v.z << 16;
+	}
+	static inline IntVector3 IntVectorFromColor(uint32_t c) {
+		return MakeIntVector3(c & 0xFF, (c >> 8) & 0xFF, (c >> 16) & 0xFF);
+	}
+
+	static inline Vector3 ConvertColorRGB(const IntVector3& v) {
+		return MakeVector3(v.x / 255.0F, v.y / 255.0F, v.z / 255.0F);
+	}
+	static inline Vector4 ConvertColorRGBA(const IntVector3& v) {
+		return MakeVector4(v.x / 255.0F, v.y / 255.0F, v.z / 255.0F, 1.0F);
 	}
 
 #pragma mark - Line
@@ -923,10 +914,79 @@ namespace spades {
 		vec.resize(vec.size() - 1);
 	}
 
+	float SmoothStep(float);
 	int Mix(int a, int b, int frac);
 	float Mix(float a, float b, float frac);
 	Vector2 Mix(const Vector2& a, const Vector2& b, float frac);
 	Vector3 Mix(const Vector3& a, const Vector3& b, float frac);
+
+	inline Vector3 RandomAxis() {
+		Vector3 v;
+		v.x = SampleRandomFloat() - SampleRandomFloat();
+		v.y = SampleRandomFloat() - SampleRandomFloat();
+		v.z = SampleRandomFloat() - SampleRandomFloat();
+		return v;
+	}
+
+	// This is the preferred clamp operator. Using the clamp macro can lead to
+	// unexpected side-effects or more expensive code. Even the clamp (all
+	// lower-case) function can generate more expensive code because of the
+	// mixed types involved.
+	template <class T> inline T Clamp(T const& val, T const& minVal, T const& maxVal) {
+		if (val < minVal)
+			return minVal;
+		else if (val > maxVal)
+			return maxVal;
+		else
+			return val;
+	}
+
+	static Vector4 AdjustColor(spades::Vector4 col, float bright, float saturation) {
+		col.x *= bright;
+		col.y *= bright;
+		col.z *= bright;
+		float avg = (col.x + col.y + col.z) / 3.0F;
+		col.x = Mix(avg, col.x, saturation);
+		col.y = Mix(avg, col.y, saturation);
+		col.z = Mix(avg, col.z, saturation);
+
+		return col;
+	}
+
+	static Vector4 ModifyColor(IntVector3 v) {
+		Vector4 fv = ConvertColorRGBA(v);
+		float avg = (fv.x + fv.y + fv.z) / 3.0F;
+		fv.x = Mix(fv.x, avg, 0.5F);
+		fv.y = Mix(fv.y, avg, 0.5F);
+		fv.z = Mix(fv.z, avg, 0.5F);
+		fv.w = 0.0F; // suppress "operating on garbase value" static analyzer message
+		fv = fv * 0.8F + 0.2F;
+		fv.w = 1.0F;
+
+		return fv;
+	}
+
+	static Vector3 HSV2RGB(float h, float s, float v) {
+		if (s == 0.0F)
+			return Vector3(v, v, v);
+
+		int i = int(h * 6.0F);
+		float f = h * 6.0F - i;
+		float p = v * (1.0F - s);
+		float q = v * (1.0F - s * f);
+		float t = v * (1.0F - s * (1.0F - f));
+
+		i = i % 6;
+		switch (i) {
+			case 0: return Vector3(v, t, p);
+			case 1: return Vector3(q, v, p);
+			case 2: return Vector3(p, v, t);
+			case 3: return Vector3(p, q, v);
+			case 4: return Vector3(t, p, v);
+			case 5: return Vector3(v, p, q);
+			default: return Vector3(0, 0, 0);
+		}
+	}
 
 	/** @return true if any portion of the box is in the positive side of plane. */
 	bool PlaneCullTest(const Plane3&, const AABB3&);
@@ -939,8 +999,7 @@ namespace spades {
 	std::vector<std::string> SplitIntoLines(const std::string&);
 	std::string EscapeControlCharacters(const std::string& str);
 
-	uint32_t GetCodePointFromUTF8String(const std::string&, size_t start = 0,
-	                                    size_t* outNumBytes = nullptr);
+	uint32_t GetCodePointFromUTF8String(const std::string&, size_t start = 0, size_t* outNumBytes = nullptr);
 	template <typename Iterator> static Iterator CodePointToUTF8(Iterator output, uint32_t cp) {
 		if (cp < 0x80) {
 			*(output++) = static_cast<char>(cp);
@@ -975,77 +1034,6 @@ namespace spades {
 
 	std::string TrimSpaces(const std::string&);
 	std::string ToUpperCase(const std::string&);
-
-	float SmoothStep(float);
-
-	inline Vector3 RandomAxis() {
-		Vector3 v;
-		v.x = SampleRandomFloat() - SampleRandomFloat();
-		v.y = SampleRandomFloat() - SampleRandomFloat();
-		v.z = SampleRandomFloat() - SampleRandomFloat();
-		return v;
-	}
-
-	// This is the preferred clamp operator. Using the clamp macro can lead to
-	// unexpected side-effects or more expensive code. Even the clamp (all
-	// lower-case) function can generate more expensive code because of the
-	// mixed types involved.
-	template<class T>
-	inline T Clamp(T const& val, T const& minVal, T const& maxVal) {
-		if (val < minVal)
-			return minVal;
-		else if (val > maxVal)
-			return maxVal;
-		else
-			return val;
-	}
-
-	static Vector4 AdjustColor(spades::Vector4 col, float bright, float saturation) {
-		col.x *= bright;
-		col.y *= bright;
-		col.z *= bright;
-		float avg = (col.x + col.y + col.z) / 3.0F;
-		col.x = Mix(avg, col.x, saturation);
-		col.y = Mix(avg, col.y, saturation);
-		col.z = Mix(avg, col.z, saturation);
-
-		return col;
-	}
-
-	static Vector4 ModifyColor(IntVector3 v) {
-		Vector4 fv = MakeVector4(v) / 255.0F;
-		float avg = (fv.x + fv.y + fv.z) / 3.0F;
-		fv.x = Mix(fv.x, avg, 0.5F);
-		fv.y = Mix(fv.y, avg, 0.5F);
-		fv.z = Mix(fv.z, avg, 0.5F);
-		fv.w = 0.0F; // suppress "operating on garbase value" static analyzer message
-		fv = fv * 0.8F + 0.2F;
-		fv.w = 1.0F;
-
-		return fv;
-	}
-
-	static Vector3 hsv2rgb(float h, float s, float v) {
-		if (s == 0.0F)
-			return Vector3(v, v, v);
-
-		int i = int(h * 6.0F);
-		float f = h * 6.0F - i;
-		float p = v * (1.0F - s);
-		float q = v * (1.0F - s * f);
-		float t = v * (1.0F - s * (1.0F - f));
-
-		i = i % 6;
-		switch (i) {
-			case 0: return Vector3(v, t, p);
-			case 1: return Vector3(q, v, p);
-			case 2: return Vector3(p, v, t);
-			case 3: return Vector3(p, q, v);
-			case 4: return Vector3(t, p, v);
-			case 5: return Vector3(v, p, q);
-			default: return Vector3(0, 0, 0);
-		}
-	}
 } // namespace spades
 
 namespace std {

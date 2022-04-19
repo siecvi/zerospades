@@ -150,7 +150,7 @@ namespace spades {
 			std::string GetName();
 			std::string GetTeamName();
 			IntVector3 GetColor();
-			Vector4 GetTeamColor() { return MakeVector4(GetColor()) / 255.0F; }
+			Vector4 GetTeamColor() { return ConvertColorRGBA(GetColor()); }
 			IntVector3 GetBlockColor() { return blockColor; }
 			ToolType GetTool() { return tool; }
 			bool IsLocalPlayer();

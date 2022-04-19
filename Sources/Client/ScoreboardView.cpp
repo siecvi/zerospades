@@ -86,7 +86,7 @@ namespace spades {
 		}
 
 		Vector4 ScoreboardView::GetTeamColor(int team) {
-			return MakeVector4(world->GetTeam(team).color) / 255.0F;
+			return ConvertColorRGBA(world->GetTeam(team).color);
 		}
 
 		void ScoreboardView::Draw() {
@@ -181,18 +181,18 @@ namespace spades {
 				str = Format("{0}-{1}", GetTeamScore(0), capLimit);
 				pos.x = sw * 0.5F - font.Measure(str).x - 15.0F;
 				pos.y = teamBarY + 5.0F;
-				font.Draw(str, pos, 1.0F, Vector4(1.0F, 1.0F, 1.0F, 0.5F));
+				font.Draw(str, pos, 1.0F, MakeVector4(1, 1, 1, 0.5));
 
 				str = Format("{0}-{1}", GetTeamScore(1), capLimit);
 				pos.x = sw * 0.5F + 15.0F;
 				pos.y = teamBarY + 5.0F;
-				font.Draw(str, pos, 1.0F, Vector4(1.0F, 1.0F, 1.0F, 0.5F));
+				font.Draw(str, pos, 1.0F, MakeVector4(1, 1, 1, 0.5));
 			}
 
 			// players background
 			auto areSpectatorsPr = AreSpectatorsPresent();
 			img = renderer.RegisterImage("Gfx/Scoreboard/PlayersBg.png");
-			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1.f));
+			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1));
 			renderer.DrawImage(img, AABB2(0, playersTop, sw,
 				playersHeight + (areSpectatorsPr ? spectatorsH : 0)));
 

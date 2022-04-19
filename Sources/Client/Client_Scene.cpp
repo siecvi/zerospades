@@ -163,7 +163,7 @@ namespace spades {
 
 			if (world) {
 				IntVector3 fogColor = world->GetFogColor();
-				renderer->SetFogColor(MakeVector3(fogColor) / 255.0F);
+				renderer->SetFogColor(ConvertColorRGB(fogColor));
 
 				def.blurVignette = 0.0F;
 
@@ -547,7 +547,7 @@ namespace spades {
 				auto col = world->GetTeam(tId).color;
 
 				ModelRenderParam param;
-				param.customColor = MakeVector3(col) / 255.0F;
+				param.customColor = ConvertColorRGB(col);
 
 				// draw base
 				param.matrix = Matrix4::Translate(team.basePos);
@@ -576,7 +576,7 @@ namespace spades {
 				    : world->GetTeam(t.ownerTeamId).color;
 
 				ModelRenderParam param;
-				param.customColor = MakeVector3(col) / 255.0F;
+				param.customColor = ConvertColorRGB(col);
 
 				// draw base
 				param.matrix = Matrix4::Translate(t.pos);
@@ -673,7 +673,7 @@ namespace spades {
 				Player& player = std::get<0>(*hottracked);
 				hitTag_t tag = std::get<1>(*hottracked);
 
-				Vector4 color = MakeVector4(player.GetColor()) / 255.0F;
+				Vector4 color = ConvertColorRGBA(player.GetColor());
 				Vector4 color2 = MakeVector4(1, 1, 1, 1);
 
 				Player::HitBoxes hb = player.GetHitBoxes();

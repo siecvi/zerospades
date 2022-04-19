@@ -526,7 +526,7 @@ namespace spades {
 			} else if (currentTool == Player::ToolBlock) {
 				ScriptIBlockSkin interface(skin);
 				interface.SetReadyState(1.0F - (p.GetTimeToNextBlock() / 0.5F));
-				interface.SetBlockColor(MakeVector3(p.GetBlockColor()) / 255.0F);
+				interface.SetBlockColor(ConvertColorRGB(p.GetBlockColor()));
 			} else if (currentTool == Player::ToolGrenade) {
 				ScriptIGrenadeSkin interface(skin);
 				interface.SetReadyState(1.0F - (p.GetTimeToNextGrenade() / 0.5F));
@@ -554,7 +554,7 @@ namespace spades {
 			putdown = std::min(1.0F, putdown * 1.5F);
 			{
 				ScriptIToolSkin interface(skin);
-				interface.SetTeamColor(MakeVector3(player.GetColor()) / 255.0F);
+				interface.SetTeamColor(ConvertColorRGB(player.GetColor()));
 				interface.SetRaiseState((skin == curSkin) ? (1.0F - putdown) : 0.0F);
 				interface.SetSprintState(sprint);
 				interface.SetMuted(client.IsMuted());
@@ -725,7 +725,7 @@ namespace spades {
 
 			ModelRenderParam param;
 			param.depthHack = true;
-			param.customColor = MakeVector3(p.GetColor()) / 255.0F;
+			param.customColor = ConvertColorRGB(p.GetColor());
 
 			auto weaponName = p.GetWeapon().GetName();
 			auto path = "Models/Player/" + weaponName;
@@ -817,7 +817,7 @@ namespace spades {
 					Handle<IModel> model = renderer.RegisterModel((path + "/Dead.kv6").c_str());
 
 					ModelRenderParam param;
-					param.customColor = MakeVector3(p.GetColor()) / 255.0F;
+					param.customColor = ConvertColorRGB(p.GetColor());
 
 					param.matrix = Matrix4::FromAxis(p.GetLeft(),
 						p.GetFront2D(), MakeVector3(0, 0, 1), p.GetEye());
@@ -852,7 +852,7 @@ namespace spades {
 
 			Handle<IModel> model;
 			ModelRenderParam param;
-			param.customColor = MakeVector3(p.GetColor()) / 255.0F;
+			param.customColor = ConvertColorRGB(p.GetColor());
 
 			Vector3 o = p.GetFront();
 
@@ -978,7 +978,7 @@ namespace spades {
 				if (ctfMode.PlayerHasIntel(*world, player)) {
 					model = renderer.RegisterModel("Models/MapObjects/Intel.kv6");
 					IntVector3 teamColor = world->GetTeam(1 - p.GetTeamId()).color;
-					param.customColor = MakeVector3(teamColor) / 255.0F;
+					param.customColor = ConvertColorRGB(teamColor);
 					Matrix4 const briefcase = torso
 						* (inp.crouch ? Matrix4::Translate(0, 0.8F, 0.4F)
 							* Matrix4::Rotate(MakeVector3(1, 0, 0), -0.5F)

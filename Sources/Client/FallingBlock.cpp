@@ -155,7 +155,7 @@ namespace spades {
 								continue;
 
 							auto c = vmodel->GetColor(x, y, z);
-							Vector4 col = MakeVector4(IntVectorFromColor(c)) / 255.0F;
+							Vector4 col = ConvertColorRGBA(IntVectorFromColor(c));
 
 							Vector3 p3 = p2 + vmAxis3 * (float)z;
 

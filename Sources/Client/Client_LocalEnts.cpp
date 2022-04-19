@@ -159,7 +159,7 @@ namespace spades {
 				return;
 
 			Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
-			Vector4 color = MakeVector4(MakeIntVector3(127, 0, 0)) / 255.0F;
+			Vector4 color = ConvertColorRGBA(MakeIntVector3(127, 0, 0));
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				ent->SetTrajectory(pos, RandomAxis() * 8.0F);
@@ -208,7 +208,7 @@ namespace spades {
 				return;
 
 			Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
-			Vector4 color = MakeVector4(col) / 255.0F;
+			Vector4 color = ConvertColorRGBA(col);
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				ent->SetTrajectory(pos, RandomAxis() * 8.0F);
@@ -261,7 +261,7 @@ namespace spades {
 				return;
 
 			Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
-			Vector4 color = MakeVector4(col) / 255.0F;
+			Vector4 color = ConvertColorRGBA(col);
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				ent->SetTrajectory(origin, RandomAxis() * 8.0F);
@@ -354,10 +354,9 @@ namespace spades {
 					velBias.z += 1.0F;
 			}
 
-			Vector4 color = MakeVector4(MakeIntVector3(66, 70, 70)) / 255.0F;
-
 			// fragments
 			Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
+			Vector4 color = ConvertColorRGBA(MakeIntVector3(70));
 			for (int i = 0; i < 64; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				Vector3 dir = RandomAxis() + velBias * 0.5F;

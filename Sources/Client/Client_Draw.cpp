@@ -998,7 +998,7 @@ namespace spades {
 				for (float x = 0; x < w; x++) {
 					float tempperc = x / w;
 					Vector3 color = Mix(blueCol * 0.25F, blueCol, tempperc);
-					renderer->SetColorAlphaPremultiplied(MakeVector4(color));
+					renderer->SetColorAlphaPremultiplied(MakeVector4(color.x, color.y, color.z, 1));
 					renderer->DrawImage(nullptr, AABB2(prgX + x, prgY, 1.0F, prgH));
 				}
 			} else { // Indeterminate progress bar

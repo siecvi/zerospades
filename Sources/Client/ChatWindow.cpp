@@ -144,21 +144,19 @@ namespace spades {
 			}
 		}
 
-		static Vector4 ConvertColor(IntVector3 v) { return MakeVector4(v) / 255.0F; }
-
 		Vector4 ChatWindow::GetColor(char c) {
 			World* w = client ? client->GetWorld() : NULL;
 			switch (c) {
 				case MsgColorTeam1:
-					return w ? ConvertColor(w->GetTeam(0).color) : MakeVector4(0, 1, 0, 1);
+					return w ? ConvertColorRGBA(w->GetTeam(0).color) : MakeVector4(0, 1, 0, 1);
 				case MsgColorTeam2:
-					return w ? ConvertColor(w->GetTeam(1).color) : MakeVector4(0, 0, 1, 1);
+					return w ? ConvertColorRGBA(w->GetTeam(1).color) : MakeVector4(0, 0, 1, 1);
 				case MsgColorTeam3:
-					return w ? ConvertColor(w->GetTeam(2).color) : MakeVector4(1, 1, 0, 1);
+					return w ? ConvertColorRGBA(w->GetTeam(2).color) : MakeVector4(1, 1, 0, 1);
 				case MsgColorRed: return MakeVector4(1, 0, 0, 1);
 				case MsgColorGreen: return MakeVector4(0, 1, 0, 1);
-				case MsgColorGray: return MakeVector4(0.5F, 0.5F, 0.5F, 1);
-				case MsgColorSysInfo: return MakeVector4(1, 1, 0.5F, 1);
+				case MsgColorGray: return MakeVector4(0.5, 0.5, 0.5, 1);
+				case MsgColorSysInfo: return MakeVector4(1, 1, 0.5, 1);
 				default: return MakeVector4(1, 1, 1, 1);
 			}
 		}
