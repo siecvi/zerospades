@@ -915,7 +915,7 @@ namespace spades {
 			} else {
 				if (velocity.z < 0.0F)
 					m = -m;
-				nz += velocity.z * fsynctics * 32.0F;
+				nz += velocity.z * f;
 			}
 
 			airborne = true;
