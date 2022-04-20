@@ -55,6 +55,7 @@ DEFINE_SPADES_SETTING(cg_animations, "1");
 SPADES_SETTING(cg_shake);
 SPADES_SETTING(r_hdr);
 DEFINE_SPADES_SETTING(cg_environmentalAudio, "1");
+DEFINE_SPADES_SETTING(cg_classicViewWeapon, "0");
 DEFINE_SPADES_SETTING(cg_viewWeaponX, "0");
 DEFINE_SPADES_SETTING(cg_viewWeaponY, "0");
 DEFINE_SPADES_SETTING(cg_viewWeaponZ, "0");
@@ -421,7 +422,7 @@ namespace spades {
 				}
 			}
 
-			{
+			if (!cg_classicViewWeapon) {
 				float scale = dt;
 				Vector3 vel = player.GetVelocity();
 				Vector3 front = player.GetFront();
@@ -469,6 +470,16 @@ namespace spades {
 					softLimitFunc(viewWeaponOffset.x, -limitX, limitX);
 					softLimitFunc(viewWeaponOffset.z, 0, limitY);
 				}
+			} else {
+				Vector3 front = player.GetFront();
+				Vector3 right = player.GetRight();
+				Vector3 up = player.GetUp();
+
+				// Offset the view weapon according to the camera movement
+				Vector3 diff = front - lastFront;
+				viewWeaponOffset.x = Mix(viewWeaponOffset.x, Vector3::Dot(diff, right), 1.0F);
+				viewWeaponOffset.z = Mix(viewWeaponOffset.z, Vector3::Dot(diff, up), 1.0F);
+				lastFront = front;
 			}
 
 			{
@@ -638,7 +649,7 @@ namespace spades {
 			Vector3 viewWeaponOffset = this->viewWeaponOffset;
 
 			// bobbing
-			{
+			if (!cg_classicViewWeapon) {
 				float sp = 1.0F - aimDownState;
 				sp *= 0.3F;
 				sp *= std::min(1.0F, p.GetVelocity().GetLength() * 5.0F);
@@ -647,6 +658,19 @@ namespace spades {
 
 				viewWeaponOffset.x += sinf(p.GetWalkAnimationProgress() * M_PI_F * 2.0F) * 0.013F * sp;
 				viewWeaponOffset.z += vl * 0.018F * sp;
+			} else {
+				Vector3 v = player.GetVelocity();
+				float bob = std::max(fabsf(v.x), fabsf(v.y)) / 1000;
+
+				int timer = (int)(time * 1000);
+				bob *= (timer % 1024 < 512)
+					? (timer % 512) - 255.5F
+					: 255.5F - (timer % 512);
+
+				viewWeaponOffset.y += bob;
+
+				if (!player.IsOnGroundOrWade())
+					viewWeaponOffset.z -= v.z * 0.2F;
 			}
 
 			// slow pulse

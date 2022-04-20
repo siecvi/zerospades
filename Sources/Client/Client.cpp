@@ -63,7 +63,7 @@ DEFINE_SPADES_SETTING(cg_serverAlert, "1");
 DEFINE_SPADES_SETTING(cg_skipDeadPlayersWhenDead, "1");
 DEFINE_SPADES_SETTING(cg_playerMessages, "1");
 
-DEFINE_SPADES_SETTING(cg_smallFont, "1");
+DEFINE_SPADES_SETTING(cg_smallFont, "0");
 
 SPADES_SETTING(cg_playerName);
 
