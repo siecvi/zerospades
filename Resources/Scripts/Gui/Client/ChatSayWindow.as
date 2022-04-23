@@ -35,29 +35,31 @@ namespace spades {
         }
         void Render() {
             float maxNameLen = 0.0F;
-            float maxValueLen = 20.0F;
+            float maxDescLen = 20.0F;
             Font@ font = this.Font;
             Renderer@ r = this.Manager.Renderer;
             float rowHeight = 25.0F;
 
             for (uint i = 0, len = configNames.length; i < len; i++) {
                 maxNameLen = Max(maxNameLen, font.Measure(configNames[i]).x);
-                maxValueLen = Max(maxValueLen, font.Measure(configValues[i]).x);
+                maxDescLen = Max(maxDescLen, font.Measure(configValues[i]).x);
             }
 
-            Vector2 pos = this.ScreenPosition;
-            pos.y -= float(configNames.length) * rowHeight + 10.0F;
+			float h = float(configNames.length) * rowHeight + 10.0F;
 
-            r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 0.5f);
-            r.DrawImage(null, AABB2(pos.x, pos.y, maxNameLen + maxValueLen + 20.0F,
-                                           float(configNames.length) * rowHeight + 10.0F));
+            Vector2 pos = this.ScreenPosition;
+            pos.y -= h;
+
+            r.ColorNP = Vector4(0, 0, 0, 0.5F);
+            r.DrawImage(null, AABB2(pos.x, pos.y, maxNameLen + maxDescLen + 20.0F, h));
 
             for (uint i = 0, len = configNames.length; i < len; i++) {
-                font.DrawShadow(configNames[i], pos + Vector2(5.0F, 8.0F + float(i) * rowHeight), 1.0F,
-                                Vector4(1, 1, 1, 0.7), Vector4(0, 0, 0, 0.3f));
+                font.DrawShadow(configNames[i],
+					pos + Vector2(5.0F, 8.0F + float(i) * rowHeight),
+					1.0F, Vector4(1, 1, 1, 0.7F), Vector4(0, 0, 0, 0.3F));
                 font.DrawShadow(configValues[i],
-                                pos + Vector2(15.0F + maxNameLen, 8.0F + float(i) * rowHeight), 1.0F,
-                                Vector4(1, 1, 1, 1), Vector4(0, 0, 0, 0.4f));
+					pos + Vector2(15.0F + maxNameLen, 8.0F + float(i) * rowHeight),
+					1.0F, Vector4(1, 1, 1, 1), Vector4(0, 0, 0, 0.4F));
             }
         }
     }
@@ -65,7 +67,8 @@ namespace spades {
     class CommandField : FieldWithHistory {
         CommandFieldConfigValueView@ valueView;
 
-        CommandField(spades::ui::UIManager@ manager, array<spades::ui::CommandHistoryItem @> @history) {
+        CommandField(spades::ui::UIManager@ manager,
+			array<spades::ui::CommandHistoryItem @> @history) {
             super(manager, history);
         }
 

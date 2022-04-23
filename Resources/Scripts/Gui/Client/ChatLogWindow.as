@@ -85,7 +85,7 @@ namespace spades {
                 spades::ui::Button button(Manager);
                 button.Caption = _Tr("Client", "Close");
                 button.Bounds = AABB2(contentsLeft + contentsWidth - 150.0F,
-                                      contentsTop + contentsHeight - 30.0F, 150.0F, 30.0F);
+					contentsTop + contentsHeight - 30.0F, 150.0F, 30.0F);
                 @button.Activated = spades::ui::EventHandler(this.OnOkPressed);
                 AddChild(button);
             }
@@ -110,7 +110,8 @@ namespace spades {
             {
                 spades::ui::TextViewer viewer(Manager);
                 AddChild(viewer);
-                viewer.Bounds = AABB2(contentsLeft, contentsTop, contentsWidth, contentsHeight - 40.0F);
+                viewer.Bounds = AABB2(contentsLeft, contentsTop,
+					contentsWidth, contentsHeight - 40.0F);
                 @this.viewer = viewer;
             }
         }

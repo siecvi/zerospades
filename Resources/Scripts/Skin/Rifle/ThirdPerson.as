@@ -26,7 +26,7 @@ namespace spades {
         private bool muted = true;
         private Matrix4 originMatrix;
         private float aimDownSightState;
-        private float readyState;
+		private float readyState;
         private bool reloading;
         private float reloadProgress;
         private int ammo, clipSize;
@@ -41,25 +41,14 @@ namespace spades {
         bool IsMuted { set { muted = value; } }
         Vector3 TeamColor { set { teamColor = value; } }
         Matrix4 OriginMatrix { set { originMatrix = value; } }
-
-        float PitchBias {
-			get {
-				float pitch = 0.0F;
-				if (readyState < 1.0F) {
-					float per = 1.0F - readyState;
-					pitch += per * 0.5F;
-				}
-				return pitch;
-			}
-		}
-
+		float PitchBias { get { return 0.0F; } }
         float AimDownSightState { set { aimDownSightState = value; } }
 
         bool IsReloading { set { reloading = value; } }
         float ReloadProgress { set { reloadProgress = value; } }
         int Ammo { set { ammo = value; } }
         int ClipSize { set { clipSize = value; } }
-        float ReadyState { set { readyState = value; } }
+		float ReadyState { set { readyState = value; } }
 
         // IWeaponSkin2
         void SetSoundEnvironment(float room, float size, float distance) {
@@ -143,7 +132,7 @@ namespace spades {
         }
     }
 
-    IWeaponSkin @CreateThirdPersonRifleSkin(Renderer @r, AudioDevice @dev) {
+    IWeaponSkin@ CreateThirdPersonRifleSkin(Renderer@ r, AudioDevice@ dev) {
         return ThirdPersonRifleSkin(r, dev);
     }
 }

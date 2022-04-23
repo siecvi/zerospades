@@ -335,31 +335,33 @@ namespace spades {
 			PlayerInput actualInput = player.GetInput();
 			WeaponInput actualWeapInput = player.GetWeaponInput();
 
-			if (actualInput.sprint && player.IsAlive()) {
-				sprintState += dt * 4.0F;
-				if (sprintState > 1.0F)
-					sprintState = 1.0F;
-			} else {
-				sprintState -= dt * 3.0F;
-				if (sprintState < 0.0F)
-					sprintState = 0.0F;
-			}
-
-			if (player.IsToolWeapon() && actualWeapInput.secondary && player.IsAlive()) {
-				if (cg_animations) {
-					aimDownState += dt * 8.0F;
-					if (aimDownState > 1.0F)
-						aimDownState = 1.0F;
+			if (player.IsAlive()) {
+				if (actualInput.sprint) {
+					sprintState += dt * 4.0F;
+					if (sprintState > 1.0F)
+						sprintState = 1.0F;
 				} else {
-					aimDownState = 1.0F;
+					sprintState -= dt * 3.0F;
+					if (sprintState < 0.0F)
+						sprintState = 0.0F;
 				}
-			} else {
-				if (cg_animations) {
-					aimDownState -= dt * 3.0F;
-					if (aimDownState < 0.0F)
-						aimDownState = 0.0F;
+
+				if (player.GetTool() == Player::ToolWeapon && actualWeapInput.secondary) {
+					if (cg_animations) {
+						aimDownState += dt * 8.0F;
+						if (aimDownState > 1.0F)
+							aimDownState = 1.0F;
+					} else {
+						aimDownState = 1.0F;
+					}
 				} else {
-					aimDownState = 0.0F;
+					if (cg_animations) {
+						aimDownState -= dt * 3.0F;
+						if (aimDownState < 0.0F)
+							aimDownState = 0.0F;
+					} else {
+						aimDownState = 0.0F;
+					}
 				}
 			}
 
@@ -477,12 +479,12 @@ namespace spades {
 
 				// Offset the view weapon according to the camera movement
 				Vector3 diff = front - lastFront;
-				viewWeaponOffset.x = Mix(viewWeaponOffset.x, Vector3::Dot(diff, right), 1.0F);
-				viewWeaponOffset.z = Mix(viewWeaponOffset.z, Vector3::Dot(diff, up), 1.0F);
+				viewWeaponOffset.x += Vector3::Dot(diff, right) - viewWeaponOffset.x;
+				viewWeaponOffset.z += Vector3::Dot(diff, up) - viewWeaponOffset.z;
 				lastFront = front;
 			}
 
-			{
+			if (player.IsLocalPlayer()) {
 				// Smooth the flashlight's movement
 				Vector3 o = player.GetFront();
 				Vector3 diff = o - flashlightOrientation;
@@ -523,7 +525,7 @@ namespace spades {
 				if (p.GetTool() != Player::ToolSpade) {
 					interface.SetActionType(SpadeActionTypeIdle);
 					interface.SetActionProgress(0.0F);
-				} else if (p.GetTimeToNextSpade() > 0) {
+				} else if (p.GetTimeToNextSpade() > 0.0F) {
 					interface.SetActionType(SpadeActionTypeBash);
 					interface.SetActionProgress(p.GetSpadeAnimationProgress());
 				} else if (p.GetWeaponInput().secondary) {
@@ -602,6 +604,7 @@ namespace spades {
 
 		void ClientPlayer::AddToSceneFirstPersonView() {
 			Player& p = player;
+			Weapon& w = p.GetWeapon();
 			IRenderer& renderer = client.GetRenderer();
 			World* world = client.GetWorld();
 			Matrix4 eyeMatrix = GetEyeMatrix();
@@ -648,8 +651,139 @@ namespace spades {
 			// view weapon
 			Vector3 viewWeaponOffset = this->viewWeaponOffset;
 
+			// Moving this to the scripting enviroment
+			// means breaking compatibility with existing mods.
+			// This sucks i know, but is the only way we can have some
+			// sort of "aosmod" thats remains compatible with other mods.
+			if (cg_classicViewWeapon) {
+				ModelRenderParam param;
+				param.depthHack = true;
+				param.customColor = ConvertColorRGB(p.GetBlockColor());
+
+				Matrix4 mat = Matrix4::Scale(0.033F);
+
+				Vector3 trans(0.0F, 0.0F, 0.0F);
+
+				Vector3 v = player.GetVelocity();
+				float bob = std::max(fabsf(v.x), fabsf(v.y)) / 1000;
+
+				int timer = (int)(time * 1000);
+				bob *= (timer % 1024 < 512)
+					? (timer % 512) - 255.5F
+					: 255.5F - (timer % 512);
+				trans.y += bob;
+
+				if (!player.IsOnGroundOrWade())
+					trans.z -= v.z * 0.2F;
+
+				float sprint = SmoothStep(sprintState);
+				float putdown = 1.0F - toolRaiseState;
+				putdown *= putdown;
+				putdown = std::min(1.0F, putdown * 1.5F);
+				float raiseState = (p.GetTool() == currentTool) ? (1.0F - putdown) : 0.0F;
+				if (sprint > 0.0F || raiseState < 1.0F) {
+					float per = std::max(sprint, 1.0F - raiseState) * 8;
+					trans.x -= per;
+					trans.z += per;
+				}
+
+				const float nextBlockTime = 1.0F - (p.GetTimeToNextBlock() / 0.5F);
+				const float cookTime = p.GetGrenadeCookTime();
+				const float nextFireTime = p.GetWeapon().GetTimeToNextFire();
+
+				Handle<IModel> model;
+				switch (currentTool) {
+					case Player::ToolSpade:
+						model = renderer.RegisterModel("Models/Weapons/Spade/Spade.kv6");
+						if (p.GetWeaponInput().primary) {
+							float f = 1.0F - p.GetSpadeAnimationProgress();
+							mat = Matrix4::Rotate(MakeVector3(1, 0, 0), f * 1.25F) * mat;
+							mat = Matrix4::Translate(0.0F, f * 0.5F, f * 0.25F) * mat;
+						} else if (p.GetWeaponInput().secondary) {
+							float f = 1.0F - p.GetDigAnimationProgress();
+							float f2;
+							if (f >= 0.6F) {
+								f2 = 0.0F;
+								f = 1.0F - f;
+							} else if (f >= 0.3F) {
+								f2 = 0.6F - f;
+								f = 0.4F;
+							} else if (f >= 0.1F) {
+								f2 = 0.3F;
+								f = 0.4F;
+							} else {
+								f2 = f * 3;
+								f *= 4;
+							}
+
+							mat = Matrix4::Translate(MakeVector3(f2 * 0.5F, f * 0.25F, -f2 * 1.25F)) * mat;
+							mat = Matrix4::Rotate(MakeVector3(1, 0, 0), f / 0.32F) * mat;
+							mat = Matrix4::Rotate(MakeVector3(0, -1, 0), f) * mat;
+						}
+						break;
+					case Player::ToolBlock:
+						model = renderer.RegisterModel("Models/Weapons/Block/Block.kv6");
+						if (nextBlockTime < 1.0F) {
+							float f = 1.0F - nextBlockTime;
+							trans.x -= f;
+							trans.z += f;
+						}
+						break;
+					case Player::ToolGrenade:
+						model = renderer.RegisterModel("Models/Weapons/Grenade/Grenade.kv6");
+						if (p.GetWeaponInput().primary && cookTime > 0.0F) {
+							float f = 0.5F * cookTime;
+							trans.x -= f;
+							trans.z -= f;
+							mat = Matrix4::Rotate(MakeVector3(-1, 0, 0), f * 0.25F) * mat;
+						}
+						break;
+					case Player::ToolWeapon: {
+						if (p.GetWeaponInput().secondary)
+							return;
+
+						param.customColor = ConvertColorRGB(p.GetColor());
+						switch (w.GetWeaponType()) {
+							case RIFLE_WEAPON:
+								model = renderer.RegisterModel("Models/Weapons/Rifle/Weapon.kv6");
+								break;
+							case SMG_WEAPON:
+								model = renderer.RegisterModel("Models/Weapons/SMG/Weapon.kv6");
+								break;
+							case SHOTGUN_WEAPON:
+								model = renderer.RegisterModel("Models/Weapons/Shotgun/Weapon.kv6");
+								break;
+						}
+
+						if (p.IsAwaitingReloadCompletion() && !w.IsReloadSlow()) {
+							float f = (1.0F - w.GetReloadProgress()) * 8;
+							trans.x -= f;
+							trans.z += f;
+						}
+
+						if (nextFireTime > 0.0F) {
+							float f = nextFireTime / 32;
+							float f2 = f * 10;
+							trans.x -= f2;
+							trans.z += f2;
+							mat = Matrix4::Rotate(MakeVector3(-1, 0, 0), DEG2RAD(f * 280)) * mat;
+						}
+					} break;
+				}
+
+				trans += Vector3(-0.33F, 0.66F, 0.4F);
+				trans += 0.015F; // adjust to match voxlap
+				trans += viewWeaponOffset;
+				mat = Matrix4::Translate(trans) * mat;
+
+				param.matrix = eyeMatrix * mat;
+				renderer.RenderModel(*model, param);
+
+				return;
+			}
+
 			// bobbing
-			if (!cg_classicViewWeapon) {
+			{
 				float sp = 1.0F - aimDownState;
 				sp *= 0.3F;
 				sp *= std::min(1.0F, p.GetVelocity().GetLength() * 5.0F);
@@ -658,19 +792,6 @@ namespace spades {
 
 				viewWeaponOffset.x += sinf(p.GetWalkAnimationProgress() * M_PI_F * 2.0F) * 0.013F * sp;
 				viewWeaponOffset.z += vl * 0.018F * sp;
-			} else {
-				Vector3 v = player.GetVelocity();
-				float bob = std::max(fabsf(v.x), fabsf(v.y)) / 1000;
-
-				int timer = (int)(time * 1000);
-				bob *= (timer % 1024 < 512)
-					? (timer % 512) - 255.5F
-					: 255.5F - (timer % 512);
-
-				viewWeaponOffset.y += bob;
-
-				if (!player.IsOnGroundOrWade())
-					viewWeaponOffset.z -= v.z * 0.2F;
 			}
 
 			// slow pulse
@@ -687,7 +808,9 @@ namespace spades {
 			{
 				float sp = 1.0F - aimDownState;
 
-				viewWeaponOffset += Vector3{cg_viewWeaponX, cg_viewWeaponY, cg_viewWeaponZ} * sp;
+				viewWeaponOffset.x += (float)cg_viewWeaponX * sp;
+				viewWeaponOffset.y += (float)cg_viewWeaponY * sp;
+				viewWeaponOffset.z += (float)cg_viewWeaponZ * sp;
 			}
 
 			asIScriptObject* curSkin = GetCurrentSkin(true);
@@ -703,7 +826,7 @@ namespace spades {
 			{
 				ScriptIToolSkin interface(curSkin);
 				interface.AddToScene();
-			}
+			} 
 			{
 				ScriptIViewToolSkin interface(curSkin);
 				leftHand = interface.GetLeftHandPosition();
@@ -751,7 +874,7 @@ namespace spades {
 			param.depthHack = true;
 			param.customColor = ConvertColorRGB(p.GetColor());
 
-			auto weaponName = p.GetWeapon().GetName();
+			auto weaponName = w.GetName();
 			auto path = "Models/Player/" + weaponName;
 
 			// Legs and Torso
@@ -884,7 +1007,7 @@ namespace spades {
 			float pitch = -atan2f(o.z, sqrtf(o.GetLength2D()));
 
 			// lower axis
-			Matrix4 const lower =  Matrix4::Translate(origin)
+			Matrix4 const lower = Matrix4::Translate(origin)
 				* Matrix4::Rotate(MakeVector3(0, 0, 1), yaw);
 
 			Matrix4 const scaler = Matrix4::Scale(0.1F)
@@ -910,6 +1033,11 @@ namespace spades {
 
 			if (inp.sprint)
 				armPitch -= 0.5F * sprintState;
+
+			// Hardcoded, otherwise we will need to break current mods
+			const float nextFireTime = p.GetWeapon().GetTimeToNextFire();
+			if (currentTool == Player::ToolWeapon && nextFireTime > 0.0F)
+				armPitch += nextFireTime;
 
 			armPitch += pitchBias;
 			if (armPitch < 0.0F)

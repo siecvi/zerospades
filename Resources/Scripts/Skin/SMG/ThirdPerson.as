@@ -30,7 +30,7 @@ namespace spades {
         private bool reloading;
         private float reloadProgress;
         private int ammo, clipSize;
-
+		
         private float environmentRoom;
         private float environmentSize;
         private float environmentDistance;
@@ -41,18 +41,7 @@ namespace spades {
         Vector3 TeamColor { set { teamColor = value; } }
         bool IsMuted { set { muted = value; } }
         Matrix4 OriginMatrix { set { originMatrix = value; } }
-
-        float PitchBias {
-			get {
-				float pitch = 0.0F;
-				if (readyState < 1.0F) {
-					float per = 1.0F - readyState;
-					pitch += per * 0.1F;
-				}
-				return pitch;
-			}
-		}
-
+		float PitchBias { get { return 0.0F; } }
         float AimDownSightState { set { aimDownSightState = value; } }
         bool IsReloading { set { reloading = value; } }
         float ReloadProgress { set { reloadProgress = value; } }
@@ -152,7 +141,7 @@ namespace spades {
         }
     }
 
-    IWeaponSkin @CreateThirdPersonSMGSkin(Renderer @r, AudioDevice @dev) {
+    IWeaponSkin@ CreateThirdPersonSMGSkin(Renderer@ r, AudioDevice@ dev) {
         return ThirdPersonSMGSkin(r, dev);
     }
 }

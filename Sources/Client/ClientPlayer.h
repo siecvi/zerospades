@@ -28,15 +28,12 @@
 #include <ScriptBindings/ScriptManager.h>
 
 namespace spades {
-
 	class ScriptFunction;
 
 	namespace client {
-
 		class Client;
 		class IRenderer;
 		class IAudioDevice;
-
 		class SandboxedRenderer;
 
 		// TODO: Use `shared_ptr` instead of `RefCountedObject`

@@ -491,7 +491,6 @@ namespace spades {
 				out.append(text, pos, text.size() - pos);
 				break;
 			}
-
 			out.append(text, pos, newPos - pos);
 			out += after;
 			pos = newPos + before.size();

@@ -33,7 +33,8 @@ namespace spades {
     /** Displys console command candidates. */
     class ConsoleCommandFieldCandiateView : spades::ui::UIElement {
         ConsoleCommandCandidate[]@ candidates;
-        ConsoleCommandFieldCandiateView(spades::ui::UIManager@ manager, ConsoleCommandCandidate[]@ candidates) {
+        ConsoleCommandFieldCandiateView(spades::ui::UIManager@ manager,
+			ConsoleCommandCandidate[]@ candidates) {
             super(manager);
             @this.candidates = candidates;
         }
@@ -41,25 +42,27 @@ namespace spades {
             float maxNameLen = 0.0F;
             float maxDescLen = 20.0F;
             Font@ font = this.Font;
-            Renderer@ renderer = this.Manager.Renderer;
+            Renderer@ r = this.Manager.Renderer;
             float rowHeight = 25.0F;
 
             for (uint i = 0, len = candidates.length; i < len; i++) {
                 maxNameLen = Max(maxNameLen, font.Measure(candidates[i].Name).x);
                 maxDescLen = Max(maxDescLen, font.Measure(candidates[i].Description).x);
             }
+
             Vector2 pos = this.ScreenPosition;
 
-            renderer.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 0.5F);
-            renderer.DrawImage(null, AABB2(pos.x, pos.y, maxNameLen + maxDescLen + 20.0F,
-                                           float(candidates.length) * rowHeight + 10.0F));
+            r.ColorNP = Vector4(0, 0, 0, 0.5F);
+            r.DrawImage(null, AABB2(pos.x, pos.y, maxNameLen + maxDescLen + 20.0F,
+				float(candidates.length) * rowHeight + 10.0F));
 
             for (uint i = 0, len = candidates.length; i < len; i++) {
-                font.DrawShadow(candidates[i].Name, pos + Vector2(5.0F, 8.0F + float(i) * rowHeight),
-                                1.0F, Vector4(1, 1, 1, 0.7F), Vector4(0, 0, 0, 0.3F));
+                font.DrawShadow(candidates[i].Name,
+					pos + Vector2(5.0F, 8.0F + float(i) * rowHeight),
+					1.0F, Vector4(1, 1, 1, 0.7F), Vector4(0, 0, 0, 0.3F));
                 font.DrawShadow(candidates[i].Description,
-                                pos + Vector2(15.0F + maxNameLen, 8.0F + float(i) * rowHeight), 1.0F,
-                                Vector4(1, 1, 1, 1), Vector4(0, 0, 0, 0.4F));
+					pos + Vector2(15.0F + maxNameLen, 8.0F + float(i) * rowHeight),
+					1.0F, Vector4(1, 1, 1, 1), Vector4(0, 0, 0, 0.4F));
             }
         }
     }
@@ -70,8 +73,8 @@ namespace spades {
         private ConsoleHelper@ helper;
 
         ConsoleCommandField(spades::ui::UIManager@ manager,
-                            array<spades::ui::CommandHistoryItem @> @history,
-                            ConsoleHelper@ helper) {
+			array<spades::ui::CommandHistoryItem @> @history,
+			ConsoleHelper@ helper) {
             super(manager, history);
 
             @this.helper = helper;
