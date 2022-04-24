@@ -41,13 +41,6 @@
 
 SPADES_SETTING(cg_minimapPlayerColor);
 
-DEFINE_SPADES_SETTING(gg1, "120");
-DEFINE_SPADES_SETTING(gg2, "60");
-DEFINE_SPADES_SETTING(gg3, "400");
-DEFINE_SPADES_SETTING(gg4, "300");
-DEFINE_SPADES_SETTING(gg5, "1");
-DEFINE_SPADES_SETTING(gg6, "1");
-
 namespace spades {
 	namespace client {
 
