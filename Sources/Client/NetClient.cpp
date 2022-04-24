@@ -518,8 +518,7 @@ namespace spades {
 					} catch (const std::exception& ex) {
 						int type = reader.GetType();
 						reader.DumpDebug();
-						SPRaise("Exception while handling packet type 0x%08x:\n%s", type,
-						        ex.what());
+						SPRaise("Exception while handling packet type 0x%08x:\n%s", type, ex.what());
 					}
 				}
 

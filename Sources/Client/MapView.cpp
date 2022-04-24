@@ -571,8 +571,7 @@ namespace spades {
 		MapViewTracer::MapViewTracer(Vector3 p1, Vector3 p2, float bulletVel)
 		    : startPos(p1), velocity(bulletVel) {
 			// Z coordinate doesn't matter in MapView
-			p1.z = 0.0F;
-			p2.z = 0.0F;
+			p1.z = p2.z = 0.0F;
 
 			dir = (p2 - p1).Normalize();
 			length = (p2 - p1).GetLength();

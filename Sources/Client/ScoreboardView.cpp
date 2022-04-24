@@ -114,57 +114,57 @@ namespace spades {
 			float sw = renderer.ScreenWidth();
 			float sh = renderer.ScreenHeight();
 
-			float spacingW = 8.0F;
-			float contentsWidth = sw + spacingW;
-			float maxContentsWidth = 800.0F + spacingW;
+			float spacingWidth = 8.0F;
+			float contentsWidth = sw + spacingWidth;
+			float maxContentsWidth = 800.0F + spacingWidth;
 			if (contentsWidth >= maxContentsWidth)
 				contentsWidth = maxContentsWidth;
 
-			float spacingH = 156.0F;
-			float contentsH = sh - spacingH;
-			float maxContentsH = 600.0F - spacingH;
-			if (contentsH >= maxContentsH)
-				contentsH = maxContentsH;
+			float spacingHeight = 156.0F;
+			float contentsHeight = sh - spacingHeight;
+			float maxContentsHeight = 600.0F - spacingHeight;
+			if (contentsHeight >= maxContentsHeight)
+				contentsHeight = maxContentsHeight;
 
-			float teamBarY = (sh - contentsH) * 0.5F;
-			float teamBarH = 60.0F;
+			float teamBarTop = (sh - contentsHeight) * 0.5F;
+			float teamBarHeight = 60.0F;
 			float contentsLeft = (sw - contentsWidth) * 0.5F;
 			float contentsRight = contentsLeft + contentsWidth;
-			float playersHeight = 300.0F - teamBarH;
-			float spectatorsH = 78.0F;
-			float playersTop = teamBarY + teamBarH;
+			float playersHeight = 300.0F - teamBarHeight;
+			float spectatorsHeight = 78.0F;
+			float playersTop = teamBarTop + teamBarHeight;
 			float playersBottom = playersTop + playersHeight;
 
 			// draw shadow
 			img = renderer.RegisterImage("Gfx/Scoreboard/TopShadow.tga");
 			size.y = 32.0F;
 			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.2F));
-			renderer.DrawImage(img, AABB2(0, teamBarY - size.y, sw, size.y));
+			renderer.DrawImage(img, AABB2(0, teamBarTop - size.y, sw, size.y));
 			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.2F));
 			renderer.DrawImage(img, AABB2(0, playersBottom + size.y, sw, -size.y));
 
 			// draw team bar
 			renderer.SetColorAlphaPremultiplied(AdjustColor(GetTeamColor(0), 0.8F, 0.3F));
-			renderer.DrawImage(nullptr, AABB2(0, teamBarY, sw * 0.5F, teamBarH));
+			renderer.DrawImage(nullptr, AABB2(0, teamBarTop, sw * 0.5F, teamBarHeight));
 			renderer.SetColorAlphaPremultiplied(AdjustColor(GetTeamColor(1), 0.8F, 0.3F));
-			renderer.DrawImage(nullptr, AABB2(sw * 0.5F, teamBarY, sw * 0.5F, teamBarH));
+			renderer.DrawImage(nullptr, AABB2(sw * 0.5F, teamBarTop, sw * 0.5F, teamBarHeight));
 
 			img = renderer.RegisterImage("Gfx/Scoreboard/Grunt.png");
 			size.x = 120.0F;
 			size.y = 60.0F;
-			renderer.DrawImage(img, AABB2(contentsLeft, teamBarY + teamBarH - size.y, size.x, size.y));
-			renderer.DrawImage(img, AABB2(contentsRight, teamBarY + teamBarH - size.y, -size.x, size.y));
+			renderer.DrawImage(img, AABB2(contentsLeft, playersTop - size.y, size.x, size.y));
+			renderer.DrawImage(img, AABB2(contentsRight, playersTop - size.y, -size.x, size.y));
 
 			str = world->GetTeam(0).name;
 			pos.x = contentsLeft + 110.0F;
-			pos.y = teamBarY + 5.0F;
+			pos.y = teamBarTop + 5.0F;
 			font.Draw(str, pos + MakeVector2(0, 2), 1.0F, MakeVector4(0, 0, 0, 0.5));
 			font.Draw(str, pos, 1.0F, white);
 
 			str = world->GetTeam(1).name;
 			size = font.Measure(str);
 			pos.x = contentsRight - 110.0F - size.x;
-			pos.y = teamBarY + 5.0F;
+			pos.y = teamBarTop + 5.0F;
 			font.Draw(str, pos + MakeVector2(0, 2), 1.0F, MakeVector4(0, 0, 0, 0.5));
 			font.Draw(str, pos, 1.0F, white);
 
@@ -180,12 +180,12 @@ namespace spades {
 			if (capLimit != -1) {
 				str = Format("{0}-{1}", GetTeamScore(0), capLimit);
 				pos.x = sw * 0.5F - font.Measure(str).x - 15.0F;
-				pos.y = teamBarY + 5.0F;
+				pos.y = teamBarTop + 5.0F;
 				font.Draw(str, pos, 1.0F, MakeVector4(1, 1, 1, 0.5));
 
 				str = Format("{0}-{1}", GetTeamScore(1), capLimit);
 				pos.x = sw * 0.5F + 15.0F;
-				pos.y = teamBarY + 5.0F;
+				pos.y = teamBarTop + 5.0F;
 				font.Draw(str, pos, 1.0F, MakeVector4(1, 1, 1, 0.5));
 			}
 
@@ -193,8 +193,7 @@ namespace spades {
 			auto areSpectatorsPr = AreSpectatorsPresent();
 			img = renderer.RegisterImage("Gfx/Scoreboard/PlayersBg.png");
 			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1));
-			renderer.DrawImage(img, AABB2(0, playersTop, sw,
-				playersHeight + (areSpectatorsPr ? spectatorsH : 0)));
+			renderer.DrawImage(img, AABB2(0, playersTop, sw, playersHeight + (areSpectatorsPr ? spectatorsHeight : 0)));
 
 			// draw players
 			DrawPlayers(0, contentsLeft, playersTop, (contentsRight - contentsLeft) * 0.5F, playersHeight);

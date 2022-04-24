@@ -473,15 +473,19 @@ namespace spades {
 					softLimitFunc(viewWeaponOffset.z, 0, limitY);
 				}
 			} else {
+				// Offset the view weapon according to the camera movement
 				Vector3 front = player.GetFront();
 				Vector3 right = player.GetRight();
 				Vector3 up = player.GetUp();
 
-				// Offset the view weapon according to the camera movement
 				Vector3 diff = front - lastFront;
 				viewWeaponOffset.x += Vector3::Dot(diff, right) - viewWeaponOffset.x;
 				viewWeaponOffset.z += Vector3::Dot(diff, up) - viewWeaponOffset.z;
-				lastFront = front;
+				float sq = diff.GetLength();
+				if (sq > 0.1F)
+					lastFront += diff.Normalize() * (sq - 0.1F);
+				lastFront = Mix(lastFront, front, 1.0F - powf(1.0E-6F, dt));
+				lastFront = lastFront.Normalize();
 			}
 
 			if (player.IsLocalPlayer()) {
