@@ -41,6 +41,13 @@
 
 SPADES_SETTING(cg_minimapPlayerColor);
 
+DEFINE_SPADES_SETTING(gg1, "120");
+DEFINE_SPADES_SETTING(gg2, "60");
+DEFINE_SPADES_SETTING(gg3, "400");
+DEFINE_SPADES_SETTING(gg4, "300");
+DEFINE_SPADES_SETTING(gg5, "1");
+DEFINE_SPADES_SETTING(gg6, "1");
+
 namespace spades {
 	namespace client {
 
@@ -135,13 +142,15 @@ namespace spades {
 			float playersTop = teamBarTop + teamBarHeight;
 			float playersBottom = playersTop + playersHeight;
 
+			auto areSpectatorsPr = AreSpectatorsPresent();
+
 			// draw shadow
 			img = renderer.RegisterImage("Gfx/Scoreboard/TopShadow.tga");
 			size.y = 32.0F;
 			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.2F));
 			renderer.DrawImage(img, AABB2(0, teamBarTop - size.y, sw, size.y));
-			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.2F));
-			renderer.DrawImage(img, AABB2(0, playersBottom + size.y, sw, -size.y));
+			renderer.DrawImage(img, AABB2(0, playersBottom
+				+ (areSpectatorsPr ? spectatorsHeight : 0) + size.y, sw, -size.y));
 
 			// draw team bar
 			renderer.SetColorAlphaPremultiplied(AdjustColor(GetTeamColor(0), 0.8F, 0.3F));
@@ -190,10 +199,10 @@ namespace spades {
 			}
 
 			// players background
-			auto areSpectatorsPr = AreSpectatorsPresent();
 			img = renderer.RegisterImage("Gfx/Scoreboard/PlayersBg.png");
 			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1));
-			renderer.DrawImage(img, AABB2(0, playersTop, sw, playersHeight + (areSpectatorsPr ? spectatorsHeight : 0)));
+			renderer.DrawImage(img, AABB2(0, playersTop, sw,
+				playersHeight + (areSpectatorsPr ? spectatorsHeight : 0)));
 
 			// draw players
 			DrawPlayers(0, contentsLeft, playersTop, (contentsRight - contentsLeft) * 0.5F, playersHeight);
