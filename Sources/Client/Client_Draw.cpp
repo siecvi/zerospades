@@ -663,7 +663,7 @@ namespace spades {
 					Vector2 pos = {posxyz.x, posxyz.y};
 
 					int damage = damages.damage;
-					auto damageStr = ToString(damage);
+					auto damageStr = "-" + ToString(damage);
 
 					IFont& font = fontManager->GetGuiFont();
 					Vector2 size = font.Measure(damageStr);
