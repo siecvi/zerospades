@@ -134,11 +134,6 @@ namespace spades {
 				if (!IsReadyToUseTool())
 					newInput.primary = false;
 
-				if (IsLocalPlayer()) {
-					if (weapInput.primary && holdingGrenade && GetGrenadeCookTime() < 0.15F)
-						newInput.primary = true; // pin is not pulled yet
-				}
-
 				if (newInput.primary != weapInput.primary) {
 					if (!newInput.primary) {
 						if (holdingGrenade) {
