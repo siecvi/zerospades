@@ -55,8 +55,7 @@
 			@model = renderer.RegisterModel("Models/Weapons/Grenade/Grenade.kv6");
 		}
 
-		void Update(float dt) {
-		}
+		void Update(float dt) {}
 
 		void AddToScene() {
 			Matrix4 mat = CreateScaleMatrix(0.05F);

@@ -30,7 +30,7 @@ namespace spades {
         private bool reloading;
         private float reloadProgress;
         private int ammo, clipSize;
-		
+
         private float environmentRoom;
         private float environmentSize;
         private float environmentDistance;

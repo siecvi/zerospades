@@ -32,7 +32,7 @@
 		bool IsMuted { set {} } // nothing to do;
 		Vector3 TeamColor { set { teamColor = value; } }
 		Matrix4 OriginMatrix { set { originMatrix = value; } }
-		
+
 		float PitchBias {
 			get {
 				float pitch = 0.0F;
@@ -41,7 +41,7 @@
 				return pitch;
 			}
 		}
-		
+
 		Vector3 BlockColor { set { blockColor = value; } }
 		float ReadyState { set { readyState = value; } }
 

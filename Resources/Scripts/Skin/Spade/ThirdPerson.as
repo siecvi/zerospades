@@ -31,7 +31,6 @@
 		float RaiseState { set { raiseState = value; } }
 		Vector3 TeamColor { set { teamColor = value; } }
 		bool IsMuted { set {} } // nothing to do
-
 		Matrix4 OriginMatrix { set { originMatrix = value; } }
 
 		float PitchBias {
