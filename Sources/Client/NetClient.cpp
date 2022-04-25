@@ -1766,7 +1766,7 @@ namespace spades {
 				if (secs < 120)
 					text += _Tr("NetClient", "{0}s left", secs);
 				else
-					text += _Tr("NetClient", "{0}m left", secs / 60);
+					text += _Tr("NetClient", "{0}m{1}s left", secs / 60, secs);
 			}
 
 			return text;
