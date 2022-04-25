@@ -1228,14 +1228,19 @@ namespace spades {
 			}
 		}
 
-		void Client::LocalPlayerPulledGrenadePin() {
+		void Client::PlayerPulledGrenadePin(spades::client::Player& p) {
 			SPADES_MARK_FUNCTION();
 
 			if (!IsMuted()) {
-				Handle<IAudioChunk> c =
-				  audioDevice->RegisterSound("Sounds/Weapons/Grenade/Fire.opus");
-				audioDevice->PlayLocal(c.GetPointerOrNull(), MakeVector3(0.4F, -0.3F, 0.5F),
-				                       AudioParam());
+				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Weapons/Grenade/Fire.opus");
+				if (p.IsLocalPlayer()) {
+					audioDevice->PlayLocal(c.GetPointerOrNull(), MakeVector3(0.4F, -0.3F, 0.5F), AudioParam());
+				} else {
+					audioDevice->Play(c.GetPointerOrNull(),
+					                  p.GetEye() + p.GetFront() * 0.9F - p.GetUp() * 0.2F +
+					                    p.GetRight() * 0.3F,
+					                  AudioParam());
+				}
 			}
 		}
 

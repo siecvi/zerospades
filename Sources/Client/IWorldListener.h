@@ -53,6 +53,7 @@ namespace spades {
 			virtual void PlayerReloadingWeapon(Player&) = 0;
 			virtual void PlayerReloadedWeapon(Player&) = 0;
 			virtual void PlayerChangedTool(Player&) = 0;
+			virtual void PlayerPulledGrenadePin(Player&) = 0;
 			virtual void PlayerThrewGrenade(Player&, stmp::optional<const Grenade&>) = 0;
 			virtual void PlayerMissedSpade(Player&) = 0;
 			virtual void PlayerHitBlockWithSpade(Player&, Vector3 hitPos, IntVector3 blockPos,
@@ -87,7 +88,6 @@ namespace spades {
 
 			virtual void BlocksFell(std::vector<IntVector3>) = 0;
 
-			virtual void LocalPlayerPulledGrenadePin() = 0;
 			virtual void LocalPlayerBlockAction(IntVector3, BlockActionType type) = 0;
 			virtual void LocalPlayerCreatedLineBlock(IntVector3, IntVector3) = 0;
 			virtual void LocalPlayerHurt(HurtType type, bool sourceGiven, Vector3 source) = 0;

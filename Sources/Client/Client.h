@@ -502,6 +502,7 @@ namespace spades {
 			void PlayerReloadingWeapon(Player&) override;
 			void PlayerReloadedWeapon(Player&) override;
 			void PlayerChangedTool(Player&) override;
+			void PlayerPulledGrenadePin(Player&) override;
 			void PlayerThrewGrenade(Player&, stmp::optional<const Grenade&>) override;
 			void PlayerMissedSpade(Player&) override;
 			void PlayerRestocked(Player&) override;
@@ -521,7 +522,6 @@ namespace spades {
 
 			void BlocksFell(std::vector<IntVector3>) override;
 
-			void LocalPlayerPulledGrenadePin() override;
 			void LocalPlayerBlockAction(IntVector3, BlockActionType type) override;
 			void LocalPlayerCreatedLineBlock(IntVector3, IntVector3) override;
 			void LocalPlayerHurt(HurtType type, bool sourceGiven, Vector3 source) override;

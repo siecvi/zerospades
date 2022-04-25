@@ -116,7 +116,7 @@ namespace spades {
 			if (!IsAlive())
 				return;
 
-			if (input.sprint && !input.crouch && IsWalking()) {
+			if (IsWalking() && !input.crouch && input.sprint) {
 				newInput.primary = false;
 				newInput.secondary = false;
 			}
@@ -144,9 +144,8 @@ namespace spades {
 						holdingGrenade = true;
 						grenadeTime = world.GetTime();
 
-						// playing other's grenade sound is cheating
-						if (listener && IsLocalPlayer())
-							listener->LocalPlayerPulledGrenadePin();
+						if (listener)
+							listener->PlayerPulledGrenadePin(*this);
 					}
 				}
 			} else if (tool == ToolBlock) {
