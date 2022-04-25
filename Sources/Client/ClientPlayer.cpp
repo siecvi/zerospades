@@ -660,12 +660,6 @@ namespace spades {
 			// This sucks i know, but is the only way we can have some
 			// sort of "aosmod" thats remains compatible with other mods.
 			if (cg_classicViewWeapon) {
-				ModelRenderParam param;
-				param.depthHack = true;
-				param.customColor = ConvertColorRGB(p.GetBlockColor());
-
-				Matrix4 mat = Matrix4::Scale(0.033F);
-
 				Vector3 trans(0.0F, 0.0F, 0.0F);
 
 				Vector3 v = player.GetVelocity();
@@ -691,9 +685,15 @@ namespace spades {
 					trans.z += per;
 				}
 
-				const float nextBlockTime = 1.0F - (p.GetTimeToNextBlock() / 0.5F);
+				ModelRenderParam param;
+				param.depthHack = true;
+				param.customColor = ConvertColorRGB(p.GetBlockColor());
+
+				Matrix4 mat = Matrix4::Scale(0.033F);
+
 				const float cookTime = p.GetGrenadeCookTime();
 				const float nextFireTime = p.GetWeapon().GetTimeToNextFire();
+				const float nextBlockTime = 1.0F - (p.GetTimeToNextBlock() / 0.5F);
 
 				Handle<IModel> model;
 				switch (currentTool) {
@@ -736,10 +736,9 @@ namespace spades {
 					case Player::ToolGrenade:
 						model = renderer.RegisterModel("Models/Weapons/Grenade/Grenade.kv6");
 						if (p.GetWeaponInput().primary && cookTime > 0.0F) {
-							float f = 0.5F * cookTime;
+							float f = 0.75F * cookTime;
 							trans.x -= f;
 							trans.z -= f;
-							mat = Matrix4::Rotate(MakeVector3(-1, 0, 0), f * 0.25F) * mat;
 						}
 						break;
 					case Player::ToolWeapon: {
