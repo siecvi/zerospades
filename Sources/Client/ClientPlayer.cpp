@@ -335,33 +335,31 @@ namespace spades {
 			PlayerInput actualInput = player.GetInput();
 			WeaponInput actualWeapInput = player.GetWeaponInput();
 
-			if (player.IsAlive()) {
-				if (actualInput.sprint) {
-					sprintState += dt * 4.0F;
-					if (sprintState > 1.0F)
-						sprintState = 1.0F;
-				} else {
-					sprintState -= dt * 3.0F;
-					if (sprintState < 0.0F)
-						sprintState = 0.0F;
-				}
+			if (actualInput.sprint && player.IsAlive()) {
+				sprintState += dt * 4.0F;
+				if (sprintState > 1.0F)
+					sprintState = 1.0F;
+			} else {
+				sprintState -= dt * 3.0F;
+				if (sprintState < 0.0F)
+					sprintState = 0.0F;
+			}
 
-				if (player.GetTool() == Player::ToolWeapon && actualWeapInput.secondary) {
-					if (cg_animations) {
-						aimDownState += dt * 8.0F;
-						if (aimDownState > 1.0F)
-							aimDownState = 1.0F;
-					} else {
+			if ((player.IsToolWeapon() && actualWeapInput.secondary) && player.IsAlive()) {
+				if (cg_animations) {
+					aimDownState += dt * 8.0F;
+					if (aimDownState > 1.0F)
 						aimDownState = 1.0F;
-					}
 				} else {
-					if (cg_animations) {
-						aimDownState -= dt * 3.0F;
-						if (aimDownState < 0.0F)
-							aimDownState = 0.0F;
-					} else {
+					aimDownState = 1.0F;
+				}
+			} else {
+				if (cg_animations) {
+					aimDownState -= dt * 3.0F;
+					if (aimDownState < 0.0F)
 						aimDownState = 0.0F;
-					}
+				} else {
+					aimDownState = 0.0F;
 				}
 			}
 
@@ -426,15 +424,15 @@ namespace spades {
 
 			if (!cg_classicViewWeapon) {
 				float scale = dt;
-				Vector3 vel = player.GetVelocity();
+				Vector3 v = player.GetVelocity();
 				Vector3 front = player.GetFront();
 				Vector3 right = player.GetRight();
 				Vector3 up = player.GetUp();
 
 				// Offset the view weapon according to the player movement
-				viewWeaponOffset.x += Vector3::Dot(vel, right) * scale;
-				viewWeaponOffset.y -= Vector3::Dot(vel, front) * scale;
-				viewWeaponOffset.z += Vector3::Dot(vel, up) * scale;
+				viewWeaponOffset.x += Vector3::Dot(v, right) * scale;
+				viewWeaponOffset.y -= Vector3::Dot(v, front) * scale;
+				viewWeaponOffset.z += Vector3::Dot(v, up) * scale;
 
 				// Offset the view weapon according to the camera movement
 				Vector3 diff = front - lastFront;
@@ -473,11 +471,11 @@ namespace spades {
 					softLimitFunc(viewWeaponOffset.z, 0, limitY);
 				}
 			} else {
-				// Offset the view weapon according to the camera movement
 				Vector3 front = player.GetFront();
 				Vector3 right = player.GetRight();
 				Vector3 up = player.GetUp();
 
+				// Offset the view weapon according to the camera movement
 				Vector3 diff = front - lastFront;
 				viewWeaponOffset.x += Vector3::Dot(diff, right) - viewWeaponOffset.x;
 				viewWeaponOffset.z += Vector3::Dot(diff, up) - viewWeaponOffset.z;
@@ -495,8 +493,8 @@ namespace spades {
 				float sq = diff.GetLength();
 				if (sq > 0.1F)
 					flashlightOrientation += diff.Normalize() * (sq - 0.1F);
-				flashlightOrientation =
-				  Mix(flashlightOrientation, o, 1.0F - powf(1.0E-6F, dt)).Normalize();
+				flashlightOrientation = Mix(flashlightOrientation, o, 1.0F - powf(1.0E-6F, dt));
+				flashlightOrientation = flashlightOrientation.Normalize();
 			}
 
 			// FIXME: should do for non-active skins?
@@ -631,14 +629,14 @@ namespace spades {
 
 				// add flash light
 				DynamicLightParam light;
-				Handle<IImage> image = renderer.RegisterImage("Gfx/Spotlight.jpg");
+				Handle<IImage> img = renderer.RegisterImage("Gfx/Spotlight.jpg");
 				light.origin = (eyeMatrix * MakeVector3(0, 0.3F, -0.3F)).GetXYZ();
 				light.color = MakeVector3(1.0F, 0.7F, 0.5F) * brightness;
 				light.radius = 60.0F;
 				light.type = DynamicLightTypeSpotlight;
 				light.spotAngle = DEG2RAD(90);
 				light.spotAxis = GetFlashlightAxes();
-				light.image = image.GetPointerOrNull();
+				light.image = img.GetPointerOrNull();
 				renderer.AddLight(light);
 
 				light.color *= 0.3F;
@@ -662,18 +660,6 @@ namespace spades {
 			if (cg_classicViewWeapon) {
 				Vector3 trans(0.0F, 0.0F, 0.0F);
 
-				Vector3 v = player.GetVelocity();
-				float bob = std::max(fabsf(v.x), fabsf(v.y)) / 1000;
-
-				int timer = (int)(time * 1000);
-				bob *= (timer % 1024 < 512)
-					? (timer % 512) - 255.5F
-					: 255.5F - (timer % 512);
-				trans.y += bob;
-
-				if (!player.IsOnGroundOrWade())
-					trans.z -= v.z * 0.2F;
-
 				float sprint = SmoothStep(sprintState);
 				float putdown = 1.0F - toolRaiseState;
 				putdown *= putdown;
@@ -685,25 +671,39 @@ namespace spades {
 					trans.z += per;
 				}
 
+				Vector3 v = player.GetVelocity();
+				float bob = std::max(fabsf(v.x), fabsf(v.y)) / 1000;
+				int timer = (int)(time * 1000);
+				bob *= (timer % 1024 < 512)
+					? (timer % 512) - 255.5F
+					: 255.5F - (timer % 512);
+				trans.y += bob;
+
+				if (!p.IsOnGroundOrWade())
+					trans.z -= v.z * 0.2F;
+
+				Matrix4 mat = Matrix4::Scale(0.033F);
+
+				Handle<IModel> model;
 				ModelRenderParam param;
 				param.depthHack = true;
 				param.customColor = ConvertColorRGB(p.GetBlockColor());
 
-				Matrix4 mat = Matrix4::Scale(0.033F);
+				const float nextBlockTime = p.GetTimeToNextBlock();
+				const float nadeCookTime = p.GetGrenadeCookTime();
+				const float nextFireTime = w.GetTimeToNextFire();
+				const float reloadProgress = (1.0F - w.GetReloadProgress());
 
-				const float cookTime = p.GetGrenadeCookTime();
-				const float nextFireTime = p.GetWeapon().GetTimeToNextFire();
-				const float nextBlockTime = 1.0F - (p.GetTimeToNextBlock() / 0.5F);
+				WeaponInput actualWeapInput = p.GetWeaponInput();
 
-				Handle<IModel> model;
 				switch (currentTool) {
 					case Player::ToolSpade:
 						model = renderer.RegisterModel("Models/Weapons/Spade/Spade.kv6");
-						if (p.GetWeaponInput().primary) {
+						if (actualWeapInput.primary) {
 							float f = 1.0F - p.GetSpadeAnimationProgress();
 							mat = Matrix4::Rotate(MakeVector3(1, 0, 0), f * 1.25F) * mat;
 							mat = Matrix4::Translate(0.0F, f * 0.5F, f * 0.25F) * mat;
-						} else if (p.GetWeaponInput().secondary) {
+						} else if (actualWeapInput.secondary) {
 							float f = 1.0F - p.GetDigAnimationProgress();
 							float f2;
 							if (f >= 0.6F) {
@@ -727,22 +727,22 @@ namespace spades {
 						break;
 					case Player::ToolBlock:
 						model = renderer.RegisterModel("Models/Weapons/Block/Block.kv6");
-						if (nextBlockTime < 1.0F) {
-							float f = 1.0F - nextBlockTime;
+						if (nextBlockTime > 0.0F) {
+							float f = nextBlockTime * 8;
 							trans.x -= f;
 							trans.z += f;
 						}
 						break;
 					case Player::ToolGrenade:
 						model = renderer.RegisterModel("Models/Weapons/Grenade/Grenade.kv6");
-						if (p.GetWeaponInput().primary && cookTime > 0.0F) {
-							float f = 0.75F * cookTime;
+						if (actualWeapInput.primary && nadeCookTime > 0.0F) {
+							float f = nadeCookTime * 0.75F;
 							trans.x -= f;
 							trans.z -= f;
 						}
 						break;
 					case Player::ToolWeapon: {
-						if (p.GetWeaponInput().secondary)
+						if (actualWeapInput.secondary)
 							return;
 
 						param.customColor = ConvertColorRGB(p.GetColor());
@@ -758,8 +758,8 @@ namespace spades {
 								break;
 						}
 
-						if (p.IsAwaitingReloadCompletion() && !w.IsReloadSlow()) {
-							float f = (1.0F - w.GetReloadProgress()) * 8;
+						if (reloadProgress > 0.0F && !w.IsReloadSlow()) {
+							float f = reloadProgress * 8;
 							trans.x -= f;
 							trans.z += f;
 						}
@@ -853,8 +853,7 @@ namespace spades {
 			float const legsPosZ = inp.crouch ? 0.05F : 0.1F;
 			float const torsoPosZ = inp.crouch ? 0.55F : 1.0F;
 
-			Vector3 const v = p.GetVelocity();
-
+			Vector3 v = p.GetVelocity();
 			Vector2 legsRot;
 			legsRot.x = Vector3::Dot(v, p.GetFront2D()) * 4.0F;
 			legsRot.y = Vector3::Dot(v, p.GetRight()) * 3.0F;
@@ -921,15 +920,12 @@ namespace spades {
 				auto addModel = [&](IModel& model, Vector3 v1, Vector3 v2) {
 					Vector3 axises[3];
 					axises[2] = (v1 - v2).Normalize();
-					axises[0] = MakeVector3(0, 0, 1);
-					axises[1] = Vector3::Cross(axises[2], axises[0]).Normalize();
+					axises[1] = Vector3::Cross(axises[2], MakeVector3(0, 0, 1)).Normalize();
 					axises[0] = Vector3::Cross(axises[1], axises[2]).Normalize();
 
-					Matrix4 mat = Matrix4::Scale(0.05F);
-					mat = Matrix4::FromAxis(axises[0], axises[1], axises[2], v2) * mat;
-					mat = eyeMatrix * mat;
-
-					param.matrix = mat;
+					param.matrix = Matrix4::FromAxis(axises[0], axises[1], axises[2], v2);
+					param.matrix = param.matrix * Matrix4::Scale(0.05F);
+					param.matrix = eyeMatrix * param.matrix;
 					renderer.RenderModel(model, param);
 				};
 
@@ -965,13 +961,10 @@ namespace spades {
 			if (!p.IsAlive()) {
 				if (!cg_ragdoll) {
 					Handle<IModel> model = renderer.RegisterModel((path + "/Dead.kv6").c_str());
-
 					ModelRenderParam param;
 					param.customColor = ConvertColorRGB(p.GetColor());
-
 					param.matrix = Matrix4::FromAxis(p.GetLeft(),
 						p.GetFront2D(), MakeVector3(0, 0, 1), p.GetEye());
-
 					param.matrix = param.matrix * Matrix4::Scale(0.1F);
 					renderer.RenderModel(*model, param);
 				}
@@ -1046,8 +1039,7 @@ namespace spades {
 			if (armPitch < 0.0F)
 				armPitch = std::max(armPitch, -M_PI_F * 0.5F) * 0.9F;
 
-			Vector3 const v = p.GetVelocity();
-
+			Vector3 v = p.GetVelocity();
 			Vector2 legsRot;
 			legsRot.x = Vector3::Dot(v, p.GetFront2D()) * 4.0F;
 			legsRot.y = Vector3::Dot(v, p.GetRight()) * 3.0F;
@@ -1166,8 +1158,7 @@ namespace spades {
 			else
 				AddToSceneThirdPersonView();
 
-			if (cg_debugToolSkinAnchors && currentTool == Player::ToolWeapon &&
-			    player.IsLocalPlayer()) {
+			if (cg_debugToolSkinAnchors && currentTool == Player::ToolWeapon && p.IsLocalPlayer()) {
 				IRenderer& renderer = client.GetRenderer();
 
 				auto drawAxes = [&renderer](Vector3 p) {
@@ -1360,12 +1351,12 @@ namespace spades {
 			return result;
 		}
 
-		void ClientPlayer::FiredWeapon() {
-			World& world = player.GetWorld();
+		void ClientPlayer::FiredWeapon() {	
 			const SceneDefinition& lastSceneDef = client.GetLastSceneDef();
 			IRenderer& renderer = client.GetRenderer();
 			IAudioDevice& audioDevice = client.GetAudioDevice();
 			Player& p = player;
+			World& world = p.GetWorld();
 
 			Vector3 muzzle = ShouldRenderInThirdPersonView()
 				? GetMuzzlePosition() : GetMuzzlePositionInFirstPersonView();
@@ -1409,7 +1400,7 @@ namespace spades {
 					Handle<IModel> model;
 					Handle<IAudioChunk> snd = NULL;
 					Handle<IAudioChunk> snd2 = NULL;
-					switch (player.GetWeapon().GetWeaponType()) {
+					switch (p.GetWeapon().GetWeaponType()) {
 						case RIFLE_WEAPON:
 							model = renderer.RegisterModel("Models/Weapons/Rifle/Casing.kv6");
 							snd =

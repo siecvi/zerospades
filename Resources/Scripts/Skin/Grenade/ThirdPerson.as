@@ -37,7 +37,7 @@
 			get {
 				float pitch = 0.0F;
 				if (readyState > 1.0F)
-					pitch += 0.5F * cookTime;
+					pitch += cookTime * 0.5F;
 				return pitch;
 			}
 		}

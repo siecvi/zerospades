@@ -858,15 +858,17 @@ namespace spades {
 
 			z = m;
 			float bx = nx + ((velocity.x > 0.0F) ? 0.45F : -0.45F);
-			while (z >= -1.36F && !map->ClipBox(bx, position.y - 0.45F, nz + z) &&
-			       !map->ClipBox(bx, position.y + 0.45F, nz + z))
+			while (z >= -1.36F
+				&& !map->ClipBox(bx, position.y - 0.45F, nz + z)
+				&& !map->ClipBox(bx, position.y + 0.45F, nz + z))
 				z -= 0.9F;
 			if (z < -1.36F)
 				position.x = nx;
 			else if (!input.crouch && orientation.z < 0.5F && !input.sprint) {
 				z = 0.35F;
-				while (z >= -2.36F && !map->ClipBox(bx, position.y - 0.45F, nz + z) &&
-				       !map->ClipBox(bx, position.y + 0.45F, nz + z))
+				while (z >= -2.36F
+					&& !map->ClipBox(bx, position.y - 0.45F, nz + z)
+					&& !map->ClipBox(bx, position.y + 0.45F, nz + z))
 					z -= 0.9F;
 				if (z < -2.36F) {
 					position.x = nx;
@@ -880,15 +882,17 @@ namespace spades {
 
 			z = m;
 			float by = ny + (velocity.y > 0.0F ? 0.45F : -0.45F);
-			while (z >= -1.36F && !map->ClipBox(position.x - 0.45F, by, nz + z) &&
-			       !map->ClipBox(position.x + 0.45F, by, nz + z))
+			while (z >= -1.36F
+				&& !map->ClipBox(position.x - 0.45F, by, nz + z)
+				&& !map->ClipBox(position.x + 0.45F, by, nz + z))
 				z -= 0.9F;
 			if (z < -1.36F)
 				position.y = ny;
 			else if (!input.crouch && orientation.z < 0.5F && !input.sprint && !climb) {
 				z = 0.35F;
-				while (z >= -2.36F && !map->ClipBox(position.x - 0.45F, by, nz + z) &&
-				       !map->ClipBox(position.x + 0.45F, by, nz + z))
+				while (z >= -2.36F
+					&& !map->ClipBox(position.x - 0.45F, by, nz + z)
+					&& !map->ClipBox(position.x + 0.45F, by, nz + z))
 					z -= 0.9F;
 				if (z < -2.36F) {
 					position.y = ny;
