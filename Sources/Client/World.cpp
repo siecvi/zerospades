@@ -299,26 +299,26 @@ namespace spades {
 			d.z = abs(d.z);
 
 			int f = 0x3FFFFFFF / VSID;
-			if (d.x >= d.y && d.x >= d.z) {
+			if ((d.x >= d.y) && (d.x >= d.z)) {
 				dxi = 1024;
 				dx = 512;
-				dyi = (long)((d.y != 0) ? (d.x * 1024 / d.y) : f);
+				dyi = (d.y != 0) ? (d.x * 1024 / d.y) : f;
 				dy = dyi / 2;
-				dzi = (long)((d.z != 0) ? (d.x * 1024 / d.z) : f);
+				dzi = (d.z != 0) ? (d.x * 1024 / d.z) : f;
 				dz = dzi / 2;
 			} else if (d.y >= d.z) {
 				dyi = 1024;
 				dy = 512;
-				dxi = (long)((d.x != 0) ? (d.y * 1024 / d.x) : f);
+				dxi = (d.x != 0) ? (d.y * 1024 / d.x) : f;
 				dx = dxi / 2;
-				dzi = (long)((d.z != 0) ? (d.y * 1024 / d.z) : f);
+				dzi = (d.z != 0) ? (d.y * 1024 / d.z) : f;
 				dz = dzi / 2;
 			} else {
 				dzi = 1024;
 				dz = 512;
-				dxi = (long)((d.x != 0) ? (d.z * 1024 / d.x) : f);
+				dxi = (d.x != 0) ? (d.z * 1024 / d.x) : f;
 				dx = dxi / 2;
-				dyi = (long)((d.y != 0) ? (d.z * 1024 / d.y) : f);
+				dyi = (d.y != 0) ? (d.z * 1024 / d.y) : f;
 				dy = dyi / 2;
 			}
 
