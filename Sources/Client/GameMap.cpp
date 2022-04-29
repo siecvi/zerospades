@@ -113,7 +113,7 @@ namespace spades {
 
 						int i = z;
 						while (i < d && IsSurface(x, y, i))
-							++z;
+							++i;
 
 						if (i != d) {
 							while (IsSurface(x, y, z))
@@ -131,7 +131,6 @@ namespace spades {
 							buffer.push_back(0);
 						else
 							buffer.push_back(colors + 1);
-
 						buffer.push_back(top_colors_start);
 						buffer.push_back(top_colors_end - 1);
 						buffer.push_back(air_start);
