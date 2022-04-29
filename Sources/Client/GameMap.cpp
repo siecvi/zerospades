@@ -44,21 +44,6 @@ namespace spades {
 			return (u.c & 0xFFFFFF) | (100UL * 0x1000000UL);
 		}
 
-		int groundCols[9] = {
-			0x506050, 0x605848, 0x705040,
-			0x804838, 0x704030, 0x603828,
-			0x503020, 0x402818, 0x302010
-		};
-
-		uint32_t GetDirtColor(int x, int y, int z) {
-			int j = groundCols[(z >> 3) + 1];
-			int i = groundCols[(z >> 3)];
-			i = i + (((j - i) * (z & 7)) >> 3);
-			i = (i & 0xFF00FF) + (i & 0xFF00);
-			i += 4 * ((abs((x & 7) - 4) << 16) + (abs((y & 7) - 4) << 8) + abs((z & 7) - 4));
-			return (i + 0x10101 * (rand() % 7)) | 0x3F000000;
-		}
-
 		GameMap::GameMap() {
 			SPADES_MARK_FUNCTION();
 
@@ -85,26 +70,6 @@ namespace spades {
 				listeners.erase(it);
 		}
 
-		bool GameMap::IsSurface(int x, int y, int z) const {
-			if (!IsSolid(x, y, z))
-				return false;
-			if (z == 0)
-				return true;
-			if (x > 0 && !IsSolid(x - 1, y, z))
-				return true;
-			if (x < Width() - 1 && !IsSolid(x + 1, y, z))
-				return true;
-			if (y > 0 && !IsSolid(x, y - 1, z))
-				return true;
-			if (y < Height() - 1 && !IsSolid(x, y + 1, z))
-				return true;
-			if (!IsSolid(x, y, z - 1))
-				return true;
-			if (z < Depth() - 1 && !IsSolid(x, y, z + 1))
-				return true;
-			return false;
-		}
-
 		static void WriteColor(std::vector<char>& buffer, int color) {
 			buffer.push_back((char)(color >> 16));
 			buffer.push_back((char)(color >> 8));
@@ -121,47 +86,48 @@ namespace spades {
 			buffer.reserve(10 * 1024 * 1024);
 			for (int y = 0; y < h; y++) {
 				for (int x = 0; x < w; x++) {
-					int k = 0;
-					while (k < d) {
-						int z;
-
-						int air_start;
-						int top_colors_start;
-						int top_colors_end; // exclusive
-						int bottom_colors_start;
-						int bottom_colors_end; // exclusive
-						int top_colors_len;
-						int bottom_colors_len;
-						int colors;
-						air_start = k;
-						while (k < d && !IsSolid(x, y, k))
-							++k;
-						top_colors_start = k;
-						while (k < d && IsSurface(x, y, k))
-							++k;
-						top_colors_end = k;
-
-						while (k < d && IsSolid(x, y, k) && !IsSurface(x, y, k))
-							++k;
-
-						bottom_colors_start = k;
-
-						z = k;
-						while (z < d && IsSurface(x, y, z))
+					int z = 0;
+					while (z < d) {
+						// find the air region
+						int air_start = z;
+						while (z < d && !IsSolid(x, y, z))
 							++z;
 
-						if (z != d) {
-							while (IsSurface(x, y, k))
-								++k;
+						// find the top region
+						int top_colors_start = z;
+						while (z < d && IsSurface(x, y, z))
+							++z;
+						int top_colors_end = z;
+
+						// now skip past the solid voxels
+						while (z < d && IsSolid(x, y, z) && !IsSurface(x, y, z))
+							++z;
+
+						// at the end of the solid voxels, we have colored voxels.
+						// in the "normal" case they're bottom colors; but it's
+						// possible to have air-color-solid-color-solid-color-air,
+						// which we encode as air-color-solid-0, 0-color-solid-air
+
+						// so figure out if we have any bottom colors at this point
+						int bottom_colors_start = z;
+
+						int i = z;
+						while (i < d && IsSurface(x, y, i))
+							++z;
+
+						if (i != d) {
+							while (IsSurface(x, y, z))
+								++z;
 						}
-						bottom_colors_end = k;
+						int bottom_colors_end = z;
 
-						top_colors_len = top_colors_end - top_colors_start;
-						bottom_colors_len = bottom_colors_end - bottom_colors_start;
+						// now we're ready to write a span
+						int top_colors_len = top_colors_end - top_colors_start;
+						int bottom_colors_len = bottom_colors_end - bottom_colors_start;
 
-						colors = top_colors_len + bottom_colors_len;
+						int colors = top_colors_len + bottom_colors_len;
 
-						if (k == d)
+						if (z == d)
 							buffer.push_back(0);
 						else
 							buffer.push_back(colors + 1);
@@ -170,10 +136,10 @@ namespace spades {
 						buffer.push_back(top_colors_end - 1);
 						buffer.push_back(air_start);
 
-						for (z = 0; z < top_colors_len; ++z)
-							WriteColor(buffer, GetColor(x, y, top_colors_start + z));
-						for (z = 0; z < bottom_colors_len; ++z)
-							WriteColor(buffer, GetColor(x, y, bottom_colors_start + z));
+						for (i = 0; i < top_colors_len; ++i)
+							WriteColor(buffer, GetColor(x, y, top_colors_start + i));
+						for (i = 0; i < bottom_colors_len; ++i)
+							WriteColor(buffer, GetColor(x, y, bottom_colors_start + i));
 					}
 				}
 			}
@@ -182,13 +148,11 @@ namespace spades {
 		}
 
 		bool GameMap::ClipBox(int x, int y, int z) const {
-			int sz;
-
 			if (x < 0 || x >= DefaultWidth || y < 0 || y >= DefaultHeight)
 				return true;
 			else if (z < 0)
 				return false;
-			sz = (int)z;
+			int sz = (int)z;
 			if (sz == DefaultDepth - 1)
 				sz = DefaultDepth - 2;
 			else if (sz >= DefaultDepth)
@@ -197,13 +161,9 @@ namespace spades {
 		}
 
 		bool GameMap::ClipWorld(int x, int y, int z) const {
-			int sz;
-
-			if (x < 0 || x >= DefaultWidth || y < 0 || y >= DefaultHeight)
+			if (x < 0 || x >= DefaultWidth || y < 0 || y >= DefaultHeight || z < 0)
 				return 0;
-			if (z < 0)
-				return 0;
-			sz = (int)z;
+			int sz = (int)z;
 			if (sz == DefaultDepth - 1)
 				sz = DefaultDepth - 2;
 			else if (sz >= DefaultDepth - 1)
@@ -533,7 +493,7 @@ namespace spades {
 
 						int number_4byte_chunks = view.Read<int8_t>(pos);
 						int top_color_start = view.Read<int8_t>(pos + 1);
-						int top_color_end = view.Read<int8_t>(pos + 2);
+						int top_color_end = view.Read<int8_t>(pos + 2); // inclusive
 
 						for (int i = z; i < top_color_start; i++)
 							map->Set(x, y, i, false, 0, true);
@@ -550,16 +510,20 @@ namespace spades {
 
 						int len_bottom = top_color_end - top_color_start + 1;
 
+						// check for end of data marker
 						if (number_4byte_chunks == 0) {
+							// infer ACTUAL number of 4-byte chunks from the length of the color data
 							pos += 4 * (len_bottom + 1);
 							break;
 						}
 
+						// infer the number of bottom colors in next span from chunk length
 						int len_top = (number_4byte_chunks - 1) - len_bottom;
 
+						// now skip the v pointer past the data to the beginning of the next span
 						pos += (int)view.Read<int8_t>(pos) * 4;
 
-						int bottom_color_end = view.Read<int8_t>(pos + 3);
+						int bottom_color_end = view.Read<int8_t>(pos + 3); // aka air start
 						int bottom_color_start = bottom_color_end - len_top;
 
 						for (z = bottom_color_start; z < bottom_color_end; z++) {

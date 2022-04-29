@@ -217,6 +217,7 @@ namespace spades {
 				const auto& pos = creation.first;
 				const auto& col = creation.second;
 				uint32_t color = col.x | (col.y << 8) | (col.z << 16) | (100UL << 24);
+				color = map->GetColorJit(color); // jit the colour
 				if (map->IsSolid(pos.x, pos.y, pos.z)) {
 					map->Set(pos.x, pos.y, pos.z, true, color);
 					continue;

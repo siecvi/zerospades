@@ -65,55 +65,18 @@ namespace spades {
 			int Depth() const { return DefaultDepth; }
 			int GroundDepth() const { return DefaultDepth - 2; }
 
-			inline bool IsValidMapCoord(const int x, const int y, const int z) {
+			inline bool IsValidMapCoord(const int x, const int y, const int z) const {
 				return x >= 0 && y >= 0 && z >= 0 && x < Width() && y < Height() && z < Depth();
 			}
 
-			inline bool IsValidBuildCoord(const int x, const int y, const int z) {
-				return IsValidMapCoord(x, y, z) && z < GroundDepth();
-			}
-
-			inline bool HasNeighbors(int x, int y, int z) {
-				SPAssert(x >= 0);
-				SPAssert(x < Width());
-				SPAssert(y >= 0);
-				SPAssert(y < Height());
-				SPAssert(z >= 0);
-				SPAssert(z < Depth());
-				return IsSolid(x, y, z + 1) || IsSolid(x, y, z - 1) || IsSolid(x, y + 1, z) ||
-				       IsSolid(x, y - 1, z) || IsSolid(x + 1, y, z) || IsSolid(x - 1, y, z);
+			inline uint64_t GetSolidMap(int x, int y) const { return solidMap[x][y]; }
+			inline uint64_t GetSolidMapWrapped(int x, int y) const {
+				return GetSolidMap(x & (Width() - 1), y & (Height() - 1));
 			}
 
 			inline bool IsSolid(int x, int y, int z) const {
-				SPAssert(x >= 0);
-				SPAssert(x < Width());
-				SPAssert(y >= 0);
-				SPAssert(y < Height());
-				SPAssert(z >= 0);
-				SPAssert(z < Depth());
-				return ((solidMap[x][y] >> (uint64_t)z) & 1ULL) != 0;
-			}
-
-			/** @return 0xHHBBGGRR where HH is health (up to 100) */
-			inline uint32_t GetColor(int x, int y, int z) const {
-				SPAssert(x >= 0);
-				SPAssert(x < Width());
-				SPAssert(y >= 0);
-				SPAssert(y < Height());
-				SPAssert(z >= 0);
-				SPAssert(z < Depth());
-				return colorMap[x][y][z];
-			}
-
-			// adapted from VOXLAP5.C by Ken Silverman <http://advsys.net/ken/>
-			uint32_t gkrand = 0;
-			inline uint32_t ColorJit(uint32_t col, uint32_t amount = 0x70707) {
-				gkrand = 0x1A4E86D * gkrand + 1;
-				return col ^ (gkrand & amount);
-			}
-
-			inline uint64_t GetSolidMapWrapped(int x, int y) const {
-				return solidMap[x & (Width() - 1)][y & (Height() - 1)];
+				SPAssert(IsValidMapCoord(x, y, z));
+				return ((GetSolidMap(x, y) >> (uint64_t)z) & 1ULL) != 0;
 			}
 
 			inline bool IsSolidWrapped(int x, int y, int z) const {
@@ -121,7 +84,31 @@ namespace spades {
 					return false;
 				if (z >= Depth())
 					return true;
-				return ((solidMap[x & (Width() - 1)][y & (Height() - 1)] >> (uint64_t)z) & 1ULL) != 0;
+				return ((GetSolidMapWrapped(x, y) >> (uint64_t)z) & 1ULL) != 0;
+			}
+
+			inline bool IsSurface(int x, int y, int z) const {
+				if (!IsSolid(x, y, z))
+					return false;
+				if (x > 0 && !IsSolid(x - 1, y, z))
+					return true;
+				if (x < Width() - 1 && !IsSolid(x + 1, y, z))
+					return true;
+				if (y > 0 && !IsSolid(x, y - 1, z))
+					return true;
+				if (y < Height() - 1 && !IsSolid(x, y + 1, z))
+					return true;
+				if (z > 0 && !IsSolid(x, y, z - 1))
+					return true;
+				if (z < Depth() - 1 && !IsSolid(x, y, z + 1))
+					return true;
+				return false;
+			}
+
+			/** @return 0xHHBBGGRR where HH is health (up to 100) */
+			inline uint32_t GetColor(int x, int y, int z) const {
+				SPAssert(IsValidMapCoord(x, y, z));
+				return colorMap[x][y][z];
 			}
 
 			inline uint32_t GetColorWrapped(int x, int y, int z) const {
@@ -129,23 +116,18 @@ namespace spades {
 			}
 
 			inline void Set(int x, int y, int z, bool solid, uint32_t color, bool unsafe = false) {
-				SPAssert(x >= 0);
-				SPAssert(x < Width());
-				SPAssert(y >= 0);
-				SPAssert(y < Height());
-				SPAssert(z >= 0);
-				SPAssert(z < Depth());
+				SPAssert(IsValidMapCoord(x, y, z));
 
 				uint64_t mask = 1ULL << z;
-				uint64_t bits = solidMap[x][y];
+				uint64_t value = GetSolidMap(x, y);
 
 				bool changed = false;
-				if ((bits & mask) != (solid ? mask : 0ULL)) {
+				if ((value & mask) != (solid ? mask : 0ULL)) {
 					changed = true;
-					bits &= ~mask;
+					value &= ~mask;
 					if (solid)
-						bits |= mask;
-					solidMap[x][y] = bits;
+						value |= mask;
+					solidMap[x][y] = value;
 				}
 
 				if (solid && color != colorMap[x][y][z]) {
@@ -165,7 +147,6 @@ namespace spades {
 
 			bool ClipBox(int x, int y, int z) const;
 			bool ClipWorld(int x, int y, int z) const;
-
 			bool ClipBox(float x, float y, float z) const;
 			bool ClipWorld(float x, float y, float z) const;
 
@@ -183,13 +164,33 @@ namespace spades {
 			};
 			RayCastResult CastRay2(Vector3 v0, Vector3 dir, int maxSteps) const;
 
+			// adapted from VOXLAP5.C by Ken Silverman <http://advsys.net/ken/>
+			uint32_t gkrand = 0;
+			inline uint32_t GetColorJit(uint32_t col, uint32_t amount = 0x70707) {
+				gkrand = 0x1A4E86D * gkrand + 1;
+				return col ^ (gkrand & amount);
+			}
+
+			int groundCols[9] = {
+				0x506050, 0x605848, 0x705040,
+				0x804838, 0x704030, 0x603828,
+				0x503020, 0x402818, 0x302010
+			};
+
+			inline uint32_t GetDirtColor(int x, int y, int z) {
+				int j = groundCols[(z >> 3) + 1];
+				int i = groundCols[(z >> 3)];
+				i = i + (((j - i) * (z & 7)) >> 3);
+				i = (i & 0xFF00FF) + (i & 0xFF00);
+				i += 4 * ((abs((x & 7) - 4) << 16) + (abs((y & 7) - 4) << 8) + abs((z & 7) - 4));
+				return (i + 0x10101 * (rand() % 7)) | 0x3F000000;
+			}
+
 		private:
 			uint64_t solidMap[DefaultWidth][DefaultHeight];
 			uint32_t colorMap[DefaultWidth][DefaultHeight][DefaultDepth];
 			std::list<IGameMapListener*> listeners;
 			std::mutex listenersMutex;
-
-			bool IsSurface(int x, int y, int z) const;
 		};
 	} // namespace client
 } // namespace spades

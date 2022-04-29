@@ -110,7 +110,7 @@ namespace spades {
 				return;
 			}
 
-			m.Set(x, y, z, true, m.ColorJit(color));
+			m.Set(x, y, z, true, color);
 
 			if (GetLink(x, y, z) != Invalid)
 				return;

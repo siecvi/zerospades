@@ -71,8 +71,8 @@ namespace spades {
 
 			for (const auto& v : blocks) {
 				uint32_t col = map->GetColor(v.x, v.y, v.z);
-				col = map->ColorJit(col); // Jit the colour a bit
-				col &= 0xFFFFFF; // Use the default material
+				col = map->GetColorJit(col); // jit the colour
+				col &= 0xFFFFFF; // use the default material
 				vmodel->SetSolid(v.x - minX, v.y - minY, v.z - minZ, col);
 			}
 

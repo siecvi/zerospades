@@ -383,7 +383,7 @@ namespace spades {
 				if (blockCursorDragging) {
 					// check the starting point is not floating
 					auto start = blockCursorDragPos;
-					if (!map->HasNeighbors(start.x, start.y, start.z)) {
+					if (map->IsSurface(start.x, start.y, start.z)) {
 						if (listener && IsLocalPlayer()) // cannot build; floating
 							listener->LocalPlayerBuildError(BuildFailureReason::InvalidPosition);
 						blockCursorDragging = false;
