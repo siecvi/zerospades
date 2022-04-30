@@ -651,13 +651,15 @@ namespace spades {
 			0, 100, 1, ConfigNumberFormatter(0, "%"));
 			layouter.AddVolumeSlider(_Tr("Preferences", "Hitmarker Volume"), "cg_hitMarkSoundGain");
 			layouter.AddVolumeSlider(_Tr("Preferences", "Hit Feedback Volume"), "cg_hitFeedbackSoundGain");
+			layouter.AddToggleField(_Tr("Preferences", "Environmental Audio"), "cg_environmentalAudio");
             layouter.AddToggleField(_Tr("Preferences", "Show Statistics"), "cg_stats");
 			layouter.AddToggleField(_Tr("Preferences", "Show Player Statistics"), "cg_playerStats");
 			layouter.AddToggleField(_Tr("Preferences", "Debug Hit Detection"), "cg_debugHitTest");
-			layouter.AddSliderField(_Tr("Preferences", "HitTest Debugger Size"), "cg_dbgHitTestSize",
+			layouter.AddSliderField(_Tr("Preferences", "Hit Test Debugger Size"), "cg_dbgHitTestSize",
 			64, 256, 8, ConfigNumberFormatter(0, "px"));
-			layouter.AddControl(_Tr("Preferences", "Toggle HitTest Zoom"), "cg_keyToggleHitTestZoom");
+			layouter.AddControl(_Tr("Preferences", "Toggle Hit Test Zoom"), "cg_keyToggleHitTestZoom");
 			layouter.AddToggleField(_Tr("Preferences", "Debug Weapon Spread"), "cg_debugAim");
+			layouter.AddToggleField(_Tr("Preferences", "Classic Viewmodel"), "cg_classicViewWeapon");
 
 			layouter.AddHeading(_Tr("Preferences", "Minimap"));
 			layouter.AddSliderField(_Tr("Preferences", "Minimap Size"), "cg_minimapSize",
