@@ -16,9 +16,10 @@ Some of the most important changes are:
 
 * In-Game HitTest Debugger(ty BR <3).
 * Extended block color palette(ty Liza&Vier <3).
-* Improved First-Person weapon animations(ty ptrooper <3).
+* Improved firstperson weapon animations(ty ptrooper <3).
 * First-Person playermodels(torso&legs).
-* More Third-Person animations.
+* Classic firstperson viewmodel.
+* More thirdperson animations.
 * Different Playermodels depending on weapon class.
 * Classic randomized dirt color.
 * Dead player corpse physics.
@@ -27,6 +28,8 @@ Some of the most important changes are:
 * Players names while on spectator mode.
 * Damage dealt to players are now shown as floating text.
 * Player stats such as kill/death ratio and kill streak.
+
+--And a lot of other things that i forgot to mention here.
 
 ## How to Build/Install?
 See the [OpenSpades Building&Installing Guide](https://github.com/yvt/openspades#how-to-buildinstall)
