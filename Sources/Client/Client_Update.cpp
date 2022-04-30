@@ -119,6 +119,16 @@ namespace spades {
 
 #pragma mark - World Actions
 
+		void Client::SetBlockColor(IntVector3 color) {
+			if (!world)
+				return;
+			stmp::optional<Player&> p = world->GetLocalPlayer();
+			if (!p)
+				return;
+			p->SetHeldBlockColor(color);
+			net->SendHeldBlockColor();
+		}
+
 		/** Captures the color of the block player is looking at. */
 		void Client::CaptureColor() {
 			if (!world)

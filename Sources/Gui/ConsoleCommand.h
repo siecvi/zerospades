@@ -38,12 +38,12 @@ namespace spades {
 			 *
 			 * @return A `ConsoleCommand` object representing the parsed command.
 			 */
-			static Handle<ConsoleCommand> Parse(const std::string &);
+			static Handle<ConsoleCommand> Parse(const std::string&);
 
 			/**
 			 * Get the command name.
 			 */
-			const std::string &GetName() const { return name; }
+			const std::string& GetName() const { return name; }
 
 			/**
 			 * Get the number of arguments.
@@ -54,7 +54,7 @@ namespace spades {
 			 * Get the argument at the specified index `i`. `i` must be in
 			 * range `[0, GetNumArguments() - 1]`.
 			 */
-			const std::string &GetArgument(std::size_t i) const { return args.at(i); }
+			const std::string& GetArgument(std::size_t i) const { return args.at(i); }
 
 		private:
 			ConsoleCommand() {}

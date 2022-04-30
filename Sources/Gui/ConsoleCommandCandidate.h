@@ -16,6 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #pragma once
 
 #include <map>
@@ -37,7 +38,7 @@ namespace spades {
 		 * A sequence of `ConsoleCommandCandidate`s. Must be sorted by
 		 * `ConsoleCommandCandidate::name`.
 		 */
-		using ConsoleCommandCandidateIterator = Iterator<const ConsoleCommandCandidate &>;
+		using ConsoleCommandCandidateIterator = Iterator<const ConsoleCommandCandidate&>;
 
 		/**
 		 * Construct a `ConsoleCommandCandidateIterator` from the specified
@@ -46,7 +47,7 @@ namespace spades {
 		 * The map should remain unmodified and outlive the returned iterator.
 		 */
 		Handle<ConsoleCommandCandidateIterator>
-		MakeCandidates(const std::map<std::string, std::string> &, const std::string &query);
+		MakeCandidates(const std::map<std::string, std::string>&, const std::string& query);
 
 		Handle<ConsoleCommandCandidateIterator>
 		MergeCandidates(Handle<ConsoleCommandCandidateIterator> first,

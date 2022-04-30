@@ -16,6 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include <Core/Debug.h>
 
 #include "ConsoleCommand.h"
@@ -24,7 +25,7 @@
 
 namespace spades {
 	namespace gui {
-		ConsoleHelper::ConsoleHelper(ConsoleScreen *scr) {
+		ConsoleHelper::ConsoleHelper(ConsoleScreen* scr) {
 			SPADES_MARK_FUNCTION();
 
 			parentWeak = scr;
@@ -40,34 +41,30 @@ namespace spades {
 
 		Handle<ConsoleScreen> ConsoleHelper::GetParent() { return {parentWeak, true}; }
 
-		void ConsoleHelper::ExecCommand(const std::string &text) {
+		void ConsoleHelper::ExecCommand(const std::string& text) {
 			SPADES_MARK_FUNCTION();
 
 			auto parent = GetParent();
-			if (!parent) {
+			if (!parent)
 				return;
-			}
 
 			SPLog("Command: %s", text.c_str());
 			try {
 				auto const command = ConsoleCommand::Parse(text);
-
-				if (!parent->ExecCommand(command)) {
+				if (!parent->ExecCommand(command))
 					SPLog("Unknown command: '%s'", command->GetName().c_str());
-				}
-			} catch (const std::exception &e) {
+			} catch (const std::exception& e) {
 				SPLog("An exception was thrown while executing a console command: %s", e.what());
 			}
 		}
 
-		ConsoleCommandCandidateIterator *
-		ConsoleHelper::AutocompleteCommandName(const std::string &name) {
+		ConsoleCommandCandidateIterator*
+		ConsoleHelper::AutocompleteCommandName(const std::string& name) {
 			SPADES_MARK_FUNCTION();
 
 			auto parent = GetParent();
-			if (!parent) {
-				return new EmptyIterator<const ConsoleCommandCandidate &>();
-			}
+			if (!parent)
+				return new EmptyIterator<const ConsoleCommandCandidate&>();
 
 			return parent->AutocompleteCommandName(name).Unmanage();
 		}

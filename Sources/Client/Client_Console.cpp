@@ -16,6 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include "Client.h"
 
 #include <Gui/ConsoleCommand.h>
@@ -24,9 +25,11 @@ namespace spades {
 	namespace client {
 		namespace {
 			constexpr const char* CMD_SAVEMAP = "savemap";
+			constexpr const char* CMD_SETBLOCKCOLOR = "setblockcolor";
 
 			std::map<std::string, std::string> const g_clientCommands{
 			  {CMD_SAVEMAP, ": Save the current state of the map to the disk"},
+			  {CMD_SETBLOCKCOLOR, ": Set the block color (all values 0-255)"},
 			};
 		} // namespace
 
@@ -37,6 +40,18 @@ namespace spades {
 					return true;
 				}
 				TakeMapShot();
+				return true;
+			} else if (cmd->GetName() == CMD_SETBLOCKCOLOR) {
+				if (cmd->GetNumArguments() == 3) {
+					int r = atoi(cmd->GetArgument(0).c_str());
+					int g = atoi(cmd->GetArgument(1).c_str());
+					int b = atoi(cmd->GetArgument(2).c_str());
+					SetBlockColor(MakeIntVector3(r, g, b));
+				} else {
+					SPLog("Invalid number of arguments (Maybe you meant something "
+					      "like 'varname \"value1 value2 value3\"'?)");
+					return true;
+				}
 				return true;
 			} else {
 				return false;

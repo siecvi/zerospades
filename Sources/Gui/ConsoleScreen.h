@@ -16,6 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #pragma once
 
 #include "View.h"
@@ -36,15 +37,16 @@ namespace spades {
 		 */
 		class ConsoleScreen : public View {
 			friend class ConsoleHelper;
+
 		public:
 			ConsoleScreen(Handle<client::IRenderer>, Handle<client::IAudioDevice>,
 			              Handle<client::FontManager>, Handle<View>);
 
 			// Implements `View`
 			void MouseEvent(float x, float y) override;
-			void KeyEvent(const std::string &, bool down) override;
-			void TextInputEvent(const std::string &) override;
-			void TextEditingEvent(const std::string &, int start, int len) override;
+			void KeyEvent(const std::string&, bool down) override;
+			void TextInputEvent(const std::string&) override;
+			void TextEditingEvent(const std::string&, int start, int len) override;
 			bool AcceptsTextInput() override;
 			AABB2 GetTextInputRect() override;
 			void WheelEvent(float x, float y) override;
@@ -53,9 +55,9 @@ namespace spades {
 			void RunFrameLate(float dt) override;
 			void Closing() override;
 			bool WantsToBeClosed() override;
-			bool ExecCommand(const Handle<ConsoleCommand> &) override;
+			bool ExecCommand(const Handle<ConsoleCommand>&) override;
 			Handle<ConsoleCommandCandidateIterator>
-			AutocompleteCommandName(const std::string &name) override;
+			AutocompleteCommandName(const std::string& name) override;
 
 		private:
 			~ConsoleScreen();
@@ -69,7 +71,7 @@ namespace spades {
 			Handle<asIScriptObject> ui;
 			bool ShouldInterceptInput();
 			void ToggleConsole();
-			void AddLine(const std::string &);
+			void AddLine(const std::string&);
 
 			/** Dump all available commands to `SPLog`. */
 			void DumpAllCommands();

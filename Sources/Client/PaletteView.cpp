@@ -28,8 +28,6 @@
 #include "Player.h"
 #include "World.h"
 
-#define P_SIZE 16
-
 DEFINE_SPADES_SETTING(cg_keyPaletteLeft, "Left");
 DEFINE_SPADES_SETTING(cg_keyPaletteRight, "Right");
 DEFINE_SPADES_SETTING(cg_keyPaletteUp, "Up");
@@ -53,13 +51,13 @@ namespace spades {
 			};
 
 			auto def = MakeIntVector3(256);
-			for (int i = 0; i < P_SIZE; i++) {
-				for (int j = 1; j < P_SIZE; j += 2)
-					colors.push_back(SanitizeCol(((cols[i] * j) / P_SIZE) - 1));
+			for (int i = 0; i < PALETTE_SIZE; i++) {
+				for (int j = 1; j < PALETTE_SIZE; j += 2)
+					colors.push_back(SanitizeCol(((cols[i] * j) / PALETTE_SIZE) - 1));
 
 				auto rem = def - cols[i];
-				for (int j = 1; j < P_SIZE; j += 2)
-					colors.push_back((cols[i] + ((rem * j) / P_SIZE) - 1));
+				for (int j = 1; j < PALETTE_SIZE; j += 2)
+					colors.push_back((cols[i] + ((rem * j) / PALETTE_SIZE) - 1));
 			}
 
 			defaultColor = 3;
@@ -124,18 +122,18 @@ namespace spades {
 				return true;
 			} else if (EqualsIgnoringCase(name, cg_keyPaletteUp)) {
 				int c = GetSelectedOrDefaultIndex();
-				if (c < P_SIZE)
-					c += (int)colors.size() - P_SIZE;
+				if (c < PALETTE_SIZE)
+					c += (int)colors.size() - PALETTE_SIZE;
 				else
-					c -= P_SIZE;
+					c -= PALETTE_SIZE;
 				SetSelectedIndex(c);
 				return true;
 			} else if (EqualsIgnoringCase(name, cg_keyPaletteDown)) {
 				int c = GetSelectedOrDefaultIndex();
-				if (c >= (int)colors.size() - P_SIZE)
-					c -= (int)colors.size() - P_SIZE;
+				if (c >= (int)colors.size() - PALETTE_SIZE)
+					c -= (int)colors.size() - PALETTE_SIZE;
 				else
-					c += P_SIZE;
+					c += PALETTE_SIZE;
 				SetSelectedIndex(c);
 				return true;
 			} else {
@@ -159,8 +157,8 @@ namespace spades {
 					if ((sel == i) != (phase == 1))
 						continue;
 
-					int row = static_cast<int>(i / P_SIZE);
-					int col = static_cast<int>(i % P_SIZE);
+					int row = static_cast<int>(i / PALETTE_SIZE);
+					int col = static_cast<int>(i % PALETTE_SIZE);
 
 					float x = sw - 132.0F + 8.0F * col;
 					float y = sh - 146.0F + 8.0F * row - 40.0F;
@@ -169,8 +167,8 @@ namespace spades {
 					renderer.DrawFilledRect(x, y, x + 6, y + 6);
 
 					if (sel == i) {
-						float c = float((int(w->GetTime() * 4.0F)) & 1);
-						renderer.SetColorAlphaPremultiplied(MakeVector4(c, c, c, 1.0F));
+						float p = float((int(w->GetTime() * 4.0F)) & 1);
+						renderer.SetColorAlphaPremultiplied(MakeVector4(p, p, p, 1));
 						renderer.DrawOutlinedRect(x - 1, y - 1, x + 7, y + 7);
 					}
 				}

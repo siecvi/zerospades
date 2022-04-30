@@ -16,6 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include "ConfigConsoleResponder.h"
 
 #include <Core/Debug.h>

@@ -24,6 +24,8 @@
 
 #include <Core/Math.h>
 
+#define PALETTE_SIZE 16
+
 namespace spades {
 	namespace client {
 		class Client;

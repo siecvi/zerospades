@@ -312,6 +312,7 @@ namespace spades {
 			bool inGameLimbo;
 
 			float GetLocalFireVibration();
+			void SetBlockColor(IntVector3 color);
 			void CaptureColor();
 			bool IsLimboViewActive();
 			void SpawnPressed();

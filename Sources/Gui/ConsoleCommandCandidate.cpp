@@ -16,6 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include <utility>
 
 #include <Core/Debug.h>
@@ -43,7 +44,7 @@ namespace spades {
 				      chooseSecond{false},
 				      initial{true} {}
 
-				const ConsoleCommandCandidate &GetCurrent() override {
+				const ConsoleCommandCandidate& GetCurrent() override {
 					SPADES_MARK_FUNCTION_DEBUG();
 
 					return chooseSecond ? second->GetCurrent() : first->GetCurrent();
@@ -90,39 +91,36 @@ namespace spades {
 
 		namespace {
 			/** Equivalent to `std::string::starts_with` (since C++20) */
-			bool StartsWith(const std::string &subject, const std::string &prefix) {
+			bool StartsWith(const std::string& subject, const std::string& prefix) {
 				// FIXME: Code duplicate (see `ConfigConsoleResponder.cpp`)
-				if (subject.size() < prefix.size()) {
+				if (subject.size() < prefix.size())
 					return false;
-				}
 				for (std::size_t i = 0; i < prefix.size(); ++i) {
-					if (subject[i] != prefix[i]) {
+					if (subject[i] != prefix[i])
 						return false;
-					}
 				}
 				return true;
 			}
 
 			class MapIterator : public ConsoleCommandCandidateIterator {
-				const std::map<std::string, std::string> &items;
+				const std::map<std::string, std::string>& items;
 				std::string query;
 				std::map<std::string, std::string>::const_iterator it;
 				ConsoleCommandCandidate current;
 
 			public:
-				MapIterator(const std::map<std::string, std::string> &items,
-				            const std::string &query)
+				MapIterator(const std::map<std::string, std::string>& items,
+				            const std::string& query)
 				    : items{items}, query{query} {
 					// Find the starting position
 					it = items.lower_bound(query);
 				}
 
-				const ConsoleCommandCandidate &GetCurrent() override { return current; }
+				const ConsoleCommandCandidate& GetCurrent() override { return current; }
 
 				bool MoveNext() override {
-					if (it == items.end() || !StartsWith(it->first, query)) {
+					if (it == items.end() || !StartsWith(it->first, query))
 						return false;
-					}
 
 					// Create `ConsoleCommandCandidate` for the current item
 					current.name = it->first;
@@ -135,7 +133,7 @@ namespace spades {
 		} // namespace
 
 		Handle<ConsoleCommandCandidateIterator>
-		MakeCandidates(const std::map<std::string, std::string> &items, const std::string &query) {
+		MakeCandidates(const std::map<std::string, std::string>& items, const std::string& query) {
 			return Handle<MapIterator>::New(items, query).Cast<ConsoleCommandCandidateIterator>();
 		}
 	} // namespace gui

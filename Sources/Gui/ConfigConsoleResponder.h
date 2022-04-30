@@ -16,6 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #pragma once
 
 #include <Core/RefCountedObject.h>
@@ -30,10 +31,10 @@ namespace spades {
 		/** Responds to console commands for accessing config variables. */
 		class ConfigConsoleResponder {
 		public:
-			static bool ExecCommand(const Handle<ConsoleCommand> &);
+			static bool ExecCommand(const Handle<ConsoleCommand>&);
 
 			static Handle<ConsoleCommandCandidateIterator>
-			AutocompleteCommandName(const std::string &name);
+			AutocompleteCommandName(const std::string& name);
 		};
 	} // namespace gui
 } // namespace spades

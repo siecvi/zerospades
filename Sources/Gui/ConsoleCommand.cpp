@@ -16,6 +16,7 @@
  You should have received a copy of the GNU General Public License
  along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include <Core/Debug.h>
 #include <Core/Exception.h>
 #include <Core/Math.h>
@@ -24,7 +25,7 @@
 
 namespace spades {
 	namespace gui {
-		Handle<ConsoleCommand> ConsoleCommand::Parse(const std::string &textRaw) {
+		Handle<ConsoleCommand> ConsoleCommand::Parse(const std::string& textRaw) {
 			SPADES_MARK_FUNCTION();
 
 			Handle<ConsoleCommand> cmd{new ConsoleCommand(), false};
