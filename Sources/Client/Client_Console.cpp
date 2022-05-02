@@ -43,9 +43,9 @@ namespace spades {
 				return true;
 			} else if (cmd->GetName() == CMD_SETBLOCKCOLOR) {
 				if (cmd->GetNumArguments() == 3) {
-					int r = atoi(cmd->GetArgument(0).c_str());
-					int g = atoi(cmd->GetArgument(1).c_str());
-					int b = atoi(cmd->GetArgument(2).c_str());
+					int r = std::stoi(cmd->GetArgument(0));
+					int g = std::stoi(cmd->GetArgument(1));
+					int b = std::stoi(cmd->GetArgument(2));
 					SetBlockColor(MakeIntVector3(r, g, b));
 				} else {
 					SPLog("Invalid number of arguments (Maybe you meant something "
