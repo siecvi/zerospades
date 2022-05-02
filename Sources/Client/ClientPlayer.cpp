@@ -477,13 +477,12 @@ namespace spades {
 
 				// Offset the view weapon according to the camera movement
 				Vector3 diff = front - lastFront;
-				viewWeaponOffset.x += Vector3::Dot(diff, right) - viewWeaponOffset.x;
-				viewWeaponOffset.z += Vector3::Dot(diff, up) - viewWeaponOffset.z;
-				float sq = diff.GetLength();
-				if (sq > 0.1F)
-					lastFront += diff.Normalize() * (sq - 0.1F);
-				lastFront = Mix(lastFront, front, 1.0F - powf(1.0E-6F, dt));
-				lastFront = lastFront.Normalize();
+				viewWeaponOffset.x += Vector3::Dot(diff, right);
+				viewWeaponOffset.z += Vector3::Dot(diff, up);
+				lastFront = front;
+
+				if (dt > 0.0F)
+					viewWeaponOffset *= powf(1.0E-6F, dt);
 			}
 
 			if (player.IsLocalPlayer()) {
