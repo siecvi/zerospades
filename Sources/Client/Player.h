@@ -177,11 +177,6 @@ namespace spades {
 			void Restock();
 			void GotBlock();
 
-			bool IsScoped() { return tool == ToolWeapon && weapInput.secondary; }
-			bool IsWalking() {
-				return input.moveForward || input.moveBackward || input.moveLeft || input.moveRight;
-			}
-
 			bool IsToolSpade() { return tool == ToolSpade; }
 			bool IsToolBlock() { return tool == ToolBlock; }
 			bool IsToolWeapon() { return tool == ToolWeapon; }
@@ -191,6 +186,9 @@ namespace spades {
 			bool IsWeaponRifle() { return weaponType == RIFLE_WEAPON; }
 			bool IsWeaponSMG() { return weaponType == SMG_WEAPON; }
 			bool IsWeaponShotgun() { return weaponType == SHOTGUN_WEAPON; }
+
+			bool IsScoped() { return tool == ToolWeapon && weapInput.secondary; }
+			bool IsWalking() { return input.moveForward || input.moveBackward || input.moveLeft || input.moveRight; }
 
 			bool IsAwaitingReloadCompletion() { return reloadingServerSide; }
 
@@ -251,9 +249,6 @@ namespace spades {
 
 			// hit tests
 			HitBoxes GetHitBoxes();
-			AABB3 GetBox() const {
-				return AABB3(-0.45F, -0.45F, -0.45F, 0.9F, 0.9F, input.crouch ? 1.8F : 2.7F);
-			}
 
 			/** Does approximated ray casting.
 			 * @param dir normalized direction vector.

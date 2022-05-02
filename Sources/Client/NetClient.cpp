@@ -1037,8 +1037,8 @@ namespace spades {
 					}
 
 					if (p) {
-						p->UseBlocks(static_cast<int>(cells.size()));
 						client->PlayerCreatedBlock(*p);
+						p->UseBlocks(static_cast<int>(cells.size()));
 					}
 				} break;
 				case PacketTypeStateData:

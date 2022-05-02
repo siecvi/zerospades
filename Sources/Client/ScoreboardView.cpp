@@ -219,10 +219,8 @@ namespace spades {
 			float rowHeight = 24.0F;
 			char buf[256];
 			Vector2 size;
-			int maxRows = (int)floorf(height / rowHeight);
+			
 			int numPlayers = 0;
-			int cols;
-
 			std::vector<ScoreboardEntry> entries;
 			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
 				auto maybePlayer = world->GetPlayer(i);
@@ -238,15 +236,13 @@ namespace spades {
 				ent.alive = player.IsAlive();
 				ent.id = i;
 				entries.push_back(ent);
-
 				numPlayers++;
 			}
 
 			std::sort(entries.begin(), entries.end());
 
-			cols = (numPlayers + maxRows - 1) / maxRows;
-			if (cols == 0)
-				cols = 1;
+			int maxRows = (int)floorf(height / rowHeight);
+			int cols = std::max(1, (numPlayers + maxRows - 1) / maxRows);
 			maxRows = (numPlayers + cols - 1) / cols;
 
 			int row = 0, col = 0;
@@ -263,7 +259,7 @@ namespace spades {
 
 				if (cg_minimapPlayerColor) {
 					IntVector3 colorplayer = MakeIntVector3(palette[ent.id][0], palette[ent.id][1], palette[ent.id][2]);
-					Vector4 colorplayerF = ModifyColor(colorplayer) * 1.0F;
+					Vector4 colorplayerF = ModifyColor(colorplayer);
 					font.Draw(buf, MakeVector2(colX + 35.0F - size.x, rowY), 1.0F, colorplayerF);
 				} else {
 					font.Draw(buf, MakeVector2(colX + 35.0F - size.x, rowY), 1.0F, white);
@@ -303,12 +299,12 @@ namespace spades {
 		void ScoreboardView::DrawSpectators(float top, float centerX) const {
 			IFont& font = client->fontManager->GetGuiFont();
 			char buf[256];
-			std::vector<ScoreboardEntry> entries;
-
+			
 			static const auto xPixelSpectatorOffset = 20.0F;
+			float totalPixelWidth = 0;
 
 			int numSpectators = 0;
-			float totalPixelWidth = 0;
+			std::vector<ScoreboardEntry> entries;
 			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
 				auto maybePlayer = world->GetPlayer(i);
 				if (!maybePlayer)

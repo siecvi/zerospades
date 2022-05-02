@@ -97,8 +97,6 @@ namespace spades {
 					continue;
 				if (!p->IsAlive() || p->IsSpectator())
 					continue;
-				if (!p->RayCastApprox(def.viewOrigin, def.viewAxis[2]))
-					continue;
 
 				auto vc = toViewCoord(p->GetEye());
 				if (vc.GetPoweredLength() > 130.0F * 130.0F)
@@ -106,31 +104,29 @@ namespace spades {
 				if (vc.z <= 0.0F)
 					continue;
 
-				vc.z = std::max(vc.z, 0.001F);
+				vc.z = std::max(vc.z, 0.1F);
 
 				const float bodySize = 3.5F;
-				if (fabsf(vc.x) > bodySize + 2.5F || fabsf(vc.y) > bodySize + 2.5F)
+				Vector2 view = MakeVector2(vc.x, vc.y);
+				if (view.GetManhattanLength() > bodySize + 2.5F)
 					continue;
 
-				float prange = std::max(fabsf(vc.x), fabsf(vc.y)) + bodySize;
-				prange = atanf(prange / vc.z) * 2.0F;
-				range = std::max(range, prange);
+				float prange = view.GetChebyshevLength() + bodySize;
+				range = std::max(range, 2.0F * atanf(prange / vc.z));
 			}
 
 			// fit FoV to include all bullets
 			for (const auto& v : bullets) {
 				auto vc = toViewCoord(v + def.viewOrigin);
 				float prange = std::max(fabsf(vc.x), fabsf(vc.y)) * 1.5F;
-				prange = atanf(prange / vc.z) * 2.0F;
-				range = std::max(range, prange);
+				range = std::max(range, 2.0F * atanf(prange / vc.z));
 			}
 
 			def.fovX = def.fovY = range;
 
-			def.skipWorld = false;
-
 			def.zNear = 0.05F;
 			def.zFar = 200.0F;
+			def.skipWorld = false;
 
 			// start rendering
 			const Handle<GameMap>& map = world->GetMap();
@@ -174,14 +170,14 @@ namespace spades {
 				SPADES_MARK_FUNCTION();
 
 				switch (count) {
-					case 0: return Vector4(0.5F, 0.5F, 0.5F, 1.0F);
-					case 1: return Vector4(1.0F, 0.0F, 0.0F, 1.0F);
-					case 2: return Vector4(1.0F, 1.0F, 0.0F, 1.0F);
-					case 3: return Vector4(0.0F, 1.0F, 0.0F, 1.0F);
-					case 4: return Vector4(0.0F, 1.0F, 1.0F, 1.0F);
-					case 5: return Vector4(0.0F, 0.0F, 1.0F, 1.0F);
-					case 6: return Vector4(1.0F, 0.0F, 1.0F, 1.0F);
-					default: return Vector4(1.0F, 1.0F, 1.0F, 1.0F);
+					case 0: return Vector4(0.5, 0.5, 0.5, 1);
+					case 1: return Vector4(1, 0, 0, 1);
+					case 2: return Vector4(1, 1, 0, 1);
+					case 3: return Vector4(0, 1, 0, 1);
+					case 4: return Vector4(0, 1, 1, 1);
+					case 5: return Vector4(0, 0, 1, 1);
+					case 6: return Vector4(1, 0, 1, 1);
+					default: return Vector4(1, 1, 1, 1);
 				}
 			};
 
@@ -194,7 +190,7 @@ namespace spades {
 
 				if (!p->RayCastApprox(def.viewOrigin, def.viewAxis[2]))
 					continue;
-				if ((p->GetEye() - def.viewOrigin).GetPoweredLength() > 130.0F * 130.0F)
+				if ((int)(p->GetEye() - def.viewOrigin).GetLength2D() > FOG_DISTANCE)
 					continue;
 
 				auto hitboxes = p->GetHitBoxes();
@@ -228,7 +224,7 @@ namespace spades {
 				// draw crosshair
 				{
 					float thickness = 1; // (1 for single-pixel hairline)
-					renderer->SetColorAlphaPremultiplied(Vector4(1.0F, 0.0F, 0.0F, 0.9F));
+					renderer->SetColorAlphaPremultiplied(Vector4(1, 0, 0, 0.9F));
 					renderer->DrawImage(nullptr, AABB2(0, size * 0.5F, size, thickness));
 					renderer->DrawImage(nullptr, AABB2(size * 0.5F, 0, thickness, size));
 				}
@@ -241,9 +237,9 @@ namespace spades {
 						vc /= vc.z * fov;
 						float x = floorf(size * (0.5F + 0.5F * vc.x));
 						float y = floorf(size * (0.5F - 0.5F * vc.y));
-						renderer->SetColorAlphaPremultiplied(Vector4(1.0F, 0.6F, 0.2F, 0.9F));
+						renderer->SetColorAlphaPremultiplied(Vector4(1, 0.6F, 0.2F, 0.9F));
 						renderer->DrawImage(nullptr, AABB2(x - 1.0F, y - 1.0F, 3.0F, 3.0F));
-						renderer->SetColorAlphaPremultiplied(Vector4(1.0F, 1.0F, 0.0F, 0.9F));
+						renderer->SetColorAlphaPremultiplied(Vector4(1, 1, 0, 0.9F));
 						renderer->DrawImage(nullptr, AABB2(x, y, 1.0F, 1.0F));
 					}
 				}

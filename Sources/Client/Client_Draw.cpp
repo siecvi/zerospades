@@ -304,7 +304,7 @@ namespace spades {
 
 			if (!map->CanSee(p.GetEye(), origin, FOG_DISTANCE))
 				playerColor = ModifyColor(p.GetColor());
-			if (int((origin - p.GetEye()).GetLength2D()) > FOG_DISTANCE)
+			if ((int)((p.GetEye() - origin).GetLength2D()) > FOG_DISTANCE)
 				playerColor = MakeVector4(1, 0.75, 0, 1);
 
 			return playerColor;
@@ -327,7 +327,7 @@ namespace spades {
 				sprintf(buf, "%s", playerNameStr.c_str());
 				if (cg_playerNames == 1) {
 					Vector3 diff = (origin - lastSceneDef.viewOrigin);
-					if (diff.GetLength2D() <= FOG_DISTANCE)
+					if ((int)diff.GetLength2D() <= FOG_DISTANCE)
 						sprintf(buf, "%s [%.1f]", playerNameStr.c_str(), diff.GetLength());
 				}
 
@@ -766,7 +766,7 @@ namespace spades {
 			y += 10.0F;
 
 			if (GetWorld()->GetLocalPlayer()->IsSpectator() && !inGameLimbo)
-				addLine(_Tr("Client", "[{0}] Choose a Team/Weapon", TrKey(cg_keyLimbo)));
+				addLine(_Tr("Client", "[{0}] Select a Team/Weapon", TrKey(cg_keyLimbo)));
 		}
 
 		void Client::DrawAlert() {

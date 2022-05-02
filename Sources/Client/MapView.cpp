@@ -441,12 +441,13 @@ namespace spades {
 						case SHOTGUN_WEAPON:
 							playerIcon = renderer.RegisterImage("Gfx/Map/Shotgun.png");
 							break;
-						default: playerIcon = renderer.RegisterImage("Gfx/Map/Player.png"); break;
+						default:
+							playerIcon = renderer.RegisterImage("Gfx/Map/Player.png");
+							break;
 					}
 				}
 
-				IntVector3 iconColor =
-				  cg_minimapPlayerColor
+				IntVector3 iconColor = cg_minimapPlayerColor
 				    ? MakeIntVector3(palette[i][0], palette[i][1], palette[i][2])
 				    : p.GetColor();
 				Vector4 iconColorF = ModifyColor(iconColor) * alpha;

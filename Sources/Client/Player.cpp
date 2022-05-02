@@ -687,12 +687,8 @@ namespace spades {
 
 			auto* listener = world.GetListener();
 
-			Vector3 const muzzle = GetEye() + GetFront() * 0.1F;
-			Vector3 const vel
-				= IsAlive()
-				? GetFront() * 1.0F
-				+ GetVelocity()
-				: Vector3(0, 0, 0);
+			Vector3 const muzzle = GetEye() + (GetFront() * 0.1F);
+			Vector3 const vel = IsAlive() ? (GetFront() + GetVelocity()) : Vector3(0, 0, 0);
 
 			float const fuse = 3.0F - GetGrenadeCookTime();
 
@@ -733,23 +729,21 @@ namespace spades {
 				Player& other = maybeOther.value();
 				if (!other.IsAlive() || other.IsSpectator())
 					continue;
-				if (!other.RayCastApprox(muzzle, dir))
-					continue;
-				if ((muzzle - other.GetEye()).GetLength() > MELEE_DISTANCE)
-					continue;
 
 				Vector3 diff = other.GetEye() - muzzle;
-
-				Vector3 view;
-				view.x = Vector3::Dot(diff, GetRight());
-				view.y = Vector3::Dot(diff, GetUp());
-				view.z = Vector3::Dot(diff, GetFront());
-
-				if (view.z < 0.0F)
+				if (diff.GetLength() > MELEE_DISTANCE)
 					continue;
 
-				auto vc = MakeVector2(view.x, view.y) / view.z;
-				if (vc.GetChebyshevLength() < HIT_TOLERANCE) {
+				Vector3 vc;
+				vc.x = Vector3::Dot(diff, GetRight());
+				vc.y = Vector3::Dot(diff, GetUp());
+				vc.z = Vector3::Dot(diff, GetFront());
+
+				if (vc.z <= 0.0F)
+					continue;
+
+				Vector2 view = MakeVector2(vc.x, vc.y) / vc.z;
+				if (view.GetChebyshevLength() < HIT_TOLERANCE) {
 					hitPlayer = other;
 					break;
 				}
@@ -782,8 +776,8 @@ namespace spades {
 					}
 
 					if (listener)
-						listener->PlayerHitBlockWithSpade(*this, mapResult.hitPos, outBlockPos,
-						                                  mapResult.normal);
+						listener->PlayerHitBlockWithSpade(*this,
+							mapResult.hitPos, outBlockPos, mapResult.normal);
 				}
 			} else if (hitPlayer && listener && !dig) {
 				// The custom state data, optionally set by `BulletHitPlayer`'s implementation
