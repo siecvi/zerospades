@@ -37,7 +37,7 @@ std::string VersionInfo::GetVersionInfo() {
 	if (IsWindowsServer())
 		windowsVersion += " Server";
 
-	return windowsVersion + " | ZeroSpades 0.0.5";
+	return windowsVersion + " | ZeroSpades 0.0.5 " GIT_COMMIT_HASH;
 #elif defined(__FreeBSD__)
 	return std::string("FreeBSD");
 	#elif defined(__DragonFly__)

@@ -48,6 +48,17 @@ set_target_properties(OpenSpades PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BIN
 
 set_target_properties(OpenSpades PROPERTIES WIN32_EXECUTABLE TRUE)
 
+set(GIT_COMMIT_HASH "?")
+
+execute_process(
+  COMMAND git log -1 --format=%h
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  OUTPUT_VARIABLE GIT_COMMIT_HASH
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+target_compile_definitions(OpenSpades PRIVATE GIT_COMMIT_HASH="${GIT_COMMIT_HASH}")
+
 if(APPLE OR WIN32)
 	# This value is reflected to the macOS application bundle's name, so use
 	# the correct capitalization.
