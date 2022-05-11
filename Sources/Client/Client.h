@@ -324,11 +324,10 @@ namespace spades {
 			std::vector<DynamicLightParam> flashDlightsOld;
 			void Bleed(Vector3);
 			void EmitBlockFragments(Vector3, IntVector3 color);
-			void EmitBlockDestroyFragments(IntVector3, IntVector3 color);
+			void EmitBlockDestroyFragments(Vector3, IntVector3 color);
 			void GrenadeExplosion(Vector3);
 			void GrenadeExplosionUnderwater(Vector3);
 			void MuzzleFire(Vector3, Vector3 dir);
-			void BulletHitWaterSurface(Vector3);
 
 			// drawings
 			Handle<FontManager> fontManager;
@@ -358,7 +357,7 @@ namespace spades {
 			int nextMapShotIndex;
 
 			/** Project the specified world-space position to a screen space. */
-			bool Project(Vector3, Vector3&);
+			bool Project(const Vector3&, Vector3&);
 
 			/** Recalculate `lastViewProjectionScreenMatrix` based on the current value of
 			 * `lastSceneDef`. */
@@ -410,11 +409,10 @@ namespace spades {
 			void DrawPlayingTime();
 			void DrawHurtScreenEffect();
 			void DrawHurtSprites();
-			void DrawHealth(float x, float y, float w, float h);
 			void DrawAlert();
 			void DrawDebugAim();
 			void DrawStats();
-			void DrawHitTestDebugger(float x, float y, float w, float h);
+			void DrawHitTestDebugger();
 			void DrawPlayerStats();
 
 			void UpdateDamageIndicators(float dt);
@@ -485,6 +483,7 @@ namespace spades {
 			void TeamWon(int);
 			void JoinedGame();
 			void LocalPlayerCreated();
+			void PlayerDestroyedBlock(IntVector3);
 			void PlayerDestroyedBlockWithWeaponOrTool(IntVector3);
 			void PlayerDiggedBlock(IntVector3);
 			void GrenadeDestroyedBlock(IntVector3);

@@ -32,21 +32,7 @@
 		Vector3 TeamColor { set { teamColor = value; } }
 		bool IsMuted { set {} } // nothing to do
 		Matrix4 OriginMatrix { set { originMatrix = value; } }
-
-		float PitchBias {
-			get {
-				float pitch = 0.0F;
-				if (actionType == spades::SpadeActionType::Bash) {
-					@model = @pickaxeModel;
-					pitch -= (1.0F - actionProgress);
-				} else if (actionType == spades::SpadeActionType::DigStart or actionType == spades::SpadeActionType::Dig) {
-					@model = @spadeModel;
-					pitch -= actionProgress;
-				}
-				return pitch;
-			}
-		}
-
+		float PitchBias { get { return 0.0F; } }
 		SpadeActionType ActionType { set { actionType = value; } }
 		float ActionProgress { set { actionProgress = value; } }
 

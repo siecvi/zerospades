@@ -97,29 +97,20 @@ namespace spades {
         spades::ui::UIElement@ get_ActiveUI() { return activeUI; }
 
 		void EnterClientMenu() { @ActiveUI = clientMenu; }
-
 		void EnterTeamChatWindow() {
 			ClientChatWindow wnd(this, true);
 			@ActiveUI = wnd;
 			@manager.ActiveElement = wnd.field;
 		}
-
         void EnterGlobalChatWindow() {
 			ClientChatWindow wnd(this, false);
 			@ActiveUI = wnd;
 			@manager.ActiveElement = wnd.field;
 		}
-        void EnterCommandWindow() {
-            ClientChatWindow wnd(this, true);
-            wnd.field.Text = "/";
-            wnd.field.Select(1, 0);
-            wnd.UpdateState();
-            @ActiveUI = wnd;
-            @manager.ActiveElement = wnd.field;
-        }
         void CloseUI() { @ActiveUI = null; }
-
-        void RecordChatLog(string text, Vector4 color) { chatLogWindow.Record(text, color); }
+        void RecordChatLog(string text, Vector4 color) { 
+			chatLogWindow.Record(text, color); 
+		}
     }
 
     ClientUI@ CreateClientUI(Renderer@ renderer, AudioDevice@ audioDevice, FontManager@ fontManager, ClientUIHelper@ helper) {

@@ -51,7 +51,7 @@ namespace spades {
 			for (int y = 0; y < DefaultHeight; y++) {
 				solidMap[x][y] = 1; // ground only
 				for (int z = 0; z < DefaultDepth; z++) {
-					auto col = GetDirtColor(x, y, z);
+					uint32_t col = GetDirtColor(x, y, z);
 					colorMap[x][y][z] = swapColor(col);
 				}
 			}

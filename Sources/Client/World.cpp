@@ -260,7 +260,8 @@ namespace spades {
 		void World::DestroyBlock(std::vector<spades::IntVector3>& pos) {
 			bool allowToDestroy = (pos.size() == 1);
 			for (const auto& p : pos) {
-				if (!map->IsValidMapCoord(p.x, p.y, p.z) || p.z >= (allowToDestroy ? 63 : 62))
+				if (!map->IsValidMapCoord(p.x, p.y, p.z)
+					|| p.z >= (allowToDestroy ? 63 : 62))
 					continue;
 
 				CellPos cellp(p.x, p.y, p.z);
@@ -389,6 +390,7 @@ namespace spades {
 						hitFlag |= hit_Head;
 					}
 				}
+
 				if (hb.torso.RayCast(startPos, dir, &hitPos)) {
 					float const dist = (hitPos - startPos).GetLength();
 					if (!hitPlayer || dist < hitPlayerDist3D) {
@@ -401,6 +403,7 @@ namespace spades {
 						hitFlag |= hit_Torso;
 					}
 				}
+
 				for (int j = 0; j < 3; j++) {
 					if (hb.limbs[j].RayCast(startPos, dir, &hitPos)) {
 						float const dist = (hitPos - startPos).GetLength();

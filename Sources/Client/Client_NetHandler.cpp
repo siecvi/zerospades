@@ -30,15 +30,16 @@
 #include "IAudioDevice.h"
 
 #include "CTFGameMode.h"
-#include "GameMap.h"
 #include "GameProperties.h"
 #include "IGameMode.h"
 #include "TCGameMode.h"
-#include "World.h"
 
 #include "CenterMessageView.h"
 #include "ChatWindow.h"
 #include "ClientUI.h"
+
+#include "GameMap.h"
+#include "World.h"
 
 #include "NetClient.h"
 
@@ -206,25 +207,29 @@ namespace spades {
 			}
 		}
 
+		void Client::PlayerDestroyedBlock(spades::IntVector3 pos) {
+			Vector3 origin = MakeVector3(pos) + 0.5F;
+
+			Handle<IAudioChunk> c =
+				audioDevice->RegisterSound("Sounds/Misc/BlockDestroy.opus");
+			if (!IsMuted())
+				audioDevice->Play(c.GetPointerOrNull(), origin, AudioParam());
+
+			uint32_t col = map->GetColor(pos.x, pos.y, pos.z);
+			col = map->GetColorJit(col); // jit the colour
+			EmitBlockDestroyFragments(origin, IntVectorFromColor(col));
+		}
+
 		void Client::PlayerDestroyedBlockWithWeaponOrTool(spades::IntVector3 pos) {
 			SPAssert(map);
 
 			if (!map->IsSolid(pos.x, pos.y, pos.z))
 				return;
 
-			Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Misc/BlockDestroy.opus");
-			if (!IsMuted())
-				audioDevice->Play(c.GetPointerOrNull(), MakeVector3(pos) + 0.5F, AudioParam());
-
-			uint32_t col = map->GetColor(pos.x, pos.y, pos.z);
-			EmitBlockDestroyFragments(pos, IntVectorFromColor(col));
+			PlayerDestroyedBlock(pos);
 		}
 
 		void Client::PlayerDiggedBlock(spades::IntVector3 pos) {
-			Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Misc/BlockDestroy.opus");
-			if (!IsMuted())
-				audioDevice->Play(c.GetPointerOrNull(), MakeVector3(pos) + 0.5F, AudioParam());
-
 			SPAssert(map);
 
 			for (int z = pos.z - 1; z <= pos.z + 1; z++) {
@@ -233,8 +238,7 @@ namespace spades {
 				if (!map->IsSolid(pos.x, pos.y, z))
 					continue;
 
-				uint32_t col = map->GetColor(pos.x, pos.y, pos.z);
-				EmitBlockDestroyFragments(MakeIntVector3(pos.x, pos.y, z), IntVectorFromColor(col));
+				PlayerDestroyedBlock(MakeIntVector3(pos.x, pos.y, z));
 			}
 		}
 
@@ -289,18 +293,16 @@ namespace spades {
 		void Client::GrenadeDestroyedBlock(spades::IntVector3 pos) {
 			SPAssert(map);
 
-			int range = 1;
-			for (int x = pos.x - range; x <= pos.x + range; x++)
-			for (int y = pos.y - range; y <= pos.y + range; y++)
-			for (int z = pos.z - range; z <= pos.z + range; z++) {
-				if (z < 0 || z > 61 || x < 0 || x >= map->Width() || y < 0 ||
-					y >= map->Height())
+			for (int x = pos.x - 1; x <= pos.x + 1; x++)
+			for (int y = pos.y - 1; y <= pos.y + 1; y++)
+			for (int z = pos.z - 1; z <= pos.z + 1; z++) {
+				if (z < 0 || z > 61 || x < 0 || x >= map->Width()
+					|| y < 0 || y >= map->Height())
 					continue;
 				if (!map->IsSolid(x, y, z))
 					continue;
 
-				uint32_t col = map->GetColor(pos.x, pos.y, pos.z);
-				EmitBlockDestroyFragments(MakeIntVector3(x, y, z), IntVectorFromColor(col));
+				PlayerDestroyedBlock(MakeIntVector3(x, y, z));
 			}
 		}
 

@@ -28,16 +28,17 @@
 #include "BloodMarks.h"
 #include "CTFGameMode.h"
 #include "Corpse.h"
-#include "GameMap.h"
-#include "Grenade.h"
 #include "IGameMode.h"
 #include "Player.h"
 #include "TCGameMode.h"
-#include "Weapon.h"
-#include "World.h"
 
 #include "ClientPlayer.h"
 #include "ILocalEntity.h"
+
+#include "GameMap.h"
+#include "Grenade.h"
+#include "Weapon.h"
+#include "World.h"
 
 #include "NetClient.h"
 
@@ -174,7 +175,7 @@ namespace spades {
 
 				switch (GetCameraMode()) {
 					case ClientCameraMode::None: SPUnreachable();
-					case ClientCameraMode::NotJoined:
+					case ClientCameraMode::NotJoined: {
 						def.viewOrigin = MakeVector3(256, 256, 4);
 						def.viewAxis[0] = MakeVector3(-1, 0, 0);
 						def.viewAxis[1] = MakeVector3(0, 1, 0);
@@ -191,6 +192,7 @@ namespace spades {
 						def.zNear = 0.05F;
 						def.skipWorld = false;
 						break;
+					}
 					case ClientCameraMode::FirstPersonLocal:
 					case ClientCameraMode::FirstPersonFollow: {
 						Player& p = GetCameraTargetPlayer();
@@ -695,7 +697,7 @@ namespace spades {
 				* lastSceneDef.ToViewMatrix();
 		}
 
-		bool Client::Project(spades::Vector3 v, spades::Vector3& out) {
+		bool Client::Project(const spades::Vector3& v, spades::Vector3& out) {
 			Vector4 screenHomV = lastViewProjectionScreenMatrix * v;
 			if (screenHomV.z <= 0.0F) {
 				screenHomV.w = 0.001F;

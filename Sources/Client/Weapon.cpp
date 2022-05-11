@@ -31,7 +31,7 @@ namespace spades {
 		Weapon::Weapon(World& w, Player& p)
 		    : world(w),
 		      owner(p),
-		      time(0),
+		      time(0.0F),
 		      shooting(false),
 		      shootingPreviously(false),
 		      reloading(false),
@@ -58,12 +58,14 @@ namespace spades {
 		}
 
 		void Weapon::SetShooting(bool b) { shooting = b; }
-
 		void Weapon::SetUnejectedBrass(bool b) { unejectedBrass = b; }
 
+		bool Weapon::IsSelectable() { return ammo > 0 || stock > 0; }
+
 		bool Weapon::IsReadyToShoot() {
-			return (ammo > 0 || !owner.IsLocalPlayer()) && time >= nextShotTime &&
-			       (!reloading || IsReloadSlow());
+			return (ammo > 0 || !owner.IsLocalPlayer())
+				&& time >= nextShotTime
+				&& (!reloading || IsReloadSlow());
 		}
 
 		float Weapon::GetReloadProgress() {

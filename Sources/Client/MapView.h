@@ -60,7 +60,7 @@ namespace spades {
 			void SwitchScale();
 			bool IsZoomed() { return zoomed; }
 			bool ToggleZoom();
-			static std::string MapCoords(int, int);
+			std::string ToGrid(float x, float y);
 
 			void Draw();
 		};

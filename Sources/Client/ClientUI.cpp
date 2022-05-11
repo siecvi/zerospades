@@ -283,17 +283,6 @@ namespace spades {
 			c->SetObject(&*ui);
 			c.ExecuteChecked();
 		}
-		void ClientUI::EnterCommandWindow() {
-			SPADES_MARK_FUNCTION();
-			if (!ui)
-				return;
-
-			ScopedPrivilegeEscalation privilege;
-			static ScriptFunction func("ClientUI", "void EnterCommandWindow()");
-			ScriptContextHandle c = func.Prepare();
-			c->SetObject(&*ui);
-			c.ExecuteChecked();
-		}
 		void ClientUI::CloseUI() {
 			SPADES_MARK_FUNCTION();
 			if (!ui)

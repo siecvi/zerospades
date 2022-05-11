@@ -525,10 +525,6 @@ namespace spades {
 						scriptedUI->SetIgnored(name);
 					} else if (CheckKey(cg_keyZoomChatLog, name)) {
 						chatWindow->SetExpanded(down);
-					} else if (name == "/" && down) {
-						// command
-						scriptedUI->EnterCommandWindow();
-						scriptedUI->SetIgnored(name);
 					} else if (CheckKey(cg_keyCaptureColor, name) && down) {
 						if (!p.IsSpectator() && p.IsAlive() && p.IsToolBlock())
 							CaptureColor();

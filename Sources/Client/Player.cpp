@@ -131,7 +131,7 @@ namespace spades {
 					}
 				}
 			} else if (tool == ToolGrenade) {
-				if (!IsReadyToUseTool())
+				if (!IsReadyToUseTool() && IsLocalPlayer())
 					newInput.primary = false;
 
 				if (newInput.primary != weapInput.primary) {
@@ -153,11 +153,9 @@ namespace spades {
 				if (world.GetTime() - nextBlockTime > GetToolPrimaryDelay())
 					nextBlockTime = world.GetTime();
 
-				if (IsLocalPlayer()) {
-					if (world.GetTime() < nextBlockTime) {
-						newInput.primary = false;
-						newInput.secondary = false;
-					}
+				if (world.GetTime() < nextBlockTime && IsLocalPlayer()) {
+					newInput.primary = false;
+					newInput.secondary = false;
 				}
 
 				if (newInput.primary)
@@ -168,39 +166,31 @@ namespace spades {
 							blockCursorDragging = true;
 							blockCursorDragPos = blockCursorPos;
 						} else {
-							// cannot build; invalid position.
-							if (listener && IsLocalPlayer())
-								listener->LocalPlayerBuildError(
-								  BuildFailureReason::InvalidPosition);
+							if (listener && IsLocalPlayer()) // cannot build; invalid position.
+								listener->LocalPlayerBuildError(BuildFailureReason::InvalidPosition);
 						}
 					} else {
 						if (IsBlockCursorDragging()) {
 							if (IsBlockCursorActive()) {
 								std::vector<IntVector3> blocks =
-								  GetWorld().CubeLine(blockCursorDragPos, blockCursorPos, 64);
+									GetWorld().CubeLine(blockCursorDragPos, blockCursorPos, 64);
 								if ((int)blocks.size() <= blockStocks) {
 									if (listener && IsLocalPlayer())
-										listener->LocalPlayerCreatedLineBlock(blockCursorDragPos,
-										                                      blockCursorPos);
+										listener->LocalPlayerCreatedLineBlock(blockCursorDragPos, blockCursorPos);
 									// blockStocks -= blocks.size(); decrease when created
 								} else {
-									// cannot build; insufficient blocks.
-									if (listener && IsLocalPlayer()) {
-										listener->LocalPlayerBuildError(
-										  BuildFailureReason::InsufficientBlocks);
-									}
+									if (listener && IsLocalPlayer()) // cannot build; insufficient blocks.
+										listener->LocalPlayerBuildError(BuildFailureReason::InsufficientBlocks);
 								}
 								nextBlockTime = world.GetTime() + GetToolSecondaryDelay();
 							} else {
-								// cannot build; invalid position.
-								if (listener && IsLocalPlayer())
-									listener->LocalPlayerBuildError(
-									  BuildFailureReason::InvalidPosition);
+								if (listener && IsLocalPlayer()) // cannot build; invalid position.
+									listener->LocalPlayerBuildError(BuildFailureReason::InvalidPosition);
 							}
 						}
 
-						blockCursorDragging = false;
 						blockCursorActive = false;
+						blockCursorDragging = false;
 					}
 				}
 
@@ -221,14 +211,12 @@ namespace spades {
 							pendingPlaceBlockPos = blockCursorPos;
 						}
 
-						blockCursorDragging = false;
 						blockCursorActive = false;
+						blockCursorDragging = false;
 					} else {
 						if (!lastSingleBlockBuildSeqDone) {
-							// cannot build; invalid position.
-							if (listener && IsLocalPlayer())
-								listener->LocalPlayerBuildError(
-								  BuildFailureReason::InvalidPosition);
+							if (listener && IsLocalPlayer()) // cannot build; invalid position.
+								listener->LocalPlayerBuildError(BuildFailureReason::InvalidPosition);
 						}
 					}
 				}
@@ -270,10 +258,10 @@ namespace spades {
 			if (!IsAlive())
 				return; // dead man cannot restock
 
-			weapon->Restock();
-			grenades = 3;
-			pendingRestockBlock = true;
 			health = 100;
+			grenades = 3;
+			weapon->Restock();
+			pendingRestockBlock = true;
 
 			if (world.GetListener())
 				world.GetListener()->PlayerRestocked(*this);
@@ -390,10 +378,12 @@ namespace spades {
 					}
 				}
 
-				if (res.hit && ((res.hitBlock + res.normal).z < 62) &&
-				    !OverlapsWithBlock(res.hitBlock + res.normal) &&
-				    Collision3D(res.hitBlock + res.normal) &&
-				    (res.hitBlock + res.normal).z >= 0 && !pendingPlaceBlock) {
+				if (res.hit
+					&& (res.hitBlock + res.normal).z < 62
+					&& !OverlapsWithBlock(res.hitBlock + res.normal)
+					&& Collision3D(res.hitBlock + res.normal)
+					&& (res.hitBlock + res.normal).z >= 0
+					&& !pendingPlaceBlock) {
 					// Building is possible, and there's no delayed block placement.
 					blockCursorActive = true;
 					blockCursorPos = res.hitBlock + res.normal;
@@ -406,14 +396,13 @@ namespace spades {
 						// player is no longer airborne, or doesn't have a block to place.
 						pendingPlaceBlock = false;
 						lastSingleBlockBuildSeqDone = true;
-					} else if (!OverlapsWithBlock(pendingPlaceBlockPos) &&
-					           Collision3D(pendingPlaceBlockPos)) {
+					} else if (!OverlapsWithBlock(pendingPlaceBlockPos)
+								&& Collision3D(pendingPlaceBlockPos)) {
 						// now building became possible.
 						SPAssert(IsLocalPlayer());
 
 						if (listener)
-							listener->LocalPlayerBlockAction(pendingPlaceBlockPos,
-							                                 BlockActionCreate);
+							listener->LocalPlayerBlockAction(pendingPlaceBlockPos, BlockActionCreate);
 
 						pendingPlaceBlock = false;
 						lastSingleBlockBuildSeqDone = true;
@@ -425,8 +414,9 @@ namespace spades {
 					// Delayed Block Placement can be activated only
 					// when the only reason making placement impossible
 					// is that block to be placed overlaps with the player's hitbox.
-					canPending = res.hit && ((res.hitBlock + res.normal).z < 62) &&
-					             Collision3D(res.hitBlock + res.normal);
+					canPending = res.hit
+						&& (res.hitBlock + res.normal).z < 62
+						&& Collision3D(res.hitBlock + res.normal);
 					blockCursorActive = false;
 
 					int dist = 11;
@@ -436,12 +426,12 @@ namespace spades {
 						res = map->CastRay2(eye, orientation, dist);
 					blockCursorPos = res.hitBlock + res.normal;
 				}
-			} else if (tool == ToolGrenade) {
-				if (holdingGrenade && GetGrenadeCookTime() >= 3.0F)
-					ThrowGrenade();
 			} else if (tool == ToolBlock && !IsLocalPlayer()) {
 				if (weapInput.primary && world.GetTime() > nextBlockTime)
 					nextBlockTime = world.GetTime() + GetToolPrimaryDelay();
+			} else if (tool == ToolGrenade) {
+				if (holdingGrenade && GetGrenadeCookTime() >= 3.0F)
+					ThrowGrenade();
 			}
 
 			if (tool != ToolWeapon)
@@ -486,6 +476,8 @@ namespace spades {
 		void Player::FireWeapon() {
 			SPADES_MARK_FUNCTION();
 
+			auto* listener = world.GetListener();
+
 			Vector3 fp3 = GetFront();
 			Vector3 muzzle = GetEye() + (fp3 * 0.01F);
 
@@ -498,10 +490,8 @@ namespace spades {
 			if (!weapInput.secondary)
 				spread *= 2;
 
-			Handle<GameMap> map = world.GetMap();
+			const Handle<GameMap>& map = world.GetMap();
 			SPAssert(map);
-
-			auto* listener = world.GetListener();
 
 			// pyspades takes destroying more than one block as a speed hack (shotgun does this)
 			bool blockDestroyed = false;
@@ -688,7 +678,9 @@ namespace spades {
 			auto* listener = world.GetListener();
 
 			Vector3 const muzzle = GetEye() + (GetFront() * 0.1F);
-			Vector3 const vel = IsAlive() ? (GetFront() + GetVelocity()) : Vector3(0, 0, 0);
+			Vector3 const vel = IsAlive()
+				? (GetFront() + GetVelocity())
+				: Vector3(0, 0, 0);
 
 			float const fuse = 3.0F - GetGrenadeCookTime();
 
@@ -710,12 +702,12 @@ namespace spades {
 		void Player::UseSpade(bool dig) {
 			SPADES_MARK_FUNCTION();
 
+			auto* listener = world.GetListener();
+
 			Vector3 muzzle = GetEye(), dir = GetFront();
 
-			Handle<GameMap> map = world.GetMap();
+			const Handle<GameMap>& map = world.GetMap();
 			SPAssert(map);
-
-			auto* listener = world.GetListener();
 
 			GameMap::RayCastResult mapResult;
 			mapResult = map->CastRay2(muzzle, dir, 32);
@@ -730,20 +722,19 @@ namespace spades {
 				if (!other.IsAlive() || other.IsSpectator())
 					continue;
 
-				Vector3 diff = other.GetEye() - muzzle;
-				if (diff.GetLength() > MELEE_DISTANCE)
+				Vector3 pos = other.GetPosition();
+				if ((position - pos).GetLength() > MELEE_DISTANCE)
 					continue;
+
+				pos.z += 1;
 
 				Vector3 vc;
-				vc.x = Vector3::Dot(diff, GetRight());
-				vc.y = Vector3::Dot(diff, GetUp());
-				vc.z = Vector3::Dot(diff, GetFront());
-
-				if (vc.z <= 0.0F)
-					continue;
+				vc.x = Vector3::Dot(position - pos, GetRight());
+				vc.y = Vector3::Dot(position - pos, GetUp());
+				vc.z = Vector3::Dot(position - pos, GetFront());
 
 				Vector2 view = MakeVector2(vc.x, vc.y) / vc.z;
-				if (view.GetChebyshevLength() < HIT_TOLERANCE) {
+				if (view.GetChebyshevLength() < MELEE_TOLERANCE) {
 					hitPlayer = other;
 					break;
 				}
@@ -797,27 +788,22 @@ namespace spades {
 
 		Vector3 Player::GetFront2D() {
 			SPADES_MARK_FUNCTION_DEBUG();
-			return MakeVector3(orientation.x, orientation.y, 0.0F).Normalize();
-		}
-
-		Vector3 Player::GetRight() {
-			SPADES_MARK_FUNCTION_DEBUG();
-			return -Vector3::Cross(MakeVector3(0, 0, -1), GetFront2D()).Normalize();
+			return MakeVector3(orientation.x, orientation.y, 0).Normalize();
 		}
 
 		Vector3 Player::GetLeft() {
 			SPADES_MARK_FUNCTION_DEBUG();
-			return -GetRight();
+			return Vector3::Cross(MakeVector3(0, 0, -1), GetFront2D()).Normalize();
+		}
+
+		Vector3 Player::GetRight() {
+			SPADES_MARK_FUNCTION_DEBUG();
+			return -GetLeft();
 		}
 
 		Vector3 Player::GetUp() {
 			SPADES_MARK_FUNCTION_DEBUG();
 			return Vector3::Cross(GetRight(), GetFront()).Normalize();
-		}
-
-		bool Player::GetWade() {
-			SPADES_MARK_FUNCTION_DEBUG();
-			return GetOrigin().z > 62.0F;
 		}
 
 		Vector3 Player::GetOrigin() {
@@ -875,7 +861,7 @@ namespace spades {
 			}
 
 			z = m;
-			float by = ny + (velocity.y > 0.0F ? 0.45F : -0.45F);
+			float by = ny + ((velocity.y > 0.0F) ? 0.45F : -0.45F);
 			while (z >= -1.36F
 				&& !map->ClipBox(position.x - 0.45F, by, nz + z)
 				&& !map->ClipBox(position.x + 0.45F, by, nz + z))
@@ -926,10 +912,6 @@ namespace spades {
 			}
 
 			RepositionPlayer(position);
-		}
-
-		bool Player::IsOnGroundOrWade() {
-			return (velocity.z >= 0.0F && velocity.z < 0.017F) && !airborne;
 		}
 
 		void Player::PlayerJump() {
@@ -1094,16 +1076,39 @@ namespace spades {
 			return false;
 		}
 
-		void Player::RepositionPlayer(const spades::Vector3& pos2) {
+		void Player::RepositionPlayer(const spades::Vector3& pos) {
 			SPADES_MARK_FUNCTION();
 
-			SetPosition(pos2);
+			SetPosition(pos);
 			float f = lastClimbTime - world.GetTime();
 			float f2 = 0.25F;
 			if (f > -f2)
 				eye.z += (f + f2) / f2;
 		}
 
+		bool Player::IsReadyToUseTool() {
+			SPADES_MARK_FUNCTION_DEBUG();
+			switch (tool) {
+				case ToolSpade: return true;
+				case ToolBlock: return world.GetTime() > nextBlockTime && blockStocks > 0;
+				case ToolGrenade: return world.GetTime() > nextGrenadeTime && grenades > 0;
+				case ToolWeapon: return weapon->IsReadyToShoot();
+				default: return false;
+			}
+		}
+
+		bool Player::IsToolSelectable(ToolType type) {
+			SPADES_MARK_FUNCTION_DEBUG();
+			switch (type) {
+				case ToolSpade: return true;
+				case ToolBlock: return blockStocks > 0;
+				case ToolGrenade: return grenades > 0;
+				case ToolWeapon: return weapon->IsSelectable();
+				default: return false;
+			}
+		}
+
+		float Player::GetTimeToNextRespawn() { return respawnTime - world.GetTime(); }
 		float Player::GetTimeToNextSpade() { return nextSpadeTime - world.GetTime(); }
 		float Player::GetTimeToNextDig() { return nextDigTime - world.GetTime(); }
 		float Player::GetTimeToNextBlock() { return nextBlockTime - world.GetTime(); }
@@ -1111,29 +1116,26 @@ namespace spades {
 
 		float Player::GetToolPrimaryDelay() {
 			SPADES_MARK_FUNCTION_DEBUG();
-
 			switch (tool) {
 				case ToolSpade: return 0.2F;
-				case ToolWeapon: return weapon->GetDelay();
 				case ToolBlock:
 				case ToolGrenade: return 0.5F;
+				case ToolWeapon: return weapon->GetDelay();
 				default: SPInvalidEnum("tool", tool);
 			}
 		}
 
 		float Player::GetToolSecondaryDelay() {
 			SPADES_MARK_FUNCTION_DEBUG();
-
 			switch (tool) {
-				case ToolBlock: return GetToolPrimaryDelay();
 				case ToolSpade: return 1.0F;
+				case ToolBlock: return GetToolPrimaryDelay();
 				default: SPInvalidEnum("tool", tool);
 			}
 		}
 
 		float Player::GetSpadeAnimationProgress() {
 			SPADES_MARK_FUNCTION_DEBUG();
-
 			SPAssert(tool == ToolSpade);
 			SPAssert(weapInput.primary);
 			return 1.0F - (GetTimeToNextSpade() / GetToolPrimaryDelay());
@@ -1141,14 +1143,16 @@ namespace spades {
 
 		float Player::GetDigAnimationProgress() {
 			SPADES_MARK_FUNCTION_DEBUG();
-
 			SPAssert(tool == ToolSpade);
 			SPAssert(weapInput.secondary);
 			return 1.0F - (GetTimeToNextDig() / GetToolSecondaryDelay());
 		}
 
+		float Player::GetGrenadeCookTime() { return world.GetTime() - grenadeTime; }
+
 		void Player::KilledBy(KillType type, Player& killer, int rt) {
 			SPADES_MARK_FUNCTION();
+
 			health = 0;
 			weapon->SetShooting(false);
 
@@ -1169,40 +1173,44 @@ namespace spades {
 		std::string Player::GetName() { return world.GetPlayerName(playerId); }
 		std::string Player::GetTeamName() { return world.GetTeamName(teamId); }
 
-		float Player::GetWalkAnimationProgress() {
-			return moveDistance * 0.5F + (float)(moveSteps)*0.5F;
+		IntVector3 Player::GetColor() {
+			return IsSpectator() ? MakeIntVector3(200) : world.GetTeam(teamId).color;
 		}
 
 		Player::HitBoxes Player::GetHitBoxes() {
 			SPADES_MARK_FUNCTION_DEBUG();
-			Player::HitBoxes hb;
 
 			Vector3 o = GetFront();
 
 			float yaw = atan2f(o.y, o.x) + M_PI_F * 0.5F;
-			float pitch = -atan2f(o.z, sqrtf(o.GetLength2D()));
+			float pitch = -atan2f(o.z, o.GetLength2D());
 
 			// lower axis
 			Matrix4 const lower = Matrix4::Translate(GetOrigin())
 				* Matrix4::Rotate(MakeVector3(0, 0, 1), yaw);
 
-			float legsY = input.crouch ? 0.1F : 0.2F;
-			float legsZ = input.crouch ? 0.2F : 0.15F;
-			float legsD = input.crouch ? 0.8F : 1.2F;
-			float torsoZ = input.crouch ? 0.55F : 1.0F;
-			float torsoH = input.crouch ? 0.8F : 0.4F;
-			float torsoD = input.crouch ? 0.7F : 0.9F;
-			float armsZ = input.crouch ? 0.1F : 0.0F;
+			AABB3 head, arms, torso, leg1, leg2;
 
-			AABB3 leg1(-0.4F, -legsY, -legsZ, 0.3F, 0.4F, legsD);
-			AABB3 leg2(0.1F, -legsY, -legsZ, 0.3F, 0.4F, legsD);
-			AABB3 torso(-0.4F, -legsY, -armsZ, 0.8F, torsoH, torsoD);
-			AABB3 arms(-0.6F, -0.15F, -armsZ, 1.2F, 0.3F, torsoD);
-			AABB3 head(-0.3F, -0.3F, -0.6F, 0.6F, 0.6F, 0.6F);
+			if (input.crouch) {
+				leg2 = AABB3(-0.4F, -0.1F, -0.2F, 0.3F, 0.4F, 0.8F);
+				leg1 = AABB3(0.1F, -0.1F, -0.2F, 0.3F, 0.4F, 0.8F);
+				torso = AABB3(-0.4F, -0.1F, -0.1F, 0.8F, 0.8F, 0.7F);
+				arms = AABB3(-0.6F, -0.15F, -0.1F, 1.2F, 0.3F, 0.7F);
+				head = AABB3(-0.3F, -0.3F, -0.6F, 0.6F, 0.6F, 0.6F);
+			} else {
+				leg2 = AABB3(-0.4F, -0.2F, -0.15F, 0.3F, 0.4F, 1.2F);
+				leg1 = AABB3(0.1F, -0.2F, -0.15F, 0.3F, 0.4F, 1.2F);
+				torso = AABB3(-0.4F, -0.2F, 0.0F, 0.8F, 0.4F, 0.9F);
+				arms = AABB3(-0.6F, -0.15F, 0.0F, 1.2F, 0.3F, 0.9F);
+				head = AABB3(-0.3F, -0.3F, -0.6F, 0.6F, 0.6F, 0.6F);
+			}
 
-			Matrix4 const torsoMat = lower * Matrix4::Translate(0.0F, 0.0F, -torsoZ);
-			Matrix4 const headMat = torsoMat * Matrix4::Rotate(MakeVector3(1, 0, 0), pitch);
+			Matrix4 const torsoMat = lower
+				* Matrix4::Translate(0, 0, -(input.crouch ? 0.55F : 1));
+			Matrix4 const headMat = torsoMat
+				* Matrix4::Rotate(MakeVector3(1, 0, 0), pitch);
 
+			Player::HitBoxes hb;
 			hb.limbs[0] = lower * leg1;
 			hb.limbs[1] = lower * leg2;
 			hb.torso = torsoMat * torso;
@@ -1211,12 +1219,6 @@ namespace spades {
 
 			return hb;
 		}
-
-		IntVector3 Player::GetColor() {
-			return IsSpectator() ? MakeIntVector3(200) : world.GetTeam(teamId).color;
-		}
-
-		float Player::GetGrenadeCookTime() { return world.GetTime() - grenadeTime; }
 
 		Weapon& Player::GetWeapon() {
 			SPADES_MARK_FUNCTION();
@@ -1230,28 +1232,6 @@ namespace spades {
 				return;
 			this->weapon.reset(Weapon::CreateWeapon(weap, *this, *world.GetGameProperties()));
 			this->weaponType = weap;
-		}
-
-		bool Player::IsReadyToUseTool() {
-			SPADES_MARK_FUNCTION_DEBUG();
-			switch (tool) {
-				case ToolBlock: return world.GetTime() > nextBlockTime && blockStocks > 0;
-				case ToolGrenade: return world.GetTime() > nextGrenadeTime && grenades > 0;
-				case ToolSpade: return true;
-				case ToolWeapon: return weapon->IsReadyToShoot();
-				default: return false;
-			}
-		}
-
-		bool Player::IsToolSelectable(ToolType type) {
-			SPADES_MARK_FUNCTION_DEBUG();
-			switch (type) {
-				case ToolSpade: return true;
-				case ToolBlock: return blockStocks > 0;
-				case ToolWeapon: return weapon->GetAmmo() > 0 || weapon->GetStock() > 0;
-				case ToolGrenade: return grenades > 0;
-				default: return false;
-			}
 		}
 
 		bool Player::OverlapsWith(const spades::AABB3& aabb) {

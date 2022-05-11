@@ -62,9 +62,8 @@ namespace spades {
 
 			void SetAdditive(bool b) { additive = b; }
 			void SetLifeTime(float lifeTime, float fadeIn, float fadeOut);
-			void SetTrajectory(Vector3 initialPos, Vector3 initialVel, float velDamp = 1.0F,
-			                   float gravScale = 1.0F);
-
+			void SetTrajectory(Vector3 initialPos, Vector3 initialVel,
+				float velDamp = 1.0F, float gravScale = 1.0F);
 			void SetRotation(float initialAng, float angleVel = 0.0F);
 			void SetRadius(float initialRad, float radiusVel = 0.0F, float radDamp = 1.0F);
 			void SetBlockHitAction(BlockHitAction act) { blockHitAction = act; }

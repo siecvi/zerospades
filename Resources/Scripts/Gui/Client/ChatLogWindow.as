@@ -157,9 +157,9 @@ namespace spades {
 
 			if (IsEnabled and (key == "Escape"))
                 Close();
-            else if (IsEnabled and (key == "y"))
+            else if (IsEnabled and (key == "Y"))
                 OnTeamChat(this);
-            else if (IsEnabled and (key == "t"))
+			else if (IsEnabled and (key == "T"))
                 OnGlobalChat(this);
             else
                 UIElement::HotKey(key);

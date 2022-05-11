@@ -46,11 +46,9 @@
 
 #include "BloodMarks.h"
 #include "Corpse.h"
-#include "ILocalEntity.h"
 #include "SmokeSpriteEntity.h"
 
 #include "GameMap.h"
-#include "GameMapWrapper.h"
 #include "Weapon.h"
 #include "World.h"
 
@@ -62,7 +60,6 @@ DEFINE_SPADES_SETTING(cg_alertSounds, "1");
 DEFINE_SPADES_SETTING(cg_serverAlert, "1");
 DEFINE_SPADES_SETTING(cg_skipDeadPlayersWhenDead, "1");
 DEFINE_SPADES_SETTING(cg_playerMessages, "1");
-
 DEFINE_SPADES_SETTING(cg_smallFont, "0");
 
 SPADES_SETTING(cg_playerName);
@@ -361,7 +358,6 @@ namespace spades {
 				frameToRendererInit--;
 				if (frameToRendererInit == 0) {
 					DoInit();
-
 				} else {
 					return;
 				}
@@ -425,8 +421,8 @@ namespace spades {
 
 			// Update sounds
 			try {
-				audioDevice->Respatialize(sceneDef.viewOrigin, sceneDef.viewAxis[2],
-				                          sceneDef.viewAxis[1]);
+				audioDevice->Respatialize(sceneDef.viewOrigin,
+					sceneDef.viewAxis[2],  sceneDef.viewAxis[1]);
 			} catch (const std::exception& ex) {
 				SPLog("Audio subsystem returned error (ignored):\n%s", ex.what());
 			}
@@ -628,7 +624,7 @@ namespace spades {
 				s += ": ";
 				s += msg;
 
-				scriptedUI->RecordChatLog(s, p.GetTeamColor());
+				scriptedUI->RecordChatLog(s, ConvertColorRGBA(p.GetColor()));
 			}
 
 			NetLog("[%s] %s (%s): %s", global ? "Global" : "Team", p.GetName().c_str(),

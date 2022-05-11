@@ -169,27 +169,10 @@ namespace spades {
 			return zoomed;
 		}
 
-		std::string MapView::MapCoords(int x, int y) {
-			SPADES_MARK_FUNCTION_DEBUG();
-
-			x = div(x, 64).quot;
-			y = div(y, 64).quot + 1;
-
-			char buf[8];
-
-			switch (x) {
-				case 0: sprintf(buf, "A%i", y); break;
-				case 1: sprintf(buf, "B%i", y); break;
-				case 2: sprintf(buf, "C%i", y); break;
-				case 3: sprintf(buf, "D%i", y); break;
-				case 4: sprintf(buf, "E%i", y); break;
-				case 5: sprintf(buf, "F%i", y); break;
-				case 6: sprintf(buf, "G%i", y); break;
-				case 7: sprintf(buf, "H%i", y); break;
-				default: return std::string("XY");
-			}
-
-			return std::string(buf);
+		std::string MapView::ToGrid(float x, float y) {
+			auto letter = char(int('A') + int(x / 64));
+			auto number = std::to_string(int(y / 64) + 1);
+			return letter + number;
 		}
 
 		// definite a palette of 32 color in RGB code
@@ -558,14 +541,14 @@ namespace spades {
 			// draw map sector in team color below minimap
 			if (!largeMap) {
 				IFont& font = client->fontManager->GetGuiFont();
-				auto msg = MapCoords((int)focusPlayerPos.x, (int)focusPlayerPos.y);
+				auto gridStr = ToGrid(focusPlayerPos.x, focusPlayerPos.y);
 				Vector2 pos = {(outRect.min.x + outRect.max.x) * 0.5F, outRect.max.y + 2.0F};
-				pos.x -= font.Measure(msg).x * 0.5F;
-				Vector4 color = localPlayer.GetTeamColor();
+				pos.x -= font.Measure(gridStr).x * 0.5F;
+				Vector4 color = ConvertColorRGBA(localPlayer.GetColor());
 				color.x = Mix(color.x, 1.0F, 0.5F);
 				color.y = Mix(color.y, 1.0F, 0.5F);
 				color.z = Mix(color.z, 1.0F, 0.5F);
-				font.DrawShadow(msg, pos, 1.0F, color, MakeVector4(0, 0, 0, 0.8F));
+				font.DrawShadow(gridStr, pos, 1.0F, color, MakeVector4(0, 0, 0, 0.8F));
 			}
 		}
 

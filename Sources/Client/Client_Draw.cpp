@@ -33,31 +33,23 @@
 #include "IAudioChunk.h"
 #include "IAudioDevice.h"
 
-#include "CTFGameMode.h"
 #include "CenterMessageView.h"
 #include "ChatWindow.h"
 #include "ClientPlayer.h"
 #include "ClientUI.h"
-#include "Corpse.h"
-#include "FallingBlock.h"
 #include "Fonts.h"
 #include "GameProperties.h"
 #include "HitTestDebugger.h"
 #include "HurtRingView.h"
 #include "IFont.h"
 #include "IGameMode.h"
-#include "ILocalEntity.h"
 #include "LimboView.h"
 #include "MapView.h"
 #include "PaletteView.h"
-#include "ParticleSpriteEntity.h"
 #include "ScoreboardView.h"
-#include "SmokeSpriteEntity.h"
 #include "TCProgressView.h"
-#include "Tracer.h"
 
 #include "GameMap.h"
-#include "Grenade.h"
 #include "Weapon.h"
 #include "World.h"
 
@@ -458,6 +450,9 @@ namespace spades {
 			float iw, ih, spacing = 1.0F;
 			int clipNum, clipSize, stockNum;
 
+			Vector4 color = MakeVector4(1, 1, 1, 1);
+			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.5);
+
 			switch (p.GetTool()) {
 				case Player::ToolSpade:
 				case Player::ToolBlock:
@@ -496,7 +491,7 @@ namespace spades {
 						float iy = h - y - ih;
 
 						renderer->SetColorAlphaPremultiplied((clipNum >= i + 1)
-							? MakeVector4(1, 1, 1, 1) : MakeVector4(0.4F, 0.4F, 0.4F, 1));
+							? color : MakeVector4(0.4F, 0.4F, 0.4F, 1));
 						renderer->DrawImage(ammoIcon, AABB2(ix, iy, iw, ih));
 					}
 
@@ -507,15 +502,6 @@ namespace spades {
 					clipNum = clipSize = 0;
 					SPInvalidEnum("p->GetTool()", p.GetTool());
 			}
-
-			float per = std::min((2.0F * clipNum) / (clipSize / 2), 1.0F);
-			auto numberColor = MakeVector4(1, 1, per, 1);
-
-			IFont& font = fontManager->GetHudFont();
-			auto stockStr = ToString(stockNum);
-			Vector2 size = font.Measure(stockStr);
-			Vector2 pos = MakeVector2(w - x, h - y - ih) - size;
-			font.DrawShadow(stockStr, pos, 1.0F, numberColor, MakeVector4(0, 0, 0, 0.5));
 
 			// draw "press ... to reload"
 			{
@@ -545,18 +531,41 @@ namespace spades {
 					IFont& font = fontManager->GetGuiFont();
 					Vector2 size = font.Measure(msg);
 					Vector2 pos = MakeVector2((w - size.x) * 0.5F, h * 2.0F / 3.0F);
-					font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1),
-					                MakeVector4(0, 0, 0, 0.5));
+					font.DrawShadow(msg, pos, 1.0F, color, shadowColor);
 				}
+			}
+
+			// draw remaining ammo counter
+			{
+				float per = std::min((2.0F * clipNum) / (clipSize / 2), 1.0F);
+				color = MakeVector4(1, 1, per, 1);
+
+				IFont& font = fontManager->GetHudFont();
+				auto stockStr = ToString(stockNum);
+				Vector2 size = font.Measure(stockStr);
+				Vector2 pos = MakeVector2(w - x, h - y - ih) - size;
+				font.DrawShadow(stockStr, pos, 1.0F, color, shadowColor);
+			}
+
+			// draw player health
+			{
+				int hp = p.GetHealth();
+				float per = std::min(hp / 100.0F, 1.0F);
+				color = MakeVector4(1, per, per, 1);
+
+				IFont& font = fontManager->GetHudFont();
+				auto healthStr = ToString(hp);
+				Vector2 size = font.Measure(healthStr);
+				Vector2 pos = MakeVector2(x, h - y);
+				pos.y -= size.y;
+				font.DrawShadow(healthStr, pos, 1.0F, color, shadowColor);
 			}
 
 			if (p.IsToolBlock())
 				paletteView->Draw();
-
-			DrawHealth(x, y, w, h);
 		}
 
-		void Client::DrawHitTestDebugger(float x, float y, float w, float h) {
+		void Client::DrawHitTestDebugger() {
 			SPADES_MARK_FUNCTION();
 
 			auto* debugger = world->GetHitTestDebugger();
@@ -570,11 +579,14 @@ namespace spades {
 			}
 
 			if (debugHitTestImage) {
+				float sw = renderer->ScreenWidth();
+				float sh = renderer->ScreenHeight();
+
 				float cfgWndSize = cg_dbgHitTestSize;
 				Vector2 wndSize = {cfgWndSize, cfgWndSize};
 
 				Vector2 zoomedSize = {512, 512};
-				if (w < zoomedSize.x || h < zoomedSize.y)
+				if (sw < zoomedSize.x || sh < zoomedSize.y)
 					zoomedSize *= 0.75F;
 
 				if (debugHitTestZoom) {
@@ -587,10 +599,10 @@ namespace spades {
 					wndSize = zoomedSize;
 				}
 
-				AABB2 outRect((w - wndSize.x) - 8.0F, (h - wndSize.y) - 68.0F - y, wndSize.x, wndSize.y);
+				AABB2 outRect((sw - wndSize.x) - 8.0F, (sh - wndSize.y) - 68.0F, wndSize.x, wndSize.y);
 				if (debugHitTestZoom) {
-					outRect.min = MakeVector2((w - zoomedSize.x) * 0.5F, (h - zoomedSize.y) * 0.5F);
-					outRect.max = MakeVector2((w + zoomedSize.x) * 0.5F, (h + zoomedSize.y) * 0.5F);
+					outRect.min = MakeVector2((sw - zoomedSize.x) * 0.5F, (sh - zoomedSize.y) * 0.5F);
+					outRect.max = MakeVector2((sw + zoomedSize.x) * 0.5F, (sh + zoomedSize.y) * 0.5F);
 				}
 
 				float alpha = debugHitTestZoom ? debugHitTestZoomState : 1.0F;
@@ -686,14 +698,14 @@ namespace spades {
 			Player& p = GetWorld()->GetLocalPlayer().value();
 
 			std::string msg;
-			int secs = (int)(p.GetRespawnTime() - world->GetTime());
+			int secs = (int)p.GetTimeToNextRespawn();
 			if (secs > 0) {
 				static int lastCount = 0;
 				if (lastCount != secs) {
 					if (secs <= 3) {
-						Handle<IAudioChunk> c =
-						  (secs == 1) ? audioDevice->RegisterSound("Sounds/Feedback/Beep1.opus")
-						             : audioDevice->RegisterSound("Sounds/Feedback/Beep2.opus");
+						Handle<IAudioChunk> c = (secs == 1)
+							? audioDevice->RegisterSound("Sounds/Feedback/Beep1.opus")
+							: audioDevice->RegisterSound("Sounds/Feedback/Beep2.opus");
 						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 					}
 
@@ -766,7 +778,7 @@ namespace spades {
 			y += 10.0F;
 
 			if (GetWorld()->GetLocalPlayer()->IsSpectator() && !inGameLimbo)
-				addLine(_Tr("Client", "[{0}] Select a Team/Weapon", TrKey(cg_keyLimbo)));
+				addLine(_Tr("Client", "[{0}] Select Team/Weapon", TrKey(cg_keyLimbo)));
 		}
 
 		void Client::DrawAlert() {
@@ -849,24 +861,6 @@ namespace spades {
 			font.DrawShadow(alertContents, MakeVector2(x, y), 1.0F, color, shadow);
 		}
 
-		void Client::DrawHealth(float x, float y, float w, float h) {
-			SPADES_MARK_FUNCTION();
-
-			Player& p = GetWorld()->GetLocalPlayer().value();
-
-			int hp = p.GetHealth();
-
-			float per = std::min(hp / 100.0F, 1.0F);
-			auto numberColor = MakeVector4(1, per, per, 1);
-
-			IFont& font = fontManager->GetHudFont();
-			auto healthStr = ToString(hp);
-			Vector2 size = font.Measure(healthStr);
-			Vector2 pos = MakeVector2(x, h - y);
-			pos.y -= size.y;
-			font.DrawShadow(healthStr, pos, 1.0F, numberColor, MakeVector4(0, 0, 0, 0.5));
-		}
-
 		void Client::Draw2DWithWorld() {
 			SPADES_MARK_FUNCTION();
 
@@ -928,7 +922,7 @@ namespace spades {
 					DrawAlert();
 
 					if (!p->IsSpectator() && !p->IsToolBlock() || debugHitTestZoom)
-						DrawHitTestDebugger(x, y, sw, sh);
+						DrawHitTestDebugger();
 
 					// map view should come in front
 					if (largeMapView->IsZoomed())

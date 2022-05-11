@@ -906,7 +906,8 @@ namespace spades {
 						savedPlayerTeam[pId] = team;
 					}
 					break;
-				case PacketTypeShortPlayerData: SPRaise("Unexpected: received Short Player Data");
+				case PacketTypeShortPlayerData:
+					SPRaise("Unexpected: received Short Player Data");
 				case PacketTypeMoveObject:
 					if (!GetWorld())
 						SPRaise("No world");
@@ -1004,8 +1005,8 @@ namespace spades {
 								p->UseBlocks(1);
 						}
 					} else if (action == BlockActionTool) {
-						cells.push_back(pos);
 						client->PlayerDestroyedBlockWithWeaponOrTool(pos);
+						cells.push_back(pos);
 						GetWorld()->DestroyBlock(cells);
 
 						if (p && p->IsToolSpade())

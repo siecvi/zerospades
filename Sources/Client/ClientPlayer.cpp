@@ -424,15 +424,15 @@ namespace spades {
 
 			if (!cg_classicViewWeapon) {
 				float scale = dt;
-				Vector3 v = player.GetVelocity();
+				Vector3 vel = player.GetVelocity();
 				Vector3 front = player.GetFront();
 				Vector3 right = player.GetRight();
 				Vector3 up = player.GetUp();
 
 				// Offset the view weapon according to the player movement
-				viewWeaponOffset.x += Vector3::Dot(v, right) * scale;
-				viewWeaponOffset.y -= Vector3::Dot(v, front) * scale;
-				viewWeaponOffset.z += Vector3::Dot(v, up) * scale;
+				viewWeaponOffset.x += Vector3::Dot(vel, right) * scale;
+				viewWeaponOffset.y -= Vector3::Dot(vel, front) * scale;
+				viewWeaponOffset.z += Vector3::Dot(vel, up) * scale;
 
 				// Offset the view weapon according to the camera movement
 				Vector3 diff = front - lastFront;
@@ -526,7 +526,7 @@ namespace spades {
 				if (p.GetTool() != Player::ToolSpade) {
 					interface.SetActionType(SpadeActionTypeIdle);
 					interface.SetActionProgress(0.0F);
-				} else if (p.GetTimeToNextSpade() > 0.0F) {
+				} else if (p.GetWeaponInput().primary) {
 					interface.SetActionType(SpadeActionTypeBash);
 					interface.SetActionProgress(p.GetSpadeAnimationProgress());
 				} else if (p.GetWeaponInput().secondary) {
@@ -578,18 +578,10 @@ namespace spades {
 		asIScriptObject* ClientPlayer::GetCurrentSkin(bool viewSkin) {
 			asIScriptObject* curSkin;
 			switch (currentTool) {
-				case spades::client::Player::ToolSpade:
-					curSkin = viewSkin ? spadeViewSkin : spadeSkin;
-					break;
-				case spades::client::Player::ToolBlock:
-					curSkin = viewSkin ? blockViewSkin : blockSkin;
-					break;
-				case spades::client::Player::ToolWeapon:
-					curSkin = viewSkin ? weaponViewSkin : weaponSkin;
-					break;
-				case spades::client::Player::ToolGrenade:
-					curSkin = viewSkin ? grenadeViewSkin : grenadeSkin;
-					break;
+				case Player::ToolSpade: curSkin = viewSkin ? spadeViewSkin : spadeSkin; break;
+				case Player::ToolBlock: curSkin = viewSkin ? blockViewSkin : blockSkin; break;
+				case Player::ToolWeapon: curSkin = viewSkin ? weaponViewSkin : weaponSkin; break;
+				case Player::ToolGrenade: curSkin = viewSkin ? grenadeViewSkin : grenadeSkin; break;
 				default: SPInvalidEnum("currentTool", currentTool);
 			}
 			return curSkin;
@@ -652,10 +644,8 @@ namespace spades {
 			// view weapon
 			Vector3 viewWeaponOffset = this->viewWeaponOffset;
 
-			// Moving this to the scripting enviroment
-			// means breaking compatibility with existing mods.
-			// This sucks i know, but is the only way we can have some
-			// sort of "aosmod" thats remains compatible with other mods.
+			// Moving this to the scripting enviroment means
+			// breaking compatibility with existing scripts.
 			if (cg_classicViewWeapon) {
 				Vector3 trans(0.0F, 0.0F, 0.0F);
 
@@ -689,7 +679,7 @@ namespace spades {
 				param.customColor = ConvertColorRGB(p.GetBlockColor());
 
 				const float nextBlockTime = p.GetTimeToNextBlock();
-				const float nadeCookTime = p.GetGrenadeCookTime();
+				const float cookGrenadeTime = p.GetGrenadeCookTime();
 				const float nextFireTime = w.GetTimeToNextFire();
 				const float reloadProgress = (1.0F - w.GetReloadProgress());
 
@@ -734,8 +724,8 @@ namespace spades {
 						break;
 					case Player::ToolGrenade:
 						model = renderer.RegisterModel("Models/Weapons/Grenade/Grenade.kv6");
-						if (actualWeapInput.primary && nadeCookTime > 0.0F) {
-							float f = nadeCookTime * 0.75F;
+						if (actualWeapInput.primary) {
+							float f = cookGrenadeTime * DEG2RAD(45);
 							trans.x -= f;
 							trans.z -= f;
 						}
@@ -999,7 +989,7 @@ namespace spades {
 			Vector3 o = p.GetFront();
 
 			float yaw = atan2f(o.y, o.x) + M_PI_F * 0.5F;
-			float pitch = -atan2f(o.z, sqrtf(o.GetLength2D()));
+			float pitch = -atan2f(o.z, o.GetLength2D());
 
 			// lower axis
 			Matrix4 const lower = Matrix4::Translate(origin)
@@ -1029,10 +1019,27 @@ namespace spades {
 			if (inp.sprint)
 				armPitch -= 0.5F * sprintState;
 
-			// Hardcoded, otherwise we will need to break current mods
-			const float nextFireTime = p.GetWeapon().GetTimeToNextFire();
-			if (currentTool == Player::ToolWeapon && nextFireTime > 0.0F)
-				armPitch += nextFireTime;
+			// Moving this to the scripting enviroment means
+			// breaking compatibility with existing scripts.
+			if (currentTool == Player::ToolSpade) {
+				float nextSpadeTime = p.GetTimeToNextSpade();
+				if (nextSpadeTime > 0.0F)
+					armPitch -= (nextSpadeTime / 0.2F);
+				if (p.GetWeaponInput().secondary)
+					armPitch -= 1.0F - p.GetTimeToNextDig();
+			} else if (currentTool == Player::ToolBlock) {
+				float nextBlockTime = p.GetTimeToNextBlock();
+				if (nextBlockTime > 0.0F)
+					armPitch -= (nextBlockTime / 0.5F);
+			} else if (currentTool == Player::ToolWeapon) {
+				float nextFireTime = p.GetWeapon().GetTimeToNextFire();
+				if (nextFireTime > 0.0F)
+					armPitch += nextFireTime;
+			} else if (currentTool == Player::ToolGrenade) {
+				float fuse = p.GetGrenadeCookTime();
+				if (p.GetWeaponInput().primary)
+					armPitch += fuse * DEG2RAD(30);
+			}
 
 			armPitch += pitchBias;
 			if (armPitch < 0.0F)

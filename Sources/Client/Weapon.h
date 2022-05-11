@@ -97,6 +97,7 @@ namespace spades {
 			float GetReloadProgress();
 			float GetTimeToNextFire();
 
+			bool IsSelectable();
 			bool IsReadyToShoot();
 		};
 	} // namespace client

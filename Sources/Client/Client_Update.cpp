@@ -37,9 +37,7 @@
 #include "FallingBlock.h"
 #include "HurtRingView.h"
 #include "ILocalEntity.h"
-#include "LimboView.h"
 #include "MapView.h"
-#include "PaletteView.h"
 #include "Tracer.h"
 
 #include "GameMap.h"
@@ -436,7 +434,8 @@ namespace spades {
 			// there is a possibility that player has respawned or something.
 			if (!(actualWeapInput.secondary && player.IsToolWeapon() && player.IsAlive())
 				&& !(cg_holdAimDownSight && weapInput.secondary)) {
-				weapInput.secondary = false; // stop aiming down
+				if (player.IsToolWeapon())
+					weapInput.secondary = false; // stop aiming down
 			}
 
 			// is the selected tool no longer usable (ex. out of ammo)?
@@ -708,7 +707,9 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			Vector3 shiftedHitPos = hitPos + (MakeVector3(normal) * 0.05F);
+
 			uint32_t col = map->GetColor(blockPos.x, blockPos.y, blockPos.z);
+			col = map->GetColorJit(col); // jit the colour
 			EmitBlockFragments(shiftedHitPos, IntVectorFromColor(col));
 
 			bool isLocal = p.IsLocalPlayer();
@@ -988,6 +989,10 @@ namespace spades {
 				if ((bool)cg_analyze) {
 					char buf[256];
 
+					auto nameStr = hurtPlayer.GetName();
+					int dist = (int)(by.GetPosition() - hurtPlayer.GetPosition()).GetLength();
+					float dt = (world->GetTime() - lastHitTime) * 1000;
+
 					std::string hitType;
 					switch (type) {
 						case HitTypeTorso: hitType = "Body"; break;
@@ -997,16 +1002,12 @@ namespace spades {
 						default: hitType = "Melee"; break;
 					}
 
-					auto playerName = ChatWindow::TeamColorMessage(hurtPlayer.GetName(), hurtPlayer.GetTeamId());
-					int dist = (int)(by.GetPosition() - hurtPlayer.GetPosition()).GetLength();
-					float dt = (world->GetTime() - lastHitTime) * 1000;
-
 					if (dt > 0.0F && lastHitTime > 0.0F)
 						sprintf(buf, "Bullet hit %s dist: %d blocks dT: %.0fms %s",
-						        playerName.c_str(), dist, dt, hitType.c_str());
+							nameStr.c_str(), dist, dt, hitType.c_str());
 					else
 						sprintf(buf, "Bullet hit %s dist: %d blocks dT: NA %s",
-						        playerName.c_str(), dist, hitType.c_str());
+							nameStr.c_str(), dist, hitType.c_str());
 
 					scriptedUI->RecordChatLog(buf);
 					chatWindow->AddMessage(buf);
@@ -1034,8 +1035,6 @@ namespace spades {
 			Vector3 shiftedHitPos = hitPos + (MakeVector3(normal) * 0.05F);
 
 			if (blockPos.z == 63) {
-				BulletHitWaterSurface(shiftedHitPos);
-
 				if (!IsMuted()) {
 					AudioParam param;
 					param.volume = 2.0F;
@@ -1043,23 +1042,20 @@ namespace spades {
 
 					Handle<IAudioChunk> c;
 					switch (SampleRandomInt(0, 3)) {
-						case 0:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water1.opus");
+						case 0: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water1.opus");
 							break;
-						case 1:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water2.opus");
+						case 1: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water2.opus");
 							break;
-						case 2:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water3.opus");
+						case 2: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water3.opus");
 							break;
-						case 3:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water4.opus");
+						case 3: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water4.opus");
 							break;
 					}
 					audioDevice->Play(c.GetPointerOrNull(), shiftedHitPos, param);
 				}
 			} else {
 				uint32_t col = map->GetColor(blockPos.x, blockPos.y, blockPos.z);
+				col = map->GetColorJit(col); // jit the colour
 				EmitBlockFragments(shiftedHitPos, IntVectorFromColor(col));
 
 				if (!IsMuted()) {
@@ -1072,17 +1068,13 @@ namespace spades {
 
 					param.pitch = 0.9F + SampleRandomFloat() * 0.2F;
 					switch (SampleRandomInt(0, 3)) {
-						case 0:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Ricochet1.opus");
+						case 0: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Ricochet1.opus");
 							break;
-						case 1:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Ricochet2.opus");
+						case 1: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Ricochet2.opus");
 							break;
-						case 2:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Ricochet3.opus");
+						case 2: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Ricochet3.opus");
 							break;
-						case 3:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Ricochet4.opus");
+						case 3: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Ricochet4.opus");
 							break;
 					}
 					audioDevice->Play(c.GetPointerOrNull(), shiftedHitPos, param);
@@ -1198,13 +1190,11 @@ namespace spades {
 					switch (SampleRandomInt(0, 1)) {
 						case 0:
 							c = audioDevice->RegisterSound("Sounds/Weapons/Grenade/Explode1.opus");
-							cs = audioDevice->RegisterSound(
-							  "Sounds/Weapons/Grenade/ExplodeStereo1.opus");
+							cs = audioDevice->RegisterSound("Sounds/Weapons/Grenade/ExplodeStereo1.opus");
 							break;
 						case 1:
 							c = audioDevice->RegisterSound("Sounds/Weapons/Grenade/Explode2.opus");
-							cs = audioDevice->RegisterSound(
-							  "Sounds/Weapons/Grenade/ExplodeStereo2.opus");
+							cs = audioDevice->RegisterSound("Sounds/Weapons/Grenade/ExplodeStereo2.opus");
 							break;
 					}
 

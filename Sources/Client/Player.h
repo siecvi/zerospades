@@ -134,8 +134,8 @@ namespace spades {
 			void ThrowGrenade();
 
 		public:
-			Player(World&, int playerId, WeaponType weapon, 
-				int teamId, Vector3 position, IntVector3 color);
+			Player(World&, int pId, WeaponType wType, 
+				int tId, Vector3 pos, IntVector3 col);
 			Player(const Player&) = delete;
 			void operator=(const Player&) = delete;
 
@@ -150,7 +150,6 @@ namespace spades {
 			std::string GetName();
 			std::string GetTeamName();
 			IntVector3 GetColor();
-			Vector4 GetTeamColor() { return ConvertColorRGBA(GetColor()); }
 			IntVector3 GetBlockColor() { return blockColor; }
 			ToolType GetTool() { return tool; }
 			bool IsLocalPlayer();
@@ -166,8 +165,8 @@ namespace spades {
 			bool IsBlockCursorDragging() { return tool == ToolBlock && blockCursorDragging; }
 			IntVector3 GetBlockCursorPos() { return blockCursorPos; }
 			IntVector3 GetBlockCursorDragPos() { return blockCursorDragPos; }
-			bool CanActivateDelayedBlockPlacement() { return canPending; }
 			bool IsReadyToUseTool();
+			bool IsToolSelectable(ToolType);
 
 			// ammo counts
 			int GetNumBlocks() { return blockStocks; }
@@ -181,7 +180,6 @@ namespace spades {
 			bool IsToolBlock() { return tool == ToolBlock; }
 			bool IsToolWeapon() { return tool == ToolWeapon; }
 			bool IsToolGrenade() { return tool == ToolGrenade; }
-			bool IsToolSelectable(ToolType);
 
 			bool IsWeaponRifle() { return weaponType == RIFLE_WEAPON; }
 			bool IsWeaponSMG() { return weaponType == SMG_WEAPON; }
@@ -215,8 +213,8 @@ namespace spades {
 			Vector3 GetPosition() { return position; }
 			Vector3 GetFront();
 			Vector3 GetFront2D();
-			Vector3 GetRight();
 			Vector3 GetLeft();
+			Vector3 GetRight();
 			Vector3 GetUp();
 			Vector3 GetEye() { return eye; }
 			Vector3 GetOrigin(); // actually not origin at all!
@@ -225,11 +223,14 @@ namespace spades {
 
 			World& GetWorld() { return world; }
 
-			bool GetWade();
-			bool IsOnGroundOrWade();
+			bool GetWade() { return GetOrigin().z > 62.0F; }
+			bool IsOnGroundOrWade() {
+				return (velocity.z >= 0.0F && velocity.z < 0.017F) && !airborne;
+			}
 
 			void Update(float dt);
 
+			float GetTimeToNextRespawn();
 			float GetTimeToNextSpade();
 			float GetTimeToNextDig();
 			float GetTimeToNextBlock();
@@ -242,10 +243,12 @@ namespace spades {
 			float GetDigAnimationProgress();
 			bool IsFirstDig() const { return firstDig; }
 
-			float GetWalkAnimationProgress();
-
-			bool IsCookingGrenade() { return tool == ToolGrenade && holdingGrenade; }
 			float GetGrenadeCookTime();
+			bool IsCookingGrenade() { return tool == ToolGrenade && holdingGrenade; }
+
+			float GetWalkAnimationProgress() {
+				return moveDistance * 0.5F + (float)(moveSteps)*0.5F;
+			}
 
 			// hit tests
 			HitBoxes GetHitBoxes();
