@@ -254,41 +254,38 @@ add_subdirectory(Sources)
 
 if(UNIX AND NOT APPLE)
 	# various texts
-	INSTALL(FILES AUTHORS LICENSE README.md DESTINATION ${OPENSPADES_INSTALL_DOC}/)
+	install(FILES AUTHORS LICENSE README.md DESTINATION ${OPENSPADES_INSTALL_DOC}/)
 
 	# menu file
-	INSTALL(FILES Resources/Unix/Menu/openspades DESTINATION ${OPENSPADES_INSTALL_MENU}/)
+	install(FILES Resources/Unix/Menu/openspades DESTINATION ${OPENSPADES_INSTALL_MENU}/)
 
 	# man file
-	INSTALL(FILES ${CMAKE_BINARY_DIR}/Resources/Unix/Man/openspades.6.gz DESTINATION ${OPENSPADES_INSTALL_MAN}/)
+	install(FILES ${CMAKE_BINARY_DIR}/Resources/Unix/Man/openspades.6.gz DESTINATION ${OPENSPADES_INSTALL_MAN}/)
 
 	# changelog file
-	INSTALL(FILES ${CMAKE_BINARY_DIR}/Resources/Unix/Debian/changelog.gz DESTINATION ${OPENSPADES_INSTALL_DOC}/)
+	install(FILES ${CMAKE_BINARY_DIR}/Resources/Unix/Debian/changelog.gz DESTINATION ${OPENSPADES_INSTALL_DOC}/)
 
 	# copyright file
-	INSTALL(FILES ${CMAKE_BINARY_DIR}/Resources/Unix/Debian/copyright DESTINATION ${OPENSPADES_INSTALL_DOC}/)
+	install(FILES ${CMAKE_BINARY_DIR}/Resources/Unix/Debian/copyright DESTINATION ${OPENSPADES_INSTALL_DOC}/)
 
 	if(OPENSPADES_RESOURCES)
 		# install asset paks (including non-GPL one)
 		install(FILES ${PAK_FILES} DESTINATION ${OPENSPADES_INSTALL_RESOURCES})
 	endif(OPENSPADES_RESOURCES)
 
-	# Package info (used for automatic update check)
-	INSTALL(FILES Resources/PackageInfo.json DESTINATION ${OPENSPADES_INSTALL_RESOURCES})
-
 	# install icons
-	INSTALL(
+	install(
 		DIRECTORY ${CMAKE_BINARY_DIR}/Resources/Icons/hicolor/
 		DESTINATION ${OPENSPADES_INSTALL_ICONS}
 		FILES_MATCHING PATTERN "*.png")
 
-	INSTALL(FILES Resources/Icons/openspades.xpm DESTINATION ${OPENSPADES_INSTALL_PIXMAP}/)
+	install(FILES Resources/Icons/openspades.xpm DESTINATION ${OPENSPADES_INSTALL_PIXMAP}/)
 
 	# binary file
-	INSTALL(PROGRAMS ${CMAKE_BINARY_DIR}/bin/openspades DESTINATION ${OPENSPADES_INSTALL_BINARY})
+	install(PROGRAMS ${CMAKE_BINARY_DIR}/bin/openspades DESTINATION ${OPENSPADES_INSTALL_BINARY})
 
 	# desktop file
-	INSTALL(FILES Resources/Unix/Desktop/openspades.desktop DESTINATION ${OPENSPADES_INSTALL_DESKTOP}/)
+	install(FILES Resources/Unix/Desktop/openspades.desktop DESTINATION ${OPENSPADES_INSTALL_DESKTOP}/)
 
 	# Currently there is no files in lib/openspades. But if you reading this message in future and want to
 	# place somewhere libs, binaries or other non-media stuff, place them in lib/openspades. Thank you.
@@ -314,9 +311,6 @@ if(APPLE)
 			PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 		add_dependencies(OpenSpades OpenSpades_Resources_DevPaks OpenSpades_Resources)
 	endif(OPENSPADES_RESOURCES)
-	list(APPEND BUNDLE_RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Resources/PackageInfo.json)
-	set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/Resources/PackageInfo.json
-		PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
 	if (OPENSPADES_YSR)
 		list(APPEND BUNDLE_RESOURCES ${CMAKE_CURRENT_BINARY_DIR}/libysrspades.dylib)
@@ -345,16 +339,16 @@ set(CPACK_PACKAGE_DESCRIPTION "Open-source clone of Ace of Spades - free FPS san
 set(CPACK_PACKAGE_VENDOR "yvt, assorted")
 set(CPACK_PACKAGE_CONTACT "yvt <i@yvt.jp>")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
-SET(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "openspades-${OPENSPADES_FULL_VERSION}")
-SET(CPACK_PACKAGE_FILE_NAME "openspades-${OPENSPADES_FULL_VERSION}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
+set(CPACK_PACKAGE_FILE_NAME "openspades-${OPENSPADES_FULL_VERSION}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "OpenSpades ${OPENSPADES_FULL_VERSION}")
 set(CPACK_PACKAGE_VERSION_MAJOR ${OpenSpades_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${OpenSpades_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${OpenSpades_VERSION_REVISION})
-SET(CPACK_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
-SET(CPACK_TOPLEVEL_TAG "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
+set(CPACK_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
+set(CPACK_TOPLEVEL_TAG "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
 
 if(WIN32 AND NOT UNIX)
 
@@ -365,10 +359,10 @@ if(WIN32 AND NOT UNIX)
 	# TODO: set(CPACK_PACKAGE_ICON  "")
 	set(CPACK_NSIS_HELP_LINK "https://sites.google.com/a/yvt.jp/openspades/")
 	set(CPACK_NSIS_URL_INFO_ABOUT "http://buildandshoot.com/viewforum.php?f=57")
-	SET(CPACK_NSIS_CONTACT "i@yvt.jp")
-	# TODO: SET(CPACK_NSIS_CREATE_ICONS_EXTRA "")
-	# TODO: SET(CPACK_NSIS_DELETE_ICONS_EXTRA "")
-	# TODO: SET(CPACK_NSIS_MUI_FINISHPAGE_RUN "openspades.exe")
+	set(CPACK_NSIS_CONTACT "i@yvt.jp")
+	# TODO: set(CPACK_NSIS_CREATE_ICONS_EXTRA "")
+	# TODO: set(CPACK_NSIS_DELETE_ICONS_EXTRA "")
+	# TODO: set(CPACK_NSIS_MUI_FINISHPAGE_RUN "openspades.exe")
 	set(CPACK_NSIS_MODIFY_PATH ON)
 
 elseif(UNIX AND NOT APPLE)
@@ -378,18 +372,18 @@ elseif(UNIX AND NOT APPLE)
 	set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Open-source clone of Ace of Spades - free FPS sandbox game\n OpenSpades is a clone of Voxlap Ace of Spades 0.75, which is a free \n multiplayer game created by Ben Aksoy.\n .\n Here are some features:\n .\n   - Ability to connect to vanilla/pyspades server\n   - Better performance on some modern computers/netbooks\n   - Sophisticated graphics\n   - Fully open source (GPLv3 compliant)\n   - Cross-platform")
 	set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Unix/Control/postinst)
 	set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
-	SET(CPACK_STRIP_FILES "bin/openspades")
-	SET(CPACK_SET_DESTDIR "on")
-	SET(CPACK_GENERATOR "DEB;TGZ")
-	SET(CPACK_DEBIAN_PACKAGE_DEPENDS
+	set(CPACK_STRIP_FILES "bin/openspades")
+	set(CPACK_SET_DESTDIR "on")
+	set(CPACK_GENERATOR "DEB;TGZ")
+	set(CPACK_DEBIAN_PACKAGE_DEPENDS
 		"libc6 (>= 2.19), libgcc1 (>= 1:4.9), libstdc++6 (>= 4.8.2), zlib1g (>= 1:1.2.8), libcurl3 (>= 7.35.0), libglew1.10 (>= 1.10.0), libsdl2-2.0-0 (>= 2.0.2), libsdl2-image-2.0-0 (>= 2.0.0), libfreetype6 (>= 2.4.0)") # TODO: add libopus/libopusfile
-	SET(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
-	SET(CPACK_DEBIAN_PACKAGE_SECTION "games")
-	SET(CPACK_DEBIAN_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
+	set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+	set(CPACK_DEBIAN_PACKAGE_SECTION "games")
+	set(CPACK_DEBIAN_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
 
 	set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "")
 	set(CPACK_DEBIAN_PACKAGE_SUGGESTS "")
-	SET(CPACK_COMPONENTS_ALL ALL)
+	set(CPACK_COMPONENTS_ALL ALL)
 
 endif(WIN32 AND NOT UNIX)
 
