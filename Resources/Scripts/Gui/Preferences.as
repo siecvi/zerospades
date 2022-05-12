@@ -705,7 +705,6 @@ namespace spades {
 			layouter.AddToggleField("Tracers Lights", "cg_tracerLights");
 			layouter.AddToggleField("Depth Prepass", "r_depthPrepass");
 			layouter.AddToggleField("Occlusion Querying", "r_occlusionQuery");
-			layouter.AddToggleField("Water Impact Effects", "cg_waterImpact");
 
 			layouter.AddHeading("Post-processing");
 			layouter.AddToggleField("Camera Blur", "r_cameraBlur");

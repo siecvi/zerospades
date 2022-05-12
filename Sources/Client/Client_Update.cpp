@@ -1034,6 +1034,10 @@ namespace spades {
 
 			Vector3 shiftedHitPos = hitPos + (MakeVector3(normal) * 0.05F);
 
+			uint32_t col = map->GetColor(blockPos.x, blockPos.y, blockPos.z);
+			col = map->GetColorJit(col); // jit the colour
+			EmitBlockFragments(shiftedHitPos, IntVectorFromColor(col));
+
 			if (blockPos.z == 63) {
 				if (!IsMuted()) {
 					AudioParam param;
@@ -1054,10 +1058,6 @@ namespace spades {
 					audioDevice->Play(c.GetPointerOrNull(), shiftedHitPos, param);
 				}
 			} else {
-				uint32_t col = map->GetColor(blockPos.x, blockPos.y, blockPos.z);
-				col = map->GetColorJit(col); // jit the colour
-				EmitBlockFragments(shiftedHitPos, IntVectorFromColor(col));
-
 				if (!IsMuted()) {
 					AudioParam param;
 					param.volume = 2.0F;
