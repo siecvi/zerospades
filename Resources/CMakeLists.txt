@@ -45,7 +45,7 @@ if(OPENSPADES_RESOURCES)
 		${CMAKE_CURRENT_SOURCE_DIR}/Shaders/*.vs)
 	file(GLOB_RECURSE SOUND_FILES ${CMAKE_CURRENT_SOURCE_DIR}/Sounds/*)
 	file(GLOB_RECURSE TEXTURE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/Textures/*)
-	set(PAK_IN_FILES 
+	set(PAK_IN_FILES
 		${GFX_FILES} ${LICENSE_FILES} ${LOCALE_FILES} ${MAP_FILES}
 		${MODEL_FILES} ${SCRIPT_FILES} ${SHADER_FILES} ${SOUND_FILES}
 		${TEXTURE_FILES})
@@ -62,15 +62,14 @@ if(OPENSPADES_RESOURCES)
 
 	add_custom_target(OpenSpades_Resources ALL
 		COMMENT "Building assets"
-		SOURCES ${PAK_IN_FILES} ${PACKAGE_INFO_IN_FILE}
-		DEPENDS 
-			${PACKAGE_INFO_OUT_FILE}
+		SOURCES ${PAK_IN_FILES}
+		DEPENDS
 			${COMPILED_PAK_FILES})
 
 	if(WIN32)
 		add_custom_command(
 			OUTPUT ${COMPILED_PAK_FILES}
-			COMMAND powershell -ExecutionPolicy Bypass 
+			COMMAND powershell -ExecutionPolicy Bypass
 				${CMAKE_CURRENT_SOURCE_DIR}/mkpak.ps1
 				${CMAKE_CURRENT_BINARY_DIR}
 			COMMENT "Building paks"
@@ -94,10 +93,6 @@ if(OPENSPADES_RESOURCES)
 			COMMENT "Copying assets to the currently-selected configuration's build directory"
 			COMMAND
 				${CMAKE_COMMAND} -E make_directory
-					${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/Resources
-			COMMAND
-				${CMAKE_COMMAND} -E copy_if_different
-					${COMPILED_PAK_FILES} ${PACKAGE_INFO_OUT_FILE}
 					${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/Resources)
 	endif (WIN32 AND MSVC)
 endif()
