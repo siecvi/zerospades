@@ -941,7 +941,7 @@ namespace spades {
 			return val;
 	}
 
-	static Vector4 AdjustColor(spades::Vector4 col, float bright, float saturation) {
+	static inline Vector4 AdjustColor(spades::Vector4 col, float bright, float saturation) {
 		col.x *= bright;
 		col.y *= bright;
 		col.z *= bright;
@@ -953,7 +953,7 @@ namespace spades {
 		return col;
 	}
 
-	static Vector4 ModifyColor(IntVector3 v) {
+	static inline Vector4 ModifyColor(IntVector3 v) {
 		Vector4 fv = ConvertColorRGBA(v);
 		float avg = (fv.x + fv.y + fv.z) / 3.0F;
 		fv.x = Mix(fv.x, avg, 0.5F);
@@ -966,7 +966,7 @@ namespace spades {
 		return fv;
 	}
 
-	static Vector3 HSV2RGB(float h, float s, float v) {
+	static inline Vector3 HSV2RGB(float h, float s, float v) {
 		if (s == 0.0F)
 			return Vector3(v, v, v);
 

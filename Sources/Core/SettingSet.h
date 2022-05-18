@@ -71,7 +71,6 @@ namespace spades {
 		private:
 			void SettingChanged(const std::string&) override;
 
-			SettingSet& set;
 			Settings::ItemHandle handle;
 			ItemFlags const flags;
 

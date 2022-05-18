@@ -730,7 +730,7 @@ namespace spades {
 		void Client::PlayerKilledPlayer(spades::client::Player& killer,
 			spades::client::Player& victim, KillType kt) {
 			// Don't play hit sound on local: see BullethitPlayer
-			if (kt == KillTypeWeapon || kt == KillTypeHeadshot && !victim.IsLocalPlayer()) {
+			if ((kt == KillTypeWeapon || kt == KillTypeHeadshot) && !victim.IsLocalPlayer()) {
 				if (!IsMuted()) {
 					Handle<IAudioChunk> c;
 					switch (SampleRandomInt(0, 2)) {

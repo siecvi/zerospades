@@ -53,11 +53,11 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			GLProfiler::Context profiler(renderer.GetGLProfiler(),
-			                             "Model [%d model(s), %d unique model type(s)]", modelCount,
-			                             (int)models.size());
+				"Model [%d model(s), %d unique model type(s)]", modelCount,
+				(int)models.size());
 
 			int numModels = 0;
-			for (const auto m : models) {
+			for (const auto& m : models) {
 				GLModel* model = m.model;
 				model->RenderShadowMapPass(m.params);
 				numModels += (int)m.params.size();
@@ -72,11 +72,11 @@ namespace spades {
 			device.ColorMask(false, false, false, false);
 
 			GLProfiler::Context profiler(renderer.GetGLProfiler(),
-			                             "Model [%d model(s), %d unique model type(s)]", modelCount,
-			                             (int)models.size());
+				"Model [%d model(s), %d unique model type(s)]", modelCount,
+				(int)models.size());
 
 			int numModels = 0;
-			for (const auto m : models) {
+			for (const auto& m : models) {
 				GLModel* model = m.model;
 				model->Prerender(m.params, ghostPass);
 				numModels += (int)m.params.size();
@@ -88,10 +88,10 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			GLProfiler::Context profiler(renderer.GetGLProfiler(),
-			                             "Model [%d model(s), %d unique model type(s)]", modelCount,
-			                             (int)models.size());
+				"Model [%d model(s), %d unique model type(s)]", modelCount,
+				(int)models.size());
 
-			for (const auto m : models) {
+			for (const auto& m : models) {
 				GLModel* model = m.model;
 				model->RenderSunlightPass(m.params, ghostPass);
 			}
@@ -101,11 +101,11 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			GLProfiler::Context profiler(renderer.GetGLProfiler(),
-			                             "Model [%d model(s), %d unique model type(s)]", modelCount,
-			                             (int)models.size());
+				"Model [%d model(s), %d unique model type(s)]", modelCount,
+				(int)models.size());
 
 			if (!lights.empty()) {
-				for (const auto m : models) {
+				for (const auto& m : models) {
 					GLModel* model = m.model;
 					model->RenderDynamicLightPass(m.params, lights);
 				}
@@ -114,7 +114,7 @@ namespace spades {
 
 		void GLModelRenderer::Clear() {
 			// last phase: clear scene
-			for (const auto m : models) {
+			for (const auto& m : models) {
 				GLModel* model = m.model;
 				model->renderId = -1;
 				model->Release();

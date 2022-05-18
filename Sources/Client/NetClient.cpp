@@ -1348,7 +1348,6 @@ namespace spades {
 					} else {
 						int clip = r.ReadByte();
 						int reserve = r.ReadByte();
-						Weapon& weap = p.GetWeapon();
 						if (clip < 255 && reserve < 255)
 							p.ReloadDone(clip, reserve);
 					}

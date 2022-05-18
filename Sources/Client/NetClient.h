@@ -122,9 +122,6 @@ namespace spades {
 
 			std::vector<std::vector<char>> savedPackets;
 
-			int timeToTryMapLoad;
-			bool tryMapLoadOnPacketType;
-
 			unsigned int lastPlayerInput;
 			unsigned int lastWeaponInput;
 

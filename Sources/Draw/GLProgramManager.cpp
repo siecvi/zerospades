@@ -35,9 +35,8 @@
 
 namespace spades {
 	namespace draw {
-		GLProgramManager::GLProgramManager(IGLDevice& d, IGLShadowMapRenderer* smr,
-		                                   GLSettings& settings)
-		    : device(d), shadowMapRenderer(smr), settings(settings) {
+		GLProgramManager::GLProgramManager(IGLDevice& d, GLSettings& settings)
+		    : device(d), settings(settings) {
 			SPADES_MARK_FUNCTION();
 		}
 
@@ -120,8 +119,8 @@ namespace spades {
 
 			Stopwatch sw;
 			p->Link();
-			SPLog("Successfully linked GLSL program '%s' in %.3fms", name.c_str(),
-			      sw.GetTime() * 1000.0);
+			SPLog("Successfully linked GLSL program '%s' in %.3fms",
+				name.c_str(), sw.GetTime() * 1000.0);
 			return p;
 		}
 
@@ -176,8 +175,8 @@ namespace spades {
 
 			Stopwatch sw;
 			s->Compile();
-			SPLog("Successfully compiled GLSL shader '%s' in %.3fms", name.c_str(),
-			      sw.GetTime() * 1000.0);
+			SPLog("Successfully compiled GLSL shader '%s' in %.3fms",
+				name.c_str(), sw.GetTime() * 1000.0);
 			return s;
 		}
 	} // namespace draw

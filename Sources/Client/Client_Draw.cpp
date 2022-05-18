@@ -729,7 +729,6 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			float sw = renderer->ScreenWidth();
-			float sh = renderer->ScreenHeight();
 
 			IFont& font = fontManager->GetGuiFont();
 
@@ -921,7 +920,7 @@ namespace spades {
 
 					DrawAlert();
 
-					if (!p->IsSpectator() && !p->IsToolBlock() || debugHitTestZoom)
+					if ((!p->IsSpectator() && !p->IsToolBlock()) || debugHitTestZoom)
 						DrawHitTestDebugger();
 
 					// map view should come in front

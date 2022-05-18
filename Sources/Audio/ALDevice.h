@@ -30,7 +30,6 @@ namespace spades {
 		class ALAudioChunk;
 
 		class ALDevice : public client::IAudioDevice {
-			bool useEAX;
 			class Internal;
 			Internal* d;
 

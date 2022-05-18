@@ -34,7 +34,6 @@ namespace spades {
 		class GLProgramManager {
 			IGLDevice& device;
 			GLSettings& settings;
-			IGLShadowMapRenderer* shadowMapRenderer;
 
 			std::unordered_map<std::string, std::unique_ptr<GLProgram>> programs;
 			std::unordered_map<std::string, std::unique_ptr<GLShader>> shaders;
@@ -43,8 +42,7 @@ namespace spades {
 			std::unique_ptr<GLShader> CreateShader(const std::string& name);
 
 		public:
-			GLProgramManager(IGLDevice&, IGLShadowMapRenderer* shadowMapRenderer,
-			                 GLSettings& settings);
+			GLProgramManager(IGLDevice&, GLSettings& settings);
 			~GLProgramManager();
 
 			GLProgram* RegisterProgram(const std::string& name);

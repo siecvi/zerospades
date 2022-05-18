@@ -280,8 +280,7 @@ namespace spades {
 
 #pragma mark - Zip file
 
-	ZipFileSystem::ZipFileSystem(IStream* stream, bool autoClose)
-	    : baseStream(stream), autoClose(autoClose) {
+	ZipFileSystem::ZipFileSystem(IStream* stream) : baseStream(stream) {
 		SPADES_MARK_FUNCTION();
 
 		cursorPos = stream->GetPosition();

@@ -1360,12 +1360,8 @@ namespace spades {
 			return result;
 		}
 
-		void ClientPlayer::FiredWeapon() {	
-			const SceneDefinition& lastSceneDef = client.GetLastSceneDef();
-			IRenderer& renderer = client.GetRenderer();
-			IAudioDevice& audioDevice = client.GetAudioDevice();
+		void ClientPlayer::FiredWeapon() {
 			Player& p = player;
-			World& world = p.GetWorld();
 
 			Vector3 muzzle = ShouldRenderInThirdPersonView()
 				? GetMuzzlePosition() : GetMuzzlePositionInFirstPersonView();

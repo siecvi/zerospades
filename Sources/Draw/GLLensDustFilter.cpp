@@ -224,7 +224,6 @@ namespace spades {
 			for (int i = (int)levels.size() - 1; i >= 1; i--) {
 				int cnt = (int)levels.size() - i;
 				float alpha = (float)cnt / (float)(cnt + 1);
-				alpha = alpha;
 
 				GLColorBuffer curLevel = levels[i].buffer;
 

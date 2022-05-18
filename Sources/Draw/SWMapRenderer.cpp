@@ -741,9 +741,6 @@ namespace spades {
 			startX = (startX / blockSize) * blockSize;
 			endX = (endX / blockSize) * blockSize;
 
-			float deltaScreenPosRightSmall = deltaScreenPosRight * under;
-			float deltaScreenPosDownSmall = deltaScreenPosDown;
-
 			deltaScreenPosRight *= static_cast<float>(blockSize);
 			deltaScreenPosDown *= static_cast<float>(blockSize);
 

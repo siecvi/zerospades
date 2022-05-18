@@ -112,7 +112,7 @@ namespace spades {
 
 			UpdateRenderSize();
 
-			programManager = new GLProgramManager(*device, shadowMapRenderer.get(), settings);
+			programManager = new GLProgramManager(*device, settings);
 			imageManager = new GLImageManager(*device);
 			imageRenderer = new GLImageRenderer(*this);
 			profiler.reset(new GLProfiler(*this));

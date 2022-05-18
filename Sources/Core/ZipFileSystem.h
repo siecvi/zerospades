@@ -39,7 +39,6 @@ namespace spades {
 		class ZipFileHandle;
 
 		IStream* baseStream;
-		bool autoClose;
 		unzFile zip;
 
 		std::map<std::string, unz_file_pos_s> files;
@@ -61,7 +60,7 @@ namespace spades {
 		bool MoveToFile(const char*);
 
 	public:
-		ZipFileSystem(IStream*, bool autoClose = true);
+		ZipFileSystem(IStream*);
 		~ZipFileSystem();
 
 		std::vector<std::string> EnumFiles(const char*) override;

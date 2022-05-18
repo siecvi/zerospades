@@ -22,7 +22,7 @@
 
 namespace spades {
 	SettingSet::ItemHandle::ItemHandle(SettingSet& set, const std::string& name, ItemFlags flags)
-	    : set{set}, handle{name, nullptr}, flags{flags}, modified{true} {
+	    : handle{name, nullptr}, flags{flags}, modified{true} {
 		set.Register(*this);
 		Reload();
 
