@@ -63,8 +63,7 @@ if(OPENSPADES_RESOURCES)
 	add_custom_target(OpenSpades_Resources ALL
 		COMMENT "Building assets"
 		SOURCES ${PAK_IN_FILES}
-		DEPENDS
-			${COMPILED_PAK_FILES})
+		DEPENDS ${COMPILED_PAK_FILES})
 
 	if(WIN32)
 		add_custom_command(
@@ -93,6 +92,10 @@ if(OPENSPADES_RESOURCES)
 			COMMENT "Copying assets to the currently-selected configuration's build directory"
 			COMMAND
 				${CMAKE_COMMAND} -E make_directory
+					${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/Resources
+			COMMAND
+				${CMAKE_COMMAND} -E copy_if_different
+					${COMPILED_PAK_FILES}
 					${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>/Resources)
 	endif (WIN32 AND MSVC)
 endif()

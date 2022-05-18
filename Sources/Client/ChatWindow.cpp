@@ -221,10 +221,16 @@ namespace spades {
 				renderer->DrawImage(nullptr, AABB2(2.0F, winY + y, winW + 16.0F, winH + 16.0F - y));
 			}
 
-			for (const auto& ent : entries) {
-				const auto& msg = ent.msg;
+			std::list<ChatEntry>::iterator it;
+			for (it = entries.begin(); it != entries.end(); ++it) {
+				ChatEntry& ent = *it;
 
+				const auto& msg = ent.msg;
+				Vector4 color = GetColor(MsgColorRestore);
+
+				float tx = 0.0F, ty = y;
 				float fade = ent.fade;
+
 				if (expanded) { // Display out-dated messages
 					fade = ent.bufferFade;
 				} else {
@@ -235,11 +241,9 @@ namespace spades {
 				if (fade < 0.01F)
 					goto endDrawLine; // Skip rendering invisible messages
 
-				Vector4 color = GetColor(MsgColorRestore);
-				color.w = fade;
 				brightShadowColor.w = shadowColor.w = 0.8F * fade;
+				color.w = fade;
 
-				float tx = 0.0F, ty = y;
 				for (size_t i = 0; i < msg.size(); i++) {
 					if (msg[i] == 13 || msg[i] == 10) {
 						tx = 0.0F;
