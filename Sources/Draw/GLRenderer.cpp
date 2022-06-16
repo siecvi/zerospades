@@ -70,6 +70,8 @@
 #include <Core/Settings.h>
 #include <Core/Stopwatch.h>
 
+#include <Client/Client.h>
+
 namespace spades {
 	namespace draw {
 		// TODO: raise error for any calls after Shutdown().
@@ -850,6 +852,26 @@ namespace spades {
 				device->BlendFunc(IGLDevice::One, IGLDevice::OneMinusSrcAlpha, IGLDevice::Zero,
 				                  IGLDevice::One);
 				longSpriteRenderer->Render();
+			}
+
+			if (client::Client::WallhackActive()) { 
+				// now clear the depth buffer, enable depth mask & culling
+				device->DepthMask(true); //draw hitboxes above everything else
+				device->Clear(IGLDevice::DepthBufferBit);
+				device->Enable(IGLDevice::CullFace, true);
+
+				//draw hitboxes
+				GLProfiler::Context p(*profiler, "Debug Line");
+				device->Enable(IGLDevice::Blend, false);
+				device->Enable(IGLDevice::DepthTest, true);
+				device->DepthFunc(IGLDevice::Less);
+				RenderDebugLines();
+
+				// disable settings
+				device->ColorMask(true, true, true, true);
+				device->Enable(IGLDevice::Blend, true);
+				device->DepthMask(false);
+				device->Enable(IGLDevice::CullFace, false);
 			}
 
 			device->Enable(IGLDevice::DepthTest, false);

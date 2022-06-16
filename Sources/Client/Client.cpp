@@ -63,9 +63,12 @@ DEFINE_SPADES_SETTING(cg_playerMessages, "1");
 DEFINE_SPADES_SETTING(cg_smallFont, "0");
 
 SPADES_SETTING(cg_playerName);
+DEFINE_SPADES_SETTING(dd_specWallhack);
 
 namespace spades {
 	namespace client {
+
+		Client* Client::globalInstance = nullptr;
 
 		Client::Client(Handle<IRenderer> r, Handle<IAudioDevice> audioDev,
 		               const ServerAddress& host, Handle<FontManager> fontManager)
@@ -115,6 +118,8 @@ namespace spades {
 		      nextMapShotIndex(0) {
 			SPADES_MARK_FUNCTION();
 			SPLog("Initializing...");
+
+			Client::globalInstance = this;
 
 			renderer->SetFogColor(MakeVector3(0, 0, 0));
 			renderer->SetFogDistance(128.0F);
@@ -204,6 +209,8 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			NetLog("Disconnecting");
+
+			Client::globalInstance = nullptr;
 
 			if (logStream) {
 				SPLog("Closing netlog");
@@ -477,6 +484,8 @@ namespace spades {
 					weap = WeaponType::RIFLE_WEAPON;
 				}
 				net->SendJoin(team, weap, playerName, lastScore);
+				followedPlayerId = world->GetLocalPlayerIndex().value(); //set followid to localplayer on join otherwise
+																		 //its an arbitrary high number causing crashes when needed
 			} else {
 				Player& p = world->GetLocalPlayer().value();
 				if (p.GetTeamId() != team)
@@ -711,5 +720,20 @@ namespace spades {
 			followedPlayerId = nextId;
 			followCameraState.enabled = (followedPlayerId != world->GetLocalPlayerIndex());
 		}
+
+		bool Client::AreCheatsEnabled() {
+			if (!globalInstance) //client is loaded
+				return false;
+			if (!globalInstance->world) //world is loaded
+				return false;
+			if (!globalInstance->world->GetLocalPlayer()) //localplayer is created
+				return false;
+
+			Player& p = globalInstance->world->GetLocalPlayer().value();
+
+				return (p.GetTeamId() >= 2) &&  // on spectator team
+						p.IsAlive();            // alive
+		}
+		bool Client::WallhackActive() { return AreCheatsEnabled() && dd_specWallhack; }
 	} // namespace client
 } // namespace spades
