@@ -854,7 +854,7 @@ namespace spades {
 				longSpriteRenderer->Render();
 			}
 
-			if (client::Client::WallhackActive()) { 
+			if (client::Client::SpectatorEspActive()) { 
 				// now clear the depth buffer, enable depth mask & culling
 				device->DepthMask(true); //draw hitboxes above everything else
 				device->Clear(IGLDevice::DepthBufferBit);

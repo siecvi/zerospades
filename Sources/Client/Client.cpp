@@ -63,7 +63,7 @@ DEFINE_SPADES_SETTING(cg_playerMessages, "1");
 DEFINE_SPADES_SETTING(cg_smallFont, "0");
 
 SPADES_SETTING(cg_playerName);
-DEFINE_SPADES_SETTING(dd_specWallhack);
+DEFINE_SPADES_SETTING(dd_spectatorESP);
 
 namespace spades {
 	namespace client {
@@ -721,7 +721,7 @@ namespace spades {
 			followCameraState.enabled = (followedPlayerId != world->GetLocalPlayerIndex());
 		}
 
-		bool Client::AreCheatsEnabled() {
+		bool Client::AdminFeaturesEnabled() {
 			if (!globalInstance) //client is loaded
 				return false;
 			if (!globalInstance->world) //world is loaded
@@ -734,6 +734,6 @@ namespace spades {
 				return (p.GetTeamId() >= 2) &&  // on spectator team
 						p.IsAlive();            // alive
 		}
-		bool Client::WallhackActive() { return AreCheatsEnabled() && dd_specWallhack; }
+		bool Client::SpectatorEspActive() { return AdminFeaturesEnabled() && dd_spectatorESP; }
 	} // namespace client
 } // namespace spades

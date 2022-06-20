@@ -530,8 +530,8 @@ namespace spades {
 			void LocalPlayerBuildError(BuildFailureReason reason) override;
 			// IWorldListener end
 
-			static bool AreCheatsEnabled(); // 'cheats', i.e. spectator wallhack or player names
-			static bool WallhackActive();
+			static bool AdminFeaturesEnabled();
+			static bool SpectatorEspActive();
 		};
 	} // namespace client
 } // namespace spades

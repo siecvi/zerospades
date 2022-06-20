@@ -686,11 +686,12 @@ namespace spades {
 				AddDebugObjectToScene(hb.limbs[2], (tag & hit_Arms) ? color2 : color);
 			}
 
-			if (WallhackActive()) { 
+			if (SpectatorEspActive()) { 
 				for (int i = 0; i < world->GetNumPlayerSlots(); ++i) {
 					if (world->GetPlayer(i)) {
 						Player& player = world->GetPlayer(i).value();
-
+						if (!&player)
+							continue;
 						if (!player.IsAlive() || player.IsSpectator() || &player == world->GetPlayer(followedPlayerId))
 							continue;
 
