@@ -527,7 +527,7 @@ namespace spades {
 					LinePixel px;
 					px.depth = dist;
 #if ENABLE_SSE
-					if (flevel == SWFeatureLevel::SSE2) {
+					if constexpr (flevel == SWFeatureLevel::SSE2) {
 						__m128i m;
 						uint32_t col = map.GetColorWrapped(x, y, z);
 						m = _mm_setr_epi32(col, 0, 0, 0);
@@ -840,7 +840,7 @@ namespace spades {
 // though this isn't a problem as long as the color comes
 // in the LSB's
 #if ENABLE_SSE
-							if (flevel == SWFeatureLevel::SSE2) {
+							if constexpr (flevel == SWFeatureLevel::SSE2) {
 								__m128i m;
 
 								if (under == 1) {
