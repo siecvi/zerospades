@@ -1064,11 +1064,15 @@ namespace spades {
 			SPAssert(map);
 
 			// lower feet
-			if (airborne && !(map->ClipBox(x1, y1, z1) || map->ClipBox(x2, y1, z1) ||
-			                  map->ClipBox(x1, y2, z1) || map->ClipBox(x2, y2, z1)))
+			if (airborne && !(map->ClipBox(x1, y1, z1)
+				|| map->ClipBox(x2, y1, z1)
+				|| map->ClipBox(x1, y2, z1)
+				|| map->ClipBox(x2, y2, z1)))
 				return true;
-			else if (!(map->ClipBox(x1, y1, z2) || map->ClipBox(x2, y1, z2) ||
-			           map->ClipBox(x1, y2, z2) || map->ClipBox(x2, y2, z2))) {
+			else if (!(map->ClipBox(x1, y1, z2)
+				|| map->ClipBox(x2, y1, z2)
+				|| map->ClipBox(x1, y2, z2)
+				|| map->ClipBox(x2, y2, z2))) {
 				position.z -= 0.9F;
 				eye.z -= 0.9F;
 				return true;
@@ -1180,6 +1184,8 @@ namespace spades {
 		Player::HitBoxes Player::GetHitBoxes() {
 			SPADES_MARK_FUNCTION_DEBUG();
 
+			Player::HitBoxes hb;
+
 			Vector3 o = GetFront();
 
 			float yaw = atan2f(o.y, o.x) + M_PI_F * 0.5F;
@@ -1188,34 +1194,30 @@ namespace spades {
 			// lower axis
 			Matrix4 const lower = Matrix4::Translate(GetOrigin())
 				* Matrix4::Rotate(MakeVector3(0, 0, 1), yaw);
-
-			AABB3 head, arms, torso, leg1, leg2;
-
-			if (input.crouch) {
-				leg2 = AABB3(-0.4F, -0.1F, -0.2F, 0.3F, 0.4F, 0.8F);
-				leg1 = AABB3(0.1F, -0.1F, -0.2F, 0.3F, 0.4F, 0.8F);
-				torso = AABB3(-0.4F, -0.1F, -0.1F, 0.8F, 0.8F, 0.7F);
-				arms = AABB3(-0.6F, -0.15F, -0.1F, 1.2F, 0.3F, 0.7F);
-				head = AABB3(-0.3F, -0.3F, -0.6F, 0.6F, 0.6F, 0.6F);
-			} else {
-				leg2 = AABB3(-0.4F, -0.2F, -0.15F, 0.3F, 0.4F, 1.2F);
-				leg1 = AABB3(0.1F, -0.2F, -0.15F, 0.3F, 0.4F, 1.2F);
-				torso = AABB3(-0.4F, -0.2F, 0.0F, 0.8F, 0.4F, 0.9F);
-				arms = AABB3(-0.6F, -0.15F, 0.0F, 1.2F, 0.3F, 0.9F);
-				head = AABB3(-0.3F, -0.3F, -0.6F, 0.6F, 0.6F, 0.6F);
-			}
-
-			Matrix4 const torsoMat = lower
+			Matrix4 const torso = lower
 				* Matrix4::Translate(0, 0, -(input.crouch ? 0.55F : 1));
-			Matrix4 const headMat = torsoMat
+			Matrix4 const head = torso
 				* Matrix4::Rotate(MakeVector3(1, 0, 0), pitch);
 
-			Player::HitBoxes hb;
-			hb.limbs[0] = lower * leg1;
-			hb.limbs[1] = lower * leg2;
-			hb.torso = torsoMat * torso;
-			hb.limbs[2] = torsoMat * arms;
-			hb.head = headMat * head;
+			if (input.crouch) {
+				hb.limbs[0] = AABB3(-0.4F, -0.1F, -0.2F, 0.3F, 0.4F, 0.8F);
+				hb.limbs[1] = AABB3(0.1F, -0.1F, -0.2F, 0.3F, 0.4F, 0.8F);
+				hb.torso = AABB3(-0.4F, -0.1F, -0.1F, 0.8F, 0.8F, 0.7F);
+				hb.limbs[2] = AABB3(-0.6F, -0.15F, -0.1F, 1.2F, 0.3F, 0.7F);
+				hb.head = AABB3(-0.3F, -0.3F, -0.6F, 0.6F, 0.6F, 0.6F);
+			} else {
+				hb.limbs[0] = AABB3(-0.4F, -0.2F, -0.15F, 0.3F, 0.4F, 1.2F);
+				hb.limbs[1] = AABB3(0.1F, -0.2F, -0.15F, 0.3F, 0.4F, 1.2F);
+				hb.torso = AABB3(-0.4F, -0.2F, 0.0F, 0.8F, 0.4F, 0.9F);
+				hb.limbs[2] = AABB3(-0.6F, -0.15F, 0.0F, 1.2F, 0.3F, 0.9F);
+				hb.head = AABB3(-0.3F, -0.3F, -0.6F, 0.6F, 0.6F, 0.6F);
+			}
+
+			hb.limbs[0] = lower * hb.limbs[0];
+			hb.limbs[1] = lower * hb.limbs[1];
+			hb.torso = torso * hb.torso;
+			hb.limbs[2] = torso * hb.limbs[2];
+			hb.head = head * hb.head;
 
 			return hb;
 		}
