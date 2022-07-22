@@ -989,7 +989,6 @@ namespace spades {
 				if ((bool)cg_analyze) {
 					char buf[256];
 
-					auto nameStr = hurtPlayer.GetName();
 					int dist = (int)(by.GetPosition() - hurtPlayer.GetPosition()).GetLength();
 					float dt = (world->GetTime() - lastHitTime) * 1000;
 
@@ -999,15 +998,17 @@ namespace spades {
 						case HitTypeHead: hitType = "Head"; break;
 						case HitTypeArms:
 						case HitTypeLegs: hitType = "Limb"; break;
-						default: hitType = "Melee"; break;
+						default: hitType = "Head"; break;
 					}
 
+					std::string weapoName = by.IsToolSpade() ? "Melee" : by.GetWeapon().GetName();
+
 					if (dt > 0.0F && lastHitTime > 0.0F)
-						sprintf(buf, "Bullet hit %s dist: %d blocks dT: %.0fms %s",
-							nameStr.c_str(), dist, dt, hitType.c_str());
+						sprintf(buf, "%s hit %s dist: %d blocks dT: %.0fms",
+							weapoName.c_str(), hitType.c_str(), dist, dt);
 					else
-						sprintf(buf, "Bullet hit %s dist: %d blocks dT: NA %s",
-							nameStr.c_str(), dist, hitType.c_str());
+						sprintf(buf, "%s hit %s dist: %d blocks dT: NA",
+							weapoName.c_str(), hitType.c_str(), dist);
 
 					scriptedUI->RecordChatLog(buf);
 					chatWindow->AddMessage(buf);
