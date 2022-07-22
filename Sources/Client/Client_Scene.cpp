@@ -90,15 +90,16 @@ namespace spades {
 
 		int Client::GetCameraTargetPlayerId() {
 			switch (GetCameraMode()) {
-				case ClientCameraMode::None:
+				case ClientCameraMode::None: SPUnreachable();
 				case ClientCameraMode::NotJoined:
-				case ClientCameraMode::Free: SPUnreachable();
+				case ClientCameraMode::Free:
 				case ClientCameraMode::FirstPersonLocal:
 				case ClientCameraMode::ThirdPersonLocal:
 					SPAssert(world);
 					return world->GetLocalPlayerIndex().value();
 				case ClientCameraMode::FirstPersonFollow:
-				case ClientCameraMode::ThirdPersonFollow: return followedPlayerId;
+				case ClientCameraMode::ThirdPersonFollow:
+					return followedPlayerId;
 			}
 			SPUnreachable();
 		}

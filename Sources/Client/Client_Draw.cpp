@@ -371,6 +371,8 @@ namespace spades {
 					continue;
 				if (p.IsSpectator() || !p.IsAlive())
 					continue;
+				if (&p == &GetCameraTargetPlayer())
+					continue;
 
 				if (!p.GetFront().IsValid())
 					continue; // exclude invisible players
@@ -755,10 +757,10 @@ namespace spades {
 			auto cameraMode = GetCameraMode();
 
 			if (HasTargetPlayer(cameraMode)) {
-				auto targetId = GetCameraTargetPlayerId();
+				int playerId = GetCameraTargetPlayerId();
 
 				addLine(_Tr("Client", "Following {0} [#{1}]",
-					  world->GetPlayerName(targetId), targetId));
+					  world->GetPlayerName(playerId), playerId));
 			}
 
 			y += 10.0F;
