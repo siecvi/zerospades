@@ -1098,10 +1098,7 @@ namespace spades {
 
 			// Arms
 			{
-				if (currentTool == Player::ToolWeapon)
-					model = renderer.RegisterModel((path + "/ArmsWeap.kv6").c_str());
-				else
-					model = renderer.RegisterModel((path + "/Arms.kv6").c_str());
+				model = renderer.RegisterModel((path + "/Arms.kv6").c_str());
 
 				param.matrix = arms * scaler;
 				renderer.RenderModel(*model, param);
