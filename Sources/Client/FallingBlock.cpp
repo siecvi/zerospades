@@ -163,7 +163,6 @@ namespace spades {
 								auto ent = stmp::make_unique<ParticleSpriteEntity>(
 								  *client, img.GetPointerOrNull(), col);
 								ent->SetTrajectory(p3, RandomAxis() * 13.0F, 1.0F, 0.6F);
-								ent->SetRotation(getRandom() * M_PI_F * 2.0F);
 								ent->SetRadius(0.35F + getRandom() * getRandom() * 0.1F);
 								ent->SetLifeTime(2.0F, 0.0F, 1.0F);
 								if (usePrecisePhysics)

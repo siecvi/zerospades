@@ -159,7 +159,6 @@ namespace spades {
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				ent->SetTrajectory(pos, RandomAxis() * 8.0F);
-				ent->SetRotation(0.0F);
 				ent->SetRadius(0.45F);
 				ent->SetLifeTime(2.0F, 0.0F, 1.0F);
 				ent->SetBlockHitAction(BlockHitAction::BounceWeak);
@@ -212,7 +211,6 @@ namespace spades {
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				ent->SetTrajectory(pos, RandomAxis() * 8.0F);
-				ent->SetRotation(0.0F);
 				ent->SetRadius(0.4F);
 				ent->SetLifeTime(2.0F, 0.0F, 1.0F);
 				if (distPowered < 16.0F * 16.0F)
@@ -268,7 +266,6 @@ namespace spades {
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				ent->SetTrajectory(pos, RandomAxis() * 8.0F);
-				ent->SetRotation(0.0F);
 				ent->SetRadius(0.4F);
 				ent->SetLifeTime(2.0F, 0.0F, 1.0F);
 				ent->SetBlockHitAction(BlockHitAction::BounceWeak);
@@ -370,7 +367,6 @@ namespace spades {
 				Vector3 dir = RandomAxis() + velBias * 0.5F;
 				float radius = 0.3F + SampleRandomFloat() * SampleRandomFloat() * 0.3F;
 				ent->SetTrajectory(pos + dir * 0.2F, dir * 20.0F, 0.1F + radius * 3.0F, 1.0F);
-				ent->SetRotation(0.0F);
 				ent->SetRadius(radius);
 				ent->SetLifeTime(3.5F + SampleRandomFloat() * 2.0F, 0.0F, 1.0F);
 				ent->SetBlockHitAction(BlockHitAction::BounceWeak);
@@ -468,7 +464,6 @@ namespace spades {
 				Vector3 dir = RandomAxis() + velBias * 0.5F;
 				float radius = 0.3F + SampleRandomFloat() * SampleRandomFloat() * 0.3F;
 				ent->SetTrajectory(pos + dir * 0.2F, dir * 20.0F, 0.1F + radius * 3.0F, 1.0F);
-				ent->SetRotation(0.0F);
 				ent->SetRadius(radius);
 				ent->SetLifeTime(3.5F + SampleRandomFloat() * 2.0F, 0.0F, 1.0F);
 				ent->SetBlockHitAction(BlockHitAction::BounceWeak);
@@ -485,7 +480,6 @@ namespace spades {
 				ent->SetTrajectory(pos, (MakeVector3(SampleRandomFloat() - SampleRandomFloat(),
 					SampleRandomFloat() - SampleRandomFloat(),
 					-SampleRandomFloat() * 7.0F)) * 2.5F, 0.3F, 0.6F);
-				ent->SetRotation(0.0F);
 				ent->SetRadius(1.5F + SampleRandomFloat() * SampleRandomFloat() * 0.4F, 1.3F);
 				ent->SetLifeTime(3.0F + SampleRandomFloat() * 0.3F, 0.0F, 0.6F);
 				ent->SetBlockHitAction(BlockHitAction::Ignore);
