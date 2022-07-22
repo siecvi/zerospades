@@ -151,7 +151,6 @@ namespace spades {
 			bool ClipWorld(float x, float y, float z) const;
 
 			// vanila compat
-			bool CanSee(Vector3 v0, Vector3 v1, int length) const;
 			bool CastRay(Vector3 v0, Vector3 v1, float length, IntVector3& vOut) const;
 
 			// accurate and slow ray casting

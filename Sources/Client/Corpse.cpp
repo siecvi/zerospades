@@ -623,7 +623,8 @@ namespace spades {
 				return false;
 
 			for (int i = 0; i < NodeCount; i++) {
-				if (map.CanSee(eye, nodes[i].pos, 256))
+				IntVector3 outBlk;
+				if (map.CastRay(eye, nodes[i].pos, 256.0F, outBlk))
 					return true;
 			}
 

@@ -291,14 +291,20 @@ namespace spades {
 			}
 		}
 
-		Vector4 Client::GetPlayerColor(Player& p) {
+		Vector4 Client::GetPlayerColor(Player& player) {
 			Vector4 playerColor = MakeVector4(1, 1, 1, 1);
 
 			Vector3 origin = lastSceneDef.viewOrigin;
+			Vector3 eye = player.GetEye();
 
-			if (!map->CanSee(p.GetEye(), origin, FOG_DISTANCE))
-				playerColor = ModifyColor(p.GetColor());
-			if ((int)((p.GetEye() - origin).GetLength2D()) > FOG_DISTANCE)
+			// do map raycast
+			GameMap::RayCastResult mapResult;
+			mapResult = map->CastRay2(eye, (origin - eye).Normalize(), 256);
+
+			if (mapResult.hit && (mapResult.hitPos - eye).GetLength() < (origin - eye).GetLength())
+				playerColor = ModifyColor(player.GetColor());
+
+			if ((int)((player.GetEye() - origin).GetLength2D()) > FOG_DISTANCE)
 				playerColor = MakeVector4(1, 0.75, 0, 1);
 
 			return playerColor;
