@@ -219,7 +219,9 @@ namespace spades {
 		void Client::DrawPlayingTime() {
 			IFont& font = fontManager->GetMediumFont();
 			int now = (int)world->GetTime();
-			auto str = _Tr("Client", "Playing for {0}m{1}s", ToString(now / 60), ToString(now % 60));
+			int mins = now / 60;
+			int secs = now - mins * 60;
+			auto str = _Tr("Client", "Playing for {0}m{1}s", ToString(mins), ToString(secs));
 			auto size = font.Measure(str);
 			auto pos = MakeVector2((renderer->ScreenWidth() - size.x) * 0.5F, 48.0F - size.y);
 			font.DrawShadow(str, pos, 1.0F, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.5));
@@ -350,7 +352,7 @@ namespace spades {
 			}
 		}
 
-		void Client::DrawPUBOVL() {
+		void Client::DrawPubOVL() {
 			SPADES_MARK_FUNCTION();
 
 			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
@@ -900,34 +902,37 @@ namespace spades {
 					if (IsFirstPerson(GetCameraMode()))
 						DrawFirstPersonHUD();
 
+					// draw map
+					if (!largeMapView->IsZoomed())
+						mapView->Draw();
+
 					if (!p->IsSpectator()) { // player is not spectator
+						if (cg_playerStats)
+							DrawPlayerStats();
+						if (!p->IsToolBlock() && !debugHitTestZoom)
+							DrawHitTestDebugger();
+
 						if (p->IsAlive()) {
 							DrawJoinedAlivePlayerHUD(x, y, sw, sh);
 						} else {
 							DrawDeadPlayerHUD();
 							DrawSpectateHUD();
 						}
-
-						if (cg_playerStats)
-							DrawPlayerStats();
 					} else {
 						DrawSpectateHUD();
-						DrawPUBOVL();
+						DrawPubOVL();
 					}
 
 					chatWindow->Draw();
 					killfeedWindow->Draw();
-
 					DrawAlert();
 
-					if ((!p->IsSpectator() && !p->IsToolBlock()) || debugHitTestZoom)
+					if (debugHitTestZoom)
 						DrawHitTestDebugger();
 
-					// map view should come in front
+					// large map view should come in front
 					if (largeMapView->IsZoomed())
 						largeMapView->Draw();
-					else
-						mapView->Draw();
 				}
 
 				centerMessageView->Draw();
@@ -942,7 +947,6 @@ namespace spades {
 
 				scoreboard->Draw();
 				centerMessageView->Draw();
-
 				DrawAlert();
 			}
 

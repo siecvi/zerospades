@@ -204,13 +204,13 @@ namespace spades {
 				int numHits = 0;
 				numHits += hit.numHeadHits;
 				numHits += hit.numTorsoHits;
-				for (std::size_t i = 0; i < 3; i++)
-					numHits += hit.numLimbHits[i];
+				for (int j = 0; j < 3; j++)
+					numHits += hit.numLimbHits[j];
 
 				if (numHits > 0) {
 					drawBox(hitboxes.head, getColor(hit.numHeadHits));
 					drawBox(hitboxes.torso, getColor(hit.numTorsoHits));
-					for (std::size_t i = 0; i < 3; i++)
+					for (int j = 0; j < 3; j++)
 						drawBox(hitboxes.limbs[i], getColor(hit.numLimbHits[i]));
 				}
 			}

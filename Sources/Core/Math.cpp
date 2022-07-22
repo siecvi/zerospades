@@ -481,21 +481,43 @@ namespace spades {
 		return (v - Project(v, supposeUnbounded)).GetLength();
 	}
 
-	std::string Replace(const std::string& text, const std::string& before,
-	                    const std::string& after) {
-		std::string out;
-		size_t pos = 0;
-		while (pos < text.size()) {
-			size_t newPos = text.find(before, pos);
-			if (newPos == std::string::npos) {
-				out.append(text, pos, text.size() - pos);
-				break;
+	bool PlaneCullTest(const Plane3& plane, const AABB3& box) {
+		Vector3 testVertex; // find the vertex with the greatest distance value
+		if (plane.n.x >= 0.0F) {
+			if (plane.n.y >= 0.0F) {
+				testVertex = (plane.n.z >= 0.0F)
+					? box.max
+					: MakeVector3(box.max.x, box.max.y, box.min.z);
+			} else {
+				testVertex = (plane.n.z >= 0.0F)
+					? MakeVector3(box.max.x, box.min.y, box.max.z)
+					: MakeVector3(box.max.x, box.min.y, box.min.z);
 			}
-			out.append(text, pos, newPos - pos);
-			out += after;
-			pos = newPos + before.size();
+		} else {
+			if (plane.n.y >= 0.0F) {
+				testVertex = (plane.n.z >= 0.0F)
+					? MakeVector3(box.min.x, box.max.y, box.max.z)
+					: MakeVector3(box.min.x, box.max.y, box.min.z);
+			} else {
+				testVertex = (plane.n.z >= 0.0F)
+					? MakeVector3(box.min.x, box.min.y, box.max.z)
+					: box.min;
+			}
 		}
-		return out;
+		return plane.GetDistanceTo(testVertex) >= 0.0F;
+	}
+
+	bool EqualsIgnoringCase(const std::string& a, const std::string& b) {
+		if (a.size() != b.size())
+			return false;
+		if (&a == &b)
+			return true;
+		for (size_t siz = a.size(), i = 0; i < siz; i++) {
+			char x = a[i], y = b[i];
+			if (tolower(x) != tolower(y))
+				return false;
+		}
+		return true;
 	}
 
 	std::vector<std::string> Split(const std::string& str, const std::string& sep) {
@@ -533,6 +555,42 @@ namespace spades {
 		strs.push_back(buf);
 
 		return strs;
+	}
+
+	std::string Replace(const std::string& text,
+		const std::string& before, const std::string& after) {
+		std::string out;
+		size_t pos = 0;
+		while (pos < text.size()) {
+			size_t newPos = text.find(before, pos);
+			if (newPos == std::string::npos) {
+				out.append(text, pos, text.size() - pos);
+				break;
+			}
+			out.append(text, pos, newPos - pos);
+			out += after;
+			pos = newPos + before.size();
+		}
+		return out;
+	}
+
+	std::string TrimSpaces(const std::string& str) {
+		size_t pos = str.find_first_not_of(" \t\n\r");
+		if (pos == std::string::npos)
+			return std::string();
+		size_t po2 = str.find_last_not_of(" \t\n\r");
+		SPAssert(po2 != std::string::npos);
+		SPAssert(po2 >= pos);
+		return str.substr(pos, po2 - pos + 1);
+	}
+
+	std::string ToUpperCase(const std::string& str) {
+		std::string output;
+		output.resize(str.size());
+
+		::std::transform(str.begin(), str.end(), output.begin(), ::toupper);
+
+		return output;
 	}
 
 	std::string EscapeControlCharacters(const std::string& str) {
@@ -582,62 +640,6 @@ namespace spades {
 			}
 		}
 		return out;
-	}
-
-	std::string TrimSpaces(const std::string& str) {
-		size_t pos = str.find_first_not_of(" \t\n\r");
-		if (pos == std::string::npos)
-			return std::string();
-		size_t po2 = str.find_last_not_of(" \t\n\r");
-		SPAssert(po2 != std::string::npos);
-		SPAssert(po2 >= pos);
-		return str.substr(pos, po2 - pos + 1);
-	}
-
-	std::string ToUpperCase(const std::string& str) {
-		std::string output;
-		output.resize(str.size());
-
-		::std::transform(str.begin(), str.end(), output.begin(), ::toupper);
-
-		return output;
-	}
-
-	bool PlaneCullTest(const Plane3& plane, const AABB3& box) {
-		Vector3 testVertex; // find the vertex with the greatest distance value
-		if (plane.n.x >= 0.0F) {
-			if (plane.n.y >= 0.0F) {
-				testVertex = (plane.n.z >= 0.0F)
-					? box.max : MakeVector3(box.max.x, box.max.y, box.min.z);
-			} else {
-				testVertex = (plane.n.z >= 0.0F)
-					? MakeVector3(box.max.x, box.min.y, box.max.z)
-					: MakeVector3(box.max.x, box.min.y, box.min.z);
-			}
-		} else {
-			if (plane.n.y >= 0.0F) {
-				testVertex = (plane.n.z >= 0.0F)
-					? MakeVector3(box.min.x, box.max.y, box.max.z)
-					: MakeVector3(box.min.x, box.max.y, box.min.z);
-			} else {
-				testVertex = (plane.n.z >= 0.0F)
-					? MakeVector3(box.min.x, box.min.y, box.max.z) : box.min;
-			}
-		}
-		return plane.GetDistanceTo(testVertex) >= 0.0F;
-	}
-
-	bool EqualsIgnoringCase(const std::string& a, const std::string& b) {
-		if (a.size() != b.size())
-			return false;
-		if (&a == &b)
-			return true;
-		for (size_t siz = a.size(), i = 0; i < siz; i++) {
-			char x = a[i], y = b[i];
-			if (tolower(x) != tolower(y))
-				return false;
-		}
-		return true;
 	}
 
 	uint32_t GetCodePointFromUTF8String(const std::string& str, size_t start, size_t* outNumBytes) {

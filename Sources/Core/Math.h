@@ -808,7 +808,6 @@ namespace spades {
 		Quaternion(float i, float j, float k, float real) : v(i, j, k, real) {}
 
 		inline Quaternion Conjugate() const { return Quaternion(-v.x, -v.y, -v.z, v.w); }
-
 		inline Quaternion Normalize() const { return Quaternion(v.Normalize()); }
 
 		inline Quaternion operator*(const Quaternion& o) const {
@@ -863,7 +862,7 @@ namespace spades {
 		static inline Quaternion MakeRotation(const Vector3& axis) {
 			auto ln = axis.GetLength();
 			auto norm = axis.Normalize();
-			auto c = cosf(ln * 0.5f), s = -sinf(ln * 0.5f);
+			auto c = cosf(ln * 0.5F), s = -sinf(ln * 0.5F);
 			norm *= s;
 			return Quaternion(norm.x, norm.y, norm.z, c);
 		}
@@ -991,13 +990,13 @@ namespace spades {
 	/** @return true if any portion of the box is in the positive side of plane. */
 	bool PlaneCullTest(const Plane3&, const AABB3&);
 
-	std::string Replace(const std::string& text, const std::string& before,
-	                    const std::string& after);
-
 	bool EqualsIgnoringCase(const std::string&, const std::string&);
-	std::vector<std::string> Split(const std::string&, const std::string& sep);
+	std::vector<std::string> Split(const std::string&, const std::string&);
 	std::vector<std::string> SplitIntoLines(const std::string&);
-	std::string EscapeControlCharacters(const std::string& str);
+	std::string Replace(const std::string&, const std::string&, const std::string&);
+	std::string TrimSpaces(const std::string&);
+	std::string ToUpperCase(const std::string&);
+	std::string EscapeControlCharacters(const std::string&);
 
 	uint32_t GetCodePointFromUTF8String(const std::string&, size_t start = 0, size_t* outNumBytes = nullptr);
 	template <typename Iterator> static Iterator CodePointToUTF8(Iterator output, uint32_t cp) {
@@ -1031,9 +1030,6 @@ namespace spades {
 		}
 		return output;
 	}
-
-	std::string TrimSpaces(const std::string&);
-	std::string ToUpperCase(const std::string&);
 } // namespace spades
 
 namespace std {
