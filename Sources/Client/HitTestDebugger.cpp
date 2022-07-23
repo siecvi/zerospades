@@ -211,7 +211,7 @@ namespace spades {
 					drawBox(hitboxes.head, getColor(hit.numHeadHits));
 					drawBox(hitboxes.torso, getColor(hit.numTorsoHits));
 					for (int j = 0; j < 3; j++)
-						drawBox(hitboxes.limbs[i], getColor(hit.numLimbHits[i]));
+						drawBox(hitboxes.limbs[j], getColor(hit.numLimbHits[j]));
 				}
 			}
 
