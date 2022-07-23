@@ -303,8 +303,7 @@ namespace spades {
 
 			if (mapResult.hit && (mapResult.hitPos - eye).GetLength() < (origin - eye).GetLength())
 				playerColor = ModifyColor(player.GetColor());
-
-			if ((int)((player.GetEye() - origin).GetLength2D()) > FOG_DISTANCE)
+			if ((int)((eye - origin).GetLength2D()) > FOG_DISTANCE)
 				playerColor = MakeVector4(1, 0.75, 0, 1);
 
 			return playerColor;
@@ -627,13 +626,11 @@ namespace spades {
 
 			IFont& font = fontManager->GetSmallFont();
 
+			float sh = renderer->ScreenHeight();
+
 			float x = 8.0F;
-			float y = cg_minimapSize;
-			if (y < 32)
-				y = 32;
-			if (y > 256)
-				y = 256;
-			y += 32;
+			float y = sh * 0.5F;
+			y -= 64.0F;
 
 			auto addLine = [&](const char* format, ...) {
 				char buf[256];
@@ -739,12 +736,20 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			float sw = renderer->ScreenWidth();
+			float sh = renderer->ScreenHeight();
 
 			IFont& font = fontManager->GetGuiFont();
 
 			float x = sw - 8.0F;
+			float minY = sh * 0.5F;
+			minY -= 64.0F;
+
 			float y = cg_minimapSize;
-			y += 64;
+			if (y < minY)
+				y = minY;
+			if (y > 256.0F)
+				y = 256.0F;
+			y += 32.0F;
 
 			auto addLine = [&](const std::string& text) {
 				Vector2 pos = MakeVector2(x, y);
