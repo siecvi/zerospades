@@ -460,9 +460,9 @@ namespace spades {
 				SetSelectedTool(t);
 			}
 
-			// send orientation packet - 20 per second
+			// send orientation packet - 120 per second
 			Vector3 curFront = player.GetFront();
-			if (curFront != lastFront && time - lastOriSentTime > (1.0F / 20.0F)) {
+			if (curFront != lastFront && time - lastOriSentTime > (1.0F / 120.0F)) {
 				net->SendOrientation(curFront);
 				lastOriSentTime = time;
 				lastFront = curFront;
