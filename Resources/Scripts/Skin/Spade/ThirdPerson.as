@@ -57,6 +57,12 @@
 			mat = mat * CreateScaleMatrix(-1, -1, 1);
 			mat = CreateTranslateMatrix(0.45F, -0.9F, -0.05F) * mat;
 
+			if (actionType == spades::SpadeActionType::Bash) {
+				@model = @pickaxeModel;
+			} else if (actionType == spades::SpadeActionType::DigStart or actionType == spades::SpadeActionType::Dig) {
+				@model = @spadeModel;
+			}
+
 			ModelRenderParam param;
 			param.matrix = originMatrix * mat;
 			renderer.AddModel(model, param);
