@@ -914,7 +914,6 @@ namespace spades {
 	}
 
 	float SmoothStep(float);
-	int Mix(int a, int b, int frac);
 	float Mix(float a, float b, float frac);
 	Vector2 Mix(const Vector2& a, const Vector2& b, float frac);
 	Vector3 Mix(const Vector3& a, const Vector3& b, float frac);

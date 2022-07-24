@@ -710,7 +710,6 @@ namespace spades {
 
 	float SmoothStep(float x) { return x * x * (3 - 2 * x); }
 
-	int Mix(int a, int b, int frac) { return a + (b - a) * frac; }
 	float Mix(float a, float b, float frac) { return a + (b - a) * frac; }
 	Vector2 Mix(const Vector2& a, const Vector2& b, float frac) { return a + (b - a) * frac; }
 	Vector3 Mix(const Vector3& a, const Vector3& b, float frac) { return a + (b - a) * frac; }
