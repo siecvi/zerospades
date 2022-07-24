@@ -755,6 +755,10 @@ namespace spades {
 				Vector3 o = victim.GetFront();
 				followAndFreeCameraState.yaw = atan2f(o.y, o.x) + DEG2RAD(180);
 				followAndFreeCameraState.pitch = DEG2RAD(30);
+
+				// play death sound
+				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Player/Death.opus");
+				audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 			}
 
 			// Register local kills
