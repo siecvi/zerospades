@@ -12,43 +12,46 @@
 #include "VersionInfo.h"
 
 std::string VersionInfo::GetVersionInfo() {
+	std::string result;
+
 #if defined(OS_PLATFORM_LINUX)
-	return std::string("Linux");
+	result = "Linux";
 #elif defined(TARGET_OS_MAC)
-	return std::string("Mac OS X");
+	result = "Mac OS X";
 #elif defined(OS_PLATFORM_WINDOWS)
-	std::string windowsVersion;
 	if (IsWindowsXPOrGreater() && !IsWindowsVistaOrGreater()) {
-		windowsVersion = "Windows XP";
+		result = "Windows XP";
 	} else if (IsWindowsVistaOrGreater() && !IsWindows7OrGreater()) {
-		windowsVersion = "Windows Vista";
+		result = "Windows Vista";
 	} else if (IsWindows7OrGreater() && !IsWindows8OrGreater()) {
-		windowsVersion = "Windows 7";
+		result = "Windows 7";
 	} else if (IsWindows8OrGreater() && !IsWindows8Point1OrGreater()) {
-		windowsVersion = "Windows 8";
+		result = "Windows 8";
 	} else if (IsWindows8Point1OrGreater() && !IsWindows10OrGreater()) {
-		windowsVersion = "Windows 8.1";
+		result = "Windows 8.1";
 	} else if (IsWindows10OrGreater()) {
-		windowsVersion = "Windows 10";
+		result = "Windows 10";
 	} else {
-		windowsVersion = "Windows 11";
+		result = "Windows 11";
 	}
 
 	if (IsWindowsServer())
-		windowsVersion += " Server";
-
-	return windowsVersion + " | ZeroSpades 0.0.5 " GIT_COMMIT_HASH;
+		result += " Server";
 #elif defined(__FreeBSD__)
-	return std::string("FreeBSD");
-	#elif defined(__DragonFly__)
-	return std::string("DragonFly BSD");
+	result = "FreeBSD";
+#elif defined(__DragonFly__)
+	result = "DragonFly BSD";
 #elif defined(__OpenBSD__)
-	return std::string("OpenBSD");
+	result = "OpenBSD";
 #elif defined(__NetBSD__)
-	return std::string("NetBSD");
+	result = "NetBSD";
 #elif defined(__HAIKU__)
-	return std::string("Haiku");
+	result = "Haiku";
 #else
-	return std::string("Unknown OS");
+	result = "Unknown OS";
 #endif
+
+	result += " | ZeroSpades 0.0.5 " GIT_COMMIT_HASH;
+
+	return result;
 }
