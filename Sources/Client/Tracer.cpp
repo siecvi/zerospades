@@ -18,8 +18,8 @@ DEFINE_SPADES_SETTING(cg_tracerLights, "0");
 
 namespace spades {
 	namespace client {
-		Tracer::Tracer(Client& _client, Vector3 p1, Vector3 p2, float bulletVel)
-		    : client(_client), startPos(p1), velocity(bulletVel) {
+		Tracer::Tracer(Client& _client, Vector3 p1, Vector3 p2, float bulletVel, bool shotgun)
+		    : client(_client), startPos(p1), velocity(bulletVel), shotgun(shotgun) {
 			dir = (p2 - p1).Normalize();
 			length = (p2 - p1).GetLength();
 
@@ -52,7 +52,11 @@ namespace spades {
 		}
 
 		void Tracer::Render3D() {
-			Vector4 col = {1, 0.6F, 0.2F, 0};
+			Vector4 col;
+			if (shotgun)
+				col = {0, 0, 0, 0.25};
+			else
+				col = {1, 0.6F, 0.2F, 0};
 
 			IRenderer& r = client.GetRenderer();
 			if (dynamic_cast<draw::SWRenderer*>(&r)) {
@@ -97,7 +101,7 @@ namespace spades {
 				}
 
 				// Add subtle dynamic light
-				if (cg_tracerLights) {
+				if (cg_tracerLights && !shotgun) {
 					float startDist = curDistance;
 					float endDist = curDistance + visibleLength;
 

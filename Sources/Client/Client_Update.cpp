@@ -1110,10 +1110,14 @@ namespace spades {
 			              : clientPlayer->GetMuzzlePositionInFirstPersonView();
 
 			float vel;
+			bool shotgun = false;
 			switch (player.GetWeapon().GetWeaponType()) {
 				case RIFLE_WEAPON: vel = 700.0F; break;
 				case SMG_WEAPON: vel = 360.0F; break;
-				case SHOTGUN_WEAPON: vel = 550.0F; break;
+				case SHOTGUN_WEAPON:
+					vel = 550.0F;
+					shotgun = true;
+					break;
 				default: vel = 0.0F; break;
 			}
 
@@ -1121,8 +1125,8 @@ namespace spades {
 			if (isFirstPerson)
 				vel *= 2.0F;
 
-			AddLocalEntity(stmp::make_unique<Tracer>(*this, muzzlePos, hitPos, vel));
-			AddLocalEntity(stmp::make_unique<MapViewTracer>(muzzlePos, hitPos, vel));
+			AddLocalEntity(stmp::make_unique<Tracer>(*this, muzzlePos, hitPos, vel, shotgun));
+			AddLocalEntity(stmp::make_unique<MapViewTracer>(muzzlePos, hitPos, vel, shotgun));
 		}
 
 		void Client::BlocksFell(std::vector<IntVector3> blocks) {

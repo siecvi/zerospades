@@ -533,7 +533,13 @@ namespace spades {
 			            line3.second - normal * tracerW
 					};
 
-					renderer.SetColorAlphaPremultiplied(Vector4{1, 0.6F, 0.8F, 1} * alpha);
+					Vector4 col;
+					if (tracer->shotgun)
+						col = {0, 0, 0, 0.25};
+					else
+						col = {1, 0.8F, 0.6F, 1};
+
+					renderer.SetColorAlphaPremultiplied(col * alpha);
 					renderer.DrawImage(tracerImg, vt[0], vt[1], vt[2], tracerInRect);
 				}
 			}
@@ -552,8 +558,8 @@ namespace spades {
 			}
 		}
 
-		MapViewTracer::MapViewTracer(Vector3 p1, Vector3 p2, float bulletVel)
-		    : startPos(p1), velocity(bulletVel) {
+		MapViewTracer::MapViewTracer(Vector3 p1, Vector3 p2, float bulletVel, bool shotgun)
+		    : startPos(p1), velocity(bulletVel), shotgun(shotgun) {
 			// Z coordinate doesn't matter in MapView
 			p1.z = p2.z = 0.0F;
 

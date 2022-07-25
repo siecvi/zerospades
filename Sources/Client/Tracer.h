@@ -25,9 +25,10 @@ namespace spades {
 			float visibleLength;
 			float velocity;
 			bool firstUpdate;
+			bool shotgun;
 
 		public:
-			Tracer(Client&, Vector3 p1, Vector3 p2, float bulletVel);
+			Tracer(Client&, Vector3 p1, Vector3 p2, float bulletVel, bool shotgun);
 			~Tracer();
 
 			bool Update(float dt) override;

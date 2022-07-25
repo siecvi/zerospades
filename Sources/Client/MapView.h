@@ -74,7 +74,9 @@ namespace spades {
 			bool firstUpdate;
 
 		public:
-			MapViewTracer(Vector3 p1, Vector3 p2, float bulletVel);
+			bool shotgun;
+
+			MapViewTracer(Vector3 p1, Vector3 p2, float bulletVel, bool shotgun);
 			~MapViewTracer();
 
 			bool Update(float dt) override;
