@@ -39,7 +39,7 @@ DEFINE_SPADES_SETTING(s_volume, "100");
 DEFINE_SPADES_SETTING(s_maxPolyphonics, "96");
 DEFINE_SPADES_SETTING(s_eax, "1");
 DEFINE_SPADES_SETTING(s_alPreciseErrorCheck, "1");
-DEFINE_SPADES_SETTING(s_openalDriver, "");
+DEFINE_SPADES_SETTING(s_openalDevice, "");
 
 // keep track of the "previous" volume so the dB isn't recomputed when unnecessary
 extern int s_volumePrevious = 100;
@@ -437,7 +437,7 @@ namespace spades {
 						SPLog("  %s", strs[i].c_str());
 				}
 
-				dev = s_openalDriver.CString();
+				dev = s_openalDevice.CString();
 				SPLog("OpenAL opening device: %s", dev);
 				if (!strcmp(dev, "default"))
 					dev = NULL;
@@ -729,14 +729,11 @@ namespace spades {
 			d = new Internal();
 		}
 
-		std::vector<std::string> ALDevice::DriverList() {
+		std::vector<std::string> ALDevice::DeviceList() {
 			std::vector<std::string> devs;
 			const ALCchar* ext = al::qalcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
-			while (ext && *ext) {
-				devs.push_back(ext);
-				ext += std::strlen(ext) + 1;
-			}
-			ext = al::qalcGetString(NULL, ALC_DEVICE_SPECIFIER);
+			if (!ext || *ext == '\0')
+				ext = al::qalcGetString(NULL, ALC_DEVICE_SPECIFIER);
 			while (ext && *ext) {
 				devs.push_back(ext);
 				ext += std::strlen(ext) + 1;

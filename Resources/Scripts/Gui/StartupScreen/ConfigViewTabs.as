@@ -456,7 +456,7 @@ namespace spades {
 
         private ConfigItem s_audioDriver("s_audioDriver");
         private ConfigItem s_eax("s_eax");
-		private ConfigItem s_openalDriver("s_openalDriver");
+		private ConfigItem s_openalDevice("s_openalDevice");
 
         StartupScreenAudioTab(StartupScreenUI @ui, Vector2 size) {
             super(ui.manager);
@@ -538,7 +538,7 @@ namespace spades {
 						"Enables extended features provided by the OpenAL driver to create "
 						"more ambience.")));
 
-				AddLabel(0.f, 90.f, 20.f, _Tr("StartupScreen", "Drivers"));
+				AddLabel(0.f, 90.f, 20.f, _Tr("StartupScreen", "Devices"));
                 {
                     StartupScreenAudioOpenALEditor e(ui);
                     AddChild(e);
@@ -608,7 +608,7 @@ namespace spades {
             configViewYSR.LoadConfig();
 			editOpenAL.LoadConfig();
 
-            s_openalDriver.StringValue = editOpenAL.openal.StringValue;
+            s_openalDevice.StringValue = editOpenAL.openal.StringValue;
         }
     }
 
@@ -638,10 +638,10 @@ namespace spades {
             if (drivername == "")
                 name = _Tr("StartupScreen", "Default device");
 
-            int cnt = helper.GetNumAudioOpenALDrivers();
+            int cnt = helper.GetNumAudioOpenALDevices();
             for (int i = 0; i < cnt; i++) {
-                if (drivername == helper.GetAudioOpenALDriver(i))
-                    name = helper.GetAudioOpenALDriver(i);
+                if (drivername == helper.GetAudioOpenALDevice(i))
+                    name = helper.GetAudioOpenALDevice(i);
             }
 
             dropdownButton.Caption = name;
@@ -649,9 +649,9 @@ namespace spades {
 
         private void ShowDropdown(spades::ui::UIElement @) {
             string[] items = {_Tr("StartupScreen", "Default device")};
-            int cnt = helper.GetNumAudioOpenALDrivers();
+            int cnt = helper.GetNumAudioOpenALDevices();
             for (int i = 0; i < cnt; i++) {
-                string s = helper.GetAudioOpenALDriver(i);
+                string s = helper.GetAudioOpenALDevice(i);
                 items.insertLast(s);
             }
             spades::ui::ShowDropDownList(this, items,
@@ -660,11 +660,10 @@ namespace spades {
 
         private void DropdownHandler(int index) {
             if (index >= 0) {
-                if (index == 0) {
+                if (index == 0)
                     openal = "default";
-                } else {
-                    openal = helper.GetAudioOpenALDriver(index - 1);
-                }
+                else
+                    openal = helper.GetAudioOpenALDevice(index - 1);
 
                 // Reload the startup screen so the language config takes effect
                 ui.Reload();

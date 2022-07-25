@@ -168,8 +168,8 @@ namespace spades {
 
 			// check openAL drivers
 			SPLog("Checking OpenAL available drivers");
-			openalDrivers = audio::ALDevice::DriverList();
-			for (const auto& d : openalDrivers)
+			openalDevices = audio::ALDevice::DeviceList();
+			for (const auto& d : openalDevices)
 				SPLog("%s", d.c_str());
 
 			// check GL capabilities
@@ -716,13 +716,13 @@ namespace spades {
 			report += '\n';
 		}
 
-		int StartupScreenHelper::GetNumAudioOpenALDrivers() {
-			return static_cast<int>(openalDrivers.size());
+		int StartupScreenHelper::GetNumAudioOpenALDevices() {
+			return static_cast<int>(openalDevices.size());
 		}
-		std::string StartupScreenHelper::GetAudioOpenALDriver(int index) {
-			if (index < 0 || index >= GetNumAudioOpenALDrivers())
+		std::string StartupScreenHelper::GetAudioOpenALDevice(int index) {
+			if (index < 0 || index >= GetNumAudioOpenALDevices())
 				SPInvalidArgument("index");
-			return openalDrivers[index];
+			return openalDevices[index];
 		}
 
 		int StartupScreenHelper::GetNumLocales() { return static_cast<int>(locales.size()); }

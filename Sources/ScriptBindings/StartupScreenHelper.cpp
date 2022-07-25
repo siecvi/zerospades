@@ -62,13 +62,13 @@ namespace spades {
 					  asMETHOD(gui::StartupScreenHelper, GetVideoModeHeight), asCALL_THISCALL);
 					manager->CheckError(r);
 					r = eng->RegisterObjectMethod(
-					  "StartupScreenHelper", "int GetNumAudioOpenALDrivers()",
-					  asMETHOD(gui::StartupScreenHelper, GetNumAudioOpenALDrivers),
+					  "StartupScreenHelper", "int GetNumAudioOpenALDevices()",
+					  asMETHOD(gui::StartupScreenHelper, GetNumAudioOpenALDevices),
 					  asCALL_THISCALL);
 					manager->CheckError(r);
 					r = eng->RegisterObjectMethod(
-					  "StartupScreenHelper", "string GetAudioOpenALDriver(int)",
-					  asMETHOD(gui::StartupScreenHelper, GetAudioOpenALDriver), asCALL_THISCALL);
+					  "StartupScreenHelper", "string GetAudioOpenALDevice(int)",
+					  asMETHOD(gui::StartupScreenHelper, GetAudioOpenALDevice), asCALL_THISCALL);
 					manager->CheckError(r);
 					r = eng->RegisterObjectMethod(
 					  "StartupScreenHelper", "int GetNumReportLines()",
