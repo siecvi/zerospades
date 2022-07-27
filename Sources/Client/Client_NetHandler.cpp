@@ -207,17 +207,16 @@ namespace spades {
 			}
 		}
 
-		void Client::PlayerDestroyedBlock(spades::IntVector3 pos) {
-			Vector3 origin = MakeVector3(pos) + 0.5F;
-
-			Handle<IAudioChunk> c =
-				audioDevice->RegisterSound("Sounds/Misc/BlockDestroy.opus");
+		void Client::PlayBlockDestroySound(spades::IntVector3 pos) {
+			Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Misc/BlockDestroy.opus");
 			if (!IsMuted())
-				audioDevice->Play(c.GetPointerOrNull(), origin, AudioParam());
+				audioDevice->Play(c.GetPointerOrNull(), MakeVector3(pos) + 0.5F, AudioParam());
+		}
 
+		void Client::PlayerDestroyedBlock(spades::IntVector3 pos) {
 			uint32_t col = map->GetColor(pos.x, pos.y, pos.z);
 			col = map->GetColorJit(col); // jit the colour
-			EmitBlockDestroyFragments(origin, IntVectorFromColor(col));
+			EmitBlockDestroyFragments(MakeVector3(pos) + 0.5F, IntVectorFromColor(col));
 		}
 
 		void Client::PlayerDestroyedBlockWithWeaponOrTool(spades::IntVector3 pos) {
@@ -226,11 +225,14 @@ namespace spades {
 			if (!map->IsSolid(pos.x, pos.y, pos.z))
 				return;
 
+			PlayBlockDestroySound(pos);
 			PlayerDestroyedBlock(pos);
 		}
 
 		void Client::PlayerDiggedBlock(spades::IntVector3 pos) {
 			SPAssert(map);
+
+			PlayBlockDestroySound(pos);
 
 			for (int z = pos.z - 1; z <= pos.z + 1; z++) {
 				if (z < 0 || z > 61)
@@ -239,6 +241,24 @@ namespace spades {
 					continue;
 
 				PlayerDestroyedBlock(MakeIntVector3(pos.x, pos.y, z));
+			}
+		}
+
+		void Client::GrenadeDestroyedBlock(spades::IntVector3 pos) {
+			SPAssert(map);
+
+			PlayBlockDestroySound(pos);
+
+			for (int x = pos.x - 1; x <= pos.x + 1; x++)
+			for (int y = pos.y - 1; y <= pos.y + 1; y++)
+			for (int z = pos.z - 1; z <= pos.z + 1; z++) {
+				if (z < 0 || z > 61 || x < 0 || x >= map->Width()
+					|| y < 0 || y >= map->Height())
+					continue;
+				if (!map->IsSolid(x, y, z))
+					continue;
+
+				PlayerDestroyedBlock(MakeIntVector3(x, y, z));
 			}
 		}
 
@@ -288,22 +308,6 @@ namespace spades {
 
 		void Client::PlayerSpawned(Player& p) {
 			RemoveCorpseForPlayer(p.GetId());
-		}
-
-		void Client::GrenadeDestroyedBlock(spades::IntVector3 pos) {
-			SPAssert(map);
-
-			for (int x = pos.x - 1; x <= pos.x + 1; x++)
-			for (int y = pos.y - 1; y <= pos.y + 1; y++)
-			for (int z = pos.z - 1; z <= pos.z + 1; z++) {
-				if (z < 0 || z > 61 || x < 0 || x >= map->Width()
-					|| y < 0 || y >= map->Height())
-					continue;
-				if (!map->IsSolid(x, y, z))
-					continue;
-
-				PlayerDestroyedBlock(MakeIntVector3(x, y, z));
-			}
 		}
 
 		void Client::TeamWon(int teamId) {

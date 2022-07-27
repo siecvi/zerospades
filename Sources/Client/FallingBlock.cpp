@@ -136,6 +136,9 @@ namespace spades {
 				Vector3 vmAxis2 = vmat.GetAxis(1);
 				Vector3 vmAxis3 = vmat.GetAxis(2);
 
+				// this could get annoying with some server scripts..
+				client->PlayBlockDestroySound(vmOrigin.Floor());
+
 				Handle<IImage> img = client->GetRenderer().RegisterImage("Gfx/White.tga");
 
 				auto* getRandom = SampleRandomFloat;
@@ -154,14 +157,14 @@ namespace spades {
 							    vmodel->IsSolid(x, y, z - 1) && vmodel->IsSolid(x, y, z + 1))
 								continue;
 
-							auto c = vmodel->GetColor(x, y, z);
-							Vector4 col = ConvertColorRGBA(IntVectorFromColor(c));
+							uint32_t col = vmodel->GetColor(x, y, z);
+							Vector4 color = ConvertColorRGBA(IntVectorFromColor(col));
 
 							Vector3 p3 = p2 + vmAxis3 * (float)z;
 
 							for (int i = 0; i < 4; i++) {
 								auto ent = stmp::make_unique<ParticleSpriteEntity>(
-								  *client, img.GetPointerOrNull(), col);
+									*client, img.GetPointerOrNull(), color);
 								ent->SetTrajectory(p3, RandomAxis() * 13.0F, 1.0F, 0.6F);
 								ent->SetRadius(0.35F + getRandom() * getRandom() * 0.1F);
 								ent->SetLifeTime(2.0F, 0.0F, 1.0F);
@@ -171,7 +174,8 @@ namespace spades {
 							}
 
 							{
-								auto ent = stmp::make_unique<SmokeSpriteEntity>(*client, col, 70.0F);
+								auto ent = stmp::make_unique<SmokeSpriteEntity>(
+									*client, color, 70.0F);
 								ent->SetTrajectory(p3, RandomAxis() * 0.2F, 1.0F, 0.0F);
 								ent->SetRotation(getRandom() * M_PI_F * 2.0F);
 								ent->SetRadius(1.0F, 0.5F);
