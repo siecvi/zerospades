@@ -604,10 +604,10 @@ namespace spades {
 #pragma mark - Chat Messages
 
 		void Client::PlayerSentChatMessage(Player& p, bool global, const std::string& msg) {
-			if (!cg_playerMessages && !p.IsLocalPlayer())
-				return;
+			// hides player messages from chat (but they can still be found in logs)
+			bool hidePlayerMessages = !cg_playerMessages && !p.IsLocalPlayer();
 
-			{
+			if (!hidePlayerMessages) {
 				std::string s;
 				if (global)
 					s = _Tr("Client", p.IsAlive() ? "[Global] " : "*DEAD* ");
@@ -631,7 +631,7 @@ namespace spades {
 			NetLog("[%s] %s (%s): %s", global ? "Global" : "Team", p.GetName().c_str(),
 			       world->GetTeam(p.GetTeamId()).name.c_str(), msg.c_str());
 
-			if (!IsMuted()) {
+			if (!IsMuted() && !hidePlayerMessages) {
 				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Feedback/Chat.opus");
 				AudioParam params;
 				params.volume = (float)cg_chatBeep;
