@@ -248,9 +248,7 @@ namespace spades {
 			int row = 0, col = 0;
 			float colWidth = (float)width / (float)cols;
 
-			for (int i = 0; i < numPlayers; i++) {
-				ScoreboardEntry& ent = entries[i];
-
+			for (const auto& ent : entries) {
 				float rowY = top + 6.0F + row * rowHeight;
 				float colX = left + colWidth * (float)col;
 
@@ -283,7 +281,7 @@ namespace spades {
 						Handle<IImage> img = renderer.RegisterImage("Gfx/Map/Intel.png");
 						float pulse = std::max(0.5F, fabsf(sinf(world->GetTime() * 4.0F)));
 						renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) * pulse);
-						renderer.DrawImage(img, AABB2(colX + colWidth - 10.0F - size.x - 18.0F,
+						renderer.DrawImage(img, AABB2(colX + colWidth - 10.0F - size.x - 20.0F,
 						                              rowY + 2.0F, 16.0F, 16.0F));
 					}
 				}
@@ -309,7 +307,6 @@ namespace spades {
 				auto maybePlayer = world->GetPlayer(i);
 				if (!maybePlayer)
 					continue;
-
 				Player& player = maybePlayer.value();
 				if (player.GetTeamId() != spectatorTeamId)
 					continue;
@@ -318,7 +315,6 @@ namespace spades {
 				ent.name = player.GetName();
 				ent.id = i;
 				entries.push_back(ent);
-
 				numSpectators++;
 
 				// Measure total width in pixels so that we can center align all the spectators
