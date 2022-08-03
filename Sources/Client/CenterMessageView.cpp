@@ -87,9 +87,8 @@ namespace spades {
 				if (fade > 1.0F)
 					fade = 1.0F;
 
-				float maxScale = Clamp((float)cg_centerMessageScale, 0.75F, 1.0F);
-				float scale = maxScale + (1.0F - fade);
-				auto size = font->Measure(msg) * scale;
+				float scale = Clamp((float)cg_centerMessageScale, 0.75F, 1.0F);
+				Vector2 size = font->Measure(msg) * scale;
 
 				float y = 100.0F + 32.0F * (float)ent.line;
 				float x = (renderer.ScreenWidth() - size.x) * 0.5F;
