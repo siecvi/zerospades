@@ -625,40 +625,45 @@ namespace spades {
 
 				// Draw block cursor
 				if (p) {
-					if (p->IsAlive() && p->IsToolBlock() && p->IsReadyToUseTool() &&
-					    (p->IsBlockCursorActive() || p->IsBlockCursorDragging()) &&
-					    CanLocalPlayerUseTool()) {
-						std::vector<IntVector3> blocks;
-						auto curPos = p->GetBlockCursorPos();
-						auto dragPos = p->GetBlockCursorDragPos();
-						if (p->IsBlockCursorDragging())
-							blocks = world->CubeLine(curPos, dragPos, 64);
-						else
-							blocks.push_back(curPos);
+					if (p->IsAlive()
+						&& p->IsToolBlock()
+						&& p->IsReadyToUseTool()
+						&& CanLocalPlayerUseTool()) {
+						if (p->IsBlockCursorActive() || p->IsBlockCursorDragging()) {
+							std::vector<IntVector3> blocks;
+							auto curPos = p->GetBlockCursorPos();
+							auto dragPos = p->GetBlockCursorDragPos();
+							if (p->IsBlockCursorDragging())
+								blocks = world->CubeLine(dragPos, curPos, 64);
+							else
+								blocks.push_back(curPos);
 
-						bool active = p->IsBlockCursorActive();
-						int numBlocks = (int)blocks.size();
+							int numBlocks = p->GetNumBlocks();
+							int curBlocks = (int)blocks.size();
+							
+							bool active = p->IsBlockCursorActive() && (curBlocks <= numBlocks);
 
-						Handle<IModel> curLine = renderer->RegisterModel("Models/MapObjects/BlockCursorLine.kv6");
+							Handle<IModel> curLine = renderer->RegisterModel("Models/MapObjects/BlockCursorLine.kv6");
 
-						for (const auto& v : blocks) {
-							Vector3 const color(
-							  /* Red   (X) */ 1.0F,
-							  /* Green (Y) */ (numBlocks > p->GetNumBlocks()) ? 0.0F : 1.0F,
-							  /* Blue  (Z) */ active ? 1.0F : 0.0F);
+							for (const auto& v : blocks) {
+								Vector3 const color(
+								  /* R (X) */ 1.0F,
+								  /* G (Y) */ (curBlocks > numBlocks) ? 0.0F : 1.0F,
+								  /* B (Z) */ active ? 1.0F : 0.0F
+								);
 
-							bool solid = (numBlocks > 1) && map->IsSolid(v.x, v.y, v.z);
-							ModelRenderParam param;
-							param.ghost = true;
-							param.opacity = (active && !solid) ? 0.5F : 0.25F;
-							param.customColor = color;
-							param.matrix = Matrix4::Translate(MakeVector3(v) + 0.5F);
+								// Hide cursor if needed to stop z-fighting
+								if ((curBlocks > 2) && map->IsSolid(v.x, v.y, v.z))
+									continue;
 
-							// Make cursor larger if needed to stop z-fighting
-							param.matrix = param.matrix * Matrix4::Scale(1.0F / 10.0F + (solid ? 0.0005F : 0.0F));
-							renderer->RenderModel(*curLine, param);
-
-							numBlocks--;
+								ModelRenderParam param;
+								param.ghost = true;
+								param.opacity = active ? 0.5F : 0.25F;
+								param.customColor = color;
+								param.matrix = Matrix4::Translate(MakeVector3(v) + 0.5F);
+								param.matrix = param.matrix * Matrix4::Scale(1.0F / 10.0F);
+								renderer->RenderModel(*curLine, param);
+							}
 						}
 					}
 				}
