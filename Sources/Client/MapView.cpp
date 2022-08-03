@@ -225,10 +225,10 @@ namespace spades {
 
 			if (HasTargetPlayer(cameraMode)) {
 				Player& player = client->GetCameraTargetPlayer();
-				Vector3 front = player.GetFront2D();
+				Vector3 o = player.GetFront2D();
 
 				focusPlayerPos = player.GetPosition();
-				focusPlayerAngle = atan2(front.x, -front.y);
+				focusPlayerAngle = atan2f(o.y, o.x) + M_PI_F * 0.5F;
 				focusPlayerPtr = player;
 			} else if (cameraMode == ClientCameraMode::Free) {
 				focusPlayerPos = client->freeCameraState.position;
@@ -248,8 +248,8 @@ namespace spades {
 			if (largeMap && zoomState < 0.0001F)
 				return;
 
-			auto sw = renderer.ScreenWidth();
-			auto sh = renderer.ScreenHeight();
+			float sw = renderer.ScreenWidth();
+			float sh = renderer.ScreenHeight();
 
 			Handle<GameMap> map = world->GetMap();
 			SPAssert(map);
@@ -393,25 +393,29 @@ namespace spades {
 
 			// draw objects
 			Handle<IImage> playerIcon = renderer.RegisterImage("Gfx/Map/Player.png");
-			Handle<IImage> viewIcon = localPlayer.IsScoped()
-				? renderer.RegisterImage("Gfx/Map/ViewADS.png")
-				: renderer.RegisterImage("Gfx/Map/View.png");
+			Handle<IImage> viewIcon = renderer.RegisterImage("Gfx/Map/View.png");
 
 			// draw player's icon
 			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
 				auto maybePlayer = world->GetPlayer(i);
 				if (!maybePlayer)
-					continue; // The player is non-existent
+					continue; // player is non-existent
 
 				Player& p = maybePlayer.value();
 				if (!p.IsAlive())
-					continue; // The player is dead
+					continue; // player is dead
+				if (&p != &localPlayer && p.IsSpectator())
+					continue; // don't draw other spectators
 				if (!localPlayer.IsSpectator() && !localPlayer.IsTeamMate(&p))
-					continue; // Don't draw enemies when not spectating a player
-				if (p.IsSpectator() && &p == &localPlayer && HasTargetPlayer(cameraMode))
-					continue; // Don't draw when spectating a player
-				if (p.IsSpectator() && &p != &localPlayer)
-					continue; // Don't draw other spectators
+					continue; // don't draw enemies when not spectating a player
+
+				IntVector3 iconColor = p.GetColor();
+				if (&p == &localPlayer && !p.IsSpectator())
+					iconColor = MakeIntVector3(0, 255, 255);
+				if (cg_minimapPlayerColor)
+					iconColor = MakeIntVector3(palette[i][0], palette[i][1], palette[i][2]);
+
+				Vector4 iconColorF = ModifyColor(iconColor) * alpha;
 
 				if (cg_minimapPlayerIcon) {
 					switch (p.GetWeaponType()) {
@@ -430,24 +434,25 @@ namespace spades {
 					}
 				}
 
-				IntVector3 iconColor = cg_minimapPlayerColor
-				    ? MakeIntVector3(palette[i][0], palette[i][1], palette[i][2])
-				    : p.GetColor();
-				Vector4 iconColorF = ModifyColor(iconColor) * alpha;
-
-				Vector3 fwd = p.GetFront2D();
-				float ang = atan2f(fwd.x, -fwd.y);
-				if (p.IsSpectator() && cameraMode == ClientCameraMode::Free)
-					ang = focusPlayerAngle;
-
 				// Draw the focused player's view
 				if (&p == &focusPlayer) {
+					if (p.IsScoped())
+						viewIcon = renderer.RegisterImage("Gfx/Map/ViewADS.png");
+
 					renderer.SetColorAlphaPremultiplied(iconColorF * 0.9F);
-					DrawIcon(p.IsSpectator() ? focusPlayerPos : p.GetPosition(), *viewIcon, ang);
+					DrawIcon(focusPlayerPos, *viewIcon, focusPlayerAngle);
+
+					renderer.SetColorAlphaPremultiplied(iconColorF);
+					DrawIcon(focusPlayerPos, *playerIcon, focusPlayerAngle);
+
+					continue;
 				}
 
+				Vector3 o = p.GetFront2D();
+				float ang = atan2f(o.y, o.x) + M_PI_F * 0.5F;
+
 				renderer.SetColorAlphaPremultiplied(iconColorF);
-				DrawIcon((&p == &focusPlayer) ? focusPlayerPos : p.GetPosition(), *playerIcon, ang);
+				DrawIcon(p.GetPosition(), *playerIcon, ang);
 			}
 
 			stmp::optional<IGameMode&> mode = world->GetMode();
@@ -488,8 +493,8 @@ namespace spades {
 				for (int i = 0; i < tc.GetNumTerritories(); i++) {
 					TCGameMode::Territory& t = tc.GetTerritory(i);
 					IntVector3 teamColor = (t.ownerTeamId < 2)
-					                         ? world->GetTeam(t.ownerTeamId).color
-					                         : MakeIntVector3(128);
+						? world->GetTeam(t.ownerTeamId).color
+						: MakeIntVector3(128);
 
 					Vector4 teamColorF = ModifyColor(teamColor) * alpha;
 					renderer.SetColorAlphaPremultiplied(teamColorF);
@@ -550,7 +555,7 @@ namespace spades {
 				auto gridStr = ToGrid(focusPlayerPos.x, focusPlayerPos.y);
 				Vector2 pos = {(outRect.min.x + outRect.max.x) * 0.5F, outRect.max.y + 2.0F};
 				pos.x -= font.Measure(gridStr).x * 0.5F;
-				Vector4 color = ConvertColorRGBA(localPlayer.GetColor());
+				Vector4 color = ConvertColorRGBA(focusPlayer.GetColor());
 				color.x = Mix(color.x, 1.0F, 0.5F);
 				color.y = Mix(color.y, 1.0F, 0.5F);
 				color.z = Mix(color.z, 1.0F, 0.5F);
