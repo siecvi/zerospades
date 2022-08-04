@@ -844,9 +844,9 @@ namespace spades {
 
 			Vector3 v = p.GetVelocity();
 			Vector2 legsRot;
-			legsRot.x = Vector3::Dot(v, p.GetFront2D()) * 4.0F;
-			legsRot.y = Vector3::Dot(v, p.GetRight()) * 3.0F;
-			legsRot *= sinf(p.GetWalkAnimationProgress() * M_PI_F * 2.0F) * DEG2RAD(30);
+			legsRot.x = Vector3::Dot(v, p.GetFront2D());
+			legsRot.y = Vector3::Dot(v, p.GetRight());
+			legsRot *= sinf(p.GetWalkAnimationProgress() * M_PI_F * 2.0F) * 3.0F;
 
 			Matrix4 const leg1 = lower
 				* Matrix4::Translate(0.25F, legsPosY, -legsPosZ)
@@ -1047,9 +1047,9 @@ namespace spades {
 
 			Vector3 v = p.GetVelocity();
 			Vector2 legsRot;
-			legsRot.x = Vector3::Dot(v, p.GetFront2D()) * 4.0F;
-			legsRot.y = Vector3::Dot(v, p.GetRight()) * 3.0F;
-			legsRot *= sinf(p.GetWalkAnimationProgress() * M_PI_F * 2.0F) * DEG2RAD(30);
+			legsRot.x = Vector3::Dot(v, p.GetFront2D());
+			legsRot.y = Vector3::Dot(v, p.GetRight());
+			legsRot *= sinf(p.GetWalkAnimationProgress() * M_PI_F * 2.0F) * 3.0F;
 
 			Matrix4 const leg1 = lower
 				* Matrix4::Translate(0.25F, legsPosY, -legsPosZ)
