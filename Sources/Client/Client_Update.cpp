@@ -281,8 +281,8 @@ namespace spades {
 		void Client::UpdateLocalSpectator(float dt) {
 			SPADES_MARK_FUNCTION();
 
-			auto& sharedState = followAndFreeCameraState;
 			auto& freeState = freeCameraState;
+			auto& sharedState = followAndFreeCameraState;
 
 			Vector3 lastPos = freeState.position;
 			freeState.velocity *= powf(0.3F, dt);
@@ -300,10 +300,10 @@ namespace spades {
 			freeState.position = lastPos + freeState.velocity * dt;
 
 			GameMap::RayCastResult minResult;
-			float minDist = 1.E+10F;
+			float minDist = 1.0E+10F;
 			Vector3 minShift;
 
-			auto const direction = freeState.position - lastPos;
+			Vector3 const direction = freeState.position - lastPos;
 
 			// check collision
 			if (freeState.velocity.GetLength() < 0.01F) {
@@ -330,7 +330,7 @@ namespace spades {
 				}
 			}
 
-			if (minDist < 1.E+9F) {
+			if (minDist < 1.0E+9F) {
 				Vector3 hitPos = minResult.hitPos - minShift;
 				Vector3 normal = MakeVector3(minResult.normal);
 				freeState.position = hitPos + (normal * 0.05F);
@@ -342,24 +342,22 @@ namespace spades {
 
 			// acceleration
 			Vector3 front;
-			Vector3 up = {0, 0, -1};
-
 			front.x = -cosf(sharedState.yaw) * cosf(sharedState.pitch);
 			front.y = -sinf(sharedState.yaw) * cosf(sharedState.pitch);
 			front.z = sinf(sharedState.pitch);
 
-			Vector3 right = -Vector3::Cross(up, front).Normalize();
-			Vector3 up2 = Vector3::Cross(right, front).Normalize();
+			Vector3 right = -Vector3::Cross(MakeVector3(0, 0, -1), front).Normalize();
+			Vector3 up = Vector3::Cross(right, front).Normalize();
 
-			float f = dt * 10.0F;
-			if (playerInput.sprint)
-				f *= 3.0F;
-			else if (playerInput.sneak)
+			float f = dt * 32.0F;
+			if (playerInput.sneak)
 				f *= 0.5F;
+			else if (playerInput.sprint)
+				f *= 3.0F;
 
 			front *= f;
 			right *= f;
-			up2 *= f;
+			up *= f;
 
 			if (playerInput.moveForward)
 				freeState.velocity += front;
@@ -372,9 +370,9 @@ namespace spades {
 				freeState.velocity += right;
 
 			if (playerInput.jump)
-				freeState.velocity += up2;
+				freeState.velocity += up;
 			else if (playerInput.crouch)
-				freeState.velocity -= up2;
+				freeState.velocity -= up;
 
 			SPAssert(freeState.velocity.GetLength() < 100.0F);
 		}
