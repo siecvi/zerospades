@@ -63,12 +63,12 @@ namespace spades {
 				disp[i]->Join();
 		}
 
-		static inline int ToFixed8(float v) {
+		static inline PURE int ToFixed8(float v) {
 			int i = static_cast<int>(v * 255.0F + 0.5F);
 			return std::max(std::min(i, 255), 0);
 		}
 
-		static inline int ToFixedFactor8(float v) {
+		static inline PURE int ToFixedFactor8(float v) {
 			int i = static_cast<int>(v * 256.0F + 0.5F);
 			return std::max(std::min(i, 256), 0);
 		}
