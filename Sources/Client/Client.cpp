@@ -650,8 +650,9 @@ namespace spades {
 				scriptedUI->RecordChatLog(s, ConvertColorRGBA(p.GetColor()));
 			}
 
-			NetLog("[%s] %s (%s): %s", global ? "Global" : "Team", p.GetName().c_str(),
-			       world->GetTeam(p.GetTeamId()).name.c_str(), msg.c_str());
+			std::string teamName = p.IsSpectator() ? "Spectator" : p.GetTeamName();
+			NetLog("[%s] %s (%s): %s", global ? "Global" : "Team",
+				p.GetName().c_str(), teamName.c_str(), msg.c_str());
 
 			if (!IsMuted() && !hidePlayerMessages) {
 				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Feedback/Chat.opus");
