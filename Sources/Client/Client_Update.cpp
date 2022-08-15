@@ -858,8 +858,8 @@ namespace spades {
 			// log to netlog
 			if (&killer != &victim) {
 				NetLog("%s (%s) [%s] %s (%s)", killer.GetName().c_str(),
-				       killer.GetTeamName().c_str(), cause.c_str(), victim.GetName().c_str(),
-				       killer.GetTeamName().c_str());
+				       killer.GetTeamName().c_str(), cause.c_str(),
+				       victim.GetName().c_str(), victim.GetTeamName().c_str());
 			} else {
 				NetLog("%s (%s) [%s]", killer.GetName().c_str(),
 					killer.GetTeamName().c_str(), cause.c_str());
