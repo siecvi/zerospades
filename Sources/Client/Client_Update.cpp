@@ -422,7 +422,7 @@ namespace spades {
 			}
 
 			if (hasDelayedReload) {
-				world->GetLocalPlayer()->Reload();
+				player.Reload();
 				net->SendReload();
 				hasDelayedReload = false;
 			}
@@ -454,7 +454,7 @@ namespace spades {
 						case Player::ToolWeapon: t = Player::ToolBlock; break;
 						case Player::ToolGrenade: t = Player::ToolWeapon; break;
 					}
-				} while (!world->GetLocalPlayer()->IsToolSelectable(t));
+				} while (!player.IsToolSelectable(t));
 				SetSelectedTool(t);
 			}
 
@@ -822,12 +822,17 @@ namespace spades {
 
 			// add chat message
 			std::string s, cause;
-
 			s += ChatWindow::TeamColorMessage(killer.GetName(), killer.GetTeamId());
 			s += " [";
-			Weapon& w = killer.GetWeapon(); // only used in case of KillTypeWeapon
 			switch (kt) {
-				case KillTypeWeapon: cause += _Tr("Client", w.GetName().c_str()); break;
+				case KillTypeWeapon:
+					switch (killer.GetWeapon().GetWeaponType()) {
+						case RIFLE_WEAPON: cause += _Tr("Client", "Rifle"); break;
+						case SMG_WEAPON: cause += _Tr("Client", "SMG"); break;
+						case SHOTGUN_WEAPON: cause += _Tr("Client", "Shotgun"); break;
+						default: SPUnreachable();
+					}
+					break;
 				case KillTypeFall: cause += _Tr("Client", "Fall"); break;
 				case KillTypeMelee: cause += _Tr("Client", "Melee"); break;
 				case KillTypeGrenade: cause += _Tr("Client", "Grenade"); break;
@@ -943,7 +948,6 @@ namespace spades {
 
 			if (!IsMuted() && !hitScanState.hasPlayedNormalHitSound) {
 				Handle<IAudioChunk> c;
-
 				if (type == HitTypeMelee) {
 					c = audioDevice->RegisterSound("Sounds/Weapons/Spade/HitPlayer.opus");
 					audioDevice->Play(c.GetPointerOrNull(), hitPos, AudioParam());
@@ -1026,9 +1030,10 @@ namespace spades {
 					hitScanState.hasPlayedHeadshotSound = true;
 				}
 
-				lastHitTime = world->GetTime();
 				hitFeedbackIconState = 1.0F;
 				hitFeedbackFriendly = by.IsTeamMate(&hurtPlayer);
+
+				lastHitTime = world->GetTime();
 			}
 		}
 
@@ -1043,10 +1048,6 @@ namespace spades {
 
 			if (blockPos.z == 63) {
 				if (!IsMuted()) {
-					AudioParam param;
-					param.volume = 2.0F;
-					param.pitch = 0.9F + SampleRandomFloat() * 0.2F;
-
 					Handle<IAudioChunk> c;
 					switch (SampleRandomInt(0, 3)) {
 						case 0: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water1.opus");
@@ -1058,15 +1059,17 @@ namespace spades {
 						case 3: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water4.opus");
 							break;
 					}
+					AudioParam param;
+					param.volume = 2.0F;
+					param.pitch = 0.9F + SampleRandomFloat() * 0.2F;
 					audioDevice->Play(c.GetPointerOrNull(), shiftedHitPos, param);
 				}
 			} else {
 				if (!IsMuted()) {
-					AudioParam param;
-					param.volume = 2.0F;
-
 					Handle<IAudioChunk> c;
 					c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Block.opus");
+					AudioParam param;
+					param.volume = 2.0F;
 					audioDevice->Play(c.GetPointerOrNull(), shiftedHitPos, param);
 
 					param.pitch = 0.9F + SampleRandomFloat() * 0.2F;
@@ -1171,7 +1174,6 @@ namespace spades {
 			if (origin.z > 63.0F) {
 				if (!IsMuted()) {
 					Handle<IAudioChunk> c;
-
 					c = audioDevice->RegisterSound("Sounds/Weapons/Grenade/WaterExplode.opus");
 					AudioParam param;
 					param.volume = 10.0F;
@@ -1193,7 +1195,6 @@ namespace spades {
 
 				if (!IsMuted()) {
 					Handle<IAudioChunk> c, cs;
-
 					switch (SampleRandomInt(0, 1)) {
 						case 0:
 							c = audioDevice->RegisterSound("Sounds/Weapons/Grenade/Explode1.opus");
