@@ -442,8 +442,8 @@ namespace spades {
 				{
 					SDL_version linked;
 					SDL_GetVersion(&linked);
-					SPLog("SDL Version: %d.%d.%d %s", linked.major, linked.minor, linked.patch,
-					      SDL_GetRevision());
+					SPLog("SDL Version: %d.%d.%d %s", linked.major,
+						linked.minor, linked.patch, SDL_GetRevision());
 				}
 
 				std::string caption;
@@ -460,8 +460,7 @@ namespace spades {
 				auto rtype = GetRendererType();
 
 				Uint32 sdlFlags;
-
-				switch (GetRendererType()) {
+				switch (rtype) {
 					case RendererType::GL:
 						sdlFlags = SDL_WINDOW_OPENGL;
 						SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -475,11 +474,9 @@ namespace spades {
 				if (!m_hasSystemMenu)
 					sdlFlags |= r_fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
 
-				int w = width;
-				int h = height;
-
-				SDL_Window* window = SDL_CreateWindow(caption.c_str(), SDL_WINDOWPOS_CENTERED,
-				                                      SDL_WINDOWPOS_CENTERED, w, h, sdlFlags);
+				SDL_Window* window = SDL_CreateWindow(caption.c_str(),
+					SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+					width, height, sdlFlags);
 
 				if (!window) {
 					std::string msg = SDL_GetError();
