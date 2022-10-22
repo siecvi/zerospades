@@ -110,7 +110,7 @@ namespace spades {
 
 				Vector3 startPosition = position;
 
-				constexpr float kTimeStep = 0.2F;
+				constexpr float kTimeStep = 1.0F / 60.0F;
 				for (float time = 0.0F; time < maxTime; time += kTimeStep) {
 					float const newTime = time + kTimeStep;
 					Vector3 newPosition = startPosition + velocity * time;
