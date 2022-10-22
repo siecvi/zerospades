@@ -396,8 +396,10 @@ namespace spades {
 						// player is no longer airborne, or doesn't have a block to place.
 						pendingPlaceBlock = false;
 						lastSingleBlockBuildSeqDone = true;
-					} else if (!OverlapsWithBlock(pendingPlaceBlockPos)
-								&& Collision3D(pendingPlaceBlockPos)) {
+					} else if (pendingPlaceBlockPos.z < 62
+						&& !OverlapsWithBlock(pendingPlaceBlockPos)
+						&& Collision3D(pendingPlaceBlockPos)
+						&& pendingPlaceBlockPos.z >= 0) {
 						// now building became possible.
 						SPAssert(IsLocalPlayer());
 
