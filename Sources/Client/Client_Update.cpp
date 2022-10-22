@@ -52,6 +52,7 @@ SPADES_SETTING(cg_blood);
 DEFINE_SPADES_SETTING(cg_ejectBrass, "1");
 DEFINE_SPADES_SETTING(cg_hitFeedbackSoundGain, "0.2");
 DEFINE_SPADES_SETTING(cg_hitMarkSoundGain, "0.2");
+DEFINE_SPADES_SETTING(cg_deathSoundGain, "0.2");
 DEFINE_SPADES_SETTING(cg_tracers, "1");
 DEFINE_SPADES_SETTING(cg_tracersFirstPerson, "1");
 DEFINE_SPADES_SETTING(cg_analyze, "0");
@@ -756,7 +757,9 @@ namespace spades {
 
 				// play death sound
 				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Player/Death.opus");
-				audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+				AudioParam param;
+				param.volume = cg_deathSoundGain;
+				audioDevice->PlayLocal(c.GetPointerOrNull(), param);
 			}
 
 			// Register local kills
