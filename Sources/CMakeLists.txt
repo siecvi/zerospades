@@ -113,7 +113,7 @@ if(WIN32)
 	endif()
 	if(MSVC)
 		#lm: this sucks, msvc fucks up some linking (conflicts)
-		set_target_properties(OpenSpades PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB:\"libcmt.lib\" /NODEFAULTLIB:\"libcmtd.lib\" /NODEFAULTLIB:\"msvcrt.lib\"")
+		set_target_properties(OpenSpades PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB:\"msvcrt.lib\" /NODEFAULTLIB:\"libcmtd.lib\" /NODEFAULTLIB:\"msvcrtd.lib\"")
 	endif()
 endif()
 
