@@ -153,7 +153,11 @@ namespace spades {
 			def.zFar = 160.0F;
 
 			// Limit the range of cg_fov
-			cg_fov = Clamp((float)cg_fov, 45.0F, 180.0F);
+			// (note: comparsion with a NaN always results in false)
+			if (!((float)cg_fov < 90.0F))
+				cg_fov = 90.0F;
+			if (!((float)cg_fov > 45.0F))
+				cg_fov = 45.0F;
 
 			auto sw = renderer->ScreenWidth();
 			auto sh = renderer->ScreenHeight();
