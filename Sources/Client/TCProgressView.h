@@ -29,7 +29,7 @@ namespace spades {
 			IRenderer& renderer;
 
 			int lastTerritoryId;
-			float lastTerritoryTime;
+			float lastCaptureTime;
 
 		public:
 			TCProgressView(Client&);

@@ -27,6 +27,7 @@
 #define BOUNCE_SOUND_THRESHOLD 0.1F
 #define TC_CAPTURE_RATE 0.05F
 #define TC_CAPTURE_DISTANCE 16.0F
+#define NEUTRAL_TEAM 2
 #define FOG_DISTANCE 128
 
 // actually this is server-side constraint.

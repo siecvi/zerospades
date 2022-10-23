@@ -45,7 +45,7 @@ namespace spades {
 			TCProgressState state;
 			if (t.capturingTeamId == -1) {
 				state.team1 = t.ownerTeamId;
-				state.team2 = 2;
+				state.team2 = NEUTRAL_TEAM;
 				state.progress = 0.0F;
 			} else {
 				state.team1 = t.ownerTeamId;
@@ -90,7 +90,9 @@ namespace spades {
 				for (int i = 0; i < tc.GetNumTerritories(); i++) {
 					TCGameMode::Territory& t = tc.GetTerritory(i);
 					Vector3 diff = t.pos - p.GetEye();
-					if (fabsf(diff.GetLength()) <= TC_CAPTURE_DISTANCE) {
+					if (fabsf(diff.x) < TC_CAPTURE_DISTANCE &&
+					    fabsf(diff.y) < TC_CAPTURE_DISTANCE &&
+					    fabsf(diff.z) < TC_CAPTURE_DISTANCE) {
 						float dist = diff.GetPoweredLength();
 						if (!nearTerritory || dist < distance) {
 							nearTerritory = t;
@@ -103,55 +105,59 @@ namespace spades {
 				float fade = 1.0F;
 				if (nearTerritory) {
 					lastTerritoryId = nearTerritoryId;
-					lastTerritoryTime = w->GetTime();
-				} else if (lastTerritoryId != -1 && w->GetTime() - lastTerritoryTime < 2.0F) {
-					fade = 1.0F - (w->GetTime() - lastTerritoryTime) / 2.0F;
-					nearTerritory = &tc.GetTerritory(lastTerritoryId);
+					lastCaptureTime = w->GetTime();
+				} else if (lastTerritoryId != -1) {
+					float wTime = w->GetTime();
+					float timeSinceLastCapture = wTime - lastCaptureTime;
+					const float fadeOutTime = 2.0F;
+					if (wTime >= lastCaptureTime && timeSinceLastCapture < fadeOutTime) {
+						fade = 1.0F - timeSinceLastCapture / fadeOutTime;
+						nearTerritory = &tc.GetTerritory(lastTerritoryId);
+					}
 				}
 
 				if (nearTerritory) {
 					TCProgressState state = StateForTerritory(*nearTerritory, myTeam);
 
-					bool neutral = nearTerritory->ownerTeamId == 2;
+					int ownerTeam = nearTerritory->ownerTeamId;
 
 					float prgW = 440.0F;
 					float prgH = 8.0F;
 					float prgX = (sw - prgW) * 0.5F;
 					float prgY = sh - 64.0F;
 
+					Vector4 col = MakeVector4(1, 1, 1, 1) * 0.5F;
+
 					// background bar
-					if (neutral) {
-						renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, fade * 0.5F));
-					} else {
-						auto c = w->GetTeam(nearTerritory->ownerTeamId).color;
-						renderer.SetColorAlphaPremultiplied(ConvertColorRGBA(c) * fade);
-					}
+					if (ownerTeam != NEUTRAL_TEAM)
+						col = ConvertColorRGBA(w->GetTeamColor(ownerTeam));
+					renderer.SetColorAlphaPremultiplied(col * fade);
 					renderer.DrawImage(nullptr, AABB2(prgX, prgY, prgW, prgH));
 
-					auto prg = 1.0F - state.progress;
-					if (state.team1 != 2) {
-						auto c = ConvertColorRGBA(w->GetTeam(state.team1).color);
-						renderer.SetColorAlphaPremultiplied(c * (fade * 0.8F));
-					} else if (state.team2 != 2) {
-						auto c = ConvertColorRGBA(w->GetTeam(state.team2).color);
-						renderer.SetColorAlphaPremultiplied(c * (fade * 0.8F));
-					}
+					// progress bar
+					float prg = 1.0F - state.progress;
+					if (state.team1 != NEUTRAL_TEAM)
+						col = ConvertColorRGBA(w->GetTeamColor(state.team1));
+					else if (state.team2 != NEUTRAL_TEAM)
+						col = ConvertColorRGBA(w->GetTeamColor(state.team2));
+					renderer.SetColorAlphaPremultiplied(col * (fade * 0.8F));
 					renderer.DrawImage(nullptr, AABB2(prgX, prgY, prgW * prg, prgH));
 
 					IFont& font = client.fontManager->GetGuiFont();
 
 					std::string str;
-					if (neutral) {
+					if (ownerTeam == NEUTRAL_TEAM) {
 						str = _Tr("Client", "Neutral Territory");
 					} else {
-						str = w->GetTeam(nearTerritory->ownerTeamId).name;
+						str = w->GetTeam(ownerTeam).name;
 						str = _Tr("Client", "{0}'s Territory", str);
 					}
 
 					Vector2 size = font.Measure(str);
-					font.DrawShadow(str, Vector2((sw - size.x) * 0.5F, prgY - 8.0F - size.y), 1.0F,
-					                 MakeVector4(1.0F, 1.0F, 1.0F, fade),
-					                 MakeVector4(0, 0, 0, 0.5F * fade));
+					Vector2 pos = Vector2((sw - size.x) * 0.5F, prgY - 8.0F - size.y);
+
+					font.DrawShadow(str, pos, 1.0F, MakeVector4(1, 1, 1, fade),
+					                MakeVector4(0, 0, 0, 0.5F * fade));
 				}
 			} else {
 				// unable to show nearby territory

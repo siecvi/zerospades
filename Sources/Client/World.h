@@ -138,6 +138,7 @@ namespace spades {
 				return teams[t];
 			}
 			std::string GetTeamName(int t) { return GetTeam(t).name; }
+			IntVector3 GetTeamColor(int t) { return GetTeam(t).color; }
 
 			PlayerPersistent& GetPlayerPersistent(int index);
 			int GetPlayerScore(int index) { return GetPlayerPersistent(index).kills; }
