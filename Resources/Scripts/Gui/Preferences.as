@@ -746,7 +746,9 @@ namespace spades {
             layouter.AddControl(_Tr("Preferences", "Attack"), "cg_keyAttack");
             layouter.AddControl(_Tr("Preferences", "Alt. Attack"), "cg_keyAltAttack");
             layouter.AddToggleField(_Tr("Preferences", "Hold Aim Down Sight"), "cg_holdAimDownSight");
-			layouter.AddToggleField(_Tr("Preferences", "Voxlap Mouse Sens. Filter"), "cg_classicMouseSens");
+			layouter.AddChoiceField(_Tr("Preferences", "Mouse Sensitivity Type"), "cg_mouseSensScale",
+			array<string> = {"Default", "Quake/Source"},
+			array<int> = {0, 1});
             layouter.AddSliderField(_Tr("Preferences", "Mouse Sensitivity"), "cg_mouseSensitivity",
             0.1, 10, 0.1, ConfigNumberFormatter(1, "x"));
             layouter.AddSliderField(_Tr("Preferences", "ADS Mouse Sens. Scale"), "cg_zoomedMouseSensScale",

@@ -44,6 +44,7 @@ using namespace std;
 
 DEFINE_SPADES_SETTING(cg_mouseSensitivity, "1");
 DEFINE_SPADES_SETTING(cg_zoomedMouseSensScale, "1");
+DEFINE_SPADES_SETTING(cg_mouseSensScale, "0");
 DEFINE_SPADES_SETTING(cg_mouseExpPower, "1");
 DEFINE_SPADES_SETTING(cg_invertMouseY, "0");
 DEFINE_SPADES_SETTING(cg_classicMouseSens, "0");
@@ -197,13 +198,25 @@ namespace spades {
 							y *= scale;
 						}
 
-						if (cg_classicMouseSens) {
-							x *= sensitivity / 10.0F * 0.005F;
-							y *= sensitivity / 10.0F * 0.005F;
-						} else {
-							x *= sensitivity * 0.003F;
-							y *= sensitivity * 0.003F;
+						x *= sensitivity;
+						y *= sensitivity;
+
+						float sensScale;
+						switch ((int)cg_mouseSensScale) {
+							case 1: // quake/source
+								sensScale = DEG2RAD(0.022F);
+								break;
+							case 2: // overwatch
+								sensScale = DEG2RAD(0.0066F);
+								break;
+							case 3: // valorant
+								sensScale = DEG2RAD(0.07F);
+								break;
+							default: sensScale = 0.003F; break;
 						}
+
+						x *= sensScale;
+						y *= sensScale;
 
 						if (cg_invertMouseY)
 							y = -y;
