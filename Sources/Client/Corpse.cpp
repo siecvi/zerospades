@@ -301,12 +301,12 @@ namespace spades {
 
 				// really hit?
 				if (Vector3::Dot(res1.hitPos - n1.lastPos, n2.lastPos - n1.lastPos) >
-				    (n2.pos - n1.pos).GetPoweredLength())
+				    (n2.pos - n1.pos).GetSquaredLength())
 					return;
 				if (Vector3::Dot(res1.hitPos - n1.lastPos, n2.lastPos - n1.lastPos) < 0.0F)
 					return;
 				if (Vector3::Dot(res2.hitPos - n2.lastPos, n1.lastPos - n2.lastPos) >
-				    (n2.pos - n1.pos).GetPoweredLength())
+				    (n2.pos - n1.pos).GetSquaredLength())
 					return;
 				if (Vector3::Dot(res2.hitPos - n2.lastPos, n1.lastPos - n2.lastPos) < 0.0F)
 					return;
@@ -619,7 +619,7 @@ namespace spades {
 
 		bool Corpse::IsVisibleFrom(spades::Vector3 eye) {
 			// distance culled?
-			if ((eye - GetCenter()).GetLength2D() > FOG_DISTANCE)
+			if ((eye - GetCenter()).GetSquaredLength2D() > FOG_DISTANCE * FOG_DISTANCE)
 				return false;
 
 			for (int i = 0; i < NodeCount; i++) {

@@ -51,6 +51,7 @@ DEFINE_SPADES_SETTING(cg_depthOfFieldAmount, "1");
 DEFINE_SPADES_SETTING(cg_shake, "1");
 
 SPADES_SETTING(cg_ragdoll);
+SPADES_SETTING(cg_hurtScreenEffects);
 
 namespace spades {
 	namespace client {
@@ -123,10 +124,8 @@ namespace spades {
 
 		float Client::GetAimDownZoomScale() {
 			Player& p = GetCameraTargetPlayer();
-			if (!p.IsToolWeapon() || !p.IsAlive())
+			if (!p.IsAlive() || !p.IsToolWeapon())
 				return 1.0F;
-
-			ClientPlayer& clientPlayer = *clientPlayers[p.GetId()];
 
 			// I don't even know if this is entirely legal
 			float delta = 0.8F;
@@ -139,7 +138,7 @@ namespace spades {
 			if (cg_classicZoomedFov)
 				delta = 1.0F;
 
-			float ads = clientPlayer.GetAimDownState();
+			float ads = clientPlayers[p.GetId()]->GetAimDownState();
 
 			return 1.0F + (3.0F - 2.0F * powf(ads, 1.5F)) * powf(ads, 3.0F) * delta;
 		}
@@ -159,12 +158,14 @@ namespace spades {
 			if (!((float)cg_fov > 45.0F))
 				cg_fov = 45.0F;
 
-			auto sw = renderer->ScreenWidth();
-			auto sh = renderer->ScreenHeight();
+			float sw = renderer->ScreenWidth();
+			float sh = renderer->ScreenHeight();
 
 			float ratio = (sw / sh);
 			float fov = DEG2RAD(cg_fov);
 
+			// shake is applied only for local player camera
+			// perhaps we should do this on other players too?
 			int shakeLevel = cg_shake;
 
 			if (world) {
@@ -186,12 +187,12 @@ namespace spades {
 						def.viewAxis[1] = MakeVector3(0, 1, 0);
 						def.viewAxis[2] = MakeVector3(0, 0, 1);
 
-						if (!cg_horizontalFov) {
-							def.fovY = fov;
-							def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
-						} else {
+						if (cg_horizontalFov) {
 							def.fovX = fov;
 							def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) / ratio);
+						} else {
+							def.fovY = fov;
+							def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
 						}
 
 						def.zNear = 0.05F;
@@ -209,12 +210,12 @@ namespace spades {
 						def.viewAxis[1] = -eyeMatrix.GetAxis(2);
 						def.viewAxis[2] = eyeMatrix.GetAxis(1);
 
-						if (!cg_horizontalFov) {
-							def.fovY = fov;
-							def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
-						} else {
+						if (cg_horizontalFov) {
 							def.fovX = fov;
 							def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) / ratio);
+						} else {
+							def.fovY = fov;
+							def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
 						}
 
 						if (shakeLevel >= 1) {
@@ -234,18 +235,22 @@ namespace spades {
 							// sprint bob
 							{
 								float sp = SmoothStep(GetSprintState());
-								float wv = p.GetWalkAnimationProgress();
+								float walkPrg = p.GetWalkAnimationProgress();
+								float walkAng = walkPrg * M_PI_F * 2.0F;
 
-								vibYaw += sinf(wv * M_PI_F * 2.0F) *  0.01F * sp;
-								roll -= sinf(wv * M_PI_F * 2.0F) * 0.005F * sp;
-								float per = cosf(wv * M_PI_F * 2.0F);
-								per = per * per * per * per;
+								vibYaw += sinf(walkAng) * 0.01F * sp;
+								roll -= sinf(walkAng) * 0.005F * sp;
+
+								float per = cosf(walkAng);
+								per = per * per;
+								per *= per;
+								per *= per;
 								vibPitch += per * 0.01F * sp;
 
 								if (shakeLevel >= 2) {
-									vibYaw += coherentNoiseSamplers[0].Sample(wv * 2.5F) * 0.005F * sp;
-									vibPitch += coherentNoiseSamplers[1].Sample(wv * 2.5F) * 0.01F * sp;
-									roll += coherentNoiseSamplers[2].Sample(wv * 2.5F) * 0.008F * sp;
+									vibYaw += coherentNoiseSamplers[0].Sample(walkPrg * 2.5F) * 0.005F * sp;
+									vibPitch += coherentNoiseSamplers[1].Sample(walkPrg * 2.5F) * 0.01F * sp;
+									roll += coherentNoiseSamplers[2].Sample(walkPrg * 2.5F) * 0.008F * sp;
 									scale += sp * 0.1F;
 								}
 							}
@@ -260,16 +265,19 @@ namespace spades {
 						def.depthOfFieldFocalLength = per * 13.0F + 0.054F;
 
 						// Hurt effect
-						{
-							auto hpper = p.GetHealth() / 100.0F;
+						if (cg_hurtScreenEffects) {
+							float hpper = p.GetHealth() / 100.0F;
+
 							float wTime = world->GetTime();
-							if (wTime - lastHurtTime < 0.15F && wTime >= lastHurtTime) {
-								float per = 1.0F - (wTime - lastHurtTime) / 0.15F;
+							float timeSinceLastHurt = wTime - lastHurtTime;
+
+							if (wTime >= lastHurtTime && timeSinceLastHurt < 0.15F) {
+								float per = 1.0F - timeSinceLastHurt / 0.15F;
 								per *= 0.5F - hpper * 0.3F;
 								def.blurVignette += per * 6.0F;
 							}
-							if (wTime - lastHurtTime < 0.2F && wTime >= lastHurtTime) {
-								float per = 1.0F - (wTime - lastHurtTime) / 0.2F;
+							if (wTime >= lastHurtTime && timeSinceLastHurt < 0.2F) {
+								float per = 1.0F - timeSinceLastHurt / 0.2F;
 								per *= 0.5F - hpper * 0.3F;
 								def.saturation *= std::max(0.0F, 1.0F - per * 4.0F);
 							}
@@ -298,10 +306,10 @@ namespace spades {
 							if (cg_ragdoll && lastLocalCorpse && &player == localplayer)
 								center = lastLocalCorpse->GetCenter();
 
-							center.z -= 2.0F;
+							center.z -= 2.25F;
 						}
 
-						auto lp = center.Floor();
+						IntVector3 lp = center.Floor();
 						if (map->IsSolidWrapped(lp.x, lp.y, lp.z)) {
 							float z = center.z;
 							while (z > center.z - 5.0F) {
@@ -315,17 +323,18 @@ namespace spades {
 						}
 
 						float distance = 5.0F;
-						if (&player == localplayer && !localplayer->IsSpectator()
+						if (&player == localplayer
+							&& !localplayer->IsSpectator()
 							&& !localplayer->IsAlive()) { // deathcam.
 							float timeSinceDeath = time - lastAliveTime;
 							distance -= 3.0F * expf(-timeSinceDeath * 1.0F);
 						}
 
-						auto& state = followAndFreeCameraState;
+						auto& sharedState = followAndFreeCameraState;
 						Vector3 eye = center;
-						eye.x += cosf(state.yaw) * cosf(state.pitch) * distance;
-						eye.y += sinf(state.yaw) * cosf(state.pitch) * distance;
-						eye.z -= sinf(state.pitch) * distance;
+						eye.x += cosf(sharedState.pitch) * cosf(sharedState.yaw) * distance;
+						eye.y += cosf(sharedState.pitch) * sinf(sharedState.yaw) * distance;
+						eye.z -= sinf(sharedState.pitch) * distance;
 
 						// Prevent the camera from being behind a wall
 						GameMap::RayCastResult res;
@@ -348,12 +357,12 @@ namespace spades {
 						def.viewAxis[1] = -Vector3::Cross(front, def.viewAxis[0]);
 						def.viewAxis[2] = front;
 
-						if (!cg_horizontalFov) {
-							def.fovY = fov;
-							def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
-						} else {
+						if (cg_horizontalFov) {
 							def.fovX = fov;
 							def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) / ratio);
+						} else {
+							def.fovY = fov;
+							def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
 						}
 
 						// Update initial floating camera pos
@@ -367,22 +376,22 @@ namespace spades {
 						Vector3 front;
 						Vector3 up = {0, 0, -1};
 
-						auto& state = followAndFreeCameraState;
-						front.x = -cosf(state.yaw) * cosf(state.pitch);
-						front.y = -sinf(state.yaw) * cosf(state.pitch);
-						front.z = sinf(state.pitch);
+						auto& sharedState = followAndFreeCameraState;
+						front.x = cosf(sharedState.pitch) * -cosf(sharedState.yaw);
+						front.y = cosf(sharedState.pitch) * -sinf(sharedState.yaw);
+						front.z = sinf(sharedState.pitch);
 
 						def.viewOrigin = center;
 						def.viewAxis[0] = -Vector3::Cross(up, front).Normalize();
 						def.viewAxis[1] = -Vector3::Cross(front, def.viewAxis[0]);
 						def.viewAxis[2] = front;
 
-						if (!cg_horizontalFov) {
-							def.fovY = fov;
-							def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
-						} else {
+						if (cg_horizontalFov) {
 							def.fovX = fov;
 							def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) / ratio);
+						} else {
+							def.fovY = fov;
+							def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
 						}
 
 						def.denyCameraBlur = false;
@@ -551,7 +560,7 @@ namespace spades {
 
 			for (int tId = 0; tId < 2; tId++) {
 				CTFGameMode::Team& team = mode.GetTeam(tId);
-				auto col = world->GetTeam(tId).color;
+				IntVector3 col = world->GetTeamColor(tId);
 
 				ModelRenderParam param;
 				param.customColor = ConvertColorRGB(col);
@@ -579,8 +588,9 @@ namespace spades {
 
 			for (int tId = 0; tId < mode.GetNumTerritories(); tId++) {
 				TCGameMode::Territory& t = mode.GetTerritory(tId);
-				IntVector3 col = (t.ownerTeamId == 2) ? MakeIntVector3(255)
-				    : world->GetTeam(t.ownerTeamId).color;
+				IntVector3 col = (t.ownerTeamId == 2)
+					? MakeIntVector3(255, 255, 255)
+					: world->GetTeamColor(t.ownerTeamId);
 
 				ModelRenderParam param;
 				param.customColor = ConvertColorRGB(col);
@@ -611,15 +621,16 @@ namespace spades {
 					AddGrenadeToScene(*nade);
 
 				for (const auto& c : corpses) {
-					if ((c->GetCenter() - lastSceneDef.viewOrigin).GetLength2D() > FOG_DISTANCE)
+					if ((c->GetCenter() - lastSceneDef.viewOrigin).GetSquaredLength2D() >
+					    FOG_DISTANCE * FOG_DISTANCE)
 						continue;
 					c->AddToScene();
 				}
 
-				IGameMode& mode = *world->GetMode();
-				if (IGameMode::m_CTF == mode.ModeType())
+				auto& mode = *world->GetMode();
+				if (mode.ModeType() == IGameMode::m_CTF)
 					DrawCTFObjects();
-				else if (IGameMode::m_TC == mode.ModeType())
+				else if (mode.ModeType() == IGameMode::m_TC)
 					DrawTCObjects();
 
 				for (const auto& ent : localEntities)
@@ -628,31 +639,31 @@ namespace spades {
 				bloodMarks->Draw();
 
 				// Draw block cursor
-				if (p) {
-					if (p->IsAlive()
-						&& p->IsToolBlock()
-						&& p->IsReadyToUseTool()
-						&& CanLocalPlayerUseTool()) {
-						if (p->IsBlockCursorActive() || p->IsBlockCursorDragging()) {
+				if (p && p->IsAlive()) {
+					if (p->IsToolBlock() && p->IsReadyToUseTool() && CanLocalPlayerUseTool()) {
+						bool blockCursorActive = p->IsBlockCursorActive();
+						bool blockCursorDragging = p->IsBlockCursorDragging();
+
+						if (blockCursorActive || blockCursorDragging) {
 							std::vector<IntVector3> blocks;
-							auto curPos = p->GetBlockCursorPos();
-							auto dragPos = p->GetBlockCursorDragPos();
-							if (p->IsBlockCursorDragging())
+							IntVector3 curPos = p->GetBlockCursorPos();
+							IntVector3 dragPos = p->GetBlockCursorDragPos();
+							if (blockCursorDragging)
 								blocks = world->CubeLine(dragPos, curPos, 64);
 							else
 								blocks.push_back(curPos);
 
-							int numBlocks = p->GetNumBlocks();
 							int curBlocks = (int)blocks.size();
-							
-							bool active = p->IsBlockCursorActive() && (curBlocks <= numBlocks);
+
+							bool valid = curBlocks <= p->GetNumBlocks();
+							bool active = blockCursorActive && valid;
 
 							Handle<IModel> curLine = renderer->RegisterModel("Models/MapObjects/BlockCursorLine.kv6");
 
 							for (const auto& v : blocks) {
 								Vector3 const color(
 								  /* R (X) */ 1.0F,
-								  /* G (Y) */ (curBlocks > numBlocks) ? 0.0F : 1.0F,
+								  /* G (Y) */ valid ? 1.0F : 0.0F,
 								  /* B (Z) */ active ? 1.0F : 0.0F
 								);
 
@@ -665,7 +676,7 @@ namespace spades {
 								param.opacity = active ? 0.5F : 0.25F;
 								param.customColor = color;
 								param.matrix = Matrix4::Translate(MakeVector3(v) + 0.5F);
-								param.matrix = param.matrix * Matrix4::Scale(1.0F / 10.0F);
+								param.matrix = param.matrix * Matrix4::Scale(0.1F);
 								renderer->RenderModel(*curLine, param);
 							}
 						}

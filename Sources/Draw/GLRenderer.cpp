@@ -117,7 +117,7 @@ namespace spades {
 			imageRenderer = new GLImageRenderer(*this);
 			profiler.reset(new GLProfiler(*this));
 
-			smoothedFogColor = MakeVector3(-1.0F, -1.0F, -1.0F);
+			smoothedFogColor = MakeVector3(-1, -1, -1);
 
 			// ready for 2d draw
 			device->BlendFunc(IGLDevice::One, IGLDevice::OneMinusSrcAlpha, IGLDevice::Zero,
@@ -342,8 +342,12 @@ namespace spades {
 			}
 		}
 
-		float GLRenderer::ScreenWidth() { return static_cast<float>(device->ScreenWidth()); }
-		float GLRenderer::ScreenHeight() { return static_cast<float>(device->ScreenHeight()); }
+		float GLRenderer::ScreenWidth() {
+			return static_cast<float>(device->ScreenWidth());
+		}
+		float GLRenderer::ScreenHeight() {
+			return static_cast<float>(device->ScreenHeight());
+		}
 
 		void GLRenderer::SetFogColor(spades::Vector3 v) {
 			fogColor = v;
@@ -400,19 +404,19 @@ namespace spades {
 			frustrum[0].w -= sceneDef.zNear;
 			frustrum[1].w += sceneDef.zFar;
 
-			float xCos = cosf(sceneDef.fovX * 0.5F);
-			float xSin = sinf(sceneDef.fovX * 0.5F);
-			float yCos = cosf(sceneDef.fovY * 0.5F);
-			float ySin = sinf(sceneDef.fovY * 0.5F);
+			float cx = cosf(sceneDef.fovX * 0.5F);
+			float sx = sinf(sceneDef.fovX * 0.5F);
+			float cy = cosf(sceneDef.fovY * 0.5F);
+			float sy = sinf(sceneDef.fovY * 0.5F);
 
 			frustrum[2] = Plane3::PlaneWithPointOnPlane(
-			  sceneDef.viewOrigin, sceneDef.viewAxis[2] * xSin - sceneDef.viewAxis[0] * xCos);
+			  sceneDef.viewOrigin, sceneDef.viewAxis[2] * sx - sceneDef.viewAxis[0] * cx);
 			frustrum[3] = Plane3::PlaneWithPointOnPlane(
-			  sceneDef.viewOrigin, sceneDef.viewAxis[2] * xSin + sceneDef.viewAxis[0] * xCos);
+			  sceneDef.viewOrigin, sceneDef.viewAxis[2] * sx + sceneDef.viewAxis[0] * cx);
 			frustrum[4] = Plane3::PlaneWithPointOnPlane(
-			  sceneDef.viewOrigin, sceneDef.viewAxis[2] * ySin - sceneDef.viewAxis[1] * yCos);
+			  sceneDef.viewOrigin, sceneDef.viewAxis[2] * sy - sceneDef.viewAxis[1] * cy);
 			frustrum[5] = Plane3::PlaneWithPointOnPlane(
-			  sceneDef.viewOrigin, sceneDef.viewAxis[2] * ySin + sceneDef.viewAxis[1] * yCos);
+			  sceneDef.viewOrigin, sceneDef.viewAxis[2] * sy + sceneDef.viewAxis[1] * cy);
 		}
 
 		void GLRenderer::EnsureSceneStarted() {
@@ -480,20 +484,24 @@ namespace spades {
 				return;
 			if (!SphereFrustrumCull(light.origin, light.radius))
 				return;
+
 			EnsureInitialized();
 			EnsureSceneStarted();
+
 			lights.push_back(GLDynamicLight(light));
 		}
 
 		void GLRenderer::AddDebugLine(spades::Vector3 a, spades::Vector3 b, spades::Vector4 color) {
 			DebugLine line = {a, b, color};
+
 			EnsureInitialized();
 			EnsureSceneStarted();
+
 			debugLines.push_back(line);
 		}
 
-		void GLRenderer::AddSprite(client::IImage& img, spades::Vector3 center, float radius,
-		                           float rotation) {
+		void GLRenderer::AddSprite(client::IImage& img,
+			spades::Vector3 center, float radius, float rotation) {
 			SPADES_MARK_FUNCTION_DEBUG();
 			GLImage& glImage = dynamic_cast<GLImage&>(img);
 
@@ -936,27 +944,27 @@ namespace spades {
 					GLProfiler::Context p(*profiler, "Dynamic Light Lens Flare");
 					GLLensFlareFilter lensFlareRenderer(*this);
 					device->BindFramebuffer(IGLDevice::Framebuffer, handle.GetFramebuffer());
-					for (const auto& dl : lights) {
-						const client::DynamicLightParam& prm = dl.GetParam();
-						if (!prm.useLensFlare)
+					for (const auto& light : lights) {
+						const auto& param = light.GetParam();
+						if (!param.useLensFlare)
 							continue;
 
-						Vector3 color = prm.color * 0.6F;
+						Vector3 color = param.color * 0.6F;
 						{
 							// distance attenuation
-							float rad = (prm.origin - sceneDef.viewOrigin).GetPoweredLength();
-							rad /= prm.radius * prm.radius * 18.0F;
+							float rad = (param.origin - sceneDef.viewOrigin).GetSquaredLength();
+							rad /= param.radius * param.radius * 18.0F;
 							if (rad > 1.0F)
 								continue;
 							color *= 1.0F - rad;
 						}
 
-						if (prm.type == client::DynamicLightTypeSpotlight) { // spotlight
-							Vector3 diff = (sceneDef.viewOrigin - prm.origin).Normalize();
-							Vector3 lightdir = prm.spotAxis[2];
-							lightdir = lightdir.Normalize();
-							float cosVal = Vector3::Dot(diff, lightdir);
-							float minCosVal = cosf(prm.spotAngle * 0.5F);
+						if (param.type == client::DynamicLightTypeSpotlight) { // spotlight
+							Vector3 diff = (sceneDef.viewOrigin - param.origin).Normalize();
+							Vector3 lightDir = param.spotAxis[2];
+							lightDir = lightDir.Normalize();
+							float cosVal = Vector3::Dot(diff, lightDir);
+							float minCosVal = cosf(param.spotAngle * 0.5F);
 							if (cosVal < minCosVal)
 								continue; // out of range
 
@@ -964,10 +972,10 @@ namespace spades {
 						}
 
 						// view cull
-						if (Vector3::Dot(sceneDef.viewAxis[2], (prm.origin - sceneDef.viewOrigin)) <  0.0F)
+						if (Vector3::Dot(sceneDef.viewAxis[2], (param.origin - sceneDef.viewOrigin)) < 0.0F)
 							continue;
 
-						lensFlareRenderer.Draw(prm.origin - sceneDef.viewOrigin, true, color, false);
+						lensFlareRenderer.Draw(param.origin - sceneDef.viewOrigin, true, color, false);
 					}
 				}
 
@@ -985,9 +993,9 @@ namespace spades {
 
 				if (settings.r_colorCorrection) {
 					GLProfiler::Context p(*profiler, "Color Correction");
-					Vector3 tint = smoothedFogColor + MakeVector3(1.0F, 1.0F, 1.0F) * 0.5F;
-					tint = MakeVector3(1.0F, 1.0F, 1.0F) / tint;
-					tint = Mix(tint, MakeVector3(1.0F, 1.0F, 1.0F), 0.2F);
+					Vector3 tint = smoothedFogColor + MakeVector3(1, 1, 1) * 0.5F;
+					tint = MakeVector3(1, 1, 1) / tint;
+					tint = Mix(tint, MakeVector3(1, 1, 1), 0.2F);
 					tint *= 1.0F / std::min(std::min(tint.x, tint.y), tint.z);
 
 					float fogLuminance = (fogColor.x + fogColor.y + fogColor.z) * (1.0F / 3.0F);
@@ -998,8 +1006,7 @@ namespace spades {
 					}
 
 					float exposure = powf(2.0F, (float)settings.r_exposureValue * 0.5F);
-					handle =
-					  GLColorCorrectionFilter(*this).Filter(handle, tint * exposure, fogLuminance);
+					handle = GLColorCorrectionFilter(*this).Filter(handle, tint * exposure, fogLuminance);
 
 					// update smoothed fog color
 					smoothedFogColor = Mix(smoothedFogColor, fogColor, 0.002F);
@@ -1015,8 +1022,8 @@ namespace spades {
 				// Bi-linear - trivial
 			} else if (scaleFilter == 2) {
 				// Bi-cubic - non-trivial
-				handle = GLResampleBicubicFilter{*this}.Filter(handle, device->ScreenWidth(),
-				                                               device->ScreenHeight());
+				handle = GLResampleBicubicFilter{*this}.Filter(
+					handle, device->ScreenWidth(), device->ScreenHeight());
 				scaleFilter = 0;
 			} else {
 				// I don't know this filter.
@@ -1033,13 +1040,16 @@ namespace spades {
 				device->Enable(IGLDevice::FramebufferSRGB, true);
 			} else {
 				// copy buffer to WM given framebuffer
+				float sw = ScreenWidth();
+				float sh = ScreenHeight();
+
 				if (settings.r_srgb)
 					device->Enable(IGLDevice::FramebufferSRGB, false);
 
 				GLProfiler::Context p(*profiler, "Copying to WM-given Framebuffer");
 
 				if (scaleFilter == 0) {
-					// Temporarily change the textute filter to NN
+					// Temporarily change the texture filter to NN
 					device->BindTexture(IGLDevice::Texture2D, handle.GetTexture());
 					device->TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMagFilter,
 					                     IGLDevice::Nearest);
@@ -1049,13 +1059,13 @@ namespace spades {
 
 				device->BindFramebuffer(IGLDevice::Framebuffer, 0);
 				device->Enable(IGLDevice::Blend, false);
-				device->Viewport(0, 0, device->ScreenWidth(), device->ScreenHeight());
+				device->Viewport(0, 0, (int)sw, (int)sh);
+
 				Handle<GLImage> image(new GLImage(handle.GetTexture(), device.GetPointerOrNull(),
 				                                  static_cast<float>(handle.GetWidth()),
-				                                  static_cast<float>(handle.GetHeight()), false),
-				                      false);
+				                                  static_cast<float>(handle.GetHeight()), false), false);
 				SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1));
-				DrawImage(*image, AABB2(0, ScreenHeight(), ScreenWidth(), -ScreenHeight()));
+				DrawImage(*image, AABB2(0, sh, sw, -sh));
 				imageRenderer->Flush();
 
 				if (scaleFilter == 0) {
@@ -1082,7 +1092,8 @@ namespace spades {
 
 		void GLRenderer::MultiplyScreenColor(spades::Vector3 color) {
 			SPADES_MARK_FUNCTION();
-			void EnsureSceneNotStarted();
+
+			EnsureSceneNotStarted();
 			imageRenderer->Flush();
 
 			device->BlendFunc(IGLDevice::Zero, IGLDevice::SrcColor, IGLDevice::Zero,
@@ -1174,7 +1185,7 @@ namespace spades {
 		                           const spades::AABB2& inRect) {
 			SPADES_MARK_FUNCTION();
 
-			void EnsureSceneNotStarted();
+			EnsureSceneNotStarted();
 
 			// d = a + (b - a) + (c - a)
 			//   = b + c - a
@@ -1209,7 +1220,7 @@ namespace spades {
 
 		void GLRenderer::DrawFlatGameMap(const spades::AABB2& outRect,
 		                                 const spades::AABB2& inRect) {
-			void EnsureSceneNotStarted();
+			EnsureSceneNotStarted();
 			if (flatMapRenderer)
 				flatMapRenderer->Draw(outRect, inRect);
 		}
@@ -1228,7 +1239,6 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			EnsureSceneNotStarted();
-
 			imageRenderer->Flush();
 
 			if (settings.r_debugTimingOutputScreen && settings.r_debugTiming) {
@@ -1239,8 +1249,8 @@ namespace spades {
 
 			if (settings.r_srgb && settings.r_srgb2D && sceneUsedInThisFrame) {
 				// copy buffer to WM given framebuffer
-				auto w = ScreenWidth();
-				auto h = ScreenHeight();
+				float sw = ScreenWidth();
+				float sh = ScreenHeight();
 
 				device->Enable(IGLDevice::FramebufferSRGB, false);
 
@@ -1248,12 +1258,12 @@ namespace spades {
 
 				device->BindFramebuffer(IGLDevice::Framebuffer, 0);
 				device->Enable(IGLDevice::Blend, false);
-				device->Viewport(0, 0, device->ScreenWidth(), device->ScreenWidth());
+				device->Viewport(0, 0, (int)sw, (int)sh);
 
 				auto image = Handle<GLImage>::New(lastColorBufferTexture,
-					device.GetPointerOrNull(), w, h, false);
+					device.GetPointerOrNull(), sw, sh, false);
 				SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1));
-				DrawImage(*image, AABB2(0, h, w, -h));
+				DrawImage(*image, AABB2(0, sh, sw, -sh));
 				imageRenderer->Flush(); // must flush now because handle is released soon
 			}
 

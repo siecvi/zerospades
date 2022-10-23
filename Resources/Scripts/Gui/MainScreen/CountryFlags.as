@@ -16,7 +16,7 @@ namespace spades {
 			for (uint i = 0; i < name.length; i++)
 				code += int(name[i]) << (i * 8);
 
-			switch(code) {
+			switch (code) {
 				case 0x4441: x = 0; y = 0; break;
 				case 0x4541: x = 1; y = 0; break;
 				case 0x4641: x = 2; y = 0; break;
@@ -262,7 +262,7 @@ namespace spades {
 				x = 17; y = 15;
 			}
 
-			renderer.DrawImage(atlas, AABB2(pos.x - 8.0F, pos.y - 8.0F, 16.0F, 16.0F), 
+			renderer.DrawImage(atlas, AABB2(pos.x - 8.0F, pos.y - 8.0F, 16.0F, 16.0F),
 				AABB2(float(x) * 16.0F, float(y) * 16.0F, 16.0F, 16.0F));
 		}
 	}

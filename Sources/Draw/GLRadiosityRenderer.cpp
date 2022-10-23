@@ -384,10 +384,10 @@ namespace spades {
 			int nearDirtyChunks = 0;
 
 			// first, check only chunks in near range
-			Vector3 eyePos = renderer.GetSceneDef().viewOrigin;
-			int eyeX = (int)(eyePos.x) >> ChunkSizeBits;
-			int eyeY = (int)(eyePos.y) >> ChunkSizeBits;
-			int eyeZ = (int)(eyePos.z) >> ChunkSizeBits;
+			const auto& viewOrigin = renderer.GetSceneDef().viewOrigin;
+			int eyeX = (int)(viewOrigin.x) >> ChunkSizeBits;
+			int eyeY = (int)(viewOrigin.y) >> ChunkSizeBits;
+			int eyeZ = (int)(viewOrigin.z) >> ChunkSizeBits;
 
 			for (size_t i = 0; i < chunks.size(); i++) {
 				Chunk& c = chunks[i];

@@ -59,11 +59,12 @@ namespace spades {
 
 			// do rotation
 			float f = dt * 32.0F;
-			Vector2 rot = {0.0F, 0.0F};
-			if (fabsf(velocity.GetLength2D()) > BOUNCE_SOUND_THRESHOLD) {
-				rot.x += f * velocity.x * DEG2RAD(90);
-				rot.y += f * velocity.y * DEG2RAD(90);
-				orientation = Quaternion::MakeRotation(Vector3(-rot.y, rot.x, 0.0F)) * orientation;
+			Vector3 rotAxis = {0.0F, 0.0F, 0.0F};
+			if (fabsf(velocity.x) > BOUNCE_SOUND_THRESHOLD ||
+			    fabsf(velocity.y) > BOUNCE_SOUND_THRESHOLD) {
+				rotAxis.x -= f * velocity.y * DEG2RAD(45);
+				rotAxis.y += f * velocity.x * DEG2RAD(45);
+				orientation = Quaternion::MakeRotation(rotAxis) * orientation;
 				orientation = orientation.Normalize();
 			}
 
@@ -98,7 +99,9 @@ namespace spades {
 
 			if (m->ClipWorld(lp.x, lp.y, lp.z)) {
 				ret = 1; // hit a wall
-				if (fabsf(velocity.GetLength()) > BOUNCE_SOUND_THRESHOLD)
+				if (fabsf(velocity.x) > BOUNCE_SOUND_THRESHOLD ||
+				    fabsf(velocity.y) > BOUNCE_SOUND_THRESHOLD ||
+				    fabsf(velocity.z) > BOUNCE_SOUND_THRESHOLD)
 					ret = 2; // play sound
 
 				if (lp.z != lp2.z &&

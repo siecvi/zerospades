@@ -122,10 +122,8 @@ namespace spades {
 		                      spades::Vector4 color) {
 			float x = 0.0F, y = 0.0F;
 
-			if (scale == 1.0F) {
-				offset.x = floorf(offset.x);
-				offset.y = floorf(offset.y);
-			}
+			if (scale == 1.0F)
+				offset = offset.Floor();
 
 			float a = color.w;
 			color.w = 1.0F;

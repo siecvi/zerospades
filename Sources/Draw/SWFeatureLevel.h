@@ -116,8 +116,8 @@ namespace spades {
 		}
 #else
 		static inline PURE float fastDiv(float a, float b) { return a / b; }
-		static inline PURE float fastRcp(float b) { return 1.f / b; }
-		static inline PURE float fastRSqrt(float b) { return 1.f / sqrtf(b); }
+		static inline PURE float fastRcp(float b) { return 1.0F / b; }
+		static inline PURE float fastRSqrt(float b) { return 1.0F / sqrtf(b); }
 #endif
 		static inline float fastSqrt(float s) {
 			if (s == 0.f)

@@ -306,10 +306,10 @@ namespace spades {
 			// ray direction
 			float dirX = line.horizonDir.x;
 			float dirY = line.horizonDir.y;
-			if (fabsf(dirY) < 1.E-4F)
-				dirY = 1.E-4F;
-			if (fabsf(dirX) < 1.E-4F)
-				dirX = 1.E-4F;
+			if (fabsf(dirY) < 1.0E-4F)
+				dirY = 1.0E-4F;
+			if (fabsf(dirX) < 1.0E-4F)
+				dirX = 1.0E-4F;
 			float invDirX = 1.0F / dirX;
 			float invDirY = 1.0F / dirY;
 			std::int_fast8_t signX = (dirX > 0.0F) ? 1 : -1;
@@ -344,7 +344,7 @@ namespace spades {
 			std::int_fast16_t iry = ry >> 9; // static_cast<int>(floorf(ry));
 
 			float fogDist = 128.0F;
-			float distance = 1.E-20F; // traveled path
+			float distance = 1.0E-20F; // traveled path
 			float invDist = 1.0F / distance;
 
 			// auto& pixels = line.pixels;
@@ -761,7 +761,7 @@ namespace spades {
 					// Use bi-linear interpolation for faster yaw/pitch
 					// computation.
 
-					auto calcYawindex = [yawScale2, numLines, yawMin2](Vector3 v) {
+					auto calcYawindex = [yawMin2](Vector3 v) {
 						std::int32_t yawIndex;
 						{
 							float x = v.x, y = v.y;
@@ -1015,7 +1015,7 @@ namespace spades {
 			if (!depthBuffer)
 				SPInvalidArgument("depthBuffer");
 
-			auto p = def.viewOrigin.Floor();
+			IntVector3 p = def.viewOrigin.Floor();
 			if (map->IsSolidWrapped(p.x, p.y, p.z))
 				return;
 

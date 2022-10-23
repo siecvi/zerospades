@@ -39,8 +39,7 @@ namespace spades {
 
 		float TCGameMode::Territory::GetProgress() {
 			float dt = mode.world.GetTime() - progressStartTime;
-			float prg = progressBasePos;
-			prg += progressRate * dt;
+			float prg = progressBasePos + progressRate * dt;
 			if (prg < 0.0F)
 				prg = 0.0F;
 			if (prg > 1.0F)

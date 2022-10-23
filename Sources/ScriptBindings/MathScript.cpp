@@ -331,7 +331,7 @@ namespace spades {
 					manager->CheckError(r);
 
 					r = eng->RegisterObjectMethod("Vector2", "float get_LengthPowered() const",
-					                              asMETHOD(Vector2, GetPoweredLength),
+					                              asMETHOD(Vector2, GetSquaredLength),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
 
@@ -489,7 +489,7 @@ namespace spades {
 					manager->CheckError(r);
 
 					r = eng->RegisterObjectMethod("Vector3", "float get_LengthPowered() const",
-					                              asMETHOD(Vector3, GetPoweredLength),
+					                              asMETHOD(Vector3, GetSquaredLength),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
 
@@ -657,7 +657,7 @@ namespace spades {
 					manager->CheckError(r);
 
 					r = eng->RegisterObjectMethod("Vector4", "float get_LengthPowered() const",
-					                              asMETHOD(Vector4, GetPoweredLength),
+					                              asMETHOD(Vector4, GetSquaredLength),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
 

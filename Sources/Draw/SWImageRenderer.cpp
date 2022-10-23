@@ -121,8 +121,8 @@ namespace spades {
 							MoveNext();
 					} else {
 						unsigned long long d = b.dividend;
-						d += static_cast<unsigned long long>(b.step *
-						                                     static_cast<unsigned int>(numSteps));
+						d += static_cast<unsigned long long>(b.step
+							* static_cast<unsigned int>(numSteps));
 						unsigned long long cnt = d / b.divisor;
 						d -= cnt * b.divisor;
 						b.dividend = static_cast<unsigned int>(d);
@@ -158,8 +158,7 @@ namespace spades {
 
 		template <SWFeatureLevel level> struct SWImageGouraudInterpolator {
 			Interpolator u, v;
-			SWImageGouraudInterpolator(const SWImageVarying& start, const SWImageVarying& end,
-			                           int numSteps)
+			SWImageGouraudInterpolator(const SWImageVarying& start, const SWImageVarying& end, int numSteps)
 			    : u(start.u, end.u, numSteps), v(start.v, end.v, numSteps) {}
 
 			SWImageVarying GetCurrent() { return SWImageVarying(u.GetCurrent(), v.GetCurrent()); }
@@ -234,7 +233,6 @@ namespace spades {
 		          bool ndc, // normalized device coordinate
 		          bool depthTest, bool solidFill, bool linearInterpolate>
 		struct SWImageRenderer::PolygonRenderer {
-
 			static_assert(!needTransform, "Transform pass was not selected");
 			static_assert(!ndc, "Denormalize pass was not selected");
 
@@ -313,11 +311,8 @@ namespace spades {
 
 				auto drawPixel = [mulR, mulG, mulB, mulA](uint32_t& dest, float& destDepth,
 				                                          uint32_t texture, float inDepth) {
-					if (depthTest) {
-						if (inDepth > destDepth) {
-							return;
-						}
-					}
+					if (depthTest && inDepth > destDepth)
+						return;
 
 					if (texture == 0)
 						return; // transparent
@@ -364,7 +359,7 @@ namespace spades {
 					dest = outR | (outG << 8) | (outB << 16);
 				};
 
-				auto drawScanline = [tw, th, tpixels, bmp, fbW, fbH, depthBuffer, &drawPixel, &r,
+				auto drawScanline = [tw, th, tpixels, bmp, fbW, depthBuffer, &drawPixel, &r,
 				                     &ditherMap](int y, int x1, int x2, const SWImageVarying& vary1,
 				                                 const SWImageVarying& vary2, float z1, float z2) {
 					uint32_t* out = bmp + (y * fbW);
@@ -584,11 +579,8 @@ namespace spades {
 
 				auto drawPixel = [mulCol, mulA](uint32_t& dest, float& destDepth, uint32_t texture,
 				                                float inDepth) {
-					if (depthTest) {
-						if (inDepth > destDepth) {
-							return;
-						}
-					}
+					if (depthTest && inDepth > destDepth)
+						return;
 
 					if (texture == 0)
 						return; // transparent
@@ -655,9 +647,9 @@ namespace spades {
 					_mm_store_ss(reinterpret_cast<float*>(&dest), _mm_castsi128_ps(dcol));
 				};
 
-				auto drawPixel2 = [mulCol, mulA, &drawPixel](uint32_t* dest, float* destDepth,
-				                                             uint32_t texture1, float inDepth1,
-				                                             uint32_t texture2, float inDepth2) {
+				auto drawPixel2 = [mulCol, &drawPixel](uint32_t* dest, float* destDepth,
+				                                       uint32_t texture1, float inDepth1,
+				                                       uint32_t texture2, float inDepth2) {
 					if (depthTest) {
 						if (inDepth1 > destDepth[0]) {
 							drawPixel(dest[1], destDepth[1], texture2, inDepth2);
@@ -716,7 +708,7 @@ namespace spades {
 				};
 
 				auto drawScanline =
-				  [tw, th, tpixels, bmp, fbW, fbH, depthBuffer, &drawPixel, &drawPixel2, &r,
+				  [tw, th, tpixels, bmp, fbW, depthBuffer, &drawPixel, &drawPixel2, &r,
 				   &ditherMap, &ditherMap2](int y, int x1, int x2, const SWImageVarying& vary1,
 				                            const SWImageVarying& vary2, float z1, float z2) {
 					  uint32_t* out = bmp + (y * fbW);
@@ -1043,9 +1035,8 @@ namespace spades {
 					_mm_store_sd(reinterpret_cast<double*>(dest), _mm_castsi128_pd(dcol));
 				};
 
-				auto drawScanline = [bmp, fbW, fbH, depthBuffer, &drawPixel, &drawPixel2,
-				                     &r](int y, int x1, int x2, const SWImageVarying& vary1,
-				                         const SWImageVarying& vary2, float z1, float z2) {
+				auto drawScanline = [bmp, fbW, depthBuffer, &drawPixel, &drawPixel2, &r](int y, int x1, int x2,
+					const SWImageVarying& vary1, const SWImageVarying& vary2, float z1, float z2) {
 					uint32_t* out = bmp + (y * fbW);
 					float* depthOut = nullptr;
 					if (depthTest) {

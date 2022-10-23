@@ -22,7 +22,6 @@
 #include <regex>
 
 #include "FTFont.h"
-#include "FontData.h"
 #include "Fonts.h"
 #include "IRenderer.h"
 #include "Quake3Font.h"
@@ -34,10 +33,18 @@ namespace spades {
 			std::regex const g_fontNameRe(".*\\.(?:otf|ttf|ttc)", std::regex::icase);
 
 			struct GlobalFontInfo {
-				std::shared_ptr<ngclient::FTFontSet> guiFontSet, hudFontSet, sysFontSet;
+				std::shared_ptr<ngclient::FTFontSet> squareDesignFont, guiFontSet, sysFontSet;
 
 				GlobalFontInfo() {
 					SPLog("Loading built-in fonts");
+
+					squareDesignFont = std::make_shared<ngclient::FTFontSet>();
+					if (FileManager::FileExists("Gfx/Fonts/SquareFont.ttf")) {
+						squareDesignFont->AddFace("Gfx/Fonts/SquareFont.ttf");
+						SPLog("Font 'SquareFont' loaded");
+					} else {
+						SPLog("Font 'SquareFont' was not found");
+					}
 
 					guiFontSet = std::make_shared<ngclient::FTFontSet>();
 					if (FileManager::FileExists("Gfx/Fonts/AlteDIN1451.ttf")) {
@@ -45,14 +52,6 @@ namespace spades {
 						SPLog("Font 'Alte DIN 1451' loaded");
 					} else {
 						SPLog("Font 'Alte DIN 1451' was not found");
-					}
-
-					hudFontSet = std::make_shared<ngclient::FTFontSet>();
-					if (FileManager::FileExists("Gfx/Fonts/FSEX300.ttf")) {
-						hudFontSet->AddFace("Gfx/Fonts/FSEX300.ttf");
-						SPLog("Font 'FSEX300' loaded");
-					} else {
-						SPLog("Font 'FSEX300' was not found");
 					}
 
 					sysFontSet = std::make_shared<ngclient::FTFontSet>();
@@ -86,21 +85,12 @@ namespace spades {
 		FontManager::FontManager(IRenderer* renderer) {
 			auto& instance = GlobalFontInfo::GetInstance();
 
-			{
-				auto font = Handle<Quake3Font>::New(renderer,
-				  renderer->RegisterImage("Gfx/Fonts/SquareFontBig.png").GetPointerOrNull(),
-				  (const int*)SquareFontBigMap, 48, 8.0F, true);
-				font->SetGlyphYRange(11.0F, 37.0F);
-				SPLog("Font 'SquareFont (Large)' Loaded");
-				squareDesignFont = std::move(font).Cast<IFont>();
-			}
-
+			squareDesignFont = Handle<ngclient::FTFont>::New(renderer, instance.squareDesignFont, 36.0F, 48.0F).Cast<IFont>();
 			largeFont = Handle<ngclient::FTFont>::New(renderer, instance.guiFontSet, 34.0F, 48.0F).Cast<IFont>();
 			mediumFont = Handle<ngclient::FTFont>::New(renderer, instance.guiFontSet, 24.0F, 32.0F).Cast<IFont>();
-			smallFont = Handle<ngclient::FTFont>::New(renderer, instance.sysFontSet, 16.0F, 24.0F).Cast<IFont>();
 			headingFont = Handle<ngclient::FTFont>::New(renderer, instance.guiFontSet, 20.0F, 26.0F).Cast<IFont>();
 			guiFont = Handle<ngclient::FTFont>::New(renderer, instance.guiFontSet, 16.0F, 20.0F).Cast<IFont>();
-			hudFont = Handle<ngclient::FTFont>::New(renderer, instance.hudFontSet, 48.0F, 56.0F).Cast<IFont>();
+			smallFont = Handle<ngclient::FTFont>::New(renderer, instance.sysFontSet, 16.0F, 24.0F).Cast<IFont>();
 		}
 
 		FontManager::~FontManager() {}

@@ -45,7 +45,6 @@
 
 DEFINE_SPADES_SETTING(cg_centerMessage, "2");
 SPADES_SETTING(cg_playerName);
-SPADES_SETTING(cg_scoreMessages);
 
 namespace spades {
 	namespace client {
@@ -53,7 +52,7 @@ namespace spades {
 #pragma mark - Server Packet Handlers
 
 		void Client::LocalPlayerCreated() {
-			freeCameraState.position = GetLastSceneDef().viewOrigin;
+			freeCameraState.position = lastSceneDef.viewOrigin;
 			weapInput = WeaponInput();
 			playerInput.jump = PlayerInput().jump;
 		}
@@ -70,9 +69,9 @@ namespace spades {
 			Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Feedback/Intro.opus");
 			audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 
-			// Prepare the spectate mode
+			// Prepare the spectator view
 			followCameraState.enabled = false;
-			freeCameraState.position = GetLastSceneDef().viewOrigin;
+			freeCameraState.position = lastSceneDef.viewOrigin;
 			freeCameraState.velocity = MakeVector3(0, 0, 0);
 			followAndFreeCameraState.yaw = -DEG2RAD(90);
 			followAndFreeCameraState.pitch = DEG2RAD(89);

@@ -62,7 +62,7 @@ namespace spades {
 			health = 100;
 			grenades = 3;
 			blockStocks = 50;
-			blockColor = MakeIntVector3(111);
+			blockColor = MakeIntVector3(111, 111, 111);
 
 			nextSpadeTime = 0.0F;
 			nextDigTime = 0.0F;
@@ -70,7 +70,7 @@ namespace spades {
 			nextBlockTime = 0.0F;
 			firstDig = false;
 			lastReloadingTime = 0.0F;
-
+		
 			pendingPlaceBlock = false;
 			pendingRestockBlock = false;
 
@@ -162,7 +162,7 @@ namespace spades {
 					newInput.secondary = false;
 				if (newInput.secondary != weapInput.secondary) {
 					if (newInput.secondary) {
-						if (IsBlockCursorActive()) {
+						if (blockCursorActive) {
 							blockCursorDragging = true;
 							blockCursorDragPos = blockCursorPos;
 						} else {
@@ -170,11 +170,10 @@ namespace spades {
 								listener->LocalPlayerBuildError(BuildFailureReason::InvalidPosition);
 						}
 					} else {
-						if (IsBlockCursorDragging()) {
-							if (IsBlockCursorActive()) {
-								std::vector<IntVector3> blocks =
-									GetWorld().CubeLine(blockCursorDragPos, blockCursorPos, 64);
-								if ((int)blocks.size() <= blockStocks) {
+						if (blockCursorDragging) {
+							if (blockCursorActive) {
+								int blocks = world.CubeLine(blockCursorDragPos, blockCursorPos, 64).size();
+								if (blocks <= blockStocks) {
 									if (listener && IsLocalPlayer())
 										listener->LocalPlayerCreatedLineBlock(blockCursorDragPos, blockCursorPos);
 									// blockStocks -= blocks.size(); decrease when created
@@ -198,7 +197,7 @@ namespace spades {
 					if (newInput.primary) {
 						if (!weapInput.primary)
 							lastSingleBlockBuildSeqDone = false;
-						if (IsBlockCursorActive() && blockStocks > 0) {
+						if (blockCursorActive && blockStocks > 0) {
 							if (listener && IsLocalPlayer())
 								listener->LocalPlayerBlockAction(blockCursorPos, BlockActionCreate);
 
@@ -284,8 +283,8 @@ namespace spades {
 			blockCursorDragging = false;
 			reloadingServerSide = false;
 
-			WeaponInput inp;
-			SetWeaponInput(inp);
+			WeaponInput winp;
+			SetWeaponInput(winp);
 
 			weapon->AbortReload();
 
@@ -316,28 +315,29 @@ namespace spades {
 
 			Vector3 o = GetFront();
 
-			float lng = atan2f(o.y, o.x);
-			float lat = atan2f(o.z, o.GetLength2D());
+			float yaw = atan2f(o.y, o.x);
+			float pitch = -atan2f(o.z, o.GetLength2D());
 
-			lng += longitude;
-			lat += latitude;
+			yaw += longitude;
+			pitch += latitude;
 
-			if (lat < -DEG2RAD(89))
-				lat = -DEG2RAD(89);
-			if (lat > DEG2RAD(89))
-				lat = DEG2RAD(89);
+			// Check pitch bounds
+			if (pitch > DEG2RAD(89))
+				pitch = DEG2RAD(89);
+			if (pitch < -DEG2RAD(89))
+				pitch = -DEG2RAD(89);
 
-			o.x = cosf(lng) * cosf(lat);
-			o.y = sinf(lng) * cosf(lat);
-			o.z = sinf(lat);
+			o.x = cosf(pitch) * cosf(yaw);
+			o.y = cosf(pitch) * sinf(yaw);
+			o.z = -sinf(pitch);
 
 			SetOrientation(o);
 		}
 
 		void Player::SetHP(int hp, HurtType type, spades::Vector3 p) {
 			health = hp;
-			if (world.GetListener() && IsLocalPlayer())
-				world.GetListener()->LocalPlayerHurt(type, p.IsValid(), p);
+			if (world.GetListener())
+				world.GetListener()->LocalPlayerHurt(type, p);
 		}
 
 		void Player::Update(float dt) {
@@ -361,7 +361,7 @@ namespace spades {
 					}
 				}
 			} else if (tool == ToolBlock && IsLocalPlayer()) {
-				Handle<GameMap> map = GetWorld().GetMap();
+				const Handle<GameMap>& map = world.GetMap();
 				SPAssert(map);
 
 				GameMap::RayCastResult res;
@@ -370,7 +370,7 @@ namespace spades {
 				canPending = false;
 				if (blockCursorDragging) {
 					// check the starting point is not floating
-					auto start = blockCursorDragPos;
+					IntVector3 start = blockCursorDragPos;
 					if (map->IsSurface(start.x, start.y, start.z)) {
 						if (listener && IsLocalPlayer()) // cannot build; floating
 							listener->LocalPlayerBuildError(BuildFailureReason::InvalidPosition);
@@ -465,7 +465,7 @@ namespace spades {
 			float c = Vector3::Dot(diff, dir);
 
 			// |P-A|^2
-			float sq = diff.GetPoweredLength();
+			float sq = diff.GetSquaredLength();
 
 			// |P-A| * sin(theta)
 			float dist = sqrtf(sq - c * c);
@@ -480,8 +480,8 @@ namespace spades {
 
 			auto* listener = world.GetListener();
 
-			Vector3 fp3 = GetFront();
-			Vector3 muzzle = GetEye() + (fp3 * 0.01F);
+			Vector3 dir = GetFront();
+			Vector3 muzzle = GetEye() + (dir * 0.01F);
 
 			// for hit-test debugging
 			std::map<int, HitTestDebugger::PlayerHit> playerHits;
@@ -501,16 +501,14 @@ namespace spades {
 			// The custom state data, optionally set by `BulletHitPlayer`'s implementation
 			std::unique_ptr<IBulletHitScanState> stateCell;
 
-			Vector3 dir = fp3;
+			Vector3 pelletDir = dir;
 			for (int i = 0; i < pellets; i++) {
-				Vector3 o = dir;
+				// AoS 0.75's way (pelletDir shouldn't be normalized!)
+				pelletDir.x += (SampleRandomFloat() - SampleRandomFloat()) * spread;
+				pelletDir.y += (SampleRandomFloat() - SampleRandomFloat()) * spread;
+				pelletDir.z += (SampleRandomFloat() - SampleRandomFloat()) * spread;
 
-				// AoS 0.75's way (dir shouldn't be normalized!)
-				o.x += (SampleRandomFloat() - SampleRandomFloat()) * spread;
-				o.y += (SampleRandomFloat() - SampleRandomFloat()) * spread;
-				o.z += (SampleRandomFloat() - SampleRandomFloat()) * spread;
-
-				dir = o.Normalize();
+				dir = pelletDir.Normalize();
 
 				bulletVectors.push_back(dir);
 
@@ -532,7 +530,7 @@ namespace spades {
 
 					Player& other = maybeOther.value();
 					if (!other.IsAlive() || other.IsSpectator())
-						continue; // Filter deads/spectators
+						continue; // filter deads/spectators
 					if (!other.RayCastApprox(muzzle, dir))
 						continue; // quickly reject players unlikely to be hit
 
@@ -576,6 +574,7 @@ namespace spades {
 				}
 
 				Vector3 finalHitPos = muzzle + dir * 128.0F;
+
 				if (mapResult.hit && (mapResult.hitPos - muzzle).GetLength2D() < FOG_DISTANCE &&
 				    (!hitPlayer || (mapResult.hitPos - muzzle).GetLength2D() < hitPlayerDist2D)) {
 					finalHitPos = mapResult.hitPos;
@@ -584,6 +583,7 @@ namespace spades {
 					if (map->IsValidMapCoord(outBlockPos.x, outBlockPos.y, outBlockPos.z)) {
 						SPAssert(map->IsSolid(outBlockPos.x, outBlockPos.y, outBlockPos.z));
 
+						// block damage shouldn't be shared
 						if (IsLocalPlayer() && outBlockPos.z < map->GroundDepth()) {
 							uint32_t col = map->GetColor(outBlockPos.x, outBlockPos.y, outBlockPos.z);
 							int health = (col >> 24) - weapon->GetDamage(HitTypeBlock);
@@ -665,7 +665,7 @@ namespace spades {
 				else if (input.crouch)
 					rec /= 2;
 
-				Turn(rec.x, -rec.y);
+				Turn(rec.x, rec.y);
 			}
 
 			reloadingServerSide = false;
@@ -679,14 +679,15 @@ namespace spades {
 
 			auto* listener = world.GetListener();
 
-			Vector3 const muzzle = GetEye() + (GetFront() * 0.1F);
-			Vector3 const vel = IsAlive()
-				? (GetFront() + GetVelocity())
-				: Vector3(0, 0, 0);
-
-			float const fuse = 3.0F - GetGrenadeCookTime();
-
 			if (IsLocalPlayer()) {
+				Vector3 const dir = GetFront();
+				Vector3 const muzzle = GetEye() + (dir * 0.1F);
+				Vector3 const vel = IsAlive()
+					? (dir + GetVelocity())
+					: Vector3(0, 0, 0);
+
+				float const fuse = 3.0F - GetGrenadeCookTime();
+
 				auto nade = stmp::make_unique<Grenade>(world, muzzle, vel, fuse);
 				if (listener)
 					listener->PlayerThrewGrenade(*this, *nade);
@@ -743,10 +744,11 @@ namespace spades {
 			}
 
 			IntVector3 outBlockPos = mapResult.hitBlock;
-			if (mapResult.hit && Collision3D(outBlockPos + mapResult.normal) && (!hitPlayer || dig)) {
+			if (mapResult.hit && Collision3D(outBlockPos) && (!hitPlayer || dig)) {
 				if (map->IsValidMapCoord(outBlockPos.x, outBlockPos.y, outBlockPos.z)) {
 					SPAssert(map->IsSolid(outBlockPos.x, outBlockPos.y, outBlockPos.z));
 
+					// block damage shouldn't be shared
 					if (IsLocalPlayer() && outBlockPos.z < map->GroundDepth()) {
 						if (!dig) {
 							uint32_t col = map->GetColor(outBlockPos.x, outBlockPos.y, outBlockPos.z);
@@ -772,15 +774,17 @@ namespace spades {
 						listener->PlayerHitBlockWithSpade(*this,
 							mapResult.hitPos, outBlockPos, mapResult.normal);
 				}
-			} else if (hitPlayer && listener && !dig) {
+			} else if (hitPlayer && !dig) {
 				// The custom state data, optionally set by `BulletHitPlayer`'s implementation
 				std::unique_ptr<IBulletHitScanState> stateCell;
-				listener->BulletHitPlayer(*hitPlayer, HitTypeMelee,
-					hitPlayer->GetEye(), *this, stateCell);
-			} else {
+
 				if (listener)
-					listener->PlayerMissedSpade(*this);
+					listener->BulletHitPlayer(*hitPlayer,
+						HitTypeMelee, hitPlayer->GetEye(), *this, stateCell);
 			}
+
+			if (listener)
+				listener->PlayerMissedSpade(*this);
 		}
 
 		Vector3 Player::GetFront() {
@@ -793,14 +797,9 @@ namespace spades {
 			return MakeVector3(orientation.x, orientation.y, 0).Normalize();
 		}
 
-		Vector3 Player::GetLeft() {
-			SPADES_MARK_FUNCTION_DEBUG();
-			return Vector3::Cross(MakeVector3(0, 0, -1), GetFront2D()).Normalize();
-		}
-
 		Vector3 Player::GetRight() {
 			SPADES_MARK_FUNCTION_DEBUG();
-			return -GetLeft();
+			return -Vector3::Cross(MakeVector3(0, 0, -1), GetFront2D()).Normalize();
 		}
 
 		Vector3 Player::GetUp() {
@@ -904,7 +903,7 @@ namespace spades {
 			    map->ClipBox(position.x + 0.45F, position.y - 0.45F, nz + m) ||
 			    map->ClipBox(position.x + 0.45F, position.y + 0.45F, nz + m)) {
 				if (velocity.z >= 0.0F) {
-					wade = (position.z > 61.0F);
+					wade = position.z > 61.0F;
 					airborne = false;
 				}
 
@@ -926,7 +925,7 @@ namespace spades {
 			}
 		}
 
-		void Player::MoveDead(float fsynctics) {
+		void Player::MoveCorpse(float fsynctics) {
 			Vector3 oldPos = position; // old position
 
 			// do velocity & gravity (friction is negligible)
@@ -966,19 +965,19 @@ namespace spades {
 
 		void Player::MovePlayer(float fsynctics) {
 			if (!IsAlive()) {
-				MoveDead(fsynctics);
+				MoveCorpse(fsynctics);
 				return;
 			}
 
 			if (input.jump && IsOnGroundOrWade())
 				PlayerJump();
 
-			float f = fsynctics;
+			float f = fsynctics; // player acceleration scalar
 			if (airborne)
 				f *= 0.1F;
 			else if (input.crouch)
 				f *= 0.3F;
-			else if (IsScoped() || input.sneak)
+			else if (IsZoomed() || input.sneak)
 				f *= 0.5F;
 			else if (input.sprint)
 				f *= 1.3F;
@@ -995,13 +994,13 @@ namespace spades {
 				velocity.y -= front.y * f;
 			}
 
-			Vector3 left = GetLeft();
+			Vector3 right = GetRight();
 			if (input.moveLeft) {
-				velocity.x += left.x * f;
-				velocity.y += left.y * f;
+				velocity.x -= right.x * f;
+				velocity.y -= right.y * f;
 			} else if (input.moveRight) {
-				velocity.x -= left.x * f;
-				velocity.y -= left.y * f;
+				velocity.x += right.x * f;
+				velocity.y += right.y * f;
 			}
 
 			// this is a linear approximation that's done in pysnip
@@ -1010,9 +1009,9 @@ namespace spades {
 			velocity.z += fsynctics;
 			velocity.z /= f; // air friction
 
-			if (wade)
+			if (wade) // water friction
 				f = fsynctics * 6.0F + 1.0F;
-			else if (!airborne)
+			else if (!airborne) // ground friction
 				f = fsynctics * 4.0F + 1.0F;
 
 			velocity.x /= f;
@@ -1026,8 +1025,9 @@ namespace spades {
 				velocity.x *= 0.5F;
 				velocity.y *= 0.5F;
 
+				bool hurt = f2 > FALL_DAMAGE_VELOCITY;
 				if (world.GetListener())
-					world.GetListener()->PlayerLanded(*this, (f2 > FALL_DAMAGE_VELOCITY));
+					world.GetListener()->PlayerLanded(*this, hurt);
 			}
 
 			if (IsOnGroundOrWade()) {
@@ -1041,10 +1041,10 @@ namespace spades {
 				bool madeFootstep = false;
 				while (moveDistance > 1.0F) {
 					moveSteps++;
-					moveDistance--;
+					moveDistance -= 1.0F;
 
 					if (world.GetListener() && !madeFootstep) {
-						if (!input.crouch && !input.sneak && !IsScoped())
+						if (!input.crouch && !input.sneak && !IsZoomed())
 							world.GetListener()->PlayerMadeFootstep(*this);
 						madeFootstep = true;
 					}
@@ -1114,7 +1114,7 @@ namespace spades {
 			}
 		}
 
-		float Player::GetTimeToNextRespawn() { return respawnTime - world.GetTime(); }
+		float Player::GetTimeToRespawn() { return respawnTime - world.GetTime(); }
 		float Player::GetTimeToNextSpade() { return nextSpadeTime - world.GetTime(); }
 		float Player::GetTimeToNextDig() { return nextDigTime - world.GetTime(); }
 		float Player::GetTimeToNextBlock() { return nextBlockTime - world.GetTime(); }
@@ -1156,7 +1156,7 @@ namespace spades {
 
 		float Player::GetGrenadeCookTime() { return world.GetTime() - grenadeTime; }
 
-		void Player::KilledBy(KillType type, Player& killer, int rt) {
+		void Player::KilledBy(KillType type, Player& killer, int respawnTime) {
 			SPADES_MARK_FUNCTION();
 
 			health = 0;
@@ -1173,14 +1173,15 @@ namespace spades {
 
 			input = PlayerInput();
 			weapInput = WeaponInput();
-			respawnTime = world.GetTime() + rt;
+			this->respawnTime = world.GetTime() + respawnTime;
 		}
 
-		std::string Player::GetName() { return world.GetPlayerName(playerId); }
 		std::string Player::GetTeamName() { return world.GetTeamName(teamId); }
+		std::string Player::GetName() { return world.GetPlayerName(playerId); }
+		int Player::GetScore() { return world.GetPlayerScore(playerId); }
 
 		IntVector3 Player::GetColor() {
-			return IsSpectator() ? MakeIntVector3(200) : world.GetTeam(teamId).color;
+			return IsSpectator() ? MakeIntVector3(200, 200, 200) : world.GetTeamColor(teamId);
 		}
 
 		Player::HitBoxes Player::GetHitBoxes() {
@@ -1238,7 +1239,7 @@ namespace spades {
 			this->weaponType = weap;
 		}
 
-		bool Player::OverlapsWith(const spades::AABB3& aabb) {
+		bool Player::OverlapsWith(const spades::AABB3& box) {
 			SPADES_MARK_FUNCTION_DEBUG();
 			float offset, m;
 			if (input.crouch) {
@@ -1250,19 +1251,24 @@ namespace spades {
 			}
 			m -= 0.5F;
 			AABB3 playerBox(eye.x - 0.45F, eye.y - 0.45F, eye.z, 0.9F, 0.9F, offset + m);
-			return aabb.Intersects(playerBox);
+			return box.Intersects(playerBox);
 		}
 
-		bool Player::OverlapsWithBlock(spades::IntVector3 v) {
+		bool Player::OverlapsWithBlock(const spades::IntVector3& v) {
 			SPADES_MARK_FUNCTION_DEBUG();
-			Vector3 e = MakeVector3(v);
-			return OverlapsWith(AABB3(e.x, e.y, e.z, 1, 1, 1));
+			return OverlapsWith(AABB3(v.x, v.y, v.z, 1, 1, 1));
 		}
 
 #pragma mark - Block Construction
 
+		static bool VectorCollision(Vector3 v1, Vector3 v2, float distance) {
+			return (fabsf(v1.x - v2.x) < distance &&
+					fabsf(v1.y - v2.y) < distance &&
+			        fabsf(v1.z - v2.z) < distance);
+		}
+
 		bool Player::Collision3D(spades::IntVector3 v, float distance) {
-			return ((MakeVector3(v) + 0.5F) - eye).GetChebyshevLength() < distance;
+			return VectorCollision(position, MakeVector3(v) + 0.5F, distance);
 		}
 	} // namespace client
 } // namespace spades

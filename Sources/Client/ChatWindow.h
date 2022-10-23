@@ -81,6 +81,7 @@ namespace spades {
 			static std::string TeamColorMessage(const std::string&, int);
 
 			void SetExpanded(bool value) { expanded = value; }
+			bool IsExpanded() { return expanded; }
 
 			void Update(float dt);
 			void Draw();

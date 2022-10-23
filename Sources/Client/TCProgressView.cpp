@@ -93,7 +93,7 @@ namespace spades {
 					if (fabsf(diff.x) < TC_CAPTURE_DISTANCE &&
 					    fabsf(diff.y) < TC_CAPTURE_DISTANCE &&
 					    fabsf(diff.z) < TC_CAPTURE_DISTANCE) {
-						float dist = diff.GetPoweredLength();
+						float dist = diff.GetSquaredLength();
 						if (!nearTerritory || dist < distance) {
 							nearTerritory = t;
 							nearTerritoryId = i;

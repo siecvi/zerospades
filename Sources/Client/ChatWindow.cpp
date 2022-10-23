@@ -104,7 +104,7 @@ namespace spades {
 								goto didWordWrap;
 							}
 						}
-						x = 0;
+						x = 0.0F;
 						h += lh;
 						str += 13;
 					}
@@ -112,7 +112,7 @@ namespace spades {
 					str += msg[i];
 				didWordWrap:;
 				} else if (msg[i] == 13 || msg[i] == 10) {
-					x = 0;
+					x = 0.0F;
 					h += lh;
 					str += 13;
 				} else {
@@ -207,7 +207,7 @@ namespace spades {
 			float winH = expanded ? GetBufferHeight() : GetNormalHeight();
 			float winX = 4.0F;
 			float winY = killfeed ? 8.0F : renderer->ScreenHeight() - winH - 64.0F;
-			float linH = GetLineHeight();
+			float lh = GetLineHeight();
 			float y = firstY;
 
 			Vector4 shadowColor = { 0, 0, 0, 0.8F };
@@ -216,9 +216,17 @@ namespace spades {
 			std::string ch = "aaaaaa"; // let's not make a new object for each character.
 			// note: UTF-8's longest character is 6 bytes
 
-			if (expanded) { // Draw a box behind text when expanded
+			// Draw a box behind text when expanded
+			if (expanded) { 
+				float x1 = 0.0F;
+				float y1 = winY + y;
+				float x2 = winW + 16.0F;
+				float y2 = winH + 16.0F - y;
+
 				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.5F));
-				renderer->DrawImage(nullptr, AABB2(2.0F, winY + y, winW + 16.0F, winH + 16.0F - y));
+				renderer->DrawFilledRect(x1 + 1, y1 + 1, x2 + x1 - 1, y2 + y1 - 1);
+				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.75F));
+				renderer->DrawOutlinedRect(x1, y1, x2 + x1, y2 + y1);
 			}
 
 			std::list<ChatEntry>::iterator it;
@@ -247,7 +255,7 @@ namespace spades {
 				for (size_t i = 0; i < msg.size(); i++) {
 					if (msg[i] == 13 || msg[i] == 10) {
 						tx = 0.0F;
-						ty += linH;
+						ty += lh;
 					} else if (msg[i] <= MsgColorMax && msg[i] >= 1) {
 						color = GetColor(msg[i]);
 						color.w = fade;

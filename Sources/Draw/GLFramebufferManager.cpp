@@ -29,8 +29,12 @@ namespace spades {
 		static void RaiseFBStatusError(IGLDevice::Enum status) {
 			std::string type;
 			switch (status) {
-				case IGLDevice::FramebufferComplete: type = "GL_FRAMEBUFFER_COMPLETE"; break;
-				case IGLDevice::FramebufferUndefined: type = "GL_FRAMEBUFFER_UNDEFINED"; break;
+				case IGLDevice::FramebufferComplete:
+					type = "GL_FRAMEBUFFER_COMPLETE";
+					break;
+				case IGLDevice::FramebufferUndefined:
+					type = "GL_FRAMEBUFFER_UNDEFINED";
+					break;
 				case IGLDevice::FramebufferIncompleteAttachment:
 					type = "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
 					break;
@@ -56,7 +60,7 @@ namespace spades {
 			SPRaise("OpenGL Framebuffer completeness check failed: %s", type.c_str());
 		}
 
-		GLFramebufferManager::GLFramebufferManager(IGLDevice &dev, GLSettings &settings,
+		GLFramebufferManager::GLFramebufferManager(IGLDevice& dev, GLSettings& settings,
 		                                           int renderWidth, int renderHeight)
 		    : device(dev),
 		      settings(settings),
@@ -109,9 +113,8 @@ namespace spades {
 					                            IGLDevice::Renderbuffer,
 					                            multisampledColorRenderbuffer);
 					IGLDevice::Enum status = dev.CheckFramebufferStatus(IGLDevice::Framebuffer);
-					if (status != IGLDevice::FramebufferComplete) {
+					if (status != IGLDevice::FramebufferComplete)
 						RaiseFBStatusError(status);
-					}
 					fbInternalFormat = IGLDevice::SRGB8Alpha;
 					SPLog("MSAA Framebuffer Allocated");
 				} else {
@@ -207,9 +210,8 @@ namespace spades {
 				                         IGLDevice::Texture2D, renderColorTexture, 0);
 
 				IGLDevice::Enum status = dev.CheckFramebufferStatus(IGLDevice::Framebuffer);
-				if (status != IGLDevice::FramebufferComplete) {
+				if (status != IGLDevice::FramebufferComplete)
 					RaiseFBStatusError(status);
-				}
 				fbInternalFormat = IGLDevice::SRGB8Alpha;
 				SPLog("Framebuffer Created");
 			} else {
@@ -218,9 +220,9 @@ namespace spades {
 						SPLog("RGB10A2/HDR disabled");
 						SPRaise("jump to catch(...)");
 					}
-					dev.TexImage2D(
-					  IGLDevice::Texture2D, 0, useHdr ? IGLDevice::RGBA16F : IGLDevice::RGB10A2,
-					  renderWidth, renderHeight, 0, IGLDevice::RGBA, IGLDevice::UnsignedByte, NULL);
+					dev.TexImage2D(IGLDevice::Texture2D, 0,
+					               useHdr ? IGLDevice::RGBA16F : IGLDevice::RGB10A2, renderWidth,
+					               renderHeight, 0, IGLDevice::RGBA, IGLDevice::UnsignedByte, NULL);
 					SPLog("Color Buffer Allocated");
 					dev.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMagFilter,
 					                 IGLDevice::Linear);
@@ -235,9 +237,8 @@ namespace spades {
 					                         IGLDevice::Texture2D, renderColorTexture, 0);
 
 					IGLDevice::Enum status = dev.CheckFramebufferStatus(IGLDevice::Framebuffer);
-					if (status != IGLDevice::FramebufferComplete) {
+					if (status != IGLDevice::FramebufferComplete)
 						RaiseFBStatusError(status);
-					}
 					fbInternalFormat = useHdr ? IGLDevice::RGBA16F : IGLDevice::RGB10A2;
 					SPLog("Framebuffer Created");
 				} catch (...) {
@@ -246,8 +247,7 @@ namespace spades {
 					useHdr = false;
 					settings.r_hdr = 0;
 					dev.TexImage2D(IGLDevice::Texture2D, 0, IGLDevice::RGBA8, renderWidth,
-					               renderHeight, 0, IGLDevice::RGBA, IGLDevice::UnsignedByte,
-					               NULL);
+					               renderHeight, 0, IGLDevice::RGBA, IGLDevice::UnsignedByte, NULL);
 					SPLog("Color Buffer Allocated");
 					dev.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMagFilter,
 					                 IGLDevice::Linear);
@@ -262,9 +262,8 @@ namespace spades {
 					                         IGLDevice::Texture2D, renderColorTexture, 0);
 
 					IGLDevice::Enum status = dev.CheckFramebufferStatus(IGLDevice::Framebuffer);
-					if (status != IGLDevice::FramebufferComplete) {
+					if (status != IGLDevice::FramebufferComplete)
 						RaiseFBStatusError(status);
-					}
 					fbInternalFormat = IGLDevice::RGBA8;
 					SPLog("Framebuffer Created");
 				}
@@ -278,8 +277,8 @@ namespace spades {
 				mirrorColorTexture = dev.GenTexture();
 				dev.BindTexture(IGLDevice::Texture2D, mirrorColorTexture);
 				SPLog("Creating Mirror texture");
-				dev.TexImage2D(IGLDevice::Texture2D, 0, fbInternalFormat, renderWidth,
-				               renderHeight, 0, IGLDevice::RGBA, IGLDevice::UnsignedByte, NULL);
+				dev.TexImage2D(IGLDevice::Texture2D, 0, fbInternalFormat, renderWidth, renderHeight,
+				               0, IGLDevice::RGBA, IGLDevice::UnsignedByte, NULL);
 
 				SPLog("Color Buffer Allocated");
 				dev.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMagFilter,
@@ -315,9 +314,8 @@ namespace spades {
 				                         IGLDevice::Texture2D, mirrorDepthTexture, 0);
 
 				IGLDevice::Enum status = dev.CheckFramebufferStatus(IGLDevice::Framebuffer);
-				if (status != IGLDevice::FramebufferComplete) {
+				if (status != IGLDevice::FramebufferComplete)
 					RaiseFBStatusError(status);
-				}
 				SPLog("Mirror Framebuffer Created");
 			} // (int)r_water >= 2
 
@@ -341,34 +339,25 @@ namespace spades {
 		}
 
 		GLFramebufferManager::~GLFramebufferManager() {
-			if (multisampledFramebuffer) {
+			if (multisampledFramebuffer)
 				device.DeleteFramebuffer(multisampledFramebuffer);
-			}
-			if (multisampledColorRenderbuffer) {
+			if (multisampledColorRenderbuffer)
 				device.DeleteRenderbuffer(multisampledColorRenderbuffer);
-			}
-			if (multisampledDepthRenderbuffer) {
+			if (multisampledDepthRenderbuffer)
 				device.DeleteRenderbuffer(multisampledDepthRenderbuffer);
-			}
-			if (renderFramebuffer) {
+			if (renderFramebuffer)
 				device.DeleteFramebuffer(renderFramebuffer);
-			}
-			if (renderColorTexture) {
+			if (renderColorTexture)
 				device.DeleteTexture(renderColorTexture);
-			}
-			if (renderDepthTexture) {
+			if (renderDepthTexture)
 				device.DeleteTexture(renderDepthTexture);
-			}
-			if (mirrorFramebuffer) {
+			if (mirrorFramebuffer)
 				device.DeleteFramebuffer(mirrorFramebuffer);
-			}
-			if (mirrorColorTexture) {
+			if (mirrorColorTexture)
 				device.DeleteTexture(mirrorColorTexture);
-			}
-			if (mirrorDepthTexture) {
+			if (mirrorDepthTexture)
 				device.DeleteTexture(mirrorDepthTexture);
-			}
-			for (const Buffer &buffer : buffers) {
+			for (const Buffer& buffer : buffers) {
 				device.DeleteFramebuffer(buffer.framebuffer);
 				device.DeleteTexture(buffer.texture);
 			}
@@ -614,7 +603,7 @@ namespace spades {
 			// During the main rendering pass the first buffer is allocated to the render target
 			// and cannot be allocated for pre/postprocessing pass
 			for (size_t i = doingPostProcessing ? 0 : 1; i < buffers.size(); i++) {
-				Buffer &b = buffers[i];
+				Buffer& b = buffers[i];
 				if (b.refCount > 0)
 					continue;
 				if (b.w != w || b.h != h)
@@ -672,37 +661,37 @@ namespace spades {
 		GLFramebufferManager::BufferHandle::BufferHandle()
 		    : manager(NULL), bufferIndex(0), valid(false) {}
 
-		GLFramebufferManager::BufferHandle::BufferHandle(GLFramebufferManager *m, size_t index)
+		GLFramebufferManager::BufferHandle::BufferHandle(GLFramebufferManager* m, size_t index)
 		    : manager(m), bufferIndex(index), valid(true) {
 			SPAssert(bufferIndex < manager->buffers.size());
-			Buffer &b = manager->buffers[bufferIndex];
+			Buffer& b = manager->buffers[bufferIndex];
 			b.refCount++;
 		}
 
-		GLFramebufferManager::BufferHandle::BufferHandle(const BufferHandle &other)
+		GLFramebufferManager::BufferHandle::BufferHandle(const BufferHandle& other)
 		    : manager(other.manager), bufferIndex(other.bufferIndex), valid(other.valid) {
 			if (valid) {
-				Buffer &b = manager->buffers[bufferIndex];
+				Buffer& b = manager->buffers[bufferIndex];
 				b.refCount++;
 			}
 		}
-		GLFramebufferManager::BufferHandle::~BufferHandle() { Release(); }
+		GLFramebufferManager::BufferHandle::~BufferHandle() {
+			Release();
+		}
 
-		void GLFramebufferManager::BufferHandle::operator=(const BufferHandle &other) {
-			if (valid) {
+		void GLFramebufferManager::BufferHandle::operator=(const BufferHandle& other) {
+			if (valid)
 				manager->buffers[bufferIndex].refCount--;
-			}
 			manager = other.manager;
 			bufferIndex = other.bufferIndex;
 			valid = other.valid;
-			if (valid) {
+			if (valid)
 				manager->buffers[bufferIndex].refCount++;
-			}
 		}
 
 		void GLFramebufferManager::BufferHandle::Release() {
 			if (valid) {
-				Buffer &b = manager->buffers[bufferIndex];
+				Buffer& b = manager->buffers[bufferIndex];
 				SPAssert(b.refCount > 0);
 				b.refCount--;
 				valid = false;
@@ -710,28 +699,28 @@ namespace spades {
 		}
 		IGLDevice::UInteger GLFramebufferManager::BufferHandle::GetFramebuffer() {
 			SPAssert(valid);
-			Buffer &b = manager->buffers[bufferIndex];
+			Buffer& b = manager->buffers[bufferIndex];
 			return b.framebuffer;
 		}
 		IGLDevice::UInteger GLFramebufferManager::BufferHandle::GetTexture() {
 			SPAssert(valid);
-			Buffer &b = manager->buffers[bufferIndex];
+			Buffer& b = manager->buffers[bufferIndex];
 			return b.texture;
 		}
 
 		int GLFramebufferManager::BufferHandle::GetWidth() {
 			SPAssert(valid);
-			Buffer &b = manager->buffers[bufferIndex];
+			Buffer& b = manager->buffers[bufferIndex];
 			return b.w;
 		}
 		int GLFramebufferManager::BufferHandle::GetHeight() {
 			SPAssert(valid);
-			Buffer &b = manager->buffers[bufferIndex];
+			Buffer& b = manager->buffers[bufferIndex];
 			return b.h;
 		}
 		IGLDevice::Enum GLFramebufferManager::BufferHandle::GetInternalFormat() {
 			SPAssert(valid);
-			Buffer &b = manager->buffers[bufferIndex];
+			Buffer& b = manager->buffers[bufferIndex];
 			return b.internalFormat;
 		}
 	} // namespace draw

@@ -288,7 +288,7 @@ namespace spades {
 
 						pos -= lightCenter;
 
-						float dist = pos.GetPoweredLength();
+						float dist = pos.GetSquaredLength();
 						dist *= invRadius2;
 
 						if (dist < 1.0F) {
@@ -580,18 +580,18 @@ namespace spades {
 			if (param.type != client::DynamicLightTypePoint)
 				return; // TODO: support non-point lights
 
-			auto diff = param.origin - sceneDef.viewOrigin;
+			Vector3 diff = param.origin - sceneDef.viewOrigin;
 			float rad2 = param.radius * param.radius;
-			float poweredLength = diff.GetPoweredLength();
+			float sqrLength = diff.GetSquaredLength();
 
 			float fogCullRange = param.radius + fogDistance;
-			if (poweredLength > fogCullRange * fogCullRange) {
+			if (sqrLength > fogCullRange * fogCullRange) {
 				// fog cull
 				return;
 			}
 
 			DynamicLight light;
-			if (poweredLength < rad2) {
+			if (sqrLength < rad2) {
 				light.minX = 0;
 				light.minY = 0;
 				light.maxX = fb->GetWidth();
@@ -614,8 +614,8 @@ namespace spades {
 						return std::array<int, 2>{{0, static_cast<int>(screenSize)}};
 
 					auto denom = cx * cx - 1.0F;
-					if (fabsf(denom) < 1.E-10F)
-						denom = 1.E-8F;
+					if (fabsf(denom) < 1.0E-10F)
+						denom = 1.0E-8F;
 					denom = 1.0F / denom;
 
 					dist = sqrtf(dist);

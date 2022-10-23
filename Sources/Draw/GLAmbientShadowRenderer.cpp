@@ -50,8 +50,7 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			for (auto& rayDir : rays) {
-				Vector3 dir = RandomAxis();
-				dir = dir.Normalize();
+				Vector3 dir = RandomAxis().Normalize();
 				dir += 0.01F;
 				rayDir = dir;
 			}
@@ -144,7 +143,7 @@ namespace spades {
 				IntVector3 hitBlock;
 				float brightness = 1.0F;
 				if (map->CastRay(pos, dir, (float)RayLength, hitBlock)) {
-					float dist = ((MakeVector3(hitBlock) + 0.5F) - pos).GetPoweredLength();
+					float dist = ((MakeVector3(hitBlock) + 0.5F) - pos).GetSquaredLength();
 					brightness = dist * (1.0F / float((RayLength - 1) * (RayLength - 1)));
 					if (brightness > 1.0F)
 						brightness = 1.0F;
@@ -260,10 +259,10 @@ namespace spades {
 			int nearDirtyChunks = 0;
 
 			// first, check only chunks in near range
-			Vector3 eyePos = renderer.GetSceneDef().viewOrigin;
-			int eyeX = (int)(eyePos.x) >> ChunkSizeBits;
-			int eyeY = (int)(eyePos.y) >> ChunkSizeBits;
-			int eyeZ = (int)(eyePos.z) >> ChunkSizeBits;
+			const auto& viewOrigin = renderer.GetSceneDef().viewOrigin;
+			int eyeX = (int)(viewOrigin.x) >> ChunkSizeBits;
+			int eyeY = (int)(viewOrigin.y) >> ChunkSizeBits;
+			int eyeZ = (int)(viewOrigin.z) >> ChunkSizeBits;
 
 			for (size_t i = 0; i < chunks.size(); i++) {
 				Chunk& c = chunks[i];

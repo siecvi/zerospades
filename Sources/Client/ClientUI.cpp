@@ -23,7 +23,6 @@
 #include "ClientUIHelper.h"
 #include "NetClient.h"
 #include <Client/Client.h>
-#include <Client/FontData.h>
 #include <Client/Fonts.h>
 #include <Core/Exception.h>
 #include <Core/Settings.h>
@@ -62,7 +61,7 @@ namespace spades {
 		}
 
 		void ClientUI::SendChat(const std::string& msg, bool isGlobal) {
-			if (!client || TrimSpaces(msg).empty())
+			if (!client)
 				return;
 			client->net->SendChat(msg, isGlobal);
 		}

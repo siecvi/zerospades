@@ -60,7 +60,7 @@ DEFINE_SPADES_SETTING(cg_alertSounds, "1");
 DEFINE_SPADES_SETTING(cg_serverAlert, "1");
 DEFINE_SPADES_SETTING(cg_privateMessageAlert, "0");
 DEFINE_SPADES_SETTING(cg_skipDeadPlayersWhenDead, "1");
-DEFINE_SPADES_SETTING(cg_playerMessages, "1");
+DEFINE_SPADES_SETTING(cg_ignoreChatMessages, "0");
 DEFINE_SPADES_SETTING(cg_smallFont, "0");
 
 SPADES_SETTING(cg_playerName);
@@ -348,8 +348,9 @@ namespace spades {
 				::time(&t);
 				tm = *localtime(&t);
 				char buf[256];
-				sprintf(buf, "%04d%02d%02d%02d%02d%02d_", tm.tm_year + 1900, tm.tm_mon + 1,
-				        tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+				sprintf(buf, "%04d%02d%02d%02d%02d%02d_",
+					tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+					tm.tm_hour, tm.tm_min, tm.tm_sec);
 				fn2 = buf;
 			}
 			for (size_t i = 0; i < fn.size(); i++) {
@@ -573,11 +574,10 @@ namespace spades {
 #pragma mark - Snapshots
 
 		void Client::TakeMapShot() {
-
 			try {
-				auto name = MapShotPath();
+				std::string name = MapShotPath();
 				{
-					std::unique_ptr<IStream> stream(FileManager::OpenForWriting(name.c_str()));
+					auto stream = FileManager::OpenForWriting(name.c_str());
 					try {
 						const Handle<GameMap>& map = GetWorld()->GetMap();
 						if (!map)
@@ -588,16 +588,16 @@ namespace spades {
 					}
 				}
 
-				auto msg = _Tr("Client", "Map saved: {0}", name);
+				std::string msg = _Tr("Client", "Map saved: {0}", name);
 				ShowAlert(msg, AlertType::Notice);
 				SPLog("Map saved: %s", name.c_str());
 			} catch (const Exception& ex) {
-				auto msg = _Tr("Client", "Saving map failed: ");
+				std::string msg = _Tr("Client", "Saving map failed: ");
 				msg += ex.GetShortMessage();
 				ShowAlert(msg, AlertType::Error);
 				SPLog("Saving map failed: %s", ex.what());
 			} catch (const std::exception& ex) {
-				auto msg = _Tr("Client", "Saving map failed: ");
+				std::string msg = _Tr("Client", "Saving map failed: ");
 				msg += ex.what();
 				ShowAlert(msg, AlertType::Error);
 				SPLog("Saving map failed: %s", ex.what());
@@ -626,10 +626,10 @@ namespace spades {
 #pragma mark - Chat Messages
 
 		void Client::PlayerSentChatMessage(Player& p, bool global, const std::string& msg) {
-			// hides player messages from chat (but they can still be found in logs)
-			bool hidePlayerMessages = !cg_playerMessages && !p.IsLocalPlayer();
+			// filters player messages (but they can still be found in logs)
+			bool ignoreMessages = cg_ignoreChatMessages && !p.IsLocalPlayer();
 
-			if (!hidePlayerMessages) {
+			if (!ignoreMessages) {
 				std::string s;
 				if (global)
 					s = _Tr("Client", p.IsAlive() ? "[Global] " : "*DEAD* ");
@@ -654,7 +654,7 @@ namespace spades {
 			NetLog("[%s] %s (%s): %s", global ? "Global" : "Team",
 				p.GetName().c_str(), teamName.c_str(), msg.c_str());
 
-			if (!IsMuted() && !hidePlayerMessages) {
+			if (!IsMuted() && !ignoreMessages) {
 				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Feedback/Chat.opus");
 				AudioParam params;
 				params.volume = (float)cg_chatBeep;
@@ -730,12 +730,16 @@ namespace spades {
 					nextId = static_cast<int>(world->GetNumPlayerSlots() - 1);
 
 				stmp::optional<Player&> p = world->GetPlayer(nextId);
-				if (!p || p->IsSpectator() || !p->GetFront().IsValid())
+				if (!p || p->IsSpectator())
 					continue; // Do not follow a non-existent player or spectator
 				if (!localPlayerIsSpectator && p->GetTeamId() != myTeam)
 					continue; // Skip enemies unless the local player is a spectator
-				if (!localPlayerIsSpectator && cg_skipDeadPlayersWhenDead && !p->IsAlive())
+				if (!localPlayerIsSpectator && !p->IsAlive() && cg_skipDeadPlayersWhenDead)
 					continue; // Skip dead players unless the local player is not a spectator
+
+				// Do not follow a player with an invalid state
+				if (p->GetFront().GetSquaredLength() < 0.01F)
+					continue;
 
 				break;
 			} while (nextId != followedPlayerId);

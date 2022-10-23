@@ -50,7 +50,6 @@
 #undef interface
 
 SPADES_SETTING(cg_ragdoll);
-SPADES_SETTING(cg_ejectBrass);
 DEFINE_SPADES_SETTING(cg_animations, "1");
 SPADES_SETTING(cg_shake);
 SPADES_SETTING(r_hdr);
@@ -75,9 +74,12 @@ namespace spades {
 			void OnProhibitedAction() {}
 
 			bool CheckVisibility(const AABB3& box) {
-				if (!clipBox.Contains(box) || !std::isfinite(box.min.x) ||
-				    !std::isfinite(box.min.y) || !std::isfinite(box.min.z) ||
-				    !std::isfinite(box.max.x) || !std::isfinite(box.max.y) ||
+				if (!clipBox.Contains(box) ||
+					!std::isfinite(box.min.x) ||
+				    !std::isfinite(box.min.y) ||
+					!std::isfinite(box.min.z) ||
+				    !std::isfinite(box.max.x) ||
+					!std::isfinite(box.max.y) ||
 				    !std::isfinite(box.max.z)) {
 					OnProhibitedAction();
 					return false;
@@ -422,76 +424,75 @@ namespace spades {
 				}
 			}
 
-			if (!cg_classicViewWeapon) {
-				float scale = dt;
-				Vector3 vel = player.GetVelocity();
+			{
 				Vector3 front = player.GetFront();
 				Vector3 right = player.GetRight();
 				Vector3 up = player.GetUp();
 
-				// Offset the view weapon according to the player movement
-				viewWeaponOffset.x += Vector3::Dot(vel, right) * scale;
-				viewWeaponOffset.y -= Vector3::Dot(vel, front) * scale;
-				viewWeaponOffset.z += Vector3::Dot(vel, up) * scale;
+				if (cg_classicViewWeapon) {
+					// Offset the view weapon according to the camera movement
+					Vector3 diff = front - lastFront;
+					viewWeaponOffset.x += Vector3::Dot(diff, right);
+					viewWeaponOffset.z += Vector3::Dot(diff, up);
+					lastFront = front;
 
-				// Offset the view weapon according to the camera movement
-				Vector3 diff = front - lastFront;
-				viewWeaponOffset.x += Vector3::Dot(diff, right) * 0.05F;
-				viewWeaponOffset.z += Vector3::Dot(diff, up) * 0.05F;
-				lastFront = front;
-
-				if (dt > 0.0F)
-					viewWeaponOffset *= powf(0.02F, dt);
-
-				// Limit the movement
-				auto softLimitFunc = [&](float& v, float minLimit, float maxLimit) {
-					float transition = (maxLimit - minLimit) * 0.5F;
-					if (v < minLimit)
-						v = Mix(v, minLimit, std::min(1.0F, (minLimit - v) / transition));
-					if (v > maxLimit)
-						v = Mix(v, maxLimit, std::min(1.0F, (v - maxLimit) / transition));
-				};
-
-				const float limitX = 0.006F;
-				const float limitY = 0.006F;
-				softLimitFunc(viewWeaponOffset.x, -limitX, limitY);
-				softLimitFunc(viewWeaponOffset.y, -limitX, limitY);
-				softLimitFunc(viewWeaponOffset.z, -limitX, limitY);
-
-				// When the player is aiming down the sight, the weapon's movement
-				// must be restricted so that other parts of the weapon don't
-				// cover the ironsight.
-				if (currentTool == Player::ToolWeapon && actualWeapInput.secondary) {
 					if (dt > 0.0F)
-						viewWeaponOffset *= powf(0.01F, dt);
+						viewWeaponOffset *= powf(1.0E-6F, dt);
+				} else {
+					float scale = dt;
+					Vector3 vel = player.GetVelocity();
 
-					const float limitX = 0.003F;
-					const float limitY = 0.003F;
-					softLimitFunc(viewWeaponOffset.x, -limitX, limitX);
-					softLimitFunc(viewWeaponOffset.z, 0, limitY);
+					// Offset the view weapon according to the player movement
+					viewWeaponOffset.x += Vector3::Dot(vel, right) * scale;
+					viewWeaponOffset.y -= Vector3::Dot(vel, front) * scale;
+					viewWeaponOffset.z += Vector3::Dot(vel, up) * scale;
+
+					// Offset the view weapon according to the camera movement
+					Vector3 diff = front - lastFront;
+					viewWeaponOffset.x += Vector3::Dot(diff, right) * 0.05F;
+					viewWeaponOffset.z += Vector3::Dot(diff, up) * 0.05F;
+					lastFront = front;
+
+					if (dt > 0.0F)
+						viewWeaponOffset *= powf(0.02F, dt);
+
+					// Limit the movement
+					auto softLimitFunc = [&](float& v, float minLimit, float maxLimit) {
+						float transition = (maxLimit - minLimit) * 0.5F;
+						if (v < minLimit)
+							v = Mix(v, minLimit, std::min(1.0F, (minLimit - v) / transition));
+						if (v > maxLimit)
+							v = Mix(v, maxLimit, std::min(1.0F, (v - maxLimit) / transition));
+					};
+
+					const float limitX = 0.006F;
+					const float limitY = 0.006F;
+					softLimitFunc(viewWeaponOffset.x, -limitX, limitY);
+					softLimitFunc(viewWeaponOffset.y, -limitX, limitY);
+					softLimitFunc(viewWeaponOffset.z, -limitX, limitY);
+
+					// When the player is aiming down the sight, the weapon's movement
+					// must be restricted so that other parts of the weapon don't
+					// cover the ironsight.
+					if (currentTool == Player::ToolWeapon && actualWeapInput.secondary) {
+						if (dt > 0.0F)
+							viewWeaponOffset *= powf(0.01F, dt);
+
+						const float limitX = 0.003F;
+						const float limitY = 0.003F;
+						softLimitFunc(viewWeaponOffset.x, -limitX, limitX);
+						softLimitFunc(viewWeaponOffset.z, 0, limitY);
+					}
 				}
-			} else {
-				Vector3 front = player.GetFront();
-				Vector3 right = player.GetRight();
-				Vector3 up = player.GetUp();
-
-				// Offset the view weapon according to the camera movement
-				Vector3 diff = front - lastFront;
-				viewWeaponOffset.x += Vector3::Dot(diff, right);
-				viewWeaponOffset.z += Vector3::Dot(diff, up);
-				lastFront = front;
-
-				if (dt > 0.0F)
-					viewWeaponOffset *= powf(1.0E-6F, dt);
 			}
 
 			if (player.IsLocalPlayer()) {
 				// Smooth the flashlight's movement
 				Vector3 o = player.GetFront();
 				Vector3 diff = o - flashlightOrientation;
-				float sq = diff.GetLength();
-				if (sq > 0.1F)
-					flashlightOrientation += diff.Normalize() * (sq - 0.1F);
+				float dist = diff.GetLength();
+				if (dist > 0.1F)
+					flashlightOrientation += diff.Normalize() * (dist - 0.1F);
 				flashlightOrientation = Mix(flashlightOrientation, o, 1.0F - powf(1.0E-6F, dt));
 				flashlightOrientation = flashlightOrientation.Normalize();
 			}
@@ -516,7 +517,7 @@ namespace spades {
 				eye.z -= p * 0.06F * SmoothStep(sprintState);
 			}
 
-			return Matrix4::FromAxis(player.GetLeft(), player.GetFront(), -player.GetUp(), eye);
+			return Matrix4::FromAxis(-player.GetRight(), player.GetFront(), -player.GetUp(), eye);
 		}
 
 		void ClientPlayer::SetSkinParameterForTool(Player::ToolType type, asIScriptObject* skin) {
@@ -602,7 +603,7 @@ namespace spades {
 			World* world = client.GetWorld();
 			Matrix4 eyeMatrix = GetEyeMatrix();
 
-			auto const origin = eyeMatrix.GetOrigin();
+			Vector3 const origin = eyeMatrix.GetOrigin();
 
 			// Configure the clipping region for the localplayer view in case of overdraw
 			{
@@ -644,7 +645,7 @@ namespace spades {
 			// view weapon
 			Vector3 viewWeaponOffset = this->viewWeaponOffset;
 
-			// Moving this to the scripting enviroment means
+			// Moving this to the scripting environment means
 			// breaking compatibility with existing scripts.
 			if (cg_classicViewWeapon) {
 				Vector3 trans(0.0F, 0.0F, 0.0F);
@@ -779,10 +780,12 @@ namespace spades {
 				float sp = 1.0F - aimDownState;
 				sp *= 0.3F;
 				sp *= std::min(1.0F, p.GetVelocity().GetLength() * 5.0F);
-				float vl = cosf(p.GetWalkAnimationProgress() * M_PI_F * 2.0F);
+
+				float walkAng = p.GetWalkAnimationProgress() * M_PI_F * 2.0F;
+				float vl = cosf(walkAng);
 				vl *= vl;
 
-				viewWeaponOffset.x += sinf(p.GetWalkAnimationProgress() * M_PI_F * 2.0F) * 0.013F * sp;
+				viewWeaponOffset.x += sinf(walkAng) * 0.013F * sp;
 				viewWeaponOffset.z += vl * 0.018F * sp;
 			}
 
@@ -838,7 +841,7 @@ namespace spades {
 
 			PlayerInput const inp = p.GetInput();
 
-			float const legsPosY = (inp.crouch ? 1.25F : 1.0F);
+			float const legsPosY = inp.crouch ? 1.25F : 1.0F;
 			float const legsPosZ = inp.crouch ? 0.05F : 0.1F;
 			float const torsoPosZ = inp.crouch ? 0.55F : 1.0F;
 
@@ -896,7 +899,7 @@ namespace spades {
 			}
 
 			// Arms
-			if (!cg_hideArms && (leftHand + rightHand).GetPoweredLength() > 0.001F) {
+			if (!cg_hideArms && leftHand.GetSquaredLength() > 0.01F && rightHand.GetSquaredLength() > 0.01F) {
 				Handle<IModel> armModel = renderer.RegisterModel((path + "/Arm.kv6").c_str());
 				Handle<IModel> upperModel = renderer.RegisterModel((path + "/UpperArm.kv6").c_str());
 
@@ -927,9 +930,9 @@ namespace spades {
 					if (bend.z < 0.0F)
 						bend.z = -bend.z;
 
-					float const sq = (hand - shoulder).GetPoweredLength();
-					float const dist = sqrtf(std::max(armlen * armlen - sq * 0.25F, 0.0F));
-					Vector3 const elbow = ((hand + shoulder) * 0.5F) + (bend * dist);
+					float const distSqr = (hand - shoulder).GetSquaredLength();
+					float const bendlen = sqrtf(std::max(armlen * armlen - distSqr * 0.25F, 0.0F));
+					Vector3 const elbow = ((hand + shoulder) * 0.5F) + (bend * bendlen);
 
 					addModel(*armModel, hand, elbow);
 					addModel(*upperModel, elbow, shoulder);
@@ -952,7 +955,7 @@ namespace spades {
 					Handle<IModel> model = renderer.RegisterModel((path + "/Dead.kv6").c_str());
 					ModelRenderParam param;
 					param.customColor = ConvertColorRGB(p.GetColor());
-					param.matrix = Matrix4::FromAxis(p.GetLeft(),
+					param.matrix = Matrix4::FromAxis(-p.GetRight(),
 						p.GetFront2D(), MakeVector3(0, 0, 1), p.GetEye());
 					param.matrix = param.matrix * Matrix4::Scale(0.1F);
 					renderer.RenderModel(*model, param);
@@ -961,7 +964,7 @@ namespace spades {
 				return;
 			}
 
-			auto const origin = p.GetOrigin();
+			Vector3 const origin = p.GetOrigin();
 
 			// Set clipping region to prevent overdraw
 			{
@@ -1019,7 +1022,7 @@ namespace spades {
 			if (inp.sprint)
 				armPitch -= 0.5F * sprintState;
 
-			// Moving this to the scripting enviroment means
+			// Moving this to the scripting environment means
 			// breaking compatibility with existing scripts.
 			if (currentTool == Player::ToolSpade) {
 				float nextSpadeTime = p.GetTimeToNextSpade();
@@ -1130,7 +1133,7 @@ namespace spades {
 				auto& ctfMode = static_cast<CTFGameMode&>(mode);
 				if (ctfMode.PlayerHasIntel(*world, player)) {
 					model = renderer.RegisterModel("Models/MapObjects/Intel.kv6");
-					IntVector3 teamColor = world->GetTeam(1 - p.GetTeamId()).color;
+					IntVector3 teamColor = world->GetTeamColor(1 - p.GetTeamId());
 					param.customColor = ConvertColorRGB(teamColor);
 					Matrix4 const briefcase = torso
 						* (inp.crouch ? Matrix4::Translate(0, 0.8F, 0.4F)
@@ -1148,14 +1151,21 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			Player& p = player;
-			const SceneDefinition& lastSceneDef = client.GetLastSceneDef();
 
 			hasValidOriginMatrix = false;
 
-			if (p.IsSpectator() || !p.GetFront().IsValid())
-				return; // spectator or invisible player
-			if ((p.GetOrigin() - lastSceneDef.viewOrigin).GetLength2D() > FOG_DISTANCE)
-				return; // out of range player
+			if (p.IsSpectator())
+				return; // spectator
+
+			// Do not draw a player with an invalid state
+			if (p.GetFront().GetSquaredLength() < 0.01F)
+				return;
+
+			// distance cull
+			const auto& viewOrigin = client.GetLastSceneDef().viewOrigin;
+			float distSqr = (p.GetOrigin() - viewOrigin).GetSquaredLength2D();
+			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
+				return;
 
 			bool shouldRender = ShouldRenderInThirdPersonView();
 
@@ -1211,7 +1221,7 @@ namespace spades {
 				Vector3 muzzle = interface.GetMuzzlePosition();
 
 				// The skin should return a legit position. Return the default position if it didn't.
-				Vector3 origin = player.GetOrigin();
+				Vector3 const origin = player.GetOrigin();
 				AABB3 clip = AABB3(origin - Vector3(2.0F, 2.0F, 4.0F), origin + Vector3(2.0F, 2.0F, 2.0F));
 				if (clip.Contains(muzzle))
 					return muzzle;
@@ -1234,9 +1244,8 @@ namespace spades {
 				Vector3 caseEject = interface.GetCaseEjectPosition();
 
 				// The skin should return a legit position. Return the default position if it didn't.
-				auto const origin = player.GetOrigin();
-				Vector3 const outset(2.0F, 2.0F, 4.0F);
-				AABB3 clip = AABB3(origin - outset, origin + outset);
+				Vector3 const origin = player.GetOrigin();
+				AABB3 clip = AABB3(origin - Vector3(2.0F, 2.0F, 4.0F), origin + Vector3(2.0F, 2.0F, 2.0F));
 				if (clip.Contains(caseEject))
 					return caseEject;
 			}
@@ -1248,7 +1257,6 @@ namespace spades {
 			ScriptIWeaponSkin3 interface(weaponViewSkin);
 			if (interface.ImplementsInterface())
 				return interface.GetCaseEjectPosition();
-
 			return (GetEyeMatrix() * MakeVector3(-0.13F, 0.5F, 0.2F)).GetXYZ();
 		}
 
@@ -1257,12 +1265,12 @@ namespace spades {
 		};
 
 		ClientPlayer::AmbienceInfo ClientPlayer::ComputeAmbience() {
-			const SceneDefinition& lastSceneDef = client.GetLastSceneDef();
+			const auto& viewOrigin = client.GetLastSceneDef().viewOrigin;
 
 			if (!cg_environmentalAudio) {
 				AmbienceInfo result;
 				result.room = 0.0F;
-				result.distance = (lastSceneDef.viewOrigin - player.GetEye()).GetLength();
+				result.distance = (viewOrigin - player.GetEye()).GetLength();
 				result.size = 0.0F;
 				return result;
 			}
@@ -1349,7 +1357,7 @@ namespace spades {
 
 			AmbienceInfo result;
 			result.room = reflections * feedbackness;
-			result.distance = (lastSceneDef.viewOrigin - player.GetEye()).GetLength();
+			result.distance = (viewOrigin - player.GetEye()).GetLength();
 			result.size = std::max(std::min(roomSize / 15.0F, 1.0F), 0.0F);
 			result.room *= std::max(0.0F, std::min((result.size - 0.1F) * 4.0F, 1.0F));
 			result.room *= 1.0F - result.size * 0.3F;
@@ -1361,7 +1369,8 @@ namespace spades {
 			Player& p = player;
 
 			Vector3 muzzle = ShouldRenderInThirdPersonView()
-				? GetMuzzlePosition() : GetMuzzlePositionInFirstPersonView();
+								? GetMuzzlePosition()
+								: GetMuzzlePositionInFirstPersonView();
 
 			// make dlight
 			client.MuzzleFire(muzzle, p.GetFront());
@@ -1391,60 +1400,57 @@ namespace spades {
 		}
 
 		void ClientPlayer::EjectedBrass() {
-			const SceneDefinition& lastSceneDef = client.GetLastSceneDef();
 			IRenderer& renderer = client.GetRenderer();
 			IAudioDevice& audioDevice = client.GetAudioDevice();
 			Player& p = player;
 
-			if (cg_ejectBrass) {
-				float dist = (p.GetOrigin() - lastSceneDef.viewOrigin).GetPoweredLength();
-				if (dist < 130.0F * 130.0F) {
-					Handle<IModel> model;
-					Handle<IAudioChunk> snd = NULL;
-					Handle<IAudioChunk> snd2 = NULL;
-					switch (p.GetWeapon().GetWeaponType()) {
-						case RIFLE_WEAPON:
-							model = renderer.RegisterModel("Models/Weapons/Rifle/Casing.kv6");
-							snd =
-							  SampleRandomBool()
-							    ? audioDevice.RegisterSound("Sounds/Weapons/Rifle/ShellDrop1.opus")
-							    : audioDevice.RegisterSound("Sounds/Weapons/Rifle/ShellDrop2.opus");
-							snd2 =
-							  audioDevice.RegisterSound("Sounds/Weapons/Rifle/ShellWater.opus");
-							break;
-						case SHOTGUN_WEAPON:
-							model = renderer.RegisterModel("Models/Weapons/Shotgun/Casing.kv6");
-							break;
-						case SMG_WEAPON:
-							model = renderer.RegisterModel("Models/Weapons/SMG/Casing.kv6");
-							snd =
-							  SampleRandomBool()
-							    ? audioDevice.RegisterSound("Sounds/Weapons/SMG/ShellDrop1.opus")
-							    : audioDevice.RegisterSound("Sounds/Weapons/SMG/ShellDrop2.opus");
-							snd2 = audioDevice.RegisterSound("Sounds/Weapons/SMG/ShellWater.opus");
-							break;
-					}
+			// distance cull
+			const auto& viewOrigin = client.GetLastSceneDef().viewOrigin;
+			float distSqr = (p.GetOrigin() - viewOrigin).GetSquaredLength2D();
+			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
+				return;
 
-					if (model) {
-						Vector3 origin = ShouldRenderInThirdPersonView()
-						                   ? GetCaseEjectPosition()
-						                   : GetCaseEjectPositionInFirstPersonView();
+			Handle<IModel> model;
+			Handle<IAudioChunk> snd = NULL;
+			Handle<IAudioChunk> snd2 = NULL;
+			switch (p.GetWeapon().GetWeaponType()) {
+				case RIFLE_WEAPON:
+					model = renderer.RegisterModel("Models/Weapons/Rifle/Casing.kv6");
+					snd = SampleRandomBool()
+					        ? audioDevice.RegisterSound("Sounds/Weapons/Rifle/ShellDrop1.opus")
+					        : audioDevice.RegisterSound("Sounds/Weapons/Rifle/ShellDrop2.opus");
+					snd2 = audioDevice.RegisterSound("Sounds/Weapons/Rifle/ShellWater.opus");
+					break;
+				case SHOTGUN_WEAPON:
+					model = renderer.RegisterModel("Models/Weapons/Shotgun/Casing.kv6");
+					break;
+				case SMG_WEAPON:
+					model = renderer.RegisterModel("Models/Weapons/SMG/Casing.kv6");
+					snd = SampleRandomBool()
+					        ? audioDevice.RegisterSound("Sounds/Weapons/SMG/ShellDrop1.opus")
+					        : audioDevice.RegisterSound("Sounds/Weapons/SMG/ShellDrop2.opus");
+					snd2 = audioDevice.RegisterSound("Sounds/Weapons/SMG/ShellWater.opus");
+					break;
+			}
 
-						Vector3 o = p.GetFront();
-						Vector3 vel = o * 0.5F + p.GetRight() + p.GetUp() * 0.2F;
-						switch (p.GetWeapon().GetWeaponType()) {
-							case SMG_WEAPON: vel -= o * 0.7F; break;
-							case SHOTGUN_WEAPON: vel *= 0.5F; break;
-							default: break;
-						}
+			if (model) {
+				Vector3 origin = ShouldRenderInThirdPersonView()
+									? GetCaseEjectPosition()
+									: GetCaseEjectPositionInFirstPersonView();
 
-						auto ent = stmp::make_unique<GunCasing>(
-						  &client, model.GetPointerOrNull(), snd.GetPointerOrNull(),
-						  snd2.GetPointerOrNull(), origin, o, vel);
-
-						client.AddLocalEntity(std::move(ent));
-					}
+				Vector3 o = p.GetFront();
+				Vector3 vel = o * 0.5F + p.GetRight() + p.GetUp() * 0.2F;
+				switch (p.GetWeapon().GetWeaponType()) {
+					case SMG_WEAPON: vel -= o * 0.7F; break;
+					case SHOTGUN_WEAPON: vel *= 0.5F; break;
+					default: break;
 				}
+
+				auto ent = stmp::make_unique<GunCasing>(&client,
+					model.GetPointerOrNull(), snd.GetPointerOrNull(),
+					snd2.GetPointerOrNull(), origin, o, vel);
+
+				client.AddLocalEntity(std::move(ent));
 			}
 		}
 

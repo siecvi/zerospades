@@ -288,6 +288,7 @@ namespace spades {
 
 		void GLMapChunk::RenderDepthPass() {
 			SPADES_MARK_FUNCTION();
+
 			Vector3 eye = renderer.renderer.GetSceneDef().viewOrigin;
 
 			if (!realized)
@@ -343,8 +344,10 @@ namespace spades {
 			                    IGLDevice::UnsignedShort, NULL);
 			device.BindBuffer(IGLDevice::ElementArrayBuffer, 0);
 		}
+
 		void GLMapChunk::RenderSunlightPass() {
 			SPADES_MARK_FUNCTION();
+
 			Vector3 eye = renderer.renderer.GetSceneDef().viewOrigin;
 
 			if (!realized)
@@ -424,6 +427,7 @@ namespace spades {
 
 		void GLMapChunk::RenderDLightPass(std::vector<GLDynamicLight> lights) {
 			SPADES_MARK_FUNCTION();
+
 			Vector3 eye = renderer.renderer.GetSceneDef().viewOrigin;
 
 			if (!realized)

@@ -91,7 +91,7 @@ namespace spades {
 			void RenderSunlightPass(std::vector<client::ModelRenderParam> params, bool ghostPass) override;
 			void RenderDynamicLightPass(std::vector<client::ModelRenderParam> params, std::vector<GLDynamicLight> lights) override;
 			
-			IntVector3 GetDimensions() { return dimensions; }
+			IntVector3 GetDimensions() override { return dimensions; }
 			AABB3 GetBoundingBox() override { return boundingBox; }
 		};
 	} // namespace draw

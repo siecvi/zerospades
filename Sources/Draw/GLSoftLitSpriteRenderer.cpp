@@ -147,12 +147,12 @@ namespace spades {
 
 					if (v.GetChebyshevLength() > effectiveRadius)
 						continue;
-					float powdist = v.GetPoweredLength();
-					if (powdist > effectiveRadius * effectiveRadius)
+					float distSqr = v.GetSquaredLength();
+					if (distSqr > effectiveRadius * effectiveRadius)
 						continue;
-					float att = 1.0F - powdist / (effectiveRadius * effectiveRadius);
+					float att = 1.0F - distSqr / (effectiveRadius * effectiveRadius);
 					float unif;
-					unif = 1.0F - powdist / (spr.radius * spr.radius);
+					unif = 1.0F - distSqr / (spr.radius * spr.radius);
 					unif = std::max(0.2F, unif);
 
 					if (dl.type == client::DynamicLightTypeSpotlight) {
@@ -178,7 +178,7 @@ namespace spades {
 					Vector4 final;
 
 					if (unif < .9999f) {
-						float directionalScale = (1.f - unif) / sqrtf(powdist);
+						float directionalScale = (1.f - unif) / sqrtf(distSqr);
 						Vector4 directional = {v.x * directionalScale, v.y * directionalScale,
 						                       v.z * directionalScale, unif};
 						directional *= att;

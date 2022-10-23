@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -22,66 +22,66 @@
 #include "ConsoleCommandField.as"
 
 namespace spades {
-    class ConsoleWindow : spades::ui::UIElement {
-        private ConsoleHelper@ helper;
-        private array<spades::ui::CommandHistoryItem@> history = {};
-        private FieldWithHistory@ field;
-        private spades::ui::TextViewer@ viewer;
+	class ConsoleWindow : spades::ui::UIElement {
+		private ConsoleHelper@ helper;
+		private array<spades::ui::CommandHistoryItem@> history = {};
+		private FieldWithHistory@ field;
+		private spades::ui::TextViewer@ viewer;
 
-        private ConfigItem cl_consoleScrollbackLines("cl_consoleScrollbackLines", "1000");
+		private ConfigItem cl_consoleScrollbackLines("cl_consoleScrollbackLines", "1000");
 
-        ConsoleWindow(ConsoleHelper@ helper, spades::ui::UIManager@ manager) {
-            super(manager);
-            @this.helper = helper;
+		ConsoleWindow(ConsoleHelper@ helper, spades::ui::UIManager@ manager) {
+			super(manager);
+			@this.helper = helper;
 
-            auto sw = Manager.ScreenWidth;
-            auto sh = Manager.ScreenHeight;
+			float sw = Manager.ScreenWidth;
+			float sh = Manager.ScreenHeight;
 
-            float height = floor(sh * 0.4F);
+			float height = floor(sh * 0.4F);
 
-            {
-                spades::ui::Label label(Manager);
-                label.BackgroundColor = Vector4(0, 0, 0, 0.8F);
-                label.Bounds = AABB2(0.0F, 0.0F, sw, height);
-                AddChild(label);
-            }
-            {
-                spades::ui::Label label(Manager);
-                label.BackgroundColor = Vector4(0, 0, 0, 0.5F);
-                label.Bounds = AABB2(0.0F, height, sw, sh - height);
-                AddChild(label);
-            }
+			{
+				spades::ui::Label label(Manager);
+				label.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.8F);
+				label.Bounds = AABB2(0.0F, 0.0F, sw, height);
+				AddChild(label);
+			}
+			{
+				spades::ui::Label label(Manager);
+				label.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.5F);
+				label.Bounds = AABB2(0.0F, height, sw, sh - height);
+				AddChild(label);
+			}
 
-            {
-                @field = ConsoleCommandField(Manager, this.history, helper);
-                field.Bounds = AABB2(10.0F, height - 35.0F, sw - 20.0F, 30.0F);
-                field.Placeholder = _Tr("Console", "Command");
-                @field.Changed = spades::ui::EventHandler(this.OnFieldChanged);
-                AddChild(field);
-            }
-            {
-                spades::ui::TextViewer viewer(Manager);
-                AddChild(viewer);
-                viewer.Bounds = AABB2(10.0F, 5.0F, sw - 20.0F, height - 45.0F);
-                viewer.MaxNumLines = uint(cl_consoleScrollbackLines.IntValue);
-                @this.viewer = viewer;
-            }
-        }
+			{
+				@field = ConsoleCommandField(Manager, this.history, helper);
+				field.Bounds = AABB2(10.0F, height - 35.0F, sw - 20.0F, 30.0F);
+				field.Placeholder = _Tr("Console", "Command");
+				@field.Changed = spades::ui::EventHandler(this.OnFieldChanged);
+				AddChild(field);
+			}
+			{
+				spades::ui::TextViewer viewer(Manager);
+				AddChild(viewer);
+				viewer.Bounds = AABB2(10.0F, 5.0F, sw - 20.0F, height - 45.0F);
+				viewer.MaxNumLines = uint(cl_consoleScrollbackLines.IntValue);
+				@this.viewer = viewer;
+			}
+		}
 
-        private void OnFieldChanged(spades::ui::UIElement @sender) {}
+		private void OnFieldChanged(spades::ui::UIElement@ sender) {}
 
-        void FocusField() { @Manager.ActiveElement = field; }
+		void FocusField() { @Manager.ActiveElement = field; }
 
-        void AddLine(string line) { viewer.AddLine(line, true); }
+		void AddLine(string line) { viewer.AddLine(line, true); }
 
-        void HotKey(string key) {
-            if (key == "Enter") {
-                if (field.Text.length == 0)
-                    return;
-                field.CommandSent();
-                helper.ExecCommand(field.Text);
-                field.Clear();
-            }
-        }
-    }
+		void HotKey(string key) {
+			if (key == "Enter") {
+				if (field.Text.length == 0)
+					return;
+				field.CommandSent();
+				helper.ExecCommand(field.Text);
+				field.Clear();
+			}
+		}
+	}
 } // namespace spades

@@ -33,7 +33,7 @@ namespace spades {
 			struct Team {
 				unsigned int score;
 				bool hasIntel;
-				unsigned int carrier;
+				unsigned int carrierId;
 				Vector3 flagPos;
 				Vector3 basePos;
 			};

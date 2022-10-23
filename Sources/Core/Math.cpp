@@ -197,8 +197,8 @@ namespace spades {
 
 	Matrix4 Matrix4::FromAxis(spades::Vector3 a1, spades::Vector3 a2, spades::Vector3 a3,
 	                          spades::Vector3 origin) {
-		return Matrix4(a1.x, a1.y, a1.z, 0.0F, a2.x, a2.y, a2.z, 0.0F, a3.x, a3.y, a3.z, 0.0F,
-		               origin.x, origin.y, origin.z, 1.0F);
+		return Matrix4(a1.x, a1.y, a1.z, 0, a2.x, a2.y, a2.z, 0, a3.x, a3.y, a3.z, 0, origin.x,
+		               origin.y, origin.z, 1);
 	}
 
 	Matrix4 Matrix4::Identity() { return Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
@@ -288,9 +288,9 @@ namespace spades {
 		Vector3 axis1 = GetAxis(0);
 		Vector3 axis2 = GetAxis(1);
 		Vector3 axis3 = GetAxis(2);
-		Vector3 norm1 = axis1 / axis1.GetPoweredLength();
-		Vector3 norm2 = axis2 / axis2.GetPoweredLength();
-		Vector3 norm3 = axis3 / axis3.GetPoweredLength();
+		Vector3 norm1 = axis1 / axis1.GetSquaredLength();
+		Vector3 norm2 = axis2 / axis2.GetSquaredLength();
+		Vector3 norm3 = axis3 / axis3.GetSquaredLength();
 		out.m[0] = norm1.x;
 		out.m[1] = norm2.x;
 		out.m[2] = norm3.x;
@@ -311,8 +311,7 @@ namespace spades {
 
 	AABB3::operator OBB3() const {
 		Vector3 siz = max - min;
-		return OBB3(
-		  Matrix4(siz.x, 0, 0, 0, 0, siz.y, 0, 0, 0, 0, siz.z, 0, min.x, min.y, min.z, 1));
+		return OBB3(Matrix4(siz.x, 0, 0, 0, 0, siz.y, 0, 0, 0, 0, siz.z, 0, min.x, min.y, min.z, 1));
 	}
 
 	bool OBB3::RayCast(spades::Vector3 start, spades::Vector3 dir, spades::Vector3* hitPos) {
@@ -353,8 +352,9 @@ namespace spades {
 
 				float yd = Vector3::Dot(*hitPos, normY);
 				float zd = Vector3::Dot(*hitPos, normZ);
-				if (yd >= 0 && zd >= 0 && yd <= normY.GetPoweredLength() &&
-				    zd <= normZ.GetPoweredLength()) {
+				if (yd >= 0 && zd >= 0 &&
+					yd <= normY.GetSquaredLength() &&
+				    zd <= normZ.GetSquaredLength()) {
 					// hit x-plane
 					*hitPos += origin;
 					return true;
@@ -379,8 +379,9 @@ namespace spades {
 
 				float xd = Vector3::Dot(*hitPos, normX);
 				float zd = Vector3::Dot(*hitPos, normZ);
-				if (xd >= 0 && zd >= 0 && xd <= normX.GetPoweredLength() &&
-				    zd <= normZ.GetPoweredLength()) {
+				if (xd >= 0 && zd >= 0 &&
+					xd <= normX.GetSquaredLength() &&
+				    zd <= normZ.GetSquaredLength()) {
 					// hit y-plane
 					*hitPos += origin;
 					return true;
@@ -405,8 +406,9 @@ namespace spades {
 
 				float xd = Vector3::Dot(*hitPos, normX);
 				float yd = Vector3::Dot(*hitPos, normY);
-				if (xd >= 0 && yd >= 0 && xd <= normX.GetPoweredLength() &&
-				    yd <= normY.GetPoweredLength()) {
+				if (xd >= 0 && yd >= 0 &&
+					xd <= normX.GetSquaredLength() &&
+				    yd <= normY.GetSquaredLength()) {
 					// hit z-plane
 					*hitPos += origin;
 					return true;
@@ -419,7 +421,8 @@ namespace spades {
 
 	bool OBB3::operator&&(const spades::Vector3& v) const {
 		Vector3 r = (m.InversedFast() * v).GetXYZ();
-		return r.x >= 0.0F && r.y >= 0.0F && r.z >= 0.0F && r.x < 1.0F && r.y < 1.0F && r.z < 1.0F;
+		return r.x >= 0.0F && r.y >= 0.0F && r.z >= 0.0F
+			&& r.x < 1.0F && r.y < 1.0F && r.z < 1.0F;
 	}
 
 	float OBB3::GetDistanceTo(const spades::Vector3& v) const {
@@ -440,9 +443,9 @@ namespace spades {
 
 		// scale to global space
 		float len;
-		len = pt.x * pt.x * m.GetAxis(0).GetPoweredLength();
-		len += pt.y * pt.y * m.GetAxis(1).GetPoweredLength();
-		len += pt.z * pt.z * m.GetAxis(2).GetPoweredLength();
+		len = pt.x * pt.x * m.GetAxis(0).GetSquaredLength();
+		len += pt.y * pt.y * m.GetAxis(1).GetSquaredLength();
+		len += pt.z * pt.z * m.GetAxis(2).GetSquaredLength();
 
 		return len;
 	}

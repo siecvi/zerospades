@@ -14,96 +14,96 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
 #include "Button.as"
 
 namespace spades {
-    namespace ui {
+	namespace ui {
 
-        class SimpleTabStripItem : ButtonBase {
-            UIElement@ linkedElement;
+		class SimpleTabStripItem : ButtonBase {
+			UIElement@ linkedElement;
 
-            SimpleTabStripItem(UIManager@ manager, UIElement@ linkedElement) {
-                super(manager);
-                @this.linkedElement = linkedElement;
-            }
+			SimpleTabStripItem(UIManager@ manager, UIElement@ linkedElement) {
+				super(manager);
+				@this.linkedElement = linkedElement;
+			}
 
-            void MouseDown(MouseButton button, Vector2 clientPosition) {
-                PlayActivateSound();
-                OnActivated();
-            }
+			void MouseDown(MouseButton button, Vector2 clientPosition) {
+				PlayActivateSound();
+				OnActivated();
+			}
 
-            void Render() {
-                this.Toggled = linkedElement.Visible;
+			void Render() {
+				this.Toggled = linkedElement.Visible;
 
-                Renderer@ r = Manager.Renderer;
-                Vector2 pos = ScreenPosition;
-                Vector2 size = Size;
-                Vector4 textColor(0.9F, 0.9F, 0.9F, 1.0F);
+				Renderer@ r = Manager.Renderer;
+				Vector2 pos = ScreenPosition;
+				Vector2 size = Size;
+				Vector4 textColor(0.9F, 0.9F, 0.9F, 1.0F);
 
-                if (Toggled) {
-                    r.ColorNP = Vector4(0.9F, 0.9F, 0.9F, 1.0F);
-                    textColor = Vector4(0.0F, 0.0F, 0.0F, 1.0F);
-                } else if (Hover) {
-                    r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.3F);
-                } else {
-                    r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.0F);
-                }
-                r.DrawImage(null, AABB2(pos.x, pos.y, size.x, size.y));
+				if (Toggled) {
+					r.ColorNP = Vector4(0.9F, 0.9F, 0.9F, 1.0F);
+					textColor = Vector4(0.0F, 0.0F, 0.0F, 1.0F);
+				} else if (Hover) {
+					r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.3F);
+				} else {
+					r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.0F);
+				}
+				r.DrawImage(null, AABB2(pos.x, pos.y, size.x, size.y));
 
-                Vector2 txtSize = Font.Measure(Caption);
-                Font.Draw(Caption, pos + (size - txtSize) * 0.5F, 1.0F, textColor);
-            }
-        }
+				Vector2 txtSize = Font.Measure(Caption);
+				Font.Draw(Caption, pos + (size - txtSize) * 0.5F, 1.0F, textColor);
+			}
+		}
 
-        class SimpleTabStrip : UIElement {
-            private float nextX = 0.0F;
+		class SimpleTabStrip : UIElement {
+			private float nextX = 0.0F;
 
-            EventHandler@ Changed;
+			EventHandler@ Changed;
 
-            SimpleTabStrip(UIManager @manager) { super(manager); }
+			SimpleTabStrip(UIManager@ manager) { super(manager); }
 
-            private void OnChanged() {
-                if (Changed !is null)
-                    Changed(this);
-            }
+			private void OnChanged() {
+				if (Changed !is null)
+					Changed(this);
+			}
 
-            private void OnItemActivated(UIElement @sender) {
-                SimpleTabStripItem@ item = cast<SimpleTabStripItem>(sender);
-                UIElement@ linked = item.linkedElement;
-                UIElement @[] @children = this.GetChildren();
-                for (uint i = 0, count = children.length; i < count; i++) {
-                    SimpleTabStripItem @otherItem = cast<SimpleTabStripItem>(children[i]);
-                    otherItem.linkedElement.Visible = (otherItem.linkedElement is linked);
-                }
-                OnChanged();
-            }
+			private void OnItemActivated(UIElement @sender) {
+				SimpleTabStripItem@ item = cast<SimpleTabStripItem>(sender);
+				UIElement@ linked = item.linkedElement;
+				UIElement @[] @children = this.GetChildren();
+				for (uint i = 0, count = children.length; i < count; i++) {
+					SimpleTabStripItem@ otherItem = cast<SimpleTabStripItem>(children[i]);
+					otherItem.linkedElement.Visible = (otherItem.linkedElement is linked);
+				}
+				OnChanged();
+			}
 
-            void AddItem(string title, UIElement@ linkedElement) {
-                SimpleTabStripItem item(this.Manager, linkedElement);
-                item.Caption = title;
-                float w = this.Font.Measure(title).x + 18.0F;
-                item.Bounds = AABB2(nextX, 0.0F, w, 24.0F);
-                nextX += w + 4.0F;
+			void AddItem(string title, UIElement@ linkedElement) {
+				SimpleTabStripItem item(this.Manager, linkedElement);
+				item.Caption = title;
+				float w = this.Font.Measure(title).x + 18.0F;
+				item.Bounds = AABB2(nextX, 0.0F, w, 24.0F);
+				nextX += w + 4.0F;
 
-                @item.Activated = EventHandler(this.OnItemActivated);
+				@item.Activated = EventHandler(this.OnItemActivated);
 
-                this.AddChild(item);
-            }
+				this.AddChild(item);
+			}
 
-            void Render() {
-                UIElement::Render();
+			void Render() {
+				UIElement::Render();
 
-                Renderer@ renderer = Manager.Renderer;
-                Vector2 pos = ScreenPosition;
-                Vector2 size = Size;
+				Renderer@ renderer = Manager.Renderer;
+				Vector2 pos = ScreenPosition;
+				Vector2 size = Size;
 
-                renderer.ColorNP = Vector4(0.9F, 0.9F, 0.9F, 1.0F);
-                renderer.DrawImage(null, AABB2(pos.x, pos.y + 24.0F, size.x, 1.0F));
-            }
-        }
-    }
+				renderer.ColorNP = Vector4(0.9F, 0.9F, 0.9F, 1.0F);
+				renderer.DrawImage(null, AABB2(pos.x, pos.y + 24.0F, size.x, 1.0F));
+			}
+		}
+	}
 }

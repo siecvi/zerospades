@@ -26,6 +26,9 @@
 #include "IRenderer.h"
 #include "ParticleSpriteEntity.h"
 #include "World.h"
+#include <Core/Settings.h>
+
+SPADES_SETTING(cg_particles);
 
 namespace spades {
 	namespace client {
@@ -47,14 +50,11 @@ namespace spades {
 			up = Vector3::Cross(right, dir);
 
 			matrix = Matrix4::FromAxis(right, dir, up, pos);
-
-			up = MakeVector3(0, 0, -1);
-			rotAxis = Vector3::Cross(up, flyDir.Normalize());
-
-			groundTime = 0.0F;
-			onGround = false;
+			rotAxis = Vector3::Cross(-up, flyDir.Normalize());
+			rotAxis = RandomAxis().Normalize();
 			velocity = flyDir * 10.0F;
-			rotSpeed = 40.0F;
+			rotSpeed = 10.0F;
+			time = 1.0F;
 		}
 		GunCasing::~GunCasing() {
 			if (dropSound)
@@ -64,121 +64,102 @@ namespace spades {
 		}
 
 		bool GunCasing::Update(float dt) {
-			if (onGround) {
-				groundTime += dt;
-				if (groundTime > 2.0F)
-					return false;
+			time -= 1.0F / 5.0F * dt;
 
-				const Handle<GameMap>& map = client->GetWorld()->GetMap();
-				if (!map->ClipWorld(groundPos.x, groundPos.y, groundPos.z))
-					return false;
-			} else {
-				Matrix4 lastMat = matrix;
+			Matrix4 lastMat = matrix;
 
-				matrix = matrix * Matrix4::Rotate(rotAxis, dt * rotSpeed);
-				matrix = Matrix4::Translate(velocity * dt) * matrix;
-				velocity.z += dt * 32.0F;
+			matrix = matrix * Matrix4::Rotate(rotAxis, dt * rotSpeed);
+			matrix = Matrix4::Translate(velocity * dt) * matrix;
+			velocity.z += dt * 32.0F;
 
-				IntVector3 lp = matrix.GetOrigin().Floor();
-				Handle<GameMap> m = client->GetWorld()->GetMap();
+			Handle<GameMap> m = client->GetWorld()->GetMap();
 
-				Vector3 eye = client->GetLastSceneDef().viewOrigin;
-				float dist = (eye - matrix.GetOrigin()).GetPoweredLength();
+			// Collision
+			IntVector3 lp = matrix.GetOrigin().Floor();
 
-				if (lp.z >= 63) { // dropped into water
-					if (dist < 40.0F * 40.0F) {
-						if (waterSound) {
-							if (client->IsMuted()) {
+			const auto& viewOrigin = client->GetLastSceneDef().viewOrigin;
+			float distSqr = (viewOrigin - matrix.GetOrigin()).GetSquaredLength2D();
+			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
+				return false;
+
+			if (lp.z >= 63) { // dropped into water
+				if (waterSound) {
+					if (!client->IsMuted() && distSqr < 40.0F * 40.0F) {
+						IAudioDevice& dev = client->GetAudioDevice();
+						AudioParam param;
+						param.referenceDistance = 0.6F;
+						param.pitch = 0.9F + SampleRandomFloat() * 0.2F;
+						dev.Play(waterSound, lastMat.GetOrigin(), param);
+					}
+
+					waterSound = NULL;
+				}
+
+				if (cg_particles && distSqr < 40.0F * 40.0F) {
+					Handle<IImage> img = client->GetRenderer().RegisterImage("Gfx/White.tga");
+
+					Vector4 col = {1, 1, 1, 0.8F};
+					Vector3 pt = matrix.GetOrigin();
+					pt.z = 62.99F;
+
+					int splats = SampleRandomInt(0, 2);
+					for (int i = 0; i < splats; i++) {
+						auto ent = stmp::make_unique<ParticleSpriteEntity>(*client, img, col);
+						ent->SetTrajectory(pt, MakeVector3(SampleRandomFloat() - SampleRandomFloat(),
+															SampleRandomFloat() - SampleRandomFloat(),
+															-SampleRandomFloat()) * 2.0F, 1.0F, 0.4F);
+						ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
+						ent->SetRadius(0.1F + SampleRandomFloat() * SampleRandomFloat() * 0.1F);
+						ent->SetLifeTime(2.0F, 0.0F, 1.0F);
+						client->AddLocalEntity(std::move(ent));
+					}
+				}
+
+				return false;
+			}
+
+			if (m->ClipWorld(lp.x, lp.y, lp.z)) { // hit a wall
+				IntVector3 lp2 = lastMat.GetOrigin().Floor();
+				if (lp.z != lp2.z &&
+				    ((lp.x == lp2.x && lp.y == lp2.y) || !m->ClipWorld(lp.x, lp.y, lp2.z))) {
+					velocity.z = -velocity.z;
+					if (lp2.z < lp.z) { // ground hit
+						if (dropSound) {
+							if (!client->IsMuted() && distSqr < 40.0F * 40.0F) {
 								IAudioDevice& dev = client->GetAudioDevice();
 								AudioParam param;
 								param.referenceDistance = 0.6F;
-								param.pitch = 0.9F + SampleRandomFloat() * 0.2F;
-								dev.Play(waterSound, lastMat.GetOrigin(), param);
+								dev.Play(dropSound, lastMat.GetOrigin(), param);
 							}
 
-							waterSound = NULL;
-						}
-
-						Handle<IImage> img = client->GetRenderer().RegisterImage("Gfx/White.tga");
-
-						Vector4 col = {1, 1, 1, 0.8F};
-						Vector3 pt = matrix.GetOrigin();
-						pt.z = 62.99F;
-
-						int splats = SampleRandomInt(0, 2);
-						for (int i = 0; i < splats; i++) {
-							auto ent = stmp::make_unique<ParticleSpriteEntity>(*client, img, col);
-							ent->SetTrajectory(pt, MakeVector3(SampleRandomFloat() - SampleRandomFloat(),
-													SampleRandomFloat() - SampleRandomFloat(),
-													-SampleRandomFloat()) * 2.0F, 1.0F, 0.4F);
-							ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
-							ent->SetRadius(0.1F + SampleRandomFloat() * SampleRandomFloat() * 0.1F);
-							ent->SetLifeTime(2.0F, 0.0F, 1.0F);
-							client->AddLocalEntity(std::move(ent));
+							dropSound = NULL;
 						}
 					}
-
+				} else if (lp.x != lp2.x &&
+				           ((lp.y == lp2.y && lp.z == lp2.z) || !m->ClipWorld(lp2.x, lp.y, lp.z)))
+					velocity.x = -velocity.x;
+				else if (lp.y != lp2.y &&
+				         ((lp.x == lp2.x && lp.z == lp2.z) || !m->ClipWorld(lp.x, lp2.y, lp.z)))
+					velocity.y = -velocity.y;
+				else
 					return false;
-				}
 
-				if (m->ClipWorld(lp.x, lp.y, lp.z)) { // hit a wall
-					IntVector3 lp2 = lastMat.GetOrigin().Floor();
-					if (lp.z != lp2.z &&
-					    ((lp.x == lp2.x && lp.y == lp2.y) || !m->ClipWorld(lp.x, lp.y, lp2.z))) {
-						velocity.z = -velocity.z;
-						if (lp2.z < lp.z) { // ground hit
-							if (velocity.GetLength() < 0.5F + dt * 100.0F && !dropSound) {
-								// stick to ground
-								onGround = true;
-								groundPos = lp;
-
-								// move to surface
-								float z = matrix.GetOrigin().z;
-								float shift = z - floorf(z);
-								matrix = Matrix4::Translate(0, 0, -shift) * matrix;
-							} else {
-								if (dropSound) {
-									if (dist < 40.0F * 40.0F && !client->IsMuted()) {
-										IAudioDevice& dev = client->GetAudioDevice();
-										AudioParam param;
-										param.referenceDistance = 0.6F;
-										dev.Play(dropSound, lastMat.GetOrigin(), param);
-									}
-
-									dropSound = NULL;
-								}
-							}
-						}
-					} else if (lp.x != lp2.x &&
-							((lp.y == lp2.y && lp.z == lp2.z) || !m->ClipWorld(lp2.x, lp.y, lp.z)))
-						velocity.x = -velocity.x;
-					else if (lp.y != lp2.y &&
-					         ((lp.x == lp2.x && lp.z == lp2.z) || !m->ClipWorld(lp.x, lp2.y, lp.z)))
-						velocity.y = -velocity.y;
-					else
-						return false;
-
-					if (!onGround) {
-						matrix = lastMat;
-						velocity *= 0.2F;
-						velocity += RandomAxis() * 0.1F;
-						rotAxis = RandomAxis().Normalize();
-						rotSpeed *= 0.2F;
-					}
-				}
+				matrix = lastMat; // set back to old position
+				velocity *= 0.46F; // lose some velocity due to friction
+				rotAxis = RandomAxis().Normalize();
+				rotSpeed *= 0.5F;
+				time -= 0.36F;
 			}
+
+			if (time <= 0.0F)
+				return false;
+
 			return true;
 		}
 
 		void GunCasing::Render3D() {
 			ModelRenderParam param;
-			param.matrix = matrix * Matrix4::Scale(0.007F);
-
-			if (groundTime > 1.0F) { // sink
-				float move = (groundTime - 1.0F) * 0.05F;
-				param.matrix = Matrix4::Translate(0, 0, move) * param.matrix;
-			}
-
+			param.matrix = matrix * Matrix4::Scale(0.0125F);
 			renderer.RenderModel(*model, param);
 		}
 	} // namespace client

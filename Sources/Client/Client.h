@@ -146,6 +146,7 @@ namespace spades {
 			KeypadInput keypadInput;
 			Player::ToolType lastTool;
 			bool hasLastTool;
+			Vector3 lastPos;
 			Vector3 lastFront;
 			float lastPosSentTime;
 			float lastOriSentTime;
@@ -175,6 +176,7 @@ namespace spades {
 				float fade;
 				Vector3 position;
 				Vector3 velocity;
+				DamageIndicator() : damage(0) { ; }
 			};
 			std::list<DamageIndicator> damageIndicators;
 
@@ -328,6 +330,7 @@ namespace spades {
 			void GrenadeExplosion(Vector3);
 			void GrenadeExplosionUnderwater(Vector3);
 			void MuzzleFire(Vector3, Vector3 dir);
+			void BulletHitWaterSurface(Vector3, IntVector3 color);
 
 			// drawings
 			Handle<FontManager> fontManager;
@@ -384,7 +387,7 @@ namespace spades {
 			void Draw2DWithWorld();
 
 			/** Called when the local plyaer is alive. */
-			void DrawJoinedAlivePlayerHUD(float x, float y, float w, float h);
+			void DrawJoinedAlivePlayerHUD();
 
 			/** Called when the local plyaer is dead. */
 			void DrawDeadPlayerHUD();
@@ -525,7 +528,7 @@ namespace spades {
 
 			void LocalPlayerBlockAction(IntVector3, BlockActionType type) override;
 			void LocalPlayerCreatedLineBlock(IntVector3, IntVector3) override;
-			void LocalPlayerHurt(HurtType type, bool sourceGiven, Vector3 source) override;
+			void LocalPlayerHurt(HurtType type, Vector3 source) override;
 			void LocalPlayerBuildError(BuildFailureReason reason) override;
 			// IWorldListener end
 		};

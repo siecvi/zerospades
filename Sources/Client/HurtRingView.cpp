@@ -44,7 +44,7 @@ namespace spades {
 
 			Item item;
 			item.dir = dir;
-			item.fade = 3.0F;
+			item.fade = 1.0F;
 			items.push_back(item);
 		}
 
@@ -85,7 +85,7 @@ namespace spades {
 			float cx = sw * 0.5F;
 			float cy = sh * 0.5F;
 			static const float coords[][2] = {{-1, 1}, {1, 1}, {-1, 0}};
-			const AABB2 ringInRect{0.0F, 0.0F, image->GetWidth(), image->GetHeight()};
+			const AABB2 inRect{0.0F, 0.0F, image->GetWidth(), image->GetHeight()};
 
 			for (const auto& item : items) {
 				float fade = item.fade * 2.0F;
@@ -107,7 +107,7 @@ namespace spades {
 					vt[i] = vt[i] * hurtRingSize + MakeVector2(cx, cy);
 				}
 
-				renderer.DrawImage(image, vt[0], vt[1], vt[2], ringInRect);
+				renderer.DrawImage(image, vt[0], vt[1], vt[2], inRect);
 			}
 		}
 	} // namespace client

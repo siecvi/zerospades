@@ -47,7 +47,7 @@ namespace spades {
 		static const Vector4 white = {1, 1, 1, 1};
 		static const Vector4 spectatorIdColor = {210.0F / 255, 210.0F / 255, 210.0F / 255, 1}; // Grey
 		static const Vector4 spectatorTextColor = {220.0F / 255, 220.0F / 255, 0, 1}; // Goldish yellow
-		static const auto spectatorTeamId = 255; // Spectators have a team id of 255
+		static const int spectatorTeamId = 255; // Spectators have a team id of 255
 
 		ScoreboardView::ScoreboardView(Client* client)
 		    : client(client), renderer(client->GetRenderer()) {
@@ -63,8 +63,9 @@ namespace spades {
 				  return !(isalnum(static_cast<unsigned char>(ch)) || ch == '_');
 			  }) != spectatorString.end();
 
-			spectatorFont = hasSpecialChar ? client->fontManager->GetMediumFont()
-			                               : client->fontManager->GetSquareDesignFont();
+			spectatorFont = hasSpecialChar
+				? client->fontManager->GetMediumFont()
+				: client->fontManager->GetSquareDesignFont();
 		}
 
 		ScoreboardView::~ScoreboardView() {}
@@ -73,9 +74,8 @@ namespace spades {
 			if (ctf) {
 				return ctf->GetTeam(team).score;
 			} else if (tc) {
-				int cnt = tc->GetNumTerritories();
 				int num = 0;
-				for (int i = 0; i < cnt; i++) {
+				for (int i = 0; i < tc->GetNumTerritories(); i++) {
 					if (tc->GetTerritory(i).ownerTeamId == team)
 						num++;
 				}
@@ -86,7 +86,7 @@ namespace spades {
 		}
 
 		Vector4 ScoreboardView::GetTeamColor(int team) {
-			return ConvertColorRGBA(world->GetTeam(team).color);
+			return ConvertColorRGBA(world->GetTeamColor(team));
 		}
 
 		void ScoreboardView::Draw() {
@@ -96,15 +96,13 @@ namespace spades {
 			if (!world)
 				return; // no world
 
-			// TODO: `ctf` and `tc` are only valid throughout the method call's
-			//       duration. Move them to a new context type
+			// TODO: `ctf` and `tc` are only valid throughout the
+			// method call's duration. Move them to a new context type
 			auto mode = world->GetMode();
 			ctf = IGameMode::m_CTF == mode->ModeType()
-			        ? dynamic_cast<CTFGameMode*>(mode.get_pointer())
-			        : NULL;
+				? dynamic_cast<CTFGameMode*>(mode.get_pointer()) : NULL;
 			tc = IGameMode::m_TC == mode->ModeType()
-				? dynamic_cast<TCGameMode*>(mode.get_pointer())
-				: NULL;
+				? dynamic_cast<TCGameMode*>(mode.get_pointer()) : NULL;
 
 			Handle<IImage> img;
 			IFont& font = client->fontManager->GetSquareDesignFont();
@@ -135,7 +133,7 @@ namespace spades {
 			float playersTop = teamBarTop + teamBarHeight;
 			float playersBottom = playersTop + playersHeight;
 
-			auto areSpectatorsPr = AreSpectatorsPresent();
+			bool areSpectatorsPr = AreSpectatorsPresent();
 
 			// draw shadow
 			img = renderer.RegisterImage("Gfx/Scoreboard/TopShadow.tga");
@@ -232,7 +230,7 @@ namespace spades {
 
 				ScoreboardEntry ent;
 				ent.name = player.GetName();
-				ent.score = world->GetPlayerScore(i);
+				ent.score = player.GetScore();
 				ent.alive = player.IsAlive();
 				ent.id = i;
 				entries.push_back(ent);
@@ -246,7 +244,7 @@ namespace spades {
 			maxRows = (numPlayers + cols - 1) / cols;
 
 			int row = 0, col = 0;
-			float colWidth = (float)width / (float)cols;
+			float colWidth = width / (float)cols;
 
 			for (const auto& ent : entries) {
 				float rowY = top + 6.0F + row * rowHeight;
@@ -267,21 +265,21 @@ namespace spades {
 				if (stmp::make_optional(ent.id) == world->GetLocalPlayerIndex())
 					color = GetTeamColor(team);
 
-				font.Draw(ent.name, MakeVector2(colX + 45.0F, rowY), 1.0F, color);
+				font.Draw(ent.name, MakeVector2(colX + 40.0F, rowY), 1.0F, color);
 
 				sprintf(buf, "%d", ent.score);
 				size = font.Measure(buf);
 				font.Draw(buf, MakeVector2(colX + colWidth - 10.0F - size.x, rowY), 1.0F, white);
 
 				// display intel
-				IGameMode& mode = *world->GetMode();
+				auto& mode = *world->GetMode();
 				if (mode.ModeType() == IGameMode::m_CTF) {
 					auto& ctfMode = static_cast<CTFGameMode&>(mode);
 					if (ctfMode.PlayerHasIntel(*world, *world->GetPlayer(ent.id))) {
 						Handle<IImage> img = renderer.RegisterImage("Gfx/Map/Intel.png");
 						float pulse = std::max(0.5F, fabsf(sinf(world->GetTime() * 4.0F)));
 						renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) * pulse);
-						renderer.DrawImage(img, AABB2(colX + colWidth - 10.0F - size.x - 20.0F,
+						renderer.DrawImage(img, AABB2(colX + colWidth - 30.0F - size.x,
 						                              rowY + 2.0F, 16.0F, 16.0F));
 					}
 				}
@@ -298,7 +296,7 @@ namespace spades {
 			IFont& font = client->fontManager->GetGuiFont();
 			char buf[256];
 			
-			static const auto xPixelSpectatorOffset = 20.0F;
+			static const float xPixelSpectatorOffset = 20.0F;
 			float totalPixelWidth = 0;
 
 			int numSpectators = 0;
@@ -333,9 +331,9 @@ namespace spades {
 			  buf, MakeVector2(centerX - sizeSpecString.x / 2, top + (isSquareFont ? 0 : 10)), 1.0F,
 			  spectatorTextColor);
 
-			auto yOffset = top + sizeSpecString.y;
-			auto halfTotalX = totalPixelWidth / 2;
-			auto currentXoffset = centerX - halfTotalX;
+			float yOffset = top + sizeSpecString.y;
+			float halfTotalX = totalPixelWidth / 2;
+			float currentXoffset = centerX - halfTotalX;
 
 			for (const auto& ent : entries) {
 				sprintf(buf, "#%d", ent.id);

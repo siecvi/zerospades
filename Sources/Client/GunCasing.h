@@ -34,16 +34,13 @@ namespace spades {
 			IRenderer& renderer;
 			IModel* model;
 			Matrix4 matrix;
-			Vector3 rotAxis;
 			Vector3 velocity;
+			Vector3 rotAxis;
+			float rotSpeed;
+			float time;
 
 			IAudioChunk* dropSound;
 			IAudioChunk* waterSound;
-
-			bool onGround;
-			IntVector3 groundPos;
-			float groundTime;
-			float rotSpeed;
 
 		public:
 			// TODO: Replace pointers with references

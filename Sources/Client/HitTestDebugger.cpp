@@ -98,8 +98,8 @@ namespace spades {
 				if (!p->IsAlive() || p->IsSpectator())
 					continue;
 
-				auto vc = toViewCoord(p->GetEye());
-				if (vc.GetPoweredLength() > 130.0F * 130.0F)
+				Vector3 vc = toViewCoord(p->GetEye());
+				if (vc.GetSquaredLength2D() > FOG_DISTANCE * FOG_DISTANCE)
 					continue;
 				if (vc.z <= 0.0F)
 					continue;
@@ -108,7 +108,8 @@ namespace spades {
 
 				const float bodySize = 3.5F;
 				Vector2 view = MakeVector2(vc.x, vc.y);
-				if (view.GetManhattanLength() > bodySize + 2.5F)
+				if (fabsf(view.x) > bodySize + 2.5F ||
+				    fabsf(view.y) > bodySize + 2.5F)
 					continue;
 
 				float prange = view.GetChebyshevLength() + bodySize;
@@ -190,7 +191,7 @@ namespace spades {
 
 				if (!p->RayCastApprox(def.viewOrigin, def.viewAxis[2]))
 					continue;
-				if ((int)(p->GetEye() - def.viewOrigin).GetLength2D() > FOG_DISTANCE)
+				if ((p->GetEye() - def.viewOrigin).GetSquaredLength2D() > FOG_DISTANCE * FOG_DISTANCE)
 					continue;
 
 				auto hitboxes = p->GetHitBoxes();

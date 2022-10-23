@@ -140,7 +140,7 @@ namespace spades {
 			// depth-only pass
 
 			GLProfiler::Context profiler(renderer.GetGLProfiler(), "Map");
-			Vector3 eye = renderer.GetSceneDef().viewOrigin;
+			const auto& viewOrigin = renderer.GetSceneDef().viewOrigin;
 
 			device.Enable(IGLDevice::CullFace, true);
 			device.Enable(IGLDevice::DepthTest, true);
@@ -155,16 +155,16 @@ namespace spades {
 			projectionViewMatrix.SetValue(renderer.GetProjectionViewMatrix());
 
 			// draw from nearest to farthest
-			auto c = eye.Floor() / GLMapChunk::Size;
-			DrawColumnDepth(c.x, c.y, c.z, eye);
+			IntVector3 c = viewOrigin.Floor() / GLMapChunk::Size;
+			DrawColumnDepth(c.x, c.y, c.z, viewOrigin);
 			for (int dist = 1; dist <= 128 / GLMapChunk::Size; dist++) {
 				for (int x = c.x - dist; x <= c.x + dist; x++) {
-					DrawColumnDepth(x, c.y + dist, c.z, eye);
-					DrawColumnDepth(x, c.y - dist, c.z, eye);
+					DrawColumnDepth(x, c.y + dist, c.z, viewOrigin);
+					DrawColumnDepth(x, c.y - dist, c.z, viewOrigin);
 				}
 				for (int y = c.y - dist + 1; y <= c.y + dist - 1; y++) {
-					DrawColumnDepth(c.x + dist, y, c.z, eye);
-					DrawColumnDepth(c.x - dist, y, c.z, eye);
+					DrawColumnDepth(c.x + dist, y, c.z, viewOrigin);
+					DrawColumnDepth(c.x - dist, y, c.z, viewOrigin);
 				}
 			}
 
@@ -176,8 +176,7 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			GLProfiler::Context profiler(renderer.GetGLProfiler(), "Map");
-
-			Vector3 eye = renderer.GetSceneDef().viewOrigin;
+			const auto& viewOrigin = renderer.GetSceneDef().viewOrigin;
 
 			// draw back face to avoid cheating.
 			// without this, players can see through blocks by
@@ -251,7 +250,6 @@ namespace spades {
 
 			static GLProgramUniform viewOriginVector("viewOriginVector");
 			viewOriginVector(basicProgram);
-			const auto& viewOrigin = renderer.GetSceneDef().viewOrigin;
 			viewOriginVector.SetValue(viewOrigin.x, viewOrigin.y, viewOrigin.z);
 
 			// RealizeChunks(eye); // should already be realized from the prepass
@@ -259,16 +257,16 @@ namespace spades {
 			// eye? Probably just a bool called "alreadyrealized" that gets checked in RealizeChunks
 
 			// draw from nearest to farthest
-			auto c = eye.Floor() / GLMapChunk::Size;
-			DrawColumnSunlight(c.x, c.y, c.z, eye);
+			IntVector3 c = viewOrigin.Floor() / GLMapChunk::Size;
+			DrawColumnSunlight(c.x, c.y, c.z, viewOrigin);
 			for (int dist = 1; dist <= 128 / GLMapChunk::Size; dist++) {
 				for (int x = c.x - dist; x <= c.x + dist; x++) {
-					DrawColumnSunlight(x, c.y + dist, c.z, eye);
-					DrawColumnSunlight(x, c.y - dist, c.z, eye);
+					DrawColumnSunlight(x, c.y + dist, c.z, viewOrigin);
+					DrawColumnSunlight(x, c.y - dist, c.z, viewOrigin);
 				}
 				for (int y = c.y - dist + 1; y <= c.y + dist - 1; y++) {
-					DrawColumnSunlight(c.x + dist, y, c.z, eye);
-					DrawColumnSunlight(c.x - dist, y, c.z, eye);
+					DrawColumnSunlight(c.x + dist, y, c.z, viewOrigin);
+					DrawColumnSunlight(c.x - dist, y, c.z, viewOrigin);
 				}
 			}
 
@@ -294,7 +292,7 @@ namespace spades {
 			if (lights.empty())
 				return;
 
-			Vector3 eye = renderer.GetSceneDef().viewOrigin;
+			const auto& viewOrigin = renderer.GetSceneDef().viewOrigin;
 
 			device.ActiveTexture(0);
 			device.BindTexture(IGLDevice::Texture2D, 0);
@@ -332,25 +330,24 @@ namespace spades {
 
 			static GLProgramUniform viewOriginVector("viewOriginVector");
 			viewOriginVector(dlightProgram);
-			const auto& viewOrigin = renderer.GetSceneDef().viewOrigin;
 			viewOriginVector.SetValue(viewOrigin.x, viewOrigin.y, viewOrigin.z);
 
 			// RealizeChunks(eye); // should already be realized from the prepass
 
 			// draw from nearest to farthest
-			auto c = eye.Floor() / GLMapChunk::Size;
-			DrawColumnDLight(c.x, c.y, c.z, eye, lights);
+			IntVector3 c = viewOrigin.Floor() / GLMapChunk::Size;
+			DrawColumnDLight(c.x, c.y, c.z, viewOrigin, lights);
 			// TODO: optimize call
 			//	ex. don't call a chunk'r render method if
 			//  no dlight lights it
 			for (int dist = 1; dist <= 128 / GLMapChunk::Size; dist++) {
 				for (int x = c.x - dist; x <= c.x + dist; x++) {
-					DrawColumnDLight(x, c.y + dist, c.z, eye, lights);
-					DrawColumnDLight(x, c.y - dist, c.z, eye, lights);
+					DrawColumnDLight(x, c.y + dist, c.z, viewOrigin, lights);
+					DrawColumnDLight(x, c.y - dist, c.z, viewOrigin, lights);
 				}
 				for (int y = c.y - dist + 1; y <= c.y + dist - 1; y++) {
-					DrawColumnDLight(c.x + dist, y, c.z, eye, lights);
-					DrawColumnDLight(c.x - dist, y, c.z, eye, lights);
+					DrawColumnDLight(c.x + dist, y, c.z, viewOrigin, lights);
+					DrawColumnDLight(c.x - dist, y, c.z, viewOrigin, lights);
 				}
 			}
 
@@ -421,16 +418,16 @@ namespace spades {
 
 		void GLMapRenderer::RenderBackface() {
 			GLProfiler::Context profiler(renderer.GetGLProfiler(), "Back-face");
+			const auto& viewOrigin = renderer.GetSceneDef().viewOrigin.Floor();
 
-			IntVector3 eye = renderer.GetSceneDef().viewOrigin.Floor();
 			std::vector<BFVertex> vertices;
 			std::vector<uint16_t> indices;
 			client::GameMap* m = gameMap;
 
 			const int range = 1;
-			for (int x = eye.x - range; x <= eye.x + range; x++) {
-				for (int y = eye.y - range; y <= eye.y + range; y++) {
-					for (int z = eye.z - range; z <= eye.z + range; z++) {
+			for (int x = viewOrigin.x - range; x <= viewOrigin.x + range; x++) {
+				for (int y = viewOrigin.y - range; y <= viewOrigin.y + range; y++) {
+					for (int z = viewOrigin.z - range; z <= viewOrigin.z + range; z++) {
 						if (z < 0 || z >= 63)
 							continue;
 						if (!m->IsSolidWrapped(x, y, z))

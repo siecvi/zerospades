@@ -45,9 +45,9 @@ using namespace std;
 DEFINE_SPADES_SETTING(cg_mouseSensitivity, "1");
 DEFINE_SPADES_SETTING(cg_zoomedMouseSensScale, "1");
 DEFINE_SPADES_SETTING(cg_mouseSensScale, "0");
+DEFINE_SPADES_SETTING(cg_mouseAccel, "1");
 DEFINE_SPADES_SETTING(cg_mouseExpPower, "1");
 DEFINE_SPADES_SETTING(cg_invertMouseY, "0");
-DEFINE_SPADES_SETTING(cg_classicMouseSens, "0");
 
 DEFINE_SPADES_SETTING(cg_holdAimDownSight, "0");
 
@@ -144,10 +144,10 @@ namespace spades {
 
 					state.yaw -= x * 0.003F;
 					state.pitch -= y * 0.003F;
-					if (state.pitch < -DEG2RAD(89))
-						state.pitch = -DEG2RAD(89);
 					if (state.pitch > DEG2RAD(89))
 						state.pitch = DEG2RAD(89);
+					if (state.pitch < -DEG2RAD(89))
+						state.pitch = -DEG2RAD(89);
 					state.yaw = fmodf(state.yaw, DEG2RAD(360));
 					break;
 				}
@@ -161,9 +161,10 @@ namespace spades {
 					Player& p = world->GetLocalPlayer().value();
 					if (p.IsAlive()) {
 						float sensitivity = cg_mouseSensitivity;
-						float aimDownState = GetAimDownState();
 
-						if (GetAimDownZoomScale() != 1) {
+						// scale by FOV
+						float zoomScale = GetAimDownZoomScale();
+						if (zoomScale != 1) {
 							float k = atanf(tanf(lastSceneDef.fovX * 0.5F));
 
 							x *= k;
@@ -171,25 +172,28 @@ namespace spades {
 						}
 
 						// TODO: mouse acceleration is framerate dependant
-						float rad = x * x + y * y;
-						if (rad > 0.0F && !cg_classicMouseSens) {
-							float const expPower = (float)cg_mouseExpPower;
-							if (expPower < 0.001F || isnan(expPower)) {
-								SPLog("Invalid cg_mouseExpPower value, resetting to 1.0");
-								cg_mouseExpPower = 1.0F;
+						if (cg_mouseAccel) {
+							float rad = x * x + y * y;
+							if (rad > 0.0F) {
+								if ((float)cg_mouseExpPower < 0.001F ||
+								    isnan((float)cg_mouseExpPower)) {
+									SPLog("Invalid cg_mouseExpPower value, resetting to 1.0");
+									cg_mouseExpPower = 1.0F;
+								}
+
+								float const fExp = powf(renderer->ScreenWidth() * 0.1F, 2);
+								rad = powf(rad / fExp, (float)cg_mouseExpPower * 0.5F - 0.5F);
+
+								// shouldn't happen...
+								if (isnan(rad))
+									rad = 1.0F;
+
+								x *= rad;
+								y *= rad;
 							}
-
-							float const factor = powf(renderer->ScreenWidth() * 0.1F, 2);
-							rad = powf(rad / factor, (float)cg_mouseExpPower * 0.5F - 0.5F);
-
-							// shouldn't happen...
-							if (isnan(rad))
-								rad = 1.0F;
-
-							x *= rad;
-							y *= rad;
 						}
-
+						
+						float aimDownState = GetAimDownState();
 						if (aimDownState > 0.0F) {
 							float scale = cg_zoomedMouseSensScale;
 							scale = powf(scale, aimDownState);
@@ -218,7 +222,7 @@ namespace spades {
 						x *= sensScale;
 						y *= sensScale;
 
-						if (cg_invertMouseY)
+						if (!cg_invertMouseY)
 							y = -y;
 
 						p.Turn(x, y);
@@ -288,7 +292,8 @@ namespace spades {
 			static const std::string space2("spacebar");
 			static const std::string space3("spacekey");
 
-			if (EqualsIgnoringCase(cfg, space1) || EqualsIgnoringCase(cfg, space2) ||
+			if (EqualsIgnoringCase(cfg, space1) ||
+				EqualsIgnoringCase(cfg, space2) ||
 			    EqualsIgnoringCase(cfg, space3)) {
 				if (input == " ")
 					return true;
@@ -387,11 +392,6 @@ namespace spades {
 				if (world->GetLocalPlayer()) {
 					Player& p = world->GetLocalPlayer().value();
 
-					if (!p.IsSpectator() && p.IsAlive() && p.IsToolBlock() && down) {
-						if (paletteView->KeyInput(name))
-							return;
-					}
-
 					if (name == "-" || name == "+") {
 						int volume = s_volume;
 
@@ -408,25 +408,28 @@ namespace spades {
 						}
 					}
 
-					if (name == "P" && down && cg_debugCorpse) {
-						auto corp = stmp::make_unique<Corpse>(*renderer, *map, p);
-						corp->AddImpulse(p.GetFront() * 32.0F);
-						corpses.emplace_back(std::move(corp));
+					if (!p.IsSpectator() && p.IsAlive()) {
+						if (p.IsToolBlock() && down) {
+							if (paletteView->KeyInput(name))
+								return;
+						}
 
-						if (corpses.size() > corpseHardLimit)
-							corpses.pop_front();
-						else if (corpses.size() > corpseSoftLimit)
-							RemoveInvisibleCorpses();
+						if (name == "P" && down && cg_debugCorpse) {
+							auto corp = stmp::make_unique<Corpse>(*renderer, *map, p);
+							corp->AddImpulse(p.GetFront() * 32.0F);
+							corpses.emplace_back(std::move(corp));
+
+							if (corpses.size() > corpseHardLimit)
+								corpses.pop_front();
+							else if (corpses.size() > corpseSoftLimit)
+								RemoveInvisibleCorpses();
+						}
 					}
 
 					if (CheckKey(cg_keyToggleHitTestZoom, name) && cg_debugHitTest) {
-						if (p.IsSpectator())
-							return;
-
-						if (debugHitTestImage) {
+						if (debugHitTestImage && !p.IsSpectator()) {
 							debugHitTestZoom = down;
-							Handle<IAudioChunk> c =
-							  debugHitTestZoom
+							Handle<IAudioChunk> c = debugHitTestZoom
 							    ? audioDevice->RegisterSound("Sounds/Misc/OpenMap.opus")
 							    : audioDevice->RegisterSound("Sounds/Misc/CloseMap.opus");
 							audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
@@ -463,7 +466,7 @@ namespace spades {
 						if (p.IsToolWeapon() && weapInput.primary && !CanLocalPlayerUseWeapon())
 							PlayerDryFiredWeapon(p);
 					} else if (CheckKey(cg_keyAltAttack, name)) {
-						auto lastVal = weapInput.secondary;
+						bool lastVal = weapInput.secondary;
 						if (p.IsToolWeapon() && !cg_holdAimDownSight) {
 							if (down && !p.GetWeapon().IsReloading())
 								weapInput.secondary = !weapInput.secondary;
@@ -479,11 +482,12 @@ namespace spades {
 							  audioDevice->RegisterSound("Sounds/Weapons/AimDownSightLocal.opus");
 							audioDevice->PlayLocal(c.GetPointerOrNull(), MakeVector3(0.4F, -0.3F, 0.5F), params);
 						}
-					} else if (CheckKey(cg_keyReloadWeapon, name) && down) {
-						if (p.IsToolWeapon()) {
+					} else if (CheckKey(cg_keyReloadWeapon, name)) {
+						if (p.GetTool() == Player::ToolWeapon) {
 							Weapon& w = p.GetWeapon();
 							if (w.GetAmmo() < w.GetClipSize() && w.GetStock() > 0 &&
-							    !p.IsAwaitingReloadCompletion() && !w.IsReloading()) {
+							    !(w.IsReloading() || p.IsAwaitingReloadCompletion()) &&
+							    !(w.IsShooting() && w.GetAmmo() > 0)) {
 								if (weapInput.secondary && !w.IsReloadSlow()) {
 									// if we send WeaponInput after sending Reload,
 									// server might cancel the reload.
@@ -547,8 +551,7 @@ namespace spades {
 						  audioDevice->RegisterSound("Sounds/Misc/SwitchMapZoom.opus");
 						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 					} else if (CheckKey(cg_keyToggleMapZoom, name) && down) {
-						Handle<IAudioChunk> c =
-						  largeMapView->ToggleZoom()
+						Handle<IAudioChunk> c = largeMapView->ToggleZoom()
 						    ? audioDevice->RegisterSound("Sounds/Misc/OpenMap.opus")
 						    : audioDevice->RegisterSound("Sounds/Misc/CloseMap.opus");
 						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
@@ -566,18 +569,17 @@ namespace spades {
 						TakeMapShot();
 					} else if (CheckKey(cg_keyFlashlight, name) && down) {
 						// spectators and dead players should not be able to toggle the flashlight
-						if (p.IsSpectator() || !p.IsAlive())
-							return;
-
-						flashlightOn = !flashlightOn;
-						flashlightOnTime = time;
-						Handle<IAudioChunk> c =
-						  audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
-						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+						if (!p.IsSpectator() && p.IsAlive()) {
+							flashlightOn = !flashlightOn;
+							flashlightOnTime = time;
+							Handle<IAudioChunk> c =
+							  audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
+							audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+						}
 					} else if (CheckKey(cg_keyAutoFocus, name) && down && (bool)cg_manualFocus) {
 						autoFocusEnabled = true;
 					} else if (down) {
-						bool rev = ((int)cg_switchToolByWheel > 0);
+						bool rev = (int)cg_switchToolByWheel > 0;
 						if (name == (rev ? "WheelDown" : "WheelUp")) {
 							if ((bool)cg_manualFocus) {
 								// When DoF control is enabled,

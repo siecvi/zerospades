@@ -28,6 +28,8 @@
 #include "Player.h"
 #include "World.h"
 
+#define PALETTE_SIZE 16
+
 DEFINE_SPADES_SETTING(cg_keyPaletteLeft, "Left");
 DEFINE_SPADES_SETTING(cg_keyPaletteRight, "Right");
 DEFINE_SPADES_SETTING(cg_keyPaletteUp, "Up");
@@ -50,7 +52,7 @@ namespace spades {
 			  {128, 0, 256},   {256, 0, 256},   {256, 128, 256}, {256, 0, 128}
 			};
 
-			auto def = MakeIntVector3(256);
+			auto def = MakeIntVector3(256, 256, 256);
 			for (int i = 0; i < PALETTE_SIZE; i++) {
 				for (int j = 1; j < PALETTE_SIZE; j += 2)
 					colors.push_back(SanitizeCol(((cols[i] * j) / PALETTE_SIZE) - 1));
@@ -160,8 +162,8 @@ namespace spades {
 					int row = static_cast<int>(i / PALETTE_SIZE);
 					int col = static_cast<int>(i % PALETTE_SIZE);
 
-					float x = sw - 132.0F + 8.0F * col;
-					float y = sh - 146.0F + 8.0F * row - 40.0F;
+					float x = sw - 135.0F + 8.0F * col;
+					float y = sh - 155.0F + 8.0F * row - 40.0F;
 
 					renderer.SetColorAlphaPremultiplied(ConvertColorRGBA(colors[i]));
 					renderer.DrawFilledRect(x, y, x + 6, y + 6);

@@ -63,7 +63,7 @@ namespace spades {
 			}
 
 			if (param.type == client::DynamicLightTypeLinear)
-				poweredLength = (param.point2 - param.origin).GetPoweredLength();
+				poweredLength = (param.point2 - param.origin).GetSquaredLength();
 		}
 
 		bool GLDynamicLight::Cull(const spades::AABB3& box) const {
@@ -83,7 +83,7 @@ namespace spades {
 				// TODO: using `OBB3` here is overkill, but `AABB3` doesn't have `RayCast`
 				if (!OBB3(inflatedBox).RayCast(param.origin, param.point2 - param.origin, &intersection))
 					return false;
-				return (intersection - param.origin).GetPoweredLength() <= poweredLength;
+				return (intersection - param.origin).GetSquaredLength() <= poweredLength;
 			}
 
 			return inflatedBox && param.origin;
@@ -103,7 +103,7 @@ namespace spades {
 			}
 
 			float maxDistance = radius + param.radius;
-			return (center - param.origin).GetPoweredLength() < maxDistance * maxDistance;
+			return (center - param.origin).GetSquaredLength() < maxDistance * maxDistance;
 		}
 	} // namespace draw
 } // namespace spades

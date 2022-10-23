@@ -258,7 +258,9 @@ namespace spades {
 				std::string str;
 				sprintf(buf, "Packet 0x%02x [len=%d]", (int)GetType(), (int)data.size());
 				str = buf;
-				int bytes = std::max((int)data.size(), 64);
+				int bytes = (int)data.size();
+				if (bytes > 64)
+					bytes = 64;
 
 				for (int i = 0; i < bytes; i++) {
 					sprintf(buf, " %02x", (unsigned int)(unsigned char)data[i]);
@@ -441,8 +443,8 @@ namespace spades {
 
 			if (!peer)
 				return;
-			enet_peer_disconnect(peer, 0);
 
+			enet_peer_disconnect(peer, 0);
 			status = NetClientStatusNotConnected;
 			statusString = _Tr("NetClient", "Not connected");
 
@@ -502,9 +504,10 @@ namespace spades {
 					peer = NULL;
 					status = NetClientStatusNotConnected;
 
+					std::string reasonStr = DisconnectReasonString(event.data);
 					SPLog("Disconnected (data = 0x%08x)", (unsigned int)event.data);
-					statusString = "Disconnected: " + DisconnectReasonString(event.data);
-					SPRaise("Disconnected: %s", DisconnectReasonString(event.data).c_str());
+					statusString = "Disconnected: " + reasonStr;
+					SPRaise("Disconnected: %s", reasonStr.c_str());
 				}
 
 				stmp::optional<NetPacketReader> readerOrNone;
@@ -769,8 +772,8 @@ namespace spades {
 								SPRaise("Invalid player number %d received with WorldUpdate", idx);
 						}
 
-						auto pos = r.ReadVector3();
-						auto front = r.ReadVector3();
+						Vector3 pos = r.ReadVector3();
+						Vector3 front = r.ReadVector3();
 
 						savedPlayerPos.at(idx) = pos;
 						savedPlayerFront.at(idx) = front;
@@ -830,8 +833,8 @@ namespace spades {
 					Player& p = GetLocalPlayer();
 					int hp = r.ReadByte();
 					int type = r.ReadByte(); // 0=fall, 1=weap
-					auto hurtPos = r.ReadVector3();
-					p.SetHP(hp, type ? HurtTypeWeapon : HurtTypeFall, hurtPos);
+					Vector3 source = r.ReadVector3();
+					p.SetHP(hp, type ? HurtTypeWeapon : HurtTypeFall, source);
 				} break;
 				case PacketTypeGrenadePacket:
 					if (!GetWorld())
@@ -839,9 +842,8 @@ namespace spades {
 					{
 						int pId = r.ReadByte(); // skip player Id
 						float fuse = r.ReadFloat();
-						auto pos = r.ReadVector3();
-						auto vel = r.ReadVector3();
-
+						Vector3 pos = r.ReadVector3();
+						Vector3 vel = r.ReadVector3();
 						Grenade* g = new Grenade(*GetWorld(), pos, vel, fuse);
 						GetWorld()->AddGrenade(std::unique_ptr<Grenade>{g});
 					}
@@ -887,9 +889,8 @@ namespace spades {
 						}
 
 						auto p = stmp::make_unique<Player>(*GetWorld(), pId, wType, team,
-							savedPlayerPos[pId], GetWorld()->GetTeam(team).color);
+							savedPlayerPos[pId], GetWorld()->GetTeamColor(team));
 
-						p->SetHeldBlockColor(color);
 						switch (tool) {
 							case 0: p->SetTool(Player::ToolSpade); break;
 							case 1: p->SetTool(Player::ToolBlock); break;
@@ -897,6 +898,7 @@ namespace spades {
 							case 3: p->SetTool(Player::ToolGrenade); break;
 							default: SPRaise("Received invalid tool type: %d", tool);
 						}
+						p->SetHeldBlockColor(color);
 						GetWorld()->SetPlayer(pId, std::move(p));
 
 						World::PlayerPersistent& pers = GetWorld()->GetPlayerPersistent(pId);
@@ -912,9 +914,9 @@ namespace spades {
 					if (!GetWorld())
 						SPRaise("No world");
 					{
-						uint8_t type = r.ReadByte();
-						uint8_t state = r.ReadByte();
-						auto pos = r.ReadVector3();
+						int type = r.ReadByte();
+						int state = r.ReadByte();
+						Vector3 pos = r.ReadVector3();
 
 						stmp::optional<IGameMode&> mode = GetWorld()->GetMode();
 						if (mode && IGameMode::m_CTF == mode->ModeType()) {
@@ -947,7 +949,7 @@ namespace spades {
 					int pId = r.ReadByte();
 					int weapon = r.ReadByte();
 					int team = r.ReadByte();
-					auto pos = r.ReadVector3();
+					Vector3 pos = r.ReadVector3();
 					pos.z -= 2.0F;
 					std::string name = r.ReadRemainingString();
 					// TODO: decode name?
@@ -956,6 +958,7 @@ namespace spades {
 						SPLog("Ignoring invalid playerid %d (pyspades bug?: %s)", pId, name.c_str());
 						break;
 					}
+
 					WeaponType wType;
 					switch (weapon) {
 						case 0: wType = RIFLE_WEAPON; break;
@@ -965,7 +968,7 @@ namespace spades {
 					}
 
 					auto p = stmp::make_unique<Player>(*GetWorld(), pId, wType, team,
-						savedPlayerPos[pId], GetWorld()->GetTeam(team).color);
+						savedPlayerPos[pId], GetWorld()->GetTeamColor(team));
 					p->SetPosition(pos);
 					GetWorld()->SetPlayer(pId, std::move(p));
 
@@ -992,7 +995,7 @@ namespace spades {
 				case PacketTypeBlockAction: {
 					stmp::optional<Player&> p = GetPlayerOrNull(r.ReadByte());
 					int action = r.ReadByte();
-					auto pos = r.ReadIntVector3();
+					IntVector3 pos = r.ReadIntVector3();
 
 					std::vector<IntVector3> cells;
 					if (action == BlockActionCreate) {
@@ -1027,8 +1030,9 @@ namespace spades {
 				} break;
 				case PacketTypeBlockLine: {
 					stmp::optional<Player&> p = GetPlayerOrNull(r.ReadByte());
-					auto pos1 = r.ReadIntVector3();
-					auto pos2 = r.ReadIntVector3();
+					IntVector3 pos1, pos2;
+					pos1 = r.ReadIntVector3();
+					pos2 = r.ReadIntVector3();
 
 					auto cells = GetWorld()->CubeLine(pos1, pos2, 50);
 					for (const auto& c : cells) {
@@ -1084,14 +1088,14 @@ namespace spades {
 							mt2.hasIntel = (intelFlags & 2) != 0;
 
 							if (mt2.hasIntel) {
-								mt1.carrier = r.ReadByte();
+								mt1.carrierId = r.ReadByte();
 								r.ReadData(11);
 							} else {
 								mt1.flagPos = r.ReadVector3();
 							}
 
 							if (mt1.hasIntel) {
-								mt2.carrier = r.ReadByte();
+								mt2.carrierId = r.ReadByte();
 								r.ReadData(11);
 							} else {
 								mt2.flagPos = r.ReadVector3();
@@ -1152,8 +1156,7 @@ namespace spades {
 				} break;
 				case PacketTypeChatMessage: {
 					// might be wrong player id for server message
-					uint8_t pId = r.ReadByte();
-					stmp::optional<Player&> p = GetPlayerOrNull(pId);
+					stmp::optional<Player&> p = GetPlayerOrNull(r.ReadByte());
 					int type = r.ReadByte();
 					std::string msg = r.ReadRemainingString();
 
@@ -1309,7 +1312,7 @@ namespace spades {
 					CTFGameMode& ctf = dynamic_cast<CTFGameMode&>(mode.value());
 					CTFGameMode::Team& team = ctf.GetTeam(p.GetTeamId());
 					team.hasIntel = true;
-					team.carrier = p.GetId();
+					team.carrierId = p.GetId();
 					client->PlayerPickedIntel(p);
 				} break;
 				case PacketTypeIntelDrop: {
@@ -1337,7 +1340,7 @@ namespace spades {
 				} break;
 				case PacketTypeFogColour: {
 					if (GetWorld()) {
-						int pId = r.ReadByte(); // skip player id
+						int a = r.ReadByte(); // skip alpha value
 						GetWorld()->SetFogColor(r.ReadIntColor());
 					}
 				} break;
@@ -1348,8 +1351,7 @@ namespace spades {
 					} else {
 						int clip = r.ReadByte();
 						int reserve = r.ReadByte();
-						if (clip < 255 && reserve < 255)
-							p.ReloadDone(clip, reserve);
+						p.ReloadDone(clip, reserve);
 					}
 				} break;
 				case PacketTypeChangeTeam: {
@@ -1360,7 +1362,7 @@ namespace spades {
 					p.SetTeam(team);
 				}
 				case PacketTypeChangeWeapon: {
-					int pId = r.ReadByte(); // skip player id
+					Player& p = GetPlayer(r.ReadByte());
 					int weapon = r.ReadByte();
 
 					WeaponType wType;
@@ -1436,7 +1438,7 @@ namespace spades {
 			w.WriteByte((uint8_t)weapId);
 			w.WriteByte((uint8_t)2); // TODO: change tool
 			w.WriteInt((uint32_t)kills);
-			w.WriteColor(GetWorld()->GetTeam(team).color);
+			w.WriteColor(GetWorld()->GetTeamColor(team));
 			w.WriteString(name, 16);
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
@@ -1616,17 +1618,15 @@ namespace spades {
 		void NetClient::SendHandShakeValid(int challenge) {
 			SPADES_MARK_FUNCTION();
 
-			SPLog("Sending hand shake back.");
-
 			NetPacketWriter w(PacketTypeHandShakeReturn);
 			w.WriteInt((uint32_t)challenge);
+
+			SPLog("Sending hand shake back.");
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
 
 		void NetClient::SendVersion() {
 			SPADES_MARK_FUNCTION();
-
-			SPLog("Sending version back.");
 
 			NetPacketWriter w(PacketTypeVersionSend);
 			w.WriteByte((uint8_t)'o');
@@ -1634,13 +1634,13 @@ namespace spades {
 			w.WriteByte((uint8_t)OpenSpades_VERSION_MINOR);
 			w.WriteByte((uint8_t)OpenSpades_VERSION_REVISION);
 			w.WriteString(VersionInfo::GetVersionInfo());
+
+			SPLog("Sending version back.");
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
 
 		void NetClient::SendSupportedExtensions() {
 			SPADES_MARK_FUNCTION();
-
-			SPLog("Sending extension support.");
 
 			NetPacketWriter w(PacketTypeExtensionInfo);
 			w.WriteByte(static_cast<uint8_t>(extensions.size()));
@@ -1648,6 +1648,8 @@ namespace spades {
 				w.WriteByte(static_cast<uint8_t>(i.first));  // ext id
 				w.WriteByte(static_cast<uint8_t>(i.second)); // ext version
 			}
+
+			SPLog("Sending extension support.");
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
 

@@ -18,6 +18,8 @@
 
  */
 
+#include <limits.h>
+
 #include "FallingBlock.h"
 #include "Client.h"
 #include "GameMap.h"
@@ -30,7 +32,9 @@
 #include "World.h"
 #include <Core/Debug.h>
 #include <Core/Exception.h>
-#include <limits.h>
+#include <Core/Settings.h>
+
+SPADES_SETTING(cg_particles);
 
 namespace spades {
 	namespace client {
@@ -83,17 +87,17 @@ namespace spades {
 			origin.z = (float)minZ - (float)zSum / (float)numBlocks;
 			vmodel->SetOrigin(origin);
 
+			// build renderer model
+			model = client->GetRenderer().CreateModel(*vmodel).Unmanage();
+
 			Vector3 matTrans = MakeVector3((float)minX, (float)minY, (float)minZ);
 			matTrans += 0.5F; // voxelmodel's (0,0,0) origins on block center
 			matTrans -= origin; // cancel origin
 			matrix = Matrix4::Translate(matTrans);
 
-			// build renderer model
-			model = client->GetRenderer().CreateModel(*vmodel).Unmanage();
-
 			velocity = {0.0F, 0.0F, 0.0F};
 			rotation = SampleRandom() & 3;
-			alpha = 1.0F;
+			time = 1.0F;
 		}
 
 		FallingBlock::~FallingBlock() {
@@ -102,28 +106,27 @@ namespace spades {
 		}
 
 		bool FallingBlock::Update(float dt) {
-			alpha -= 1.0F / 5.0F * dt;
+			time -= 1.0F / 5.0F * dt;
 
-			Vector3 origin = matrix.GetOrigin();
-
-			float dist = (client->GetLastSceneDef().viewOrigin - origin).GetLength2D();
-			if (dist > FOG_DISTANCE)
+			const auto& viewOrigin = client->GetLastSceneDef().viewOrigin;
+			float distSqr = (viewOrigin - matrix.GetOrigin()).GetSquaredLength2D();
+			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
 				return false;
 
 			bool usePrecisePhysics = false;
-			if (dist < 16.0F && numBlocks < 512)
+			if (distSqr < 16.0F * 16.0F && numBlocks < 512)
 				usePrecisePhysics = true;
 
 			if (MoveBlock(dt) == 2) {
-				if (!client->IsMuted() && dist < 40.0F) {
+				if (!client->IsMuted() && distSqr < 40.0F * 40.0F) {
 					IAudioDevice& dev = client->GetAudioDevice();
 					Handle<IAudioChunk> c = dev.RegisterSound("Sounds/Player/Bounce.opus");
-					dev.Play(c.GetPointerOrNull(), origin, AudioParam());
+					dev.Play(c.GetPointerOrNull(), matrix.GetOrigin(), AudioParam());
 				}
 			}
 
 			// destroy
-			if (alpha <= 0.0F) {
+			if (time <= 0.0F) {
 				int w = vmodel->GetWidth();
 				int h = vmodel->GetHeight();
 				int d = vmodel->GetDepth();
@@ -162,26 +165,28 @@ namespace spades {
 
 							Vector3 p3 = p2 + vmAxis3 * (float)z;
 
-							for (int i = 0; i < 4; i++) {
-								auto ent = stmp::make_unique<ParticleSpriteEntity>(
-									*client, img.GetPointerOrNull(), color);
-								ent->SetTrajectory(p3, RandomAxis() * 13.0F, 1.0F, 0.6F);
-								ent->SetRadius(0.35F + getRandom() * getRandom() * 0.1F);
-								ent->SetLifeTime(2.0F, 0.0F, 1.0F);
-								if (usePrecisePhysics)
-									ent->SetBlockHitAction(BlockHitAction::BounceWeak);
-								client->AddLocalEntity(std::move(ent));
-							}
+							if (cg_particles) {
+								for (int i = 0; i < 4; i++) {
+									auto ent = stmp::make_unique<ParticleSpriteEntity>(
+									  *client, img.GetPointerOrNull(), color);
+									ent->SetTrajectory(p3, RandomAxis() * 13.0F, 1.0F, 0.6F);
+									ent->SetRadius(0.35F + getRandom() * getRandom() * 0.1F);
+									ent->SetLifeTime(2.0F, 0.0F, 1.0F);
+									if (usePrecisePhysics)
+										ent->SetBlockHitAction(BlockHitAction::BounceWeak);
+									client->AddLocalEntity(std::move(ent));
+								}
 
-							{
-								auto ent = stmp::make_unique<SmokeSpriteEntity>(
-									*client, color, 70.0F);
-								ent->SetTrajectory(p3, RandomAxis() * 0.2F, 1.0F, 0.0F);
-								ent->SetRotation(getRandom() * M_PI_F * 2.0F);
-								ent->SetRadius(1.0F, 0.5F);
-								ent->SetBlockHitAction(BlockHitAction::Ignore);
-								ent->SetLifeTime(1.0F + getRandom() * 0.5F, 0.0F, 1.0F);
-								client->AddLocalEntity(std::move(ent));
+								if (cg_particles == 2) {
+									auto ent =
+									  stmp::make_unique<SmokeSpriteEntity>(*client, color, 70.0F);
+									ent->SetTrajectory(p3, RandomAxis() * 0.2F, 1.0F, 0.0F);
+									ent->SetRotation(getRandom() * M_PI_F * 2.0F);
+									ent->SetRadius(1.0F, 0.5F);
+									ent->SetBlockHitAction(BlockHitAction::Ignore);
+									ent->SetLifeTime(1.0F + getRandom() * 0.5F, 0.0F, 1.0F);
+									client->AddLocalEntity(std::move(ent));
+								}
 							}
 						}
 					}
@@ -199,9 +204,9 @@ namespace spades {
 			Matrix4 lastMat = matrix;
 
 			matrix = matrix * Matrix4::Rotate(MakeVector3(1, 0, 0),
-				((rotation & 1) ? 1 : -1) * fsynctics * DEG2RAD(45.0F));
+				((rotation & 1) ? 1 : -1) * fsynctics * DEG2RAD(45));
 			matrix = matrix * Matrix4::Rotate(MakeVector3(0, 1, 0),
-				((rotation & 2) ? 1 : -1) * fsynctics * DEG2RAD(45.0F));
+				((rotation & 2) ? 1 : -1) * fsynctics * DEG2RAD(45));
 			matrix = Matrix4::Translate(velocity * fsynctics) * matrix;
 			velocity.z += fsynctics * 32.0F;
 
@@ -214,8 +219,9 @@ namespace spades {
 			int ret = 0;
 			if (map->ClipWorld(lp.x, lp.y, lp.z)) {
 				ret = 1; // hit a wall
-
-				if (fabsf(velocity.GetLength()) > BOUNCE_SOUND_THRESHOLD)
+				if (fabsf(velocity.x) > BOUNCE_SOUND_THRESHOLD ||
+				    fabsf(velocity.y) > BOUNCE_SOUND_THRESHOLD ||
+				    fabsf(velocity.z) > BOUNCE_SOUND_THRESHOLD)
 					ret = 2; // play sound
 
 				IntVector3 lp2 = lastMat.GetOrigin().Floor();
@@ -229,14 +235,14 @@ namespace spades {
 				         ((lp.x == lp2.x && lp.z == lp2.z) || !map->ClipWorld(lp.x, lp2.y, lp.z)))
 					velocity.y = -velocity.y;
 
-				matrix = lastMat;  // set back to old position
+				matrix = lastMat; // set back to old position
 				velocity *= 0.46F; // lose some velocity due to friction
 				rotation++;
 				rotation &= 3;
-				alpha -= 0.36F;
+				time -= 0.36F;
 			}
 
-			if (alpha <= 0.0F)
+			if (time <= 0.0F)
 				ret = 2; // play sound
 
 			return ret;
@@ -245,7 +251,7 @@ namespace spades {
 		void FallingBlock::Render3D() {
 			ModelRenderParam param;
 			param.ghost = true;
-			param.opacity = std::max(0.25F, (1.0F * alpha));
+			param.opacity = std::max(0.25F, (1.0F * time));
 			param.matrix = matrix;
 			client->GetRenderer().RenderModel(*model, param);
 		}

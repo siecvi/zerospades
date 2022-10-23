@@ -124,7 +124,7 @@ namespace spades {
 			float respawnTime;
 
 			void RepositionPlayer(const Vector3&);
-			void MoveDead(float fsynctics);
+			void MoveCorpse(float fsynctics);
 			void MovePlayer(float fsynctics);
 			void BoxClipMove(float fsynctics);
 			bool TryUncrouch();
@@ -147,8 +147,9 @@ namespace spades {
 			int GetTeamId() { return teamId; }
 			bool IsTeamMate(Player* p) { return teamId == p->teamId; }
 			bool IsSpectator() { return teamId >= 2; }
-			std::string GetName();
 			std::string GetTeamName();
+			std::string GetName();
+			int GetScore();
 			IntVector3 GetColor();
 			IntVector3 GetBlockColor() { return blockColor; }
 			ToolType GetTool() { return tool; }
@@ -161,8 +162,8 @@ namespace spades {
 			void SetTool(ToolType);
 			void SetHeldBlockColor(IntVector3 c) { blockColor = c; }
 			void PlayerJump();
-			bool IsBlockCursorActive() { return tool == ToolBlock && blockCursorActive; }
-			bool IsBlockCursorDragging() { return tool == ToolBlock && blockCursorDragging; }
+			bool IsBlockCursorActive() { return blockCursorActive; }
+			bool IsBlockCursorDragging() { return blockCursorDragging; }
 			IntVector3 GetBlockCursorPos() { return blockCursorPos; }
 			IntVector3 GetBlockCursorDragPos() { return blockCursorDragPos; }
 			bool IsReadyToUseTool();
@@ -181,11 +182,7 @@ namespace spades {
 			bool IsToolWeapon() { return tool == ToolWeapon; }
 			bool IsToolGrenade() { return tool == ToolGrenade; }
 
-			bool IsWeaponRifle() { return weaponType == RIFLE_WEAPON; }
-			bool IsWeaponSMG() { return weaponType == SMG_WEAPON; }
-			bool IsWeaponShotgun() { return weaponType == SHOTGUN_WEAPON; }
-
-			bool IsScoped() { return tool == ToolWeapon && weapInput.secondary; }
+			bool IsZoomed() { return tool == ToolWeapon && weapInput.secondary; }
 			bool IsWalking() { return input.moveForward || input.moveBackward || input.moveLeft || input.moveRight; }
 
 			bool IsAwaitingReloadCompletion() { return reloadingServerSide; }
@@ -206,14 +203,13 @@ namespace spades {
 
 			bool IsAlive() { return health > 0; }
 			/** @return world time to respawn */
-			float GetRespawnTime() { return respawnTime; }
+			float GetTimeToRespawn();
 			/** Returns player's health (local player only) */
 			int GetHealth() { return health; }
 
 			Vector3 GetPosition() { return position; }
 			Vector3 GetFront();
 			Vector3 GetFront2D();
-			Vector3 GetLeft();
 			Vector3 GetRight();
 			Vector3 GetUp();
 			Vector3 GetEye() { return eye; }
@@ -230,7 +226,6 @@ namespace spades {
 
 			void Update(float dt);
 
-			float GetTimeToNextRespawn();
 			float GetTimeToNextSpade();
 			float GetTimeToNextDig();
 			float GetTimeToNextBlock();
@@ -259,7 +254,7 @@ namespace spades {
 			bool RayCastApprox(Vector3 start, Vector3 dir, float tolerance = 5.0F);
 
 			bool OverlapsWith(const AABB3&);
-			bool OverlapsWithBlock(IntVector3);
+			bool OverlapsWithBlock(const IntVector3&);
 			bool Collision3D(IntVector3, float distance = 3.0F);
 		};
 	} // namespace client

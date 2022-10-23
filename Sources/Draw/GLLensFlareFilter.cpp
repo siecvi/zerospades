@@ -205,8 +205,8 @@ namespace spades {
 			sunSize = MakeVector2(.01f, .01f);
 			sunSize.x *= renderer.ScreenHeight() / renderer.ScreenWidth();
 
-			float aroundness = sunScreen.GetPoweredLength() * 0.6f;
-			float aroundness2 = std::min(sunScreen.GetPoweredLength() * 3.2f, 1.f);
+			float aroundness = sunScreen.GetSquaredLength() * 0.6f;
+			float aroundness2 = std::min(sunScreen.GetSquaredLength() * 3.2f, 1.f);
 
 			dev.BindFramebuffer(IGLDevice::Framebuffer, lastFramebuffer);
 

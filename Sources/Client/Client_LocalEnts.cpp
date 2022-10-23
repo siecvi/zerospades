@@ -46,6 +46,7 @@
 
 DEFINE_SPADES_SETTING(cg_blood, "2");
 DEFINE_SPADES_SETTING(cg_particles, "2");
+DEFINE_SPADES_SETTING(cg_waterImpact, "1");
 DEFINE_SPADES_SETTING(cg_muzzleFire, "0");
 SPADES_SETTING(cg_manualFocus);
 DEFINE_SPADES_SETTING(cg_autoFocusSpeed, "0.4");
@@ -144,8 +145,8 @@ namespace spades {
 				return;
 			
 			// distance cull
-			float distPowered = (pos - lastSceneDef.viewOrigin).GetPoweredLength();
-			if (distPowered > 150.0F * 150.0F)
+			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
+			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
 				return;
 
 			// fragments
@@ -199,8 +200,8 @@ namespace spades {
 				return;
 
 			// distance cull
-			float distPowered = (pos - lastSceneDef.viewOrigin).GetPoweredLength();
-			if (distPowered > 150.0F * 150.0F)
+			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
+			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
 				return;
 
 			// fragments
@@ -213,7 +214,7 @@ namespace spades {
 				ent->SetTrajectory(pos, RandomAxis() * 8.0F);
 				ent->SetRadius(0.4F);
 				ent->SetLifeTime(2.0F, 0.0F, 1.0F);
-				if (distPowered < 16.0F * 16.0F)
+				if (distSqr < 16.0F * 16.0F)
 					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}
@@ -221,14 +222,14 @@ namespace spades {
 			if ((int)cg_particles < 2)
 				return;
 
-			if (distPowered < 32.0F * 32.0F) {
+			if (distSqr < 32.0F * 32.0F) {
 				for (int i = 0; i < 8; i++) {
 					auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 					ent->SetTrajectory(pos, RandomAxis() * 12.0F, 1.0F, 0.9F);
 					ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 					ent->SetRadius(0.1F + SampleRandomFloat() * SampleRandomFloat() * 0.14F);
 					ent->SetLifeTime(2.0F, 0.0F, 1.0F);
-					if (distPowered < 16.0F * 16.0F)
+					if (distSqr < 16.0F * 16.0F)
 						ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 					localEntities.emplace_back(std::move(ent));
 				}
@@ -254,8 +255,8 @@ namespace spades {
 				return;
 
 			// distance cull
-			float distPowered = (pos - lastSceneDef.viewOrigin).GetPoweredLength();
-			if (distPowered > 150.0F * 150.0F)
+			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
+			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
 				return;
 
 			// fragments
@@ -274,8 +275,6 @@ namespace spades {
 		}
 
 		void Client::MuzzleFire(spades::Vector3 pos, Vector3 dir) {
-			if (!cg_particles)
-				return;
 			if (!cg_muzzleFire)
 				return;
 
@@ -285,6 +284,9 @@ namespace spades {
 			l.type = DynamicLightTypePoint;
 			l.color = MakeVector3(3.0F, 1.6F, 0.5F);
 			flashDlights.push_back(l);
+
+			if ((int)cg_particles < 2)
+				return;
 
 			Vector3 velBias = {0, 0, -0.5F};
 			Vector4 color = MakeVector4(0.8F, 0.8F, 0.8F, 0.3F);
@@ -324,11 +326,12 @@ namespace spades {
 			if (!cg_particles)
 				return;
 
-			float dist = (pos - lastSceneDef.viewOrigin).GetLength2D();
-			if (dist > FOG_DISTANCE)
+			// distance cull
+			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
+			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
 				return;
 
-			KickCamera(2.0F / (dist + 5.0F));
+			KickCamera(2.0F / (distSqr + 5.0F));
 
 			DynamicLightParam l;
 			l.origin = pos;
@@ -357,7 +360,7 @@ namespace spades {
 			// fragments
 			Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
 
-			uint32_t col = IntVectorToColor(MakeIntVector3(70));
+			uint32_t col = IntVectorToColor(MakeIntVector3(70, 70, 70));
 			col = map->GetColorJit(col); // jit the colour
 
 			Vector4 color = ConvertColorRGBA(IntVectorFromColor(col));
@@ -393,8 +396,8 @@ namespace spades {
 			for (int i = 0; i < 8; i++) {
 				auto ent = stmp::make_unique<SmokeSpriteEntity>(*this, color, 30.0F);
 				ent->SetTrajectory(pos, (MakeVector3(SampleRandomFloat() - SampleRandomFloat(),
-					SampleRandomFloat() - SampleRandomFloat(),
-					(SampleRandomFloat() - SampleRandomFloat()) * 0.2F)) * 2.0F, 1.0F, 0.0F);
+				               SampleRandomFloat() - SampleRandomFloat(),
+				               (SampleRandomFloat() - SampleRandomFloat()) * 0.2F)) * 2.0F, 1.0F, 0.0F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 				ent->SetRadius(1.5F + SampleRandomFloat() * SampleRandomFloat() * 0.8F, 0.2F);
 				switch ((int)cg_particles) {
@@ -425,11 +428,12 @@ namespace spades {
 			if (!cg_particles)
 				return;
 
-			float dist = (pos - lastSceneDef.viewOrigin).GetLength2D();
-			if (dist > FOG_DISTANCE)
+			// distance cull
+			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
+			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
 				return;
 
-			KickCamera(1.5F / (dist + 5.0F));
+			KickCamera(1.5F / (distSqr + 5.0F));
 
 			Vector3 velBias = {0, 0, 0};
 			if (!map->ClipBox(pos.x, pos.y, pos.z)) {
@@ -447,14 +451,11 @@ namespace spades {
 					velBias.z += 1.0F;
 			}
 
-			int x = (int)floorf(pos.x);
-			int y = (int)floorf(pos.y);
-			int z = (int)floorf(pos.z);
-
 			// fragments
 			Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
 
-			uint32_t col = map->GetColor(x, y, z);
+			IntVector3 p = pos.Floor();
+			uint32_t col = map->GetColor(p.x, p.y, p.z);
 			col = map->GetColorJit(col); // jit the colour
 
 			Vector4 color = ConvertColorRGBA(IntVectorFromColor(col));
@@ -473,15 +474,16 @@ namespace spades {
 			if ((int)cg_particles < 2)
 				return;
 
+			// water1
 			img = renderer->RegisterImage("Textures/WaterExpl.png");
-			color.w = 0.3F;
-			for (int i = 0; i < 4; i++) {
+			color = MakeVector4(0.95F, 0.95F, 0.95F, 0.6F);
+			for (int i = 0; i < 8; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				ent->SetTrajectory(pos, (MakeVector3(SampleRandomFloat() - SampleRandomFloat(),
-					SampleRandomFloat() - SampleRandomFloat(),
-					-SampleRandomFloat() * 7.0F)) * 2.5F, 0.3F, 0.6F);
+				                                SampleRandomFloat() - SampleRandomFloat(),
+				                                -SampleRandomFloat() * 7.0F)) * 2.5F, 0.3F, 0.6F);
 				ent->SetRadius(1.5F + SampleRandomFloat() * SampleRandomFloat() * 0.4F, 1.3F);
-				ent->SetLifeTime(3.0F + SampleRandomFloat() * 0.3F, 0.0F, 0.6F);
+				ent->SetLifeTime(2.0F + SampleRandomFloat() * 0.3F, 0.1F, 0.2F);
 				ent->SetBlockHitAction(BlockHitAction::Ignore);
 				localEntities.emplace_back(std::move(ent));
 			}
@@ -489,33 +491,90 @@ namespace spades {
 			// water2
 			img = renderer->RegisterImage("Textures/Fluid.png");
 			color.w = 0.9F;
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 16; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				ent->SetTrajectory(pos, (MakeVector3(SampleRandomFloat() - SampleRandomFloat(),
-					SampleRandomFloat() - SampleRandomFloat(), -SampleRandomFloat() * 1.0F)) * 3.5F);
+				                                     SampleRandomFloat() - SampleRandomFloat(),
+				                                     -SampleRandomFloat() * 10.0F)) * 3.5F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 				ent->SetRadius(0.9F + SampleRandomFloat() * SampleRandomFloat() * 0.4F, 0.7F);
-				ent->SetLifeTime(3.0F + SampleRandomFloat() * 0.3F, 0.7F, 0.6F);
+				ent->SetLifeTime(2.0F + SampleRandomFloat() * 0.3F, 0.1F, 0.2F);
 				ent->SetBlockHitAction(BlockHitAction::Ignore);
 				localEntities.emplace_back(std::move(ent));
 			}
 
 			// slow smoke
-			color.w = 0.4F;
-			for (int i = 0; i < 4; i++) {
+			color.w = 0.45F;
+			for (int i = 0; i < 8; i++) {
 				auto ent = stmp::make_unique<SmokeSpriteEntity>(*this, color, 30.0F);
 				ent->SetTrajectory(pos, (MakeVector3(SampleRandomFloat() - SampleRandomFloat(),
-					SampleRandomFloat() - SampleRandomFloat(),
-					(SampleRandomFloat() - SampleRandomFloat()) * 0.2F)) * 2.0F, 1.0F, 0.0F);
+				               SampleRandomFloat() - SampleRandomFloat(),
+				               (SampleRandomFloat() - SampleRandomFloat()) * 0.2F)) * 2.0F, 1.0F, 0.0F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
-				ent->SetRadius(1.4F + SampleRandomFloat() * SampleRandomFloat() * 0.8F, 0.2F);
-				switch ((int)cg_particles) {
-					case 1: ent->SetLifeTime(3.0F + SampleRandomFloat() * 5.0F, 0.1F, 8.0F); break;
-					case 2:
-					case 3:
-					default: ent->SetLifeTime(6.0F + SampleRandomFloat() * 5.0F, 0.1F, 8.0F); break;
-				}
+				ent->SetRadius(3.0F + SampleRandomFloat() * SampleRandomFloat() * 1.6F, 0.2F);
+				ent->SetLifeTime(3.0F + SampleRandomFloat() * 0.3F, 1.0F, 8.0F);
 				ent->SetBlockHitAction(BlockHitAction::Ignore);
+				localEntities.emplace_back(std::move(ent));
+			}
+
+			// TODO: wave?
+		}
+
+		void Client::BulletHitWaterSurface(spades::Vector3 pos, IntVector3 col) {
+			if (!cg_particles)
+				return;
+			if (!cg_waterImpact)
+				return;
+
+			// distance cull
+			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
+			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
+				return;
+
+			// fragments
+			Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
+
+			Vector4 color = ConvertColorRGBA(col);
+
+			for (int i = 0; i < 4; i++) {
+				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
+				ent->SetTrajectory(pos, RandomAxis() * 8.0F);
+				ent->SetRadius(0.4F);
+				ent->SetLifeTime(2.0F, 0.0F, 1.0F);
+				if (distSqr < 16.0F * 16.0F)
+					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
+				localEntities.emplace_back(std::move(ent));
+			}
+
+			if ((int)cg_particles < 2)
+				return;
+
+			// water1
+			img = renderer->RegisterImage("Textures/WaterExpl.png");
+			color = MakeVector4(0.95F, 0.95F, 0.95F, 0.3F);
+			for (int i = 0; i < 2; i++) {
+				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
+				ent->SetTrajectory(pos, (MakeVector3(SampleRandomFloat() - SampleRandomFloat(),
+				                                SampleRandomFloat() - SampleRandomFloat(),
+				                                -SampleRandomFloat() * 7.0F)), 0.3F, 0.6F);
+				ent->SetRadius(0.6F + SampleRandomFloat() * SampleRandomFloat() * 0.4F, 0.7F);
+				ent->SetBlockHitAction(BlockHitAction::Ignore);
+				ent->SetLifeTime(3.0F + SampleRandomFloat() * 0.3F, 0.1F, 0.6F);
+				localEntities.emplace_back(std::move(ent));
+			}
+
+			// water2
+			img = renderer->RegisterImage("Textures/Fluid.png");
+			color.w = 0.9F;
+			for (int i = 0; i < 6; i++) {
+				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
+				ent->SetTrajectory(pos, (MakeVector3(SampleRandomFloat() - SampleRandomFloat(),
+				                                SampleRandomFloat() - SampleRandomFloat(),
+				                                -SampleRandomFloat() * 16.0F)));
+				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
+				ent->SetRadius(0.6F + SampleRandomFloat() * SampleRandomFloat() * 0.6F, 0.6F);
+				ent->SetBlockHitAction(BlockHitAction::Ignore);
+				ent->SetLifeTime(3.0F + SampleRandomFloat() * 0.3F, SampleRandomFloat() * 0.3F, 0.6F);
 				localEntities.emplace_back(std::move(ent));
 			}
 
@@ -526,7 +585,7 @@ namespace spades {
 
 		enum { AutoFocusPoints = 4 };
 		void Client::UpdateAutoFocus(float dt) {
-			if (autoFocusEnabled && world && (int)cg_manualFocus) {
+			if (autoFocusEnabled && world && (bool)cg_manualFocus) {
 				// Compute focal length
 				float measureRange = tanf(lastSceneDef.fovY * 0.5F) * 0.2F;
 				const Vector3 camPos = lastSceneDef.viewOrigin;
@@ -584,7 +643,6 @@ namespace spades {
 		float Client::RayCastForAutoFocus(const Vector3& origin, const Vector3& direction) {
 			SPAssert(world);
 
-			const auto& lastSceneDef = this->lastSceneDef;
 			World::WeaponRayCastResult res = world->WeaponRayCast(origin, direction, {});
 			if (res.hit)
 				return Vector3::Dot(res.hitPos - origin, lastSceneDef.viewAxis[2]);

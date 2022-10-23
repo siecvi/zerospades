@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -92,8 +92,7 @@
 				mat = CreateTranslateMatrix(Vector3(-0.1F, -0.3F, 0.1F) * (1.0F - raiseState)) * mat;
 				mat = CreateTranslateMatrix(swing) * mat;
 
-				Matrix4 leftHandMat = mat;
-				leftHandMat = CreateTranslateMatrix(-0.3F + side * 0.5F, 0.7F - bring * 0.05F, 0.3F - bring * 0.05F) * leftHandMat;
+				Matrix4 leftHandMat = CreateTranslateMatrix(-0.3F + side * 0.5F, 0.7F - bring * 0.05F, 0.3F - bring * 0.05F) * mat;
 				leftHand = leftHandMat * Vector3(12.0F, -1.0F, 8.0F);
 
 				mat = CreateTranslateMatrix(-0.3F - side * 0.8F, 0.7F - bring * 0.1F, 0.3F - bring * 0.15F) * mat;
@@ -112,16 +111,16 @@
 				param.matrix = eyeMatrix * CreateTranslateMatrix(-0.05F, 0.1F, 0.08F) * mat;
 				renderer.AddModel(model, param);
 			} else { // throwing
-                float per = readyState;
-                per = Min(per * 3.0F, 1.0F);
+				float per = readyState;
+				per = Min(per * 3.0F, 1.0F);
 
-                // left hand shouldn't be visible
+				// left hand shouldn't be visible
 				leftHand = Mix(leftHand, Vector3(0.5F, 0.5F, 0.6F), per);
 
-                float p2 = per - 0.6F;
-                p2 = 0.9F - p2 * p2 * 2.5F;
-                rightHand = Vector3(-0.2F, p2, -0.9F + per * 1.8F);
-            }
+				float p2 = per - 0.6F;
+				p2 = 0.9F - p2 * p2 * 2.5F;
+				rightHand = Vector3(-0.2F, p2, -0.9F + per * 1.8F);
+			}
 		}
 
 		void Draw2D() {

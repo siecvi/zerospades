@@ -37,7 +37,7 @@ namespace spades {
 			Matrix4 matrix;
 			Vector3 velocity;
 			int rotation;
-			float alpha;
+			float time;
 			int numBlocks;
 
 			/** @return non-zero if bounced, 2 when sound should be played. */

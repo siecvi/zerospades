@@ -206,7 +206,7 @@ namespace spades {
 
 							cell.magnitude = mag;
 							cell.phase = static_cast<uint32_t>(SampleRandom());
-							cell.phasePerSecond = dist * 1.E+9F * 128 / Size;
+							cell.phasePerSecond = dist * 1.0E+9F * 128 / Size;
 						}
 
 						cell.m00 = getRandom() - getRandom();

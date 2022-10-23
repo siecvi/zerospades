@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -22,68 +22,68 @@
 
 namespace spades {
 
-    class StartupScreenUI {
-        private Renderer @renderer;
-        private AudioDevice @audioDevice;
-        FontManager @fontManager;
-        StartupScreenHelper @helper;
+	class StartupScreenUI {
+		private Renderer@ renderer;
+		private AudioDevice@ audioDevice;
+		FontManager@ fontManager;
+		StartupScreenHelper@ helper;
 
-        spades::ui::UIManager @manager;
+		spades::ui::UIManager@ manager;
 
-        StartupScreenMainMenu @mainMenu;
+		StartupScreenMainMenu@ mainMenu;
 
-        bool shouldExit = false;
+		bool shouldExit = false;
 
-        StartupScreenUI(Renderer @renderer, AudioDevice @audioDevice,
-			FontManager @fontManager, StartupScreenHelper @helper) {
-            @this.renderer = renderer;
-            @this.audioDevice = audioDevice;
-            @this.fontManager = fontManager;
-            @this.helper = helper;
+		StartupScreenUI(Renderer@ renderer, AudioDevice@ audioDevice,
+			FontManager@ fontManager, StartupScreenHelper@ helper) {
+			@this.renderer = renderer;
+			@this.audioDevice = audioDevice;
+			@this.fontManager = fontManager;
+			@this.helper = helper;
 
-            SetupRenderer();
+			SetupRenderer();
 
-            @manager = spades::ui::UIManager(renderer, audioDevice);
-            @manager.RootElement.Font = fontManager.GuiFont;
-            Init();
-        }
+			@manager = spades::ui::UIManager(renderer, audioDevice);
+			@manager.RootElement.Font = fontManager.GuiFont;
+			Init();
+		}
 
-        private void Init() {
-            @mainMenu = StartupScreenMainMenu(this);
-            mainMenu.Bounds = manager.RootElement.Bounds;
-            manager.RootElement.AddChild(mainMenu);
-        }
+		private void Init() {
+			@mainMenu = StartupScreenMainMenu(this);
+			mainMenu.Bounds = manager.RootElement.Bounds;
+			manager.RootElement.AddChild(mainMenu);
+		}
 
-        void Reload() {
-            // Delete StartupScreenMainMenu
-            @manager.RootElement.GetChildren()[0].Parent = null;
+		void Reload() {
+			// Delete StartupScreenMainMenu
+			@manager.RootElement.GetChildren()[0].Parent = null;
 
-            // Reload entire the startup screen while
-            // preserving the state as much as possible
-            auto@ state = mainMenu.GetState();
-            Init();
-            mainMenu.SetState(state);
-        }
+			// Reload entire the startup screen while
+			// preserving the state as much as possible
+			auto@ state = mainMenu.GetState();
+			Init();
+			mainMenu.SetState(state);
+		}
 
-        void SetupRenderer() {
-            if (manager !is null)
-                manager.KeyPanic();
-        }
+		void SetupRenderer() {
+			if (manager !is null)
+				manager.KeyPanic();
+		}
 
-        void MouseEvent(float x, float y) { manager.MouseEvent(x, y); }
-        void WheelEvent(float x, float y) { manager.WheelEvent(x, y); }
-        void KeyEvent(string key, bool down) { manager.KeyEvent(key, down); }
-        void TextInputEvent(string text) { manager.TextInputEvent(text); }
-        void TextEditingEvent(string text, int start, int len) {
-            manager.TextEditingEvent(text, start, len);
-        }
+		void MouseEvent(float x, float y) { manager.MouseEvent(x, y); }
+		void WheelEvent(float x, float y) { manager.WheelEvent(x, y); }
+		void KeyEvent(string key, bool down) { manager.KeyEvent(key, down); }
+		void TextInputEvent(string text) { manager.TextInputEvent(text); }
+		void TextEditingEvent(string text, int start, int len) {
+			manager.TextEditingEvent(text, start, len);
+		}
 
-        bool AcceptsTextInput() { return manager.AcceptsTextInput; }
-        AABB2 GetTextInputRect() { return manager.TextInputRect; }
+		bool AcceptsTextInput() { return manager.AcceptsTextInput; }
+		AABB2 GetTextInputRect() { return manager.TextInputRect; }
 
-        void RunFrame(float dt) {
-            renderer.ColorNP = Vector4(0.f, 0.f, 0.f, 1.f);
-            renderer.DrawImage(null, AABB2(0.f, 0.f, renderer.ScreenWidth, renderer.ScreenHeight));
+		void RunFrame(float dt) {
+			renderer.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 1.0F);
+			renderer.DrawImage(null, AABB2(0.0F, 0.0F, renderer.ScreenWidth, renderer.ScreenHeight));
 
 			float fade = Clamp(manager.Time * 2.0F, 0.0F, 1.0F);
 
@@ -101,19 +101,19 @@ namespace spades {
 			font.DrawShadow(text, position, 1.0F, Vector4(0.7F, 1.0F, 0.7F, fade), Vector4(0.5F, 1.0F, 0.5F, fade));
 
 			manager.RunFrame(dt);
-            manager.Render();
-        }
+			manager.Render();
+		}
 
-        void RunFrameLate(float dt) {
-            renderer.FrameDone();
-            renderer.Flip();
-        }
+		void RunFrameLate(float dt) {
+			renderer.FrameDone();
+			renderer.Flip();
+		}
 
-        void Closing() { shouldExit = true; }
-        bool WantsToBeClosed() { return shouldExit; }
-    }
+		void Closing() { shouldExit = true; }
+		bool WantsToBeClosed() { return shouldExit; }
+	}
 
-    StartupScreenUI @CreateStartupScreenUI(Renderer @renderer, AudioDevice @audioDevice, FontManager @fontManager, StartupScreenHelper @helper) {
-        return StartupScreenUI(renderer, audioDevice, fontManager, helper);
-    }
+	StartupScreenUI@ CreateStartupScreenUI(Renderer@ renderer, AudioDevice@ audioDevice, FontManager@ fontManager, StartupScreenHelper@ helper) {
+		return StartupScreenUI(renderer, audioDevice, fontManager, helper);
+	}
 }

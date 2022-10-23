@@ -48,11 +48,12 @@ namespace spades {
 			if (!parent)
 				return;
 
-			SPLog("Command: %s", text.c_str());
 			try {
 				auto const command = ConsoleCommand::Parse(text);
 				if (!parent->ExecCommand(command))
 					SPLog("Unknown command: '%s'", command->GetName().c_str());
+				else
+					SPLog("Command: %s", text.c_str());
 			} catch (const std::exception& e) {
 				SPLog("An exception was thrown while executing a console command: %s", e.what());
 			}

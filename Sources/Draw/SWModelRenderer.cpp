@@ -64,9 +64,9 @@ namespace spades {
 			uint8_t brights[3 * 3 * 3 + 1];
 			{
 				auto lightVec = MakeVector3(0.f, -0.707f, -0.707f);
-				float dot1 = Vector3::Dot(axis1, lightVec) * fastRSqrt(axis1.GetPoweredLength());
-				float dot2 = Vector3::Dot(axis2, lightVec) * fastRSqrt(axis2.GetPoweredLength());
-				float dot3 = Vector3::Dot(axis3, lightVec) * fastRSqrt(axis3.GetPoweredLength());
+				float dot1 = Vector3::Dot(axis1, lightVec) * fastRSqrt(axis1.GetSquaredLength());
+				float dot2 = Vector3::Dot(axis2, lightVec) * fastRSqrt(axis2.GetSquaredLength());
+				float dot3 = Vector3::Dot(axis3, lightVec) * fastRSqrt(axis3.GetSquaredLength());
 				for (int x = 0; x < 3; x++) {
 					float d = 0.0;
 					int cnt = 0;
@@ -134,9 +134,9 @@ namespace spades {
 				center += axis2 * localCenter.y;
 				center += axis3 * localCenter.z;
 
-				float largestAxis = axis1.GetPoweredLength();
-				largestAxis = std::max(largestAxis, axis2.GetPoweredLength());
-				largestAxis = std::max(largestAxis, axis3.GetPoweredLength());
+				float largestAxis = axis1.GetSquaredLength();
+				largestAxis = std::max(largestAxis, axis2.GetSquaredLength());
+				largestAxis = std::max(largestAxis, axis3.GetSquaredLength());
 
 				if (!r->SphereFrustrumCull(center, model.GetRadius() * sqrtf(largestAxis)))
 					return;
@@ -166,15 +166,16 @@ namespace spades {
 
 			float pointDiameter; // = largestAxis * 0.55f * fh * 0.5f;
 			{
-				float largestAxis = tAxis1.GetPoweredLength();
-				largestAxis = std::max(largestAxis, tAxis2.GetPoweredLength());
-				largestAxis = std::max(largestAxis, tAxis3.GetPoweredLength());
+				float largestAxis = tAxis1.GetSquaredLength();
+				largestAxis = std::max(largestAxis, tAxis2.GetSquaredLength());
+				largestAxis = std::max(largestAxis, tAxis3.GetSquaredLength());
 				pointDiameter = sqrtf(largestAxis);
 			}
 
 			uint32_t customColor;
-			customColor = ToFixed8(param.customColor.z) | (ToFixed8(param.customColor.y) << 8) |
-			              (ToFixed8(param.customColor.x) << 16);
+			customColor = (ToFixed8(param.customColor.z)
+						| (ToFixed8(param.customColor.y) << 8)
+						| (ToFixed8(param.customColor.x) << 16));
 
 			auto v1 = tOrigin;
 			float zNear = r->sceneDef.zNear;

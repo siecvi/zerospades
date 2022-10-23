@@ -77,10 +77,8 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			// TODO: Check if "`" is correct
-			if (key == "`" || key == "F1") {
-				if (down)
-					ToggleConsole();
-
+			if ((key == "`" || key == "F1") && down) {
+				ToggleConsole();
 				return;
 			}
 

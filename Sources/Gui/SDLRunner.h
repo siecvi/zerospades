@@ -52,7 +52,8 @@ namespace spades {
 			virtual void RunClientLoop(client::IRenderer* renderer, client::IAudioDevice* dev);
 			virtual View* CreateView(client::IRenderer* renderer, client::IAudioDevice* dev) = 0;
 			virtual client::IAudioDevice* CreateAudioDevice();
-			std::tuple<Handle<client::IRenderer>, Handle<Disposable>> CreateRenderer(SDL_Window*);
+			std::tuple<Handle<client::IRenderer>, Handle<Disposable>>
+			CreateRenderer(SDL_Window*, RendererType type);
 
 		public:
 			SDLRunner();

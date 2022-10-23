@@ -180,13 +180,13 @@ namespace spades {
 					break;
 				case SDL_WINDOWEVENT:
 					if (event.window.type == SDL_WINDOWEVENT_FOCUS_GAINED) {
-						SDL_ShowCursor(0);
 						SDL_SetRelativeMouseMode(SDL_TRUE);
+						SDL_ShowCursor(SDL_DISABLE);
 						m_active = true;
 					} else if (event.window.type == SDL_WINDOWEVENT_FOCUS_LOST) {
 						SDL_SetRelativeMouseMode(SDL_FALSE);
+						SDL_ShowCursor(SDL_ENABLE);
 						m_active = false;
-						SDL_ShowCursor(1);
 					}
 					break;
 				default: break;
@@ -415,8 +415,8 @@ namespace spades {
 		};
 
 		std::tuple<Handle<client::IRenderer>, Handle<Disposable>>
-		SDLRunner::CreateRenderer(SDL_Window* wnd) {
-			switch (GetRendererType()) {
+		SDLRunner::CreateRenderer(SDL_Window* wnd, RendererType type) {
+			switch (type) {
 				case RendererType::GL: {
 					auto glDevice = Handle<SDLGLDevice>::New(wnd).Cast<draw::IGLDevice>();
 					auto dummy = Handle<Disposable>::New(); // FIXME
@@ -501,13 +501,13 @@ namespace spades {
 				}
 
 				SDL_SetRelativeMouseMode(SDL_FALSE);
-				SDL_ShowCursor(0);
+				SDL_ShowCursor(SDL_DISABLE);
 				m_active = true;
 
 				{
 					Handle<client::IRenderer> renderer;
 					Handle<Disposable> windowReference;
-					std::tie(renderer, windowReference) = CreateRenderer(window);
+					std::tie(renderer, windowReference) = CreateRenderer(window, rtype);
 
 					Handle<client::IAudioDevice> audio(CreateAudioDevice(), false);
 

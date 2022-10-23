@@ -295,13 +295,14 @@ namespace spades {
 				result.startSolid = true;
 				result.hitPos = v0;
 				result.hitBlock = iv;
-				result.normal = MakeIntVector3(0);
+				result.normal = MakeIntVector3(0, 0, 0);
 				return result;
 			}
 
-			spades::Vector3 fv((dir.x > 0.0F) ? (float)(iv.x + 1) - v0.x : v0.x - (float)iv.x,
-			                   (dir.y > 0.0F) ? (float)(iv.y + 1) - v0.y : v0.y - (float)iv.y,
-			                   (dir.z > 0.0F) ? (float)(iv.z + 1) - v0.z : v0.z - (float)iv.z);
+			spades::Vector3 fv;
+			fv.x = (dir.x > 0.0F) ? (float)(iv.x + 1) - v0.x : v0.x - (float)iv.x;
+			fv.y = (dir.y > 0.0F) ? (float)(iv.y + 1) - v0.y : v0.y - (float)iv.y;
+			fv.z = (dir.z > 0.0F) ? (float)(iv.z + 1) - v0.z : v0.z - (float)iv.z;
 
 			float invX = (dir.x != 0.0F) ? 1.0F / fabsf(dir.x) : dir.x;
 			float invY = (dir.y != 0.0F) ? 1.0F / fabsf(dir.y) : dir.y;

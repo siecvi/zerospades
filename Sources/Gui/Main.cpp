@@ -105,17 +105,15 @@ namespace {
 	// we cannot use the fltk function on the console window, because it's not an Fl_Window...
 	void setIcon(HWND hWnd) {
 		HINSTANCE hInstance = GetModuleHandle(NULL);
-		HICON hIcon =
-		  (HICON)LoadImageA(hInstance, "AppIcon", IMAGE_ICON, GetSystemMetrics(SM_CXICON),
-		                    GetSystemMetrics(SM_CYICON), 0);
-		if (hIcon) {
+		HICON hIcon = (HICON)LoadImageA(hInstance, "AppIcon", IMAGE_ICON,
+			GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), 0);
+		if (hIcon)
 			SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
-		}
-		hIcon = (HICON)LoadImageA(hInstance, "AppIcon", IMAGE_ICON, GetSystemMetrics(SM_CXSMICON),
-		                          GetSystemMetrics(SM_CYSMICON), 0);
-		if (hIcon) {
+
+		hIcon = (HICON)LoadImageA(hInstance, "AppIcon", IMAGE_ICON,
+			GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), 0);
+		if (hIcon)
 			SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
-		}
 	}
 
 	LONG WINAPI UnhandledExceptionProc(LPEXCEPTION_POINTERS lpEx) {
@@ -137,8 +135,7 @@ namespace {
 			} else {
 				buf[0] = 0; // empty it, the file will now end up in the working directory :(
 			}
-			sprintf(fullBuf, "%sOpenSpadesCrash%d.dmp", buf,
-			        GetTickCount()); // some sort of randomization.
+			sprintf(fullBuf, "%sOpenSpadesCrash%d.dmp", buf, GetTickCount()); // some sort of randomization.
 			HANDLE hFile = CreateFile(fullBuf, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
 			                          FILE_ATTRIBUTE_NORMAL, NULL);
 			if (hFile != INVALID_HANDLE_VALUE) {
@@ -147,8 +144,8 @@ namespace {
 				mdei.ExceptionPointers = lpEx;
 				mdei.ClientPointers = TRUE;
 				MINIDUMP_TYPE mdt = MiniDumpNormal;
-				BOOL rv = pMiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, mdt,
-				                             (lpEx != 0) ? &mdei : 0, 0, 0);
+				BOOL rv = pMiniDumpWriteDump(GetCurrentProcess(),
+					GetCurrentProcessId(), hFile, mdt, (lpEx != 0) ? &mdei : 0, 0, 0);
 				CloseHandle(hFile);
 				sprintf_s(buf,
 				          "Something went horribly wrong, please send the file \n%s\nfor analysis.",
@@ -195,7 +192,6 @@ namespace {
 
 	int handleCommandLineArgument(int argc, char** argv, int& i) {
 		if (char* a = argv[i]) {
-
 			if (std::regex_match(a, hostNameRegex)) {
 				g_autoconnect = true;
 				g_autoconnectHostName = a;
@@ -313,7 +309,6 @@ int main(int argc, char** argv) {
 	std::unique_ptr<spades::SplashWindow> splashWindow;
 
 	try {
-
 		// start recording backtrace
 		spades::reflection::Backtrace::StartBacktrace();
 		SPADES_MARK_FUNCTION();
@@ -345,10 +340,10 @@ int main(int argc, char** argv) {
 		    (userAppDirAttrib & FILE_ATTRIBUTE_DIRECTORY)) {
 			SPLog("UserResources found - switching to 'portable' mode");
 
-			spades::FileManager::AddFileSystem(
-			  new spades::DirectoryFileSystem(Utf8FromWString(userAppDir.c_str()), true));
-
 			spades::g_userResourceDirectory = Utf8FromWString(userAppDir.c_str());
+
+			spades::FileManager::AddFileSystem(
+			  new spades::DirectoryFileSystem(spades::g_userResourceDirectory, true));
 		} else {
 			if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_APPDATA, NULL, 0, buf))) {
 				std::wstring datadir = buf;
@@ -369,9 +364,8 @@ int main(int argc, char** argv) {
 		// fltk has a console window on windows (can disable while building, maybe use a builtin
 		// console for a later release?)
 		HWND hCon = GetConsoleWindow();
-		if (NULL != hCon) {
+		if (NULL != hCon)
 			setIcon(hCon);
-		}
 
 #elif defined(__APPLE__)
 		std::string home = getenv("HOME");
@@ -558,12 +552,10 @@ int main(int argc, char** argv) {
 					}
 				}
 			}
-			for (size_t i = fss.size(); i > 0; i--) {
+			for (size_t i = fss.size(); i > 0; i--)
 				spades::FileManager::AppendFileSystem(fss[i - 1]);
-			}
-			for (size_t i = 0; i < fssImportant.size(); i++) {
+			for (size_t i = 0; i < fssImportant.size(); i++)
 				spades::FileManager::PrependFileSystem(fssImportant[i]);
-			}
 		}
 		pumpEvents();
 
@@ -588,9 +580,8 @@ int main(int argc, char** argv) {
 		// we want to show splash window at least for some time...
 		pumpEvents();
 		auto ticks = SDL_GetTicks();
-		if (ticks < showSplashWindowTime + 1500) {
+		if (ticks < showSplashWindowTime + 1500)
 			SDL_Delay(showSplashWindowTime + 1500 - ticks);
-		}
 		pumpEvents();
 
 		// everything is now ready!
@@ -619,7 +610,6 @@ int main(int argc, char** argv) {
 	} catch (const spades::ExitRequestException&) {
 		// user changed his/her mind.
 	} catch (const std::exception& ex) {
-
 		try {
 			splashWindow.reset(nullptr);
 		} catch (...) {
@@ -635,8 +625,7 @@ int main(int argc, char** argv) {
 
 		SDL_InitSubSystem(SDL_INIT_VIDEO);
 		if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-		                             _Tr("Main", "OpenSpades Fatal Error").c_str(), msg.c_str(),
-		                             nullptr)) {
+			_Tr("Main", "OpenSpades Fatal Error").c_str(), msg.c_str(), nullptr)) {
 			// showing dialog failed.
 			// TODO: do appropriate action
 		}

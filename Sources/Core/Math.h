@@ -248,8 +248,8 @@ namespace spades {
 
 		static float Dot(const Vector2& a, const Vector2& b) { return a.x * b.x + a.y * b.y; }
 
-		float GetPoweredLength() const { return x * x + y * y; }
-		float GetLength() const { return sqrtf(GetPoweredLength()); }
+		float GetSquaredLength() const { return x * x + y * y; }
+		float GetLength() const { return sqrtf(GetSquaredLength()); }
 		float GetManhattanLength() const { return fabsf(x) + fabsf(y); }
 		float GetChebyshevLength() const { return std::max(fabsf(x), fabsf(y)); }
 
@@ -356,9 +356,11 @@ namespace spades {
 			return Cross(c - a, c - b).Normalize();
 		}
 
-		float GetPoweredLength() const { return x * x + y * y + z * z; }
-		float GetLength() const { return sqrtf(GetPoweredLength()); }
-		float GetLength2D() const { return sqrtf(x * x + y * y); }
+		float GetSquaredLength2D() const { return x * x + y * y; }
+		float GetLength2D() const { return sqrtf(GetSquaredLength2D()); }
+
+		float GetSquaredLength() const { return x * x + y * y + z * z; }
+		float GetLength() const { return sqrtf(GetSquaredLength()); }
 		float GetManhattanLength() const { return fabsf(x) + fabsf(y) + fabsf(z); }
 		float GetChebyshevLength() const {
 			return std::max(fabsf(x), std::max(fabsf(y), fabsf(z)));
@@ -376,7 +378,6 @@ namespace spades {
 		}
 
 		bool IsNaN() const { return std::isnan(x) || std::isnan(y) || std::isnan(z); }
-		bool IsValid() const { return x != 0.0F || y != 0.0F || z != 0.0F; }
 	};
 
 	class Vector4 {
@@ -475,8 +476,8 @@ namespace spades {
 			return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 		}
 
-		float GetPoweredLength() const { return x * x + y * y + z * z + w * w; }
-		float GetLength() const { return sqrtf(GetPoweredLength()); }
+		float GetSquaredLength() const { return x * x + y * y + z * z + w * w; }
+		float GetLength() const { return sqrtf(GetSquaredLength()); }
 		float GetManhattanLength() const { return fabsf(x) + fabsf(y) + fabsf(z) + fabsf(w); }
 		float GetChebyshevLength() const {
 			return std::max(std::max(fabsf(x), std::max(fabsf(y), fabsf(z))), fabsf(w));
@@ -490,7 +491,6 @@ namespace spades {
 		Vector3 GetXYZ() const { return Vector3::Make(x, y, z); }
 	};
 
-	static inline IntVector3 MakeIntVector3(int v) { return IntVector3::Make(v, v, v); }
 	static inline IntVector3 MakeIntVector3(int x, int y, int z) { return IntVector3::Make(x, y, z); }
 	static inline Vector2 MakeVector2(float x, float y) { return Vector2::Make(x, y); }
 	static inline Vector3 MakeVector3(float x, float y, float z) { return Vector3::Make(x, y, z); }
@@ -604,9 +604,10 @@ namespace spades {
 		Matrix4() = default;
 		Matrix4(const Matrix4&) = default;
 		explicit Matrix4(float* elms);
-		Matrix4(float m00, float m10, float m20, float m30, float m01, float m11, float m21,
-		        float m31, float m02, float m12, float m22, float m32, float m03, float m13,
-		        float m23, float m33);
+		Matrix4(float m00, float m10, float m20, float m30, 
+				float m01, float m11, float m21, float m31, 
+				float m02, float m12, float m22, float m32, 
+				float m03, float m13, float m23, float m33);
 
 		static Matrix4 Identity();
 		static Matrix4 Translate(Vector3);
@@ -828,7 +829,7 @@ namespace spades {
 		inline Quaternion operator^(float r) const {
 			float theta = acosf(v.w) * r;
 			auto vv = v;
-			vv.w = 1.E-30F;
+			vv.w = 1.0E-30F;
 			vv = vv.Normalize();
 			float newCos = cosf(theta);
 			float newSin = sinf(theta);
@@ -905,7 +906,8 @@ namespace spades {
 
 #pragma mark - Utilities
 
-	template <typename T> static inline void FastErase(std::vector<T>& vec, size_t index) {
+	template <typename T> 
+	static inline void FastErase(std::vector<T>& vec, size_t index) {
 		SPAssert(index < vec.size());
 		if (index < vec.size() - 1)
 			vec[index] = vec[vec.size() - 1];
@@ -930,7 +932,8 @@ namespace spades {
 	// unexpected side-effects or more expensive code. Even the clamp (all
 	// lower-case) function can generate more expensive code because of the
 	// mixed types involved.
-	template <class T> inline T Clamp(T const& val, T const& minVal, T const& maxVal) {
+	template <class T> 
+	inline T Clamp(T const& val, T const& minVal, T const& maxVal) {
 		if (val < minVal)
 			return minVal;
 		else if (val > maxVal)
@@ -947,7 +950,6 @@ namespace spades {
 		col.x = Mix(avg, col.x, saturation);
 		col.y = Mix(avg, col.y, saturation);
 		col.z = Mix(avg, col.z, saturation);
-
 		return col;
 	}
 
@@ -960,7 +962,6 @@ namespace spades {
 		fv.w = 0.0F; // suppress "operating on garbase value" static analyzer message
 		fv = fv * 0.8F + 0.2F;
 		fv.w = 1.0F;
-
 		return fv;
 	}
 
@@ -998,7 +999,8 @@ namespace spades {
 	std::string EscapeControlCharacters(const std::string&);
 
 	uint32_t GetCodePointFromUTF8String(const std::string&, size_t start = 0, size_t* outNumBytes = nullptr);
-	template <typename Iterator> static Iterator CodePointToUTF8(Iterator output, uint32_t cp) {
+	template <typename Iterator> 
+	static Iterator CodePointToUTF8(Iterator output, uint32_t cp) {
 		if (cp < 0x80) {
 			*(output++) = static_cast<char>(cp);
 		} else if (cp < 0x800) {

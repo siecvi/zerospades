@@ -89,20 +89,22 @@ namespace spades {
 					nextShotTime = std::max(nextShotTime, time);
 
 				// Automatic operation of weapon.
-				if (time >= nextShotTime && (ammo > 0 || !ownerIsLocalPlayer)) {
-					fired = true;
-					unejectedBrass = true;
+				if (time >= nextShotTime) {
+					if (ammo > 0 || !ownerIsLocalPlayer) {
+						fired = true;
+						unejectedBrass = true;
 
-					// Consume an ammo.
-					if (ammo > 0)
-						ammo--;
+						// Consume an ammo.
+						if (ammo > 0)
+							ammo--;
 
-					if (world.GetListener())
-						world.GetListener()->PlayerFiredWeapon(owner);
-					nextShotTime += GetDelay();
-					ejectBrassTime = time + GetEjectBrassTime();
-				} else if (time >= nextShotTime) {
-					dryFire = true;
+						if (world.GetListener())
+							world.GetListener()->PlayerFiredWeapon(owner);
+						nextShotTime += GetDelay();
+						ejectBrassTime = time + GetEjectBrassTime();
+					} else {
+						dryFire = true;
+					}
 				}
 
 				shootingPreviously = true;
@@ -110,36 +112,38 @@ namespace spades {
 				shootingPreviously = false;
 			}
 
-			if (reloading && time >= reloadEndTime) {
-				// A reload was completed (non-slow-loading weapon), or a single shell was
-				// loaded (slow-loading weapon).
-				//
-				// For local players, the number of bullets/shells loaded onto the magazine is
-				// sent by the server. However, we still calculate it by ourselves for slow
-				// -loading weapons so the reloading animation and the number displayed on the
-				// screen is synchronized. (This is especially important on a slow connection.)
-				//
-				// For remote players, the server does not send any information regarding the
-				// number of bullets/shells loaded or held as stock. This is problematic for
-				// slow-loading weapons because we can't tell how many times the reloading
-				// animation has to be repeated. For now, we just assume a remote player has
-				// an infinite supply of ammo, but a limited number of bullets in a clip.
-				reloading = false;
-				if (IsReloadSlow()) {
-					if (ammo < GetClipSize() && (stock > 0 || !ownerIsLocalPlayer)) {
-						ammo++;
-						stock--;
+			if (reloading) {
+				if (time >= reloadEndTime) {
+					// A reload was completed (non-slow-loading weapon), or a single shell was
+					// loaded (slow-loading weapon).
+					//
+					// For local players, the number of bullets/shells loaded onto the magazine is
+					// sent by the server. However, we still calculate it by ourselves for slow
+					// -loading weapons so the reloading animation and the number displayed on the
+					// screen is synchronized. (This is especially important on a slow connection.)
+					//
+					// For remote players, the server does not send any information regarding the
+					// number of bullets/shells loaded or held as stock. This is problematic for
+					// slow-loading weapons because we can't tell how many times the reloading
+					// animation has to be repeated. For now, we just assume a remote player has
+					// an infinite supply of ammo, but a limited number of bullets in a clip.
+					reloading = false;
+					if (IsReloadSlow()) {
+						if (ammo < GetClipSize() && (stock > 0 || !ownerIsLocalPlayer)) {
+							ammo++;
+							stock--;
+						}
+						slowReloadLeftCount--;
+						if (slowReloadLeftCount > 0)
+							Reload(false);
+						else if (world.GetListener())
+							world.GetListener()->PlayerReloadedWeapon(owner);
+					} else {
+						if (!ownerIsLocalPlayer)
+							ammo = GetClipSize();
+						if (world.GetListener())
+							world.GetListener()->PlayerReloadedWeapon(owner);
 					}
-					slowReloadLeftCount--;
-					if (slowReloadLeftCount > 0)
-						Reload(false);
-					else if (world.GetListener())
-						world.GetListener()->PlayerReloadedWeapon(owner);
-				} else {
-					if (!ownerIsLocalPlayer)
-						ammo = GetClipSize();
-					if (world.GetListener())
-						world.GetListener()->PlayerReloadedWeapon(owner);
 				}
 			} else if (unejectedBrass && time >= ejectBrassTime) {
 				unejectedBrass = false;
@@ -180,7 +184,7 @@ namespace spades {
 			if (owner.IsLocalPlayer()) {
 				if (stock == 0)
 					return;
-				if (IsReloadSlow() && ammo > 0 && shooting)
+				if (IsReloadSlow() && shooting && ammo > 0)
 					return;
 			}
 

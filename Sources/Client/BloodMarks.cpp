@@ -116,13 +116,13 @@ namespace spades {
 					Vector3 newPosition = startPosition + velocity * time;
 					newPosition.z += newTime * newTime * (32.0F / 2.0F);
 
-					auto const direction = newPosition - position;
-					int const maxSteps = direction.Floor().GetManhattanLength() + 1;
-					
-					result = map.CastRay2(position, direction, maxSteps);
+					int const maxSteps = (newPosition.Floor() - position.Floor()).GetManhattanLength() + 1;
+					Vector3 const dir = newPosition - position;
+
+					result = map.CastRay2(position, dir, maxSteps);
 					if (result.hit) { // Filter out-of-range hit
-						float hitDistance = Vector3::Dot(result.hitPos - position, direction);
-						float rayLength = Vector3::Dot(direction, direction);
+						float hitDistance = Vector3::Dot(result.hitPos - position, dir);
+						float rayLength = Vector3::Dot(dir, dir);
 						if (hitDistance > rayLength)
 							result.hit = false;
 					}
@@ -170,8 +170,8 @@ namespace spades {
 							x = (x / 3.0F) * float(kMarkResolution - 2) + 1.0F;
 							y = (y / 3.0F) * float(kMarkResolution - 2) + 1.0F;
 
-							x += (float(kMarkResolution) * 0.5f - x) * (float(quantity) / 20.0F);
-							y += (float(kMarkResolution) * 0.5f - y) * (float(quantity) / 20.0F);
+							x += (float(kMarkResolution) * 0.5F - x) * (float(quantity) / 20.0F);
+							y += (float(kMarkResolution) * 0.5F - y) * (float(quantity) / 20.0F);
 
 							size_t ix = size_t(x) % kMarkResolution,
 							       iy = size_t(y) % kMarkResolution;
@@ -190,8 +190,8 @@ namespace spades {
 							x = (x / 5.0F) * float(kMarkResolution - 2) + 1.0F;
 							y = (y / 5.0F) * float(kMarkResolution - 2) + 1.0F;
 
-							x += (float(kMarkResolution) * 0.5f - x) * (float(quantity) / 15.0F);
-							y += (float(kMarkResolution) * 0.5f - y) * (float(quantity) / 15.0F);
+							x += (float(kMarkResolution) * 0.5F - x) * (float(quantity) / 15.0F);
+							y += (float(kMarkResolution) * 0.5F - y) * (float(quantity) / 15.0F);
 
 							size_t ix = size_t(x) % kMarkResolution,
 							       iy = size_t(y) % kMarkResolution;
@@ -279,8 +279,8 @@ namespace spades {
 			for (size_t i = 0; i < 12; i += 4) {
 				for (size_t k = 1; k < 4; ++k) {
 					orientations.at(i + k) =
-					  Matrix4::Rotate(Vector3{0, 0, 1}, M_PI_F * 0.5F * float(k)) *
-					  orientations.at(i);
+					  Matrix4::Rotate(Vector3{0, 0, 1},
+						  M_PI_F * 0.5F * float(k)) * orientations.at(i);
 				}
 			}
 
@@ -401,11 +401,12 @@ namespace spades {
 					mark.byLocalPlayer = byLocal;
 
 					if (res.normal.z != 0) {
-						mark.orientationIndex = (res.normal.z > 0) ? SampleRandomInt<size_t>(8, 11)
-						                                           : SampleRandomInt<size_t>(4, 7);
-						mark.modelIndexStart =
-						  isHighSpeed ? impl.assets.SampleModelIndexForHighSpeedFloorMark()
-						              : impl.assets.SampleModelIndexForLowSpeedFloorMark();
+						mark.orientationIndex = (res.normal.z > 0)
+							? SampleRandomInt<size_t>(8, 11)
+							: SampleRandomInt<size_t>(4, 7);
+						mark.modelIndexStart = isHighSpeed
+							? impl.assets.SampleModelIndexForHighSpeedFloorMark()
+							: impl.assets.SampleModelIndexForLowSpeedFloorMark();
 						mark.modelIndexLenM1 = 0;
 					} else {
 						if (res.normal.y > 0)
@@ -442,21 +443,24 @@ namespace spades {
 			tmpIndices.resize(marks.size());
 
 			// Evaluate each mark's importance for eviction
-			SceneDefinition const sceneDef = client.GetLastSceneDef();
+			const auto& lastSceneDef = client.GetLastSceneDef();
 			for (auto& slot : marks) {
 				if (slot) {
 					Mark& mark = slot.value();
 
-					float distance = (mark.position - sceneDef.viewOrigin).GetLength();
-					if (distance > 150.0F) // Distance culled
-						distance += (distance - 150.0F) * 10.0F;
+					Vector3 dir = mark.position - lastSceneDef.viewOrigin;
+
+					float dist = dir.GetLength();
+					if (dist > 150.0F) // distance culled
+						dist += (dist - 150.0F) * 10.0F;
+
+					dir = dir.Normalize();
 
 					// Looking away?
-					float dot = Vector3::Dot((mark.position - sceneDef.viewOrigin).Normalize(),
-					                         sceneDef.viewAxis[2]);
+					float dot = Vector3::Dot(dir, lastSceneDef.viewAxis[2]);
 					dot = std::max(0.5F - dot, 0.0F) * 20.0F;
 
-					mark.score = distance + dot + mark.fade * 50.0F + mark.time * 2.0F;
+					mark.score = dist + dot + mark.fade * 50.0F + mark.time * 2.0F;
 				}
 			}
 

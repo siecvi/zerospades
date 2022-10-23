@@ -17,16 +17,17 @@
  along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
 
  */
+
 #pragma once
 
 #include <string>
 
 namespace spades {
-    class ServerAddress;
+	class ServerAddress;
 
 	/** The path to the user resource directory. Can be empty. */
 	extern std::string g_userResourceDirectory;
 
-    void StartClient(const ServerAddress &, const std::string &playerName);
-    void StartMainScreen();
-}
+	void StartClient(const ServerAddress&);
+	void StartMainScreen();
+} // namespace spades

@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -22,68 +22,68 @@
 #include "ConsoleWindow.as"
 
 namespace spades {
-    ConsoleUI@ CreateConsoleUI(Renderer@ renderer, AudioDevice@ audioDevice,
-                               FontManager@ fontManager, ConsoleHelper@ helper) {
-        return ConsoleUI(renderer, audioDevice, fontManager, helper);
-    }
+	ConsoleUI@ CreateConsoleUI(Renderer@ renderer, AudioDevice@ audioDevice,
+							   FontManager@ fontManager, ConsoleHelper@ helper) {
+		return ConsoleUI(renderer, audioDevice, fontManager, helper);
+	}
 
-    /**
-     * Implements the system console window.
-     *
-     * `ConsoleUI` is overlaid on the normal rendering. Normally, it's invisible,
-     * but it becomes visible when invoked by a hotkey. When it's visible, it
-     * also intercepts all inputs.
-     */
-    class ConsoleUI {
-        private spades::ui::UIManager@ manager;
-        private bool active = false;
+	/**
+	 * Implements the system console window.
+	 *
+	 * `ConsoleUI` is overlaid on the normal rendering. Normally, it's invisible,
+	 * but it becomes visible when invoked by a hotkey. When it's visible, it
+	 * also intercepts all inputs.
+	 */
+	class ConsoleUI {
+		private spades::ui::UIManager@ manager;
+		private bool active = false;
 
-        private ConsoleWindow@ console;
+		private ConsoleWindow@ console;
 
-        ConsoleUI(Renderer@ renderer, AudioDevice@ audioDevice, FontManager@ fontManager, ConsoleHelper@ helper) {
-            @manager = spades::ui::UIManager(renderer, audioDevice);
-            @manager.RootElement.Font = fontManager.GuiFont;
+		ConsoleUI(Renderer@ renderer, AudioDevice@ audioDevice, FontManager@ fontManager, ConsoleHelper@ helper) {
+			@manager = spades::ui::UIManager(renderer, audioDevice);
+			@manager.RootElement.Font = fontManager.GuiFont;
 
-            @console = ConsoleWindow(helper, manager);
-            console.Bounds = manager.RootElement.Bounds;
-            manager.RootElement.AddChild(console);
-        }
+			@console = ConsoleWindow(helper, manager);
+			console.Bounds = manager.RootElement.Bounds;
+			manager.RootElement.AddChild(console);
+		}
 
-        void MouseEvent(float x, float y) { manager.MouseEvent(x, y); }
-        void WheelEvent(float x, float y) { manager.WheelEvent(x, y); }
+		void MouseEvent(float x, float y) { manager.MouseEvent(x, y); }
+		void WheelEvent(float x, float y) { manager.WheelEvent(x, y); }
 
-        void KeyEvent(string key, bool down) {
-            if (key == "Escape") {
-                active = false;
-                return;
-            }
-            manager.KeyEvent(key, down);
-        }
+		void KeyEvent(string key, bool down) {
+			if (key == "Escape") {
+				active = false;
+				return;
+			}
+			manager.KeyEvent(key, down);
+		}
 
-        void TextInputEvent(string text) { manager.TextInputEvent(text); }
-        void TextEditingEvent(string text, int start, int len) {
-            manager.TextEditingEvent(text, start, len);
-        }
+		void TextInputEvent(string text) { manager.TextInputEvent(text); }
+		void TextEditingEvent(string text, int start, int len) {
+			manager.TextEditingEvent(text, start, len);
+		}
 
-        bool AcceptsTextInput() { return manager.AcceptsTextInput; }
-        AABB2 GetTextInputRect() { return manager.TextInputRect; }
+		bool AcceptsTextInput() { return manager.AcceptsTextInput; }
+		AABB2 GetTextInputRect() { return manager.TextInputRect; }
 
-        void RunFrame(float dt) {
-            manager.RunFrame(dt);
-            if (active)
-                manager.Render();
-        }
+		void RunFrame(float dt) {
+			manager.RunFrame(dt);
+			if (active)
+				manager.Render();
+		}
 
-        void Closing() {}
+		void Closing() {}
 
-        bool ShouldInterceptInput() { return active; }
+		bool ShouldInterceptInput() { return active; }
 
-        void ToggleConsole() {
-            active = !active;
-            if (active)
-                console.FocusField();
-        }
+		void ToggleConsole() {
+			active = !active;
+			if (active)
+				console.FocusField();
+		}
 
-        void AddLine(string line) { console.AddLine(line); }
-    }
+		void AddLine(string line) { console.AddLine(line); }
+	}
 }
