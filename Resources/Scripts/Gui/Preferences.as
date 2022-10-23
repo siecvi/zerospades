@@ -624,7 +624,6 @@ namespace spades {
 
             layouter.AddHeading(_Tr("Preferences", "Feedbacks"));
 			layouter.AddToggleField(_Tr("Preferences", "Chat Messages"), "cg_playerMessages");
-			layouter.AddToggleField(_Tr("Preferences", "Score Messages"), "cg_scoreMessages");
 			layouter.AddToggleField(_Tr("Preferences", "Analyze Messages"), "cg_analyze");
 			layouter.AddChoiceField(_Tr("Preferences", "Center Messages"), "cg_centerMessage",
                                     array<string> = {_Tr("Preferences", "NORMAL"),

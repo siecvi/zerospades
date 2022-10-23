@@ -56,7 +56,6 @@ DEFINE_SPADES_SETTING(cg_deathSoundGain, "0.2");
 DEFINE_SPADES_SETTING(cg_tracers, "1");
 DEFINE_SPADES_SETTING(cg_tracersFirstPerson, "1");
 DEFINE_SPADES_SETTING(cg_analyze, "0");
-DEFINE_SPADES_SETTING(cg_scoreMessages, "0");
 
 SPADES_SETTING(cg_centerMessage);
 SPADES_SETTING(cg_holdAimDownSight);
@@ -879,12 +878,6 @@ namespace spades {
 						msg = _Tr("Client", "You were killed by {0}", killer.GetName());
 					}
 					centerMessageView->AddMessage(msg);
-
-					if (killer.IsLocalPlayer() && cg_scoreMessages) {
-						std::string s;
-						s += ChatWindow::ColoredMessage("+1", MsgColorGreen);
-						s += " point for neutralizing an enemy";
-						chatWindow->AddMessage(s);
 					}
 				}
 			}

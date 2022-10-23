@@ -150,13 +150,6 @@ namespace spades {
 				    : audioDevice->RegisterSound("Sounds/Feedback/CTF/EnemyCaptured.opus");
 				audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 			}
-
-			if (p.IsLocalPlayer() && cg_scoreMessages) {
-				std::string s;
-				s += ChatWindow::ColoredMessage("+10", MsgColorGreen);
-				s += " points for capturing the enemy flag";
-				chatWindow->AddMessage(s);
-			}
 		}
 
 		void Client::PlayerPickedIntel(Player& p) {
