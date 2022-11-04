@@ -36,6 +36,13 @@ jobs:
           configure-options: -A Win32 -D CMAKE_BUILD_TYPE=RelWithDebInfo -D CMAKE_TOOLCHAIN_FILE=${{ runner.workspace }}/openspades/vcpkg/scripts/buildsystems/vcpkg.cmake -D VCPKG_TARGET_TRIPLET=x86-windows-static
           parallel: 8
 
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: RelWithDebInfo.zip
+          path: ${{ runner.workspace }}/openspades.mk/bin/RelWithDebInfo
+          if-no-files-found: warn
+
   build-macos:
     name: Build (macOS)
     runs-on: macos-10.15
