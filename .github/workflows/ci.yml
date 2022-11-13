@@ -9,13 +9,12 @@ jobs:
     runs-on: windows-2019
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
         with:
           submodules: true
-          path: openspades
 
       - name: Cache vcpkg and dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             vcpkg/installed
@@ -23,17 +22,17 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('vcpkg_x86-windows.txt', '.gitmodules') }}
 
       - name: Bootstrap vcpkg
-        run: vcpkg/bootstrap-vcpkg.bat
+        run: vcpkg\bootstrap-vcpkg.bat -disableMetrics
 
       - name: Build dependencies
-        run: vcpkg/vcpkg install @vcpkg_x86-windows.txt
+        run: vcpkg\vcpkg install @vcpkg_x86-windows.txt
 
       - name: Build application
         uses: ashutoshvarma/action-cmake-build@master
         with:
-          build-dir: ${{ runner.workspace }}/openspades.mk
+          build-dir: ${{ runner.workspace }}\openspades.mk
           build-type: RelWithDebInfo
-          configure-options: -A Win32 -D CMAKE_BUILD_TYPE=RelWithDebInfo -D CMAKE_TOOLCHAIN_FILE=${{ runner.workspace }}/openspades/vcpkg/scripts/buildsystems/vcpkg.cmake -D VCPKG_TARGET_TRIPLET=x86-windows-static
+          configure-options: -A Win32 -D CMAKE_BUILD_TYPE=RelWithDebInfo -D CMAKE_TOOLCHAIN_FILE=${{ runner.workspace }}\zerospades\vcpkg\scripts\buildsystems\vcpkg.cmake -D VCPKG_TARGET_TRIPLET=x86-windows-static
           parallel: 8
 
       - name: Upload artifact
@@ -48,13 +47,12 @@ jobs:
     runs-on: macos-10.15
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
         with:
           submodules: true
-          path: openspades
 
       - name: Cache vcpkg and dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             vcpkg/installed
@@ -62,7 +60,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('vcpkg_x86_64-darwin.txt', '.gitmodules') }}
 
       - name: Bootstrap vcpkg
-        run: vcpkg/bootstrap-vcpkg.sh
+        run: vcpkg/bootstrap-vcpkg.sh -disableMetrics
 
       - name: Build dependencies
         run: vcpkg/vcpkg install @vcpkg_x86_64-darwin.txt
@@ -72,7 +70,7 @@ jobs:
         with:
           build-dir: ${{ runner.workspace }}/openspades.mk
           build-type: RelWithDebInfo
-          configure-options: -D CMAKE_BUILD_TYPE=RelWithDebInfo -D CMAKE_TOOLCHAIN_FILE=${{ runner.workspace }}/openspades/vcpkg/scripts/buildsystems/vcpkg.cmake -D VCPKG_TARGET_TRIPLET=x64-osx -D CMAKE_OSX_ARCHITECTURES=x86_64
+          configure-options: -D CMAKE_BUILD_TYPE=RelWithDebInfo -D CMAKE_TOOLCHAIN_FILE=${{ runner.workspace }}/zerospades/vcpkg/scripts/buildsystems/vcpkg.cmake -D VCPKG_TARGET_TRIPLET=x64-osx -D CMAKE_OSX_ARCHITECTURES=x86_64
           parallel: 8
   
   build-nix:
