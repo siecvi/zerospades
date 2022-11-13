@@ -193,7 +193,7 @@ namespace spades {
 		protected Image@ scopeImage;
 		protected Image@ dotSightImage;
 
-		protected ConfigItem cg_pngScope("cg_pngScope", "1");
+		protected ConfigItem cg_pngScope("cg_pngScope", "0");
 
 		BasicViewWeapon(Renderer@ renderer) {
 			@this.renderer = renderer;
