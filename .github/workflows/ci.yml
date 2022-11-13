@@ -35,11 +35,15 @@ jobs:
           configure-options: -A Win32 -D CMAKE_BUILD_TYPE=Release -D CMAKE_TOOLCHAIN_FILE=${{ runner.workspace }}\zerospades\vcpkg\scripts\buildsystems\vcpkg.cmake -D VCPKG_TARGET_TRIPLET=x86-windows-static
           parallel: 8
 
-      - name: Upload artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: Release
-          path: ${{ runner.workspace }}/openspades.mk/bin/Release
+          path: |
+            ${{ runner.workspace }}\openspades.mk\bin\Release
+            !${{ runner.workspace }}/**/*.lib
+            !${{ runner.workspace }}/**/*.exp
+            !${{ runner.workspace }}/**/*.pdb
           if-no-files-found: warn
 
   build-macos:
