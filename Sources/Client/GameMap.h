@@ -68,6 +68,9 @@ namespace spades {
 			inline bool IsValidMapCoord(const int x, const int y, const int z) const {
 				return x >= 0 && y >= 0 && z >= 0 && x < Width() && y < Height() && z < Depth();
 			}
+			inline bool IsValidBuildCoord(const IntVector3 v) const {
+				return IsValidMapCoord(v.x, v.y, v.z) && v.z < GroundDepth();
+			}
 
 			inline uint64_t GetSolidMap(int x, int y) const { return solidMap[x][y]; }
 			inline uint64_t GetSolidMapWrapped(int x, int y) const {

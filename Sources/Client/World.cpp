@@ -336,7 +336,7 @@ namespace spades {
 
 				if (ret.size() == (size_t)maxLength)
 					break;
-				if (c.x == v2.x && c.y == v2.y && c.z == v2.z)
+				if (c == v2)
 					break; // we have reached the end block
 
 				if ((dz <= dx) && (dz <= dy)) {
@@ -346,12 +346,12 @@ namespace spades {
 					dz += dzi;
 				} else if (dx < dy) {
 					c.x += ixi;
-					if (c.x >= VSID)
+					if (c.x < 0 || c.x >= VSID)
 						break;
 					dx += dxi;
 				} else {
 					c.y += iyi;
-					if (c.y >= VSID)
+					if (c.y < 0 || c.y >= VSID)
 						break;
 					dy += dyi;
 				}

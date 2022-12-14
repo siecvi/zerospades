@@ -379,10 +379,9 @@ namespace spades {
 				}
 
 				if (res.hit
-					&& (res.hitBlock + res.normal).z < 62
-					&& !OverlapsWithBlock(res.hitBlock + res.normal)
 					&& Collision3D(res.hitBlock + res.normal)
-					&& (res.hitBlock + res.normal).z >= 0
+					&& !OverlapsWithBlock(res.hitBlock + res.normal)
+					&&  map->IsValidBuildCoord(res.hitBlock + res.normal)
 					&& !pendingPlaceBlock) {
 					// Building is possible, and there's no delayed block placement.
 					blockCursorActive = true;
@@ -396,10 +395,9 @@ namespace spades {
 						// player is no longer airborne, or doesn't have a block to place.
 						pendingPlaceBlock = false;
 						lastSingleBlockBuildSeqDone = true;
-					} else if (pendingPlaceBlockPos.z < 62
+					} else if (Collision3D(pendingPlaceBlockPos)
 						&& !OverlapsWithBlock(pendingPlaceBlockPos)
-						&& Collision3D(pendingPlaceBlockPos)
-						&& pendingPlaceBlockPos.z >= 0) {
+						&& map->IsValidBuildCoord(pendingPlaceBlockPos)) {
 						// now building became possible.
 						SPAssert(IsLocalPlayer());
 
@@ -417,8 +415,8 @@ namespace spades {
 					// when the only reason making placement impossible
 					// is that block to be placed overlaps with the player's hitbox.
 					canPending = res.hit
-						&& (res.hitBlock + res.normal).z < 62
-						&& Collision3D(res.hitBlock + res.normal);
+						&& Collision3D(res.hitBlock + res.normal)
+						&& map->IsValidBuildCoord(res.hitBlock + res.normal);
 					blockCursorActive = false;
 
 					int dist = 11;
