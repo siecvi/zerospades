@@ -45,9 +45,9 @@ namespace spades {
 			float sw = renderer.ScreenWidth();
 			float sh = renderer.ScreenHeight();
 
-			float spacingW = 8.0F;
-			float contentsWidth = sw + spacingW;
-			float maxContentsWidth = 800.0F + spacingW;
+			float spacingWidth = 8.0F;
+			float contentsWidth = sw + spacingWidth;
+			float maxContentsWidth = 800.0F + spacingWidth;
 			if (contentsWidth >= maxContentsWidth)
 				contentsWidth = maxContentsWidth;
 
@@ -59,30 +59,32 @@ namespace spades {
 
 			World* w = client->GetWorld();
 
-			items.push_back(MenuItem(MenuTeam1, AABB2(teamX, firstY, menuWidth, menuHeight),
-			                         w ? w->GetTeam(0).name : "Team 1"));
+			items.push_back(MenuItem(MenuTeam1,
+				AABB2(teamX, firstY, menuWidth, menuHeight),
+				w ? w->GetTeamName(0) : "Team 1"));
 			items.push_back(MenuItem(MenuTeam2,
-			                         AABB2(teamX, firstY + rowHeight, menuWidth, menuHeight),
-			                         w ? w->GetTeam(1).name : "Team 2"));
+				AABB2(teamX, firstY + rowHeight, menuWidth, menuHeight),
+				w ? w->GetTeamName(1) : "Team 2"));
 			items.push_back(MenuItem(MenuTeamSpectator,
-			                         AABB2(teamX, firstY + rowHeight * 2.0F, menuWidth, menuHeight),
-			                         w ? w->GetTeam(2).name : "Spectator"));
+				AABB2(teamX, firstY + rowHeight * 2.0F, menuWidth, menuHeight),
+				w ? w->GetTeamName(2) : "Spectator"));
 
 			float weapX = left + 260.0F;
 
-			items.push_back(MenuItem(MenuWeaponRifle, AABB2(weapX, firstY, menuWidth, menuHeight),
-			                         _Tr("Client", "Rifle")));
+			items.push_back(MenuItem(MenuWeaponRifle,
+				AABB2(weapX, firstY, menuWidth, menuHeight),
+				_Tr("Client", "Rifle")));
 			items.push_back(MenuItem(MenuWeaponSMG,
-			                         AABB2(weapX, firstY + rowHeight, menuWidth, menuHeight),
-			                         _Tr("Client", "SMG")));
+				AABB2(weapX, firstY + rowHeight, menuWidth, menuHeight),
+				_Tr("Client", "SMG")));
 			items.push_back(MenuItem(MenuWeaponShotgun,
-			                         AABB2(weapX, firstY + rowHeight * 2.0F, menuWidth, menuHeight),
-			                         _Tr("Client", "Shotgun")));
+				AABB2(weapX, firstY + rowHeight * 2.0F, menuWidth, menuHeight),
+				_Tr("Client", "Shotgun")));
 
 			//! The "Spawn" button that you press when you're ready to "spawn".
-			items.push_back(MenuItem(
-			  MenuSpawn, AABB2(left + contentsWidth - 166.0F, firstY + 4.0F, 156.0F, 64.0F),
-			  _Tr("Client", "Spawn")));
+			items.push_back(MenuItem(MenuSpawn,
+				AABB2(left + contentsWidth - 166.0F, firstY + 4.0F, 156.0F, 64.0F),
+				_Tr("Client", "Spawn")));
 
 			cursorPos = MakeVector2(sw * 0.5F, sh * 0.5F);
 
@@ -114,21 +116,21 @@ namespace spades {
 						}
 					}
 				}
-			} else if ("1" == key) {
+			} else if (key == "1") {
 				if (selectedTeam == 2) {
 					selectedTeam = 0;
 				} else {
 					selectedWeapon = RIFLE_WEAPON;
 					client->SpawnPressed();
 				}
-			} else if ("2" == key) {
+			} else if (key == "2") {
 				if (selectedTeam == 2) {
 					selectedTeam = 1;
 				} else {
 					selectedWeapon = SMG_WEAPON;
 					client->SpawnPressed();
 				}
-			} else if ("3" == key) {
+			} else if (key == "3") {
 				if (selectedTeam != 2)
 					selectedWeapon = SHOTGUN_WEAPON;
 				client->SpawnPressed(); // if we have 3 and are already spec someone wants to spec..
@@ -171,38 +173,34 @@ namespace spades {
 			float sh = renderer.ScreenHeight();
 
 			float spacingW = 8.0F;
-			float contentsWidth = sw + spacingW;
-			float maxContentsWidth = 800.0F + spacingW;
-			if (contentsWidth >= maxContentsWidth)
-				contentsWidth = maxContentsWidth;
+			float contentsW = sw + spacingW;
+			float maxContentsW = 800.0F + spacingW;
+			if (contentsW >= maxContentsW)
+				contentsW = maxContentsW;
 
-			float left = (sw - contentsWidth) * 0.5F;
+			float left = (sw - contentsW) * 0.5F;
 			float top = sh - 150.0F;
 
-			Vector4 whiteColor = MakeVector4(1, 1, 1, 1);
-			Vector4 blackColor = MakeVector4(0, 0, 0, 0.4F);
+			Vector4 color = MakeVector4(1, 1, 1, 1);
+			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.4F);
 
 			{
 				auto msg = _Tr("Client", "Select Team:");
-				Vector2 pos;
-				pos.x = left + 10.0F;
-				pos.y = top + 10.0F;
-				font.DrawShadow(msg, pos, 1.0F, whiteColor, blackColor);
+				Vector2 pos = {left + 10.0F, top + 10.0F};
+				font.DrawShadow(msg, pos, 1.0F, color, shadowColor);
 			}
 
 			if (selectedTeam != 2) {
 				auto msg = _Tr("Client", "Select Weapon:");
-				Vector2 pos;
-				pos.x = left + 260.0F;
-				pos.y = top + 10.0F;
-				font.DrawShadow(msg, pos, 1.0F, whiteColor, blackColor);
+				Vector2 pos = {left + 260.0F, top + 10.0F};
+				font.DrawShadow(msg, pos, 1.0F, color, shadowColor);
 			}
 
 			for (const auto& item : items) {
-				bool selected = false;
-
 				if (!item.visible)
 					continue;
+
+				bool selected = false;
 				int index = 0;
 				switch (item.type) {
 					case MenuTeam1:
@@ -227,43 +225,40 @@ namespace spades {
 					fillColor = MakeVector4(0.7F, 0.7F, 0.7F, 1) * 0.9F;
 
 				renderer.SetColorAlphaPremultiplied(fillColor);
+				renderer.DrawImage(nullptr, item.rect);
+
 				if (item.type == MenuSpawn) {
-					renderer.DrawImage(nullptr, item.rect);
-
 					auto msg = item.text;
-					IFont& font = client->fontManager->GetGuiFont();
 					Vector2 size = font.Measure(msg);
-					Vector2 pos;
-					pos.x = item.rect.GetMinX() + (item.rect.GetWidth() - size.x) / 2.0F + 2.0F;
-					pos.y = item.rect.GetMinY() + (item.rect.GetHeight() - size.y) / 2.0F;
-					font.DrawShadow(msg, pos, 1.0F, whiteColor, blackColor);
+					Vector2 pos = item.rect.min;
+					pos.x += (item.rect.GetWidth() - size.x) * 0.5F + 2.0F;
+					pos.y += (item.rect.GetHeight() - size.y) * 0.5F;
+					font.DrawShadow(msg, pos, 1.0F, color, shadowColor);
 				} else {
-					renderer.DrawImage(nullptr, item.rect);
-
 					auto msg = item.text;
 					if (item.type == MenuTeam1)
-						msg = client->GetWorld()->GetTeam(0).name;
+						msg = client->GetWorld()->GetTeamName(0);
 					if (item.type == MenuTeam2)
-						msg = client->GetWorld()->GetTeam(1).name;
+						msg = client->GetWorld()->GetTeamName(1);
 
 					Vector2 size = font.Measure(msg);
-					Vector2 pos;
-					pos.x = item.rect.GetMinX() + 5.0F;
-					pos.y = item.rect.GetMinY() + (item.rect.GetHeight() - size.y) / 2.0F;
-					font.DrawShadow(msg, pos, 1.0F, whiteColor, blackColor);
+					Vector2 pos = item.rect.min;
+					pos.x += 5.0F;
+					pos.y += (item.rect.GetHeight() - size.y) * 0.5F;
+					font.DrawShadow(msg, pos, 1.0F, color, shadowColor);
 					if (index > 0) {
 						std::stringstream ss;
 						ss << index;
 						msg = ss.str();
-						pos.x = item.rect.GetMaxX() - 5.0F - font.Measure(msg).x;
-						font.DrawShadow(msg, pos, 1.0F, whiteColor, blackColor);
+						pos.x = (item.rect.GetMaxX() - 5.0F) - font.Measure(msg).x;
+						font.DrawShadow(msg, pos, 1.0F, color, shadowColor);
 					}
 				}
 			}
 
 			Handle<IImage> cursor = renderer.RegisterImage("Gfx/UI/Cursor.png");
 
-			renderer.SetColorAlphaPremultiplied(whiteColor);
+			renderer.SetColorAlphaPremultiplied(color);
 			renderer.DrawImage(cursor, AABB2(cursorPos.x - 8, cursorPos.y - 8, 32, 32));
 		}
 	} // namespace client

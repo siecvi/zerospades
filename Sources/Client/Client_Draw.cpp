@@ -464,8 +464,8 @@ namespace spades {
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
-			float x = cg_hudBorderX;
-			float y = cg_hudBorderY;
+			float x = sw - (int)cg_hudBorderX;
+			float y = sh - (int)cg_hudBorderY;
 
 			// Draw damage rings
 			hurtRingView->Draw();
@@ -523,8 +523,8 @@ namespace spades {
 
 					if (ammoStyle != 1) {
 						for (int i = 0; i < clipSize; i++) {
-							float ix = (sw - x) - ((float)(i + 1) * (iw + spacing));
-							float iy = (sh - y) - ih;
+							float ix = x - ((float)(i + 1) * (iw + spacing));
+							float iy = y - ih;
 
 							renderer->SetColorAlphaPremultiplied((clipNum >= i + 1)
 								? color : MakeVector4(0.4F, 0.4F, 0.4F, 1));
@@ -565,10 +565,9 @@ namespace spades {
 
 				IFont& font = fontManager->GetSquareDesignFont();
 				Vector2 size = font.Measure(stockStr);
-				Vector2 pos = MakeVector2(sw - x, sh - y);
+				Vector2 pos = MakeVector2(x, y) - size;
 				if (ammoStyle != 1)
 					pos.y -= ih;
-				pos -= size;
 
 				font.DrawShadow(stockStr, pos, 1.0F, color, shadowColor);
 			}
@@ -582,8 +581,7 @@ namespace spades {
 				auto healthStr = ToString(hp);
 				IFont& font = fontManager->GetSquareDesignFont();
 				Vector2 size = font.Measure(healthStr);
-				Vector2 pos = MakeVector2(x, sh - y);
-				pos.y -= size.y;
+				Vector2 pos = MakeVector2(sw - x, y - size.y);
 				font.DrawShadow(healthStr, pos, 1.0F, color, shadowColor);
 			}
 
@@ -819,12 +817,12 @@ namespace spades {
 			float sh = renderer->ScreenHeight();
 
 			const float fadeOutTime = 1.0F;
-			float fade = 1.0F - (time - alertDisappearTime) / fadeOutTime;
+			float fade = 1.0F - ((time - alertDisappearTime) / fadeOutTime);
 			fade = std::min(fade, 1.0F);
 			if (fade <= 0.0F)
 				return;
 
-			float borderFade = 1.0F - (time - alertAppearTime) * 1.5F;
+			float borderFade = 1.0F - ((time - alertAppearTime) / 0.5F);
 			borderFade = Clamp(borderFade, 0.0F, 1.0F);
 
 			Handle<IImage> alertIcon = renderer->RegisterImage("Gfx/AlertIcon.png");
@@ -833,20 +831,17 @@ namespace spades {
 			Vector2 textSize = font.Measure(alertContents);
 			Vector2 contentsSize = textSize;
 			contentsSize.y = std::max(contentsSize.y, 16.0F);
-
 			if (alertType != AlertType::Notice)
 				contentsSize.x += 22.0F;
 
 			// add margin
-			const float margin = 8.0F;
+			const float margin = 4.0F;
 			contentsSize += margin * 2.0F;
-
 			contentsSize = contentsSize.Floor();
 
 			Vector2 pos = MakeVector2(sw, sh) - contentsSize;
 			pos *= MakeVector2(0.5F, 0.7F);
 			pos.y += 40.0F;
-
 			pos = pos.Floor();
 
 			Vector4 color;
@@ -858,41 +853,39 @@ namespace spades {
 			}
 
 			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.5F * fade);
-			Vector2 borderSize = MakeVector2(2.0F, 4.0F);
+
+			float x = pos.x - margin;
+			float y = pos.y;
+			float w = pos.x + contentsSize.x + margin;
+			float h = pos.y + contentsSize.y;
 
 			// draw background
 			renderer->SetColorAlphaPremultiplied(shadowColor);
-			renderer->DrawFilledRect(pos.x + borderSize.x, pos.y + borderSize.y,
-			                         pos.x + contentsSize.x - borderSize.x,
-			                         pos.y + contentsSize.y - borderSize.y);
+			renderer->DrawFilledRect(x + 1, y + 1, w - 1, h - 1);
 
 			// draw border
 			renderer->SetColorAlphaPremultiplied(color * fade * (1.0F - borderFade));
-			renderer->DrawOutlinedRect(pos.x + borderSize.x, pos.y + borderSize.y,
-			                           pos.x + contentsSize.x - borderSize.x,
-			                           pos.y + contentsSize.y - borderSize.y);
+			renderer->DrawOutlinedRect(x, y, w, h);
 
 			// draw fading border
-			borderSize -= 8.0F * (1.0F - borderFade);
+			float scale = 8.0F * (1.0F - borderFade);
 			renderer->SetColorAlphaPremultiplied(color * borderFade);
-			renderer->DrawOutlinedRect(pos.x + borderSize.x, pos.y + borderSize.y,
-			                           pos.x + contentsSize.x - borderSize.x,
-			                           pos.y + contentsSize.y - borderSize.y);
+			renderer->DrawOutlinedRect(x - scale, y - scale, w + scale, h + scale);
 
 			// draw alert icon
 			if (alertType != AlertType::Notice) {
-				Vector2 iconPos;
-				iconPos.x = pos.x + margin;
-				iconPos.y = pos.y + (contentsSize.y - 16.0F) * 0.5F;
+				Vector2 iconPos = pos;
+				iconPos.x += margin;
+				iconPos.y += (contentsSize.y - 16.0F) * 0.5F;
 
 				renderer->SetColorAlphaPremultiplied(color * fade);
 				renderer->DrawImage(alertIcon, iconPos);
 			}
 
 			// draw text
-			Vector2 textPos;
-			textPos.x = pos.x + (contentsSize.x - textSize.x) - margin;
-			textPos.y = pos.y + (contentsSize.y - textSize.y) - margin - 1.0F;
+			Vector2 textPos = pos;
+			textPos.x += (contentsSize.x - textSize.x) - margin;
+			textPos.y += ((contentsSize.y - textSize.y) * 0.5F) - 1.0F;
 
 			color = MakeVector4(1, 1, 1, 1) * fade;
 			font.DrawShadow(alertContents, textPos, 1.0F, color, shadowColor);
@@ -914,8 +907,6 @@ namespace spades {
 				renderer->DrawImage(nullptr, AABB2(0, 0, sw, sh));
 			}
 
-			bool shouldDraw = !cg_hideHud;
-
 			stmp::optional<Player&> p = GetWorld()->GetLocalPlayer();
 			if (p) { // joined local player
 				if (cg_hurtScreenEffects) {
@@ -925,15 +916,15 @@ namespace spades {
 
 				bool localPlayerIsSpectator = p->IsSpectator();
 				if (!localPlayerIsSpectator) {
-				if (cg_playerNames)
-					DrawHottrackedPlayerName();
-				if (cg_damageIndicators)
-					DrawDamageIndicators();
+					if (cg_playerNames)
+						DrawHottrackedPlayerName();
+					if (cg_damageIndicators)
+						DrawDamageIndicators();
 				} else {
 					DrawPubOVL();
 				}
 
-				if (shouldDraw) {
+				if (!cg_hideHud) {
 					tcView->Draw();
 
 					if (IsFirstPerson(GetCameraMode()))
@@ -993,7 +984,7 @@ namespace spades {
 			if (IsLimboViewActive())
 				limbo->Draw();
 
-			if (cg_stats && shouldDraw)
+			if (cg_stats && !cg_hideHud)
 				DrawStats();
 		}
 
@@ -1017,8 +1008,8 @@ namespace spades {
 			Vector2 pos = MakeVector2((sw - size.x) * 0.5F, prgY - 10.0F);
 			pos.y -= size.y;
 
-			Vector4 grayCol = {0.5, 0.5, 0.5, 1};
-			Vector3 blueCol = {0, 0.5, 1};
+			Vector4 grayCol = MakeVector4(0.5, 0.5, 0.5, 1);
+			Vector3 blueCol = MakeVector3(0, 0.5, 1);
 
 			font.Draw(statusStr, pos, 1.0F, grayCol);
 
@@ -1094,22 +1085,25 @@ namespace spades {
 			const float margin = 4.0F;
 			IFont& font = fontManager->GetGuiFont();
 			Vector2 size = font.Measure(str) + (margin * 2.0F);
-			Vector2 pos = (MakeVector2(sw, sh) - size);
+			Vector2 pos = MakeVector2(sw, sh) - size;
 			pos.x *= 0.5F;
 			pos.y += margin;
+
+			float x = pos.x;
+			float y = pos.y + margin;
+			float w = pos.x + size.x;
+			float h = pos.y + size.y - margin;
 
 			Vector4 color = MakeVector4(1, 1, 1, 1);
 			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.5);
 
 			// draw background
 			renderer->SetColorAlphaPremultiplied(shadowColor);
-			renderer->DrawFilledRect(pos.x, pos.y + margin, pos.x + size.x,
-			                         pos.y + size.y - margin);
+			renderer->DrawFilledRect(x + 1, y + 1, w - 1, h - 1);
 
 			// draw border
 			renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1));
-			renderer->DrawOutlinedRect(pos.x, pos.y + margin, pos.x + size.x,
-			                           pos.y + size.y - margin);
+			renderer->DrawOutlinedRect(x, y, w, h);
 
 			// draw text
 			font.DrawShadow(str, pos + margin, 1.0F, color, shadowColor);
