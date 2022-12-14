@@ -38,6 +38,7 @@
 DEFINE_SPADES_SETTING(cg_minimapSize, "128");
 DEFINE_SPADES_SETTING(cg_minimapPlayerColor, "1");
 DEFINE_SPADES_SETTING(cg_minimapPlayerIcon, "1");
+DEFINE_SPADES_SETTING(cg_minimapCoords, "1");
 
 using std::pair;
 using stmp::optional;
@@ -550,16 +551,26 @@ namespace spades {
 			}
 
 			// draw map sector in team color below minimap
-			if (!largeMap) {
+			if (!largeMap && cg_minimapCoords) {
 				IFont& font = client->fontManager->GetGuiFont();
 				auto gridStr = ToGrid(focusPlayerPos.x, focusPlayerPos.y);
-				Vector2 pos = {(outRect.min.x + outRect.max.x) * 0.5F, outRect.max.y + 2.0F};
-				pos.x -= font.Measure(gridStr).x * 0.5F;
+				Vector2 size = font.Measure(gridStr);
+				Vector2 pos = outRect.min;
+				if ((int)cg_minimapCoords < 2) {
+					pos.x += ((outRect.GetWidth() - size.x) * 0.5F);
+					pos.y = outRect.GetMaxY() + size.y * 0.5F - 8.0F;
+				} else {
+					pos.x = (pos.x - 8.0F) - size.x + 2.0F;
+					pos.y += ((outRect.GetHeight() - size.y) * 0.5F);
+				}
+
 				Vector4 color = ConvertColorRGBA(focusPlayer.GetColor());
-				color.x = Mix(color.x, 1.0F, 0.5F);
-				color.y = Mix(color.y, 1.0F, 0.5F);
-				color.z = Mix(color.z, 1.0F, 0.5F);
-				font.DrawShadow(gridStr, pos, 1.0F, color, MakeVector4(0, 0, 0, 0.8F));
+				float luminosity = color.x + color.y + color.z;
+				Vector4 shadowColor = (luminosity > 0.9F)
+					? MakeVector4(0, 0, 0, 0.8F)
+					: MakeVector4(1, 1, 1, 0.8F);
+
+				font.DrawShadow(gridStr, pos, 1.0F, color, shadowColor);
 			}
 		}
 
