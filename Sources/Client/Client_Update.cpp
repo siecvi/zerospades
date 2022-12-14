@@ -175,10 +175,14 @@ namespace spades {
 
 			if (p) {
 				// disable input when UI is open
-				if (scriptedUI->NeedsInput()) {
+				if (NeedsAbsoluteMouseCoordinate()) {
 					weapInput.primary = false;
 					if (p->IsSpectator() || !p->IsToolWeapon())
 						weapInput.secondary = false;
+
+					// don't reset player input if chat is open
+					if (!AcceptsTextInput())
+						playerInput = PlayerInput();
 				}
 
 				if (p->IsSpectator())
