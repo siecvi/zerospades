@@ -103,6 +103,7 @@ namespace spades {
 			Vector3 GetCenter();
 			bool IsVisibleFrom(Vector3 eye);
 
+			void AddHeadImpulse(Vector3);
 			void AddImpulse(Vector3);
 		};
 	} // namespace client

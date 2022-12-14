@@ -804,7 +804,9 @@ namespace spades {
 				if (victim.IsLocalPlayer())
 					lastLocalCorpse = corp.get();
 
-				if (&killer != &victim && kt != KillTypeGrenade) {
+				if (kt == KillTypeGrenade) {
+					corp->AddImpulse(MakeVector3(0, 0, -4.0F - SampleRandomFloat() * 4.0F));
+				} else if (&killer != &victim) {
 					Vector3 dir = victim.GetPosition() - killer.GetPosition();
 					dir = dir.Normalize();
 					if (kt == KillTypeMelee) {
@@ -817,9 +819,11 @@ namespace spades {
 						}
 					}
 
+					// add extra head impulse if its a headshot or melee kill
+					if (kt == KillTypeHeadshot || kt == KillTypeMelee)
+						corp->AddHeadImpulse(dir * 4.0F);
+
 					corp->AddImpulse(dir);
-				} else if (kt == KillTypeGrenade) {
-					corp->AddImpulse(MakeVector3(0, 0, -4.0F - SampleRandomFloat() * 4.0F));
 				}
 
 				corp->AddImpulse(victim.GetVelocity() * 32.0F);

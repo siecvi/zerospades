@@ -40,7 +40,7 @@ namespace spades {
 
 			playerId = p.GetId();
 			color = ConvertColorRGB(p.GetColor());
-			weaponName = p.GetWeapon().GetName(); // a bit ghetto for my liking
+			weaponName = p.GetWeapon().GetName();
 
 			Vector3 o = p.GetFront();
 
@@ -61,24 +61,24 @@ namespace spades {
 				SetNode(Torso3, torso * MakeVector3(-0.4F, 0.8F, 0.7F));
 				SetNode(Torso4, torso * MakeVector3(0.4F, 0.8F, 0.7F));
 
-				SetNode(Leg1, lower * MakeVector3(-0.4F, 0.1F, 1.0F));
-				SetNode(Leg2, lower * MakeVector3(0.4F, 0.1F, 1.0F));
+				SetNode(Leg1, lower * MakeVector3(-0.4F, 0.1F, 1));
+				SetNode(Leg2, lower * MakeVector3(0.4F, 0.1F, 1));
 
-				SetNode(Arm1, torso * MakeVector3(0.2F, -0.4F, 0.2F));
-				SetNode(Arm2, torso * MakeVector3(-0.2F, -0.4F, 0.2F));
+				SetNode(Arm1, torso * MakeVector3(0.4F, -0.8F, 0.1F));
+				SetNode(Arm2, torso * MakeVector3(0.1F, -0.8F, 0.1F));
 			} else {
 				torso = lower * Matrix4::Translate(0, 0, -1.1F);
 
 				SetNode(Torso1, torso * MakeVector3(0.4F, 0, 0.1F));
 				SetNode(Torso2, torso * MakeVector3(-0.4F, 0, 0.1F));
-				SetNode(Torso3, torso * MakeVector3(-0.4F, 0, 1.0F));
-				SetNode(Torso4, torso * MakeVector3(0.4F, 0, 1.0F));
+				SetNode(Torso3, torso * MakeVector3(-0.4F, 0, 1));
+				SetNode(Torso4, torso * MakeVector3(0.4F, 0, 1));
 
-				SetNode(Leg1, lower * MakeVector3(-0.4F, 0, 1.0F));
-				SetNode(Leg2, lower * MakeVector3(0.4F, 0, 1.0F));
+				SetNode(Leg1, lower * MakeVector3(-0.4F, 0, 1));
+				SetNode(Leg2, lower * MakeVector3(0.4F, 0, 1));
 
-				SetNode(Arm1, torso * MakeVector3(0.2F, -0.4F, 0.2F));
-				SetNode(Arm2, torso * MakeVector3(-0.2F, -0.4F, 0.2F));
+				SetNode(Arm1, torso * MakeVector3(0.4F, -0.8F, 0.1F));
+				SetNode(Arm2, torso * MakeVector3(0.1F, -0.8F, 0.1F));
 			}
 
 			SetNode(Head, (nodes[Torso1].pos + nodes[Torso2].pos) * 0.5F + MakeVector3(0, 0, -0.6F));
@@ -243,11 +243,11 @@ namespace spades {
 
 		static float fractf(float v) { return v - floorf(v); }
 
-		static void CheckEscape(GameMap& map, IntVector3 hitBlock, IntVector3 a, IntVector3 b,
+		static void CheckEscape(GameMap& map, IntVector3 hitBlock, Vector3 a, Vector3 b,
 		                        IntVector3 dir, float& bestDist, IntVector3& bestDir) {
 			hitBlock += dir;
-			IntVector3 aa = a + dir;
-			IntVector3 bb = b + dir;
+			IntVector3 aa = a.Floor() + dir;
+			IntVector3 bb = b.Floor() + dir;
 
 			if (map.IsSolidWrapped(hitBlock.x, hitBlock.y, hitBlock.z))
 				return;
@@ -258,23 +258,23 @@ namespace spades {
 
 			float dist;
 			if (dir.x == 1) {
-				dist = 1.0F - fractf((float)a.x);
-				dist += 1.0F - fractf((float)b.x);
+				dist = 1.0F - fractf(a.x);
+				dist += 1.0F - fractf(b.x);
 			} else if (dir.x == -1) {
-				dist = fractf((float)a.x);
-				dist += fractf((float)b.x);
+				dist = fractf(a.x);
+				dist += fractf(b.x);
 			} else if (dir.y == 1) {
-				dist = 1.0F - fractf((float)a.y);
-				dist += 1.0F - fractf((float)b.y);
+				dist = 1.0F - fractf(a.y);
+				dist += 1.0F - fractf(b.y);
 			} else if (dir.y == -1) {
-				dist = fractf((float)a.y);
-				dist += fractf((float)b.y);
+				dist = fractf(a.y);
+				dist += fractf(b.y);
 			} else if (dir.z == 1) {
-				dist = 1.0F - fractf((float)a.z);
-				dist += 1.0F - fractf((float)b.z);
+				dist = 1.0F - fractf(a.z);
+				dist += 1.0F - fractf(b.z);
 			} else if (dir.z == -1) {
-				dist = fractf((float)a.z);
-				dist += fractf((float)b.z);
+				dist = fractf(a.z);
+				dist += fractf(b.z);
 			} else {
 				SPAssert(false);
 				return;
@@ -326,18 +326,18 @@ namespace spades {
 					// hanging. which direction to escape?
 					float bestDist = 1000.0F;
 					IntVector3 bestDir;
-					CheckEscape(map, hitBlock, n1.pos.Floor(), n2.pos.Floor(),
-					            MakeIntVector3(1, 0, 0), bestDist, bestDir);
-					CheckEscape(map, hitBlock, n1.pos.Floor(), n2.pos.Floor(),
-					            MakeIntVector3(-1, 0, 0), bestDist, bestDir);
-					CheckEscape(map, hitBlock, n1.pos.Floor(), n2.pos.Floor(),
-					            MakeIntVector3(0, 1, 0), bestDist, bestDir);
-					CheckEscape(map, hitBlock, n1.pos.Floor(), n2.pos.Floor(),
-					            MakeIntVector3(0, -1, 0), bestDist, bestDir);
-					CheckEscape(map, hitBlock, n1.pos.Floor(), n2.pos.Floor(),
-					            MakeIntVector3(0, 0, 1), bestDist, bestDir);
-					CheckEscape(map, hitBlock, n1.pos.Floor(), n2.pos.Floor(),
-					            MakeIntVector3(0, 0, -1), bestDist, bestDir);
+					CheckEscape(map, hitBlock, n1.pos, n2.pos,
+						MakeIntVector3(1, 0, 0), bestDist, bestDir);
+					CheckEscape(map, hitBlock, n1.pos, n2.pos,
+						MakeIntVector3(-1, 0, 0), bestDist, bestDir);
+					CheckEscape(map, hitBlock, n1.pos, n2.pos,
+						MakeIntVector3(0, 1, 0), bestDist, bestDir);
+					CheckEscape(map, hitBlock, n1.pos, n2.pos,
+						MakeIntVector3(0, -1, 0), bestDist, bestDir);
+					CheckEscape(map, hitBlock, n1.pos, n2.pos,
+						MakeIntVector3(0, 0, 1), bestDist, bestDir);
+					CheckEscape(map, hitBlock, n1.pos, n2.pos,
+						MakeIntVector3(0, 0, -1), bestDist, bestDir);
 
 					if (bestDist > 10.0F)
 						return; // failed to find appropriate direction.
@@ -405,8 +405,10 @@ namespace spades {
 
 			Spring(Arm1, Torso1, 1.0F, dt);
 			Spring(Arm2, Torso2, 1.0F, dt);
-			Spring(Leg1, Torso3, 1.0F, dt);
-			Spring(Leg2, Torso4, 1.0F, dt);
+			Spring(Leg1, Torso3, 1.15F, dt);
+			Spring(Leg2, Torso4, 1.15F, dt);
+
+			Spring(Torso1, Torso2, Head, 0.6F, dt);
 
 			AngleSpring(Torso1, Arm1, Torso3, -1.0F, 0.6F, dt);
 			AngleSpring(Torso2, Arm2, Torso4, -1.0F, 0.6F, dt);
@@ -414,12 +416,8 @@ namespace spades {
 			AngleSpring(Torso3, Leg1, Torso2, -1.0F, -0.2F, dt);
 			AngleSpring(Torso4, Leg2, Torso1, -1.0F, -0.2F, dt);
 
-			Spring(Torso1, Torso2, Head, .6f, dt);
-
-			/*
-			AngleSpring(Torso1, Torso2, Head, 0.5f, 1.f, dt);
-			AngleSpring(Torso2, Torso1, Head, 0.5f, 1.f, dt);
-			*/
+			AngleSpring(Torso1, Torso2, Head, 0.5F, 1.0F, dt);
+			AngleSpring(Torso2, Torso1, Head, 0.5F, 1.0F, dt);
 
 			if (r_corpseLineCollision) {
 				LineCollision(Torso1, Torso2, dt);
@@ -451,7 +449,7 @@ namespace spades {
 
 				SPAssert(!node.pos.IsNaN());
 
-				if (node.pos.z > 63.0F) {
+				if (node.pos.z >= 63.0F) {
 					node.vel.z -= dt * 6.0F; // buoyancy
 					node.vel *= damp;
 				} else {
@@ -516,6 +514,7 @@ namespace spades {
 			Matrix4 torso;
 			Vector3 tX, tY;
 
+			// kinda trashy but works for now
 			auto path = "Models/Player/" + weaponName;
 
 			// Torso
@@ -533,7 +532,7 @@ namespace spades {
 				Vector3 tOrigin = tY1 * 0.5F;
 				torso = Matrix4::FromAxis(tX, -tZ, -tY, tOrigin);
 
-				param.matrix = torso * scaler;
+				param.matrix = torso * scaler * Matrix4::Scale(-1, -1, 1);
 				renderer.RenderModel(*model, param);
 			}
 
@@ -547,7 +546,7 @@ namespace spades {
 				Vector3 center = (nodes[Torso1].pos + nodes[Torso2].pos) * 0.5F;
 
 				aZ = nodes[Head].pos - center;
-				aZ = -torso.GetAxis(2);
+				aZ -= torso.GetAxis(2);
 				aZ = aZ.Normalize();
 				aY = nodes[Torso2].pos - nodes[Torso1].pos;
 				aY = Vector3::Cross(aY, aZ).Normalize();
@@ -560,17 +559,21 @@ namespace spades {
 			{
 				model = renderer.RegisterModel((path + "/Arm.kv6").c_str());
 
-				Vector3 arm1Base = (torso * MakeVector3(0.4F, 0.0F, 0.25F)).GetXYZ();
-				Vector3 arm2Base = (torso * MakeVector3(-0.4F, 0.0F, 0.25F)).GetXYZ();
+				Vector3 arm1Base = (torso * MakeVector3(0.4F, 0.0F, 0.1F)).GetXYZ();
+				Vector3 arm2Base = (torso * MakeVector3(-0.4F, 0.0F, 0.1F)).GetXYZ();
+
+				Matrix4 armsScale = scaler
+					* Matrix4::Scale(0.75F, 0.75F, 1.0F);
 
 				Vector3 aX, aY, aZ;
 
 				aZ = nodes[Arm1].pos - nodes[Torso1].pos;
 				aZ = aZ.Normalize();
-				aY = nodes[Torso2].pos - nodes[Torso1].pos;
+				aY = nodes[Torso1].pos - nodes[Torso2].pos;
 				aY = Vector3::Cross(aY, aZ).Normalize();
 				aX = Vector3::Cross(aY, aZ).Normalize();
-				param.matrix = Matrix4::FromAxis(aX, aY, aZ, arm1Base) * scaler;
+
+				param.matrix = Matrix4::FromAxis(aX, aY, aZ, arm1Base) * armsScale;
 				renderer.RenderModel(*model, param);
 
 				aZ = nodes[Arm2].pos - nodes[Torso2].pos;
@@ -578,7 +581,7 @@ namespace spades {
 				aY = nodes[Torso1].pos - nodes[Torso2].pos;
 				aY = Vector3::Cross(aY, aZ).Normalize();
 				aX = Vector3::Cross(aY, aZ).Normalize();
-				param.matrix = Matrix4::FromAxis(aX, aY, aZ, arm2Base) * scaler;
+				param.matrix = Matrix4::FromAxis(aX, aY, aZ, arm2Base) * armsScale;
 				renderer.RenderModel(*model, param);
 			}
 
@@ -631,6 +634,9 @@ namespace spades {
 			return false;
 		}
 
+		void Corpse::AddHeadImpulse(spades::Vector3 v) {
+			nodes[Head].vel += v;
+		}
 		void Corpse::AddImpulse(spades::Vector3 v) {
 			for (int i = 0; i < NodeCount; i++)
 				nodes[i].vel += v;
