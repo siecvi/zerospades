@@ -57,7 +57,6 @@ namespace spades {
 		private ViewWeaponSpring reloadOffsetSpring = ViewWeaponSpring(150, 12, 0);
 		private ViewWeaponSpring sprintSpring = ViewWeaponSpring(100, 10, 0);
 		private ViewWeaponSpring raiseSpring = ViewWeaponSpring(200, 20, 1);
-		private Vector3 swingFromSpring = Vector3();
 
 		// A bunch of events.
 		private ViewWeaponEvent magazineTouched = ViewWeaponEvent();
@@ -102,12 +101,15 @@ namespace spades {
 			if (chargingHandlePulled.WasActivated()) {
 				chargingHandlePulled.Acknowledge();
 				reloadPitchSpring.velocity = 5;
-				reloadOffsetSpring.velocity = 2;
+				reloadOffsetSpring.velocity = 1;
 			}
 
-			mat *= CreateEulerAnglesMatrix(Vector3(0, 0.6, 0) * reloadRollSpring.position);
-			mat *= CreateEulerAnglesMatrix(Vector3(-0.25, 0, 0) * reloadPitchSpring.position);
-			mat *= CreateTranslateMatrix(Vector3(0, -1, 0) * reloadOffsetSpring.position);
+			float sp = 1.0F - AimDownSightStateSmooth;
+
+			mat *= CreateEulerAnglesMatrix(Vector3(0, 0.6, 0) * reloadRollSpring.position * sp);
+			mat *= CreateEulerAnglesMatrix(Vector3(-0.25, 0, 0) * reloadPitchSpring.position * sp);
+			mat *= CreateTranslateMatrix(Vector3(0, -1, 0) * reloadOffsetSpring.position * sp);
+			mat *= CreateTranslateMatrix(Vector3(0, 0, -globalScale) * reloadPitchSpring.position * sp);
 
 			return mat;
 		}
@@ -152,13 +154,13 @@ namespace spades {
 
 		Vector3 GetRightHandOffset() {
 			Vector3 rightHandOffset = Vector3(0, -8, 2);
-			Vector3 chargingHandleOffset = Vector3(-3, -4, -6);
+			Vector3 chargingHandleOffset = Vector3(-3, -4, -5);
 
 			// sprint animation
 			rightHandOffset -= Vector3(0, 3, 0.5) * sprintSpring.position;
 			chargingHandleOffset -= Vector3(0, 2, -3) * sprintSpring.position;
 
-			Vector3 handlePullingOffset = chargingHandleOffset + Vector3(0, -6, 0);
+			Vector3 handlePullingOffset = chargingHandleOffset + Vector3(-1, -4, 0);
 
 			if (trueReloadProgress < 0.7) {
 				return rightHandOffset;
@@ -212,8 +214,8 @@ namespace spades {
 			recoilRotationSpring.Update(dt);
 
 			horizontalSwingSpring.velocity += swing.x * 60 * dt * 2;
-			horizontalSwingSpring.Update(dt);
 			verticalSwingSpring.velocity += swing.z * 60 * dt * 2;
+			horizontalSwingSpring.Update(dt);
 			verticalSwingSpring.Update(dt);
 
 			reloadPitchSpring.Update(dt);
@@ -235,7 +237,6 @@ namespace spades {
 				isSprinting = false;
 			else
 				isSprinting = false;
-
 			lastSprintState = sprintState;
 			sprintSpring.desired = isSprinting ? 1 : 0;
 
@@ -250,11 +251,8 @@ namespace spades {
 				isRaised = false;
 			else
 				isRaised = false;
-
 			lastRaiseState = raiseState;
 			raiseSpring.desired = isRaised ? 0 : 1;
-
-			swingFromSpring = Vector3(horizontalSwingSpring.position, 0, verticalSwingSpring.position);
 		}
 
 		void WeaponFired() {
@@ -271,7 +269,8 @@ namespace spades {
 
 				param.volume = 8.0F * environmentRoom;
 				audioDevice.PlayLocal((environmentSize < 0.5F)
-					? fireSmallReverbSound : fireLargeReverbSound, origin, param);
+					? fireSmallReverbSound : fireLargeReverbSound,
+					origin, param);
 			}
 
 			recoilVerticalSpring.velocity += 1.5;
@@ -314,20 +313,22 @@ namespace spades {
 			float sp = 1.0F - AimDownSightStateSmooth;
 
 			// recoil animation
-			Vector3 recoilRot = Vector3(-2.5, 0.3, 0.3) * recoilVerticalSpring.position;
-			Vector3 recoilOffset = Vector3(0, 0, -0.1) * recoilVerticalSpring.position;
-			recoilOffset -= Vector3(0, 1.2, 0) * recoilBackSpring.position;
-			mat = CreateEulerAnglesMatrix(recoilRot * sp) * mat;
-			mat = mat * CreateTranslateMatrix(recoilOffset);
+            Vector3 recoilRot = Vector3(-1.0, 0.3, 0.3) * recoilVerticalSpring.position;
+            Vector3 recoilOffset = Vector3(0, 0, -0.1) * recoilVerticalSpring.position * sp;
+            recoilOffset -= Vector3(0, 0.75, 0) * recoilBackSpring.position;
+            mat = CreateEulerAnglesMatrix(recoilRot * sp) * mat;
+            mat = mat * CreateTranslateMatrix(recoilOffset);
 
 			Vector3 trans(0, 0, 0);
 			trans += Vector3(-0.13F * sp, 0.5F, GetZPos());
-			trans += swing * GetMotionGain();
+			trans += swing * sp;
 			mat = CreateTranslateMatrix(trans) * mat;
 
 			// twist the gun when strafing
-			Vector3 strafeRot = Vector3(-2.0*swingFromSpring.z, 0, 2.0*swingFromSpring.x);
-			mat = mat * CreateEulerAnglesMatrix(strafeRot * sp);
+			Vector3 swingRot(0, 0, 0);
+			swingRot.z += 2.0F * horizontalSwingSpring.position;
+			swingRot.x -= 2.0F * verticalSwingSpring.position;
+			mat = mat * CreateEulerAnglesMatrix(swingRot * sp);
 
 			Vector3 pivot = Vector3(0.025F, 0.0F, 0.025F);
 			Vector3 sightPos = (frontSightAttachment - pivot) * globalScale;
