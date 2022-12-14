@@ -363,10 +363,6 @@ namespace spades {
 		void Client::DrawHottrackedPlayerName() {
 			SPADES_MARK_FUNCTION();
 
-			Player& p = GetWorld()->GetLocalPlayer().value();
-			if (p.IsSpectator())
-				return;
-
 			auto hottracked = HotTrackedPlayer();
 			if (hottracked) {
 				Player& player = std::get<0>(*hottracked);
@@ -927,10 +923,15 @@ namespace spades {
 					DrawHurtScreenEffect();
 				}
 
+				bool localPlayerIsSpectator = p->IsSpectator();
+				if (!localPlayerIsSpectator) {
 				if (cg_playerNames)
 					DrawHottrackedPlayerName();
 				if (cg_damageIndicators)
 					DrawDamageIndicators();
+				} else {
+					DrawPubOVL();
+				}
 
 				if (shouldDraw) {
 					tcView->Draw();
@@ -942,7 +943,7 @@ namespace spades {
 					if (!largeMapView->IsZoomed())
 						mapView->Draw();
 
-					if (!p->IsSpectator()) { // player is not spectator
+					if (!localPlayerIsSpectator) { // player is not spectator
 						if (cg_playerStats)
 							DrawPlayerStats();
 						if (!p->IsToolBlock() && !debugHitTestZoom)
@@ -956,7 +957,6 @@ namespace spades {
 						}
 					} else {
 						DrawSpectateHUD();
-						DrawPubOVL();
 					}
 
 					chatWindow->Draw();
