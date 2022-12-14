@@ -343,8 +343,8 @@ namespace spades {
 					GameMap::RayCastResult const res = ProjectArc(position, particleVelocity, 1.4F, *map);
 					if (!res.hit)
 						continue;
-					if (res.hitBlock.z >= 62)
-						break; // Water
+					if (res.hitBlock.z >= 63.0F)
+						break; // don't leave marks on water
 
 					// Find the anchor voxels
 					array<IntVector3, 4> anchors;
