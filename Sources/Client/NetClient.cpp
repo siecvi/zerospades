@@ -910,42 +910,42 @@ namespace spades {
 					break;
 				case PacketTypeShortPlayerData:
 					SPRaise("Unexpected: received Short Player Data");
-				case PacketTypeMoveObject:
+				case PacketTypeMoveObject: {
 					if (!GetWorld())
 						SPRaise("No world");
-					{
-						int type = r.ReadByte();
-						int state = r.ReadByte();
-						Vector3 pos = r.ReadVector3();
 
-						stmp::optional<IGameMode&> mode = GetWorld()->GetMode();
-						if (mode && IGameMode::m_CTF == mode->ModeType()) {
-							auto& ctf = dynamic_cast<CTFGameMode&>(mode.value());
-							switch (type) {
-								case BLUE_BASE: ctf.GetTeam(0).basePos = pos; break;
-								case BLUE_FLAG: ctf.GetTeam(0).flagPos = pos; break;
-								case GREEN_BASE: ctf.GetTeam(1).basePos = pos; break;
-								case GREEN_FLAG: ctf.GetTeam(1).flagPos = pos; break;
-							}
-						} else if (mode && IGameMode::m_TC == mode->ModeType()) {
-							auto& tc = dynamic_cast<TCGameMode&>(mode.value());
-							if (type >= tc.GetNumTerritories()) {
+					int type = r.ReadByte();
+					int state = r.ReadByte();
+					Vector3 pos = r.ReadVector3();
+
+					stmp::optional<IGameMode&> mode = GetWorld()->GetMode();
+					if (mode && IGameMode::m_CTF == mode->ModeType()) {
+						auto& ctf = dynamic_cast<CTFGameMode&>(mode.value());
+						switch (type) {
+							case BLUE_BASE: ctf.GetTeam(0).basePos = pos; break;
+							case BLUE_FLAG: ctf.GetTeam(0).flagPos = pos; break;
+							case GREEN_BASE: ctf.GetTeam(1).basePos = pos; break;
+							case GREEN_FLAG: ctf.GetTeam(1).flagPos = pos; break;
+						}
+					} else if (mode && IGameMode::m_TC == mode->ModeType()) {
+						auto& tc = dynamic_cast<TCGameMode&>(mode.value());
+						if (type >= tc.GetNumTerritories()) {
 								SPRaise("Invalid territory id specified: %d (max = %d)",
 									(int)type, tc.GetNumTerritories() - 1);
-							}
-
-							if (state > 2)
-								SPRaise("Invalid state %d specified for territory owner.", (int)state);
-
-							TCGameMode::Territory& t = tc.GetTerritory(type);
-							t.pos = pos;
-							t.ownerTeamId = state;
 						}
+
+						if (state > 2)
+							SPRaise("Invalid state %d specified for territory owner.", (int)state);
+
+						TCGameMode::Territory& t = tc.GetTerritory(type);
+						t.pos = pos;
+						t.ownerTeamId = state;
 					}
-					break;
+				} break;
 				case PacketTypeCreatePlayer: {
 					if (!GetWorld())
 						SPRaise("No world");
+
 					int pId = r.ReadByte();
 					int weapon = r.ReadByte();
 					int team = r.ReadByte();
@@ -990,7 +990,6 @@ namespace spades {
 						}
 					}
 					client->PlayerSpawned(pRef);
-
 				} break;
 				case PacketTypeBlockAction: {
 					stmp::optional<Player&> p = GetPlayerOrNull(r.ReadByte());
@@ -1360,7 +1359,7 @@ namespace spades {
 					if (team < 0 || team > 2)
 						SPRaise("Received invalid team: %d", team);
 					p.SetTeam(team);
-				}
+				} break;
 				case PacketTypeChangeWeapon: {
 					Player& p = GetPlayer(r.ReadByte());
 					int weapon = r.ReadByte();
