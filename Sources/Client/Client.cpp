@@ -513,7 +513,9 @@ namespace spades {
 		}
 
 		void Client::ShowAlert(const std::string& contents, AlertType type) {
-			if (type != AlertType::Notice && !cg_alerts) {
+			if (!cg_alerts) {
+				chatWindow->AddMessage(contents);
+				if (type != AlertType::Notice)
 				PlayAlertSound();
 				return;
 			}
