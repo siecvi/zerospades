@@ -92,19 +92,16 @@ namespace spades {
 			chunkInvalid[chunkId] = true;
 		}
 
-		void GLFlatMapRenderer::Draw(const AABB2& dest, const AABB2& src) {
-			SPADES_MARK_FUNCTION();
-
-			// update chunks
+		void GLFlatMapRenderer::UpdateChunks() {
 			for (size_t i = 0; i < chunkInvalid.size(); i++) {
 				if (!chunkInvalid[i])
 					continue;
+
 				int chunkX = ((int)i) % chunkCols;
 				int chunkY = ((int)i) / chunkCols;
 
-				Handle<Bitmap> bmp(
-				  GenerateBitmap(chunkX * ChunkSize, chunkY * ChunkSize, ChunkSize, ChunkSize),
-				  false);
+				Handle<Bitmap> bmp(GenerateBitmap(chunkX * ChunkSize,
+					chunkY * ChunkSize, ChunkSize, ChunkSize), false);
 				try {
 					image->SubImage(bmp.GetPointerOrNull(), chunkX * ChunkSize, chunkY * ChunkSize);
 				} catch (...) {
@@ -112,6 +109,10 @@ namespace spades {
 				}
 				chunkInvalid[i] = false;
 			}
+		}
+
+		void GLFlatMapRenderer::Draw(const AABB2& dest, const AABB2& src) {
+			SPADES_MARK_FUNCTION();
 
 			renderer.DrawImage(*image, dest, src);
 		}

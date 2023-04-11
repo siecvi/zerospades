@@ -60,6 +60,7 @@ namespace spades {
 			void SwitchScale();
 			bool IsZoomed() { return zoomed; }
 			bool ToggleZoom();
+			void SetZoom(bool value) { zoomed = value; };
 			std::string ToGrid(float x, float y);
 
 			void Draw();
@@ -74,9 +75,7 @@ namespace spades {
 			bool firstUpdate;
 
 		public:
-			bool shotgun;
-
-			MapViewTracer(Vector3 p1, Vector3 p2, float bulletVel, bool shotgun);
+			MapViewTracer(Vector3 p1, Vector3 p2);
 			~MapViewTracer();
 
 			bool Update(float dt) override;

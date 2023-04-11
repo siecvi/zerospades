@@ -50,7 +50,7 @@ namespace spades {
 			GLFlatMapRenderer(GLRenderer& renderer, client::GameMap& map);
 			~GLFlatMapRenderer();
 			void Draw(const AABB2& dest, const AABB2& src);
-
+			void UpdateChunks();
 			void GameMapChanged(int x, int y, int z, client::GameMap&);
 		};
 	} // namespace draw

@@ -1155,7 +1155,7 @@ namespace spades {
 				vel *= 2.0F;
 
 			AddLocalEntity(stmp::make_unique<Tracer>(*this, muzzlePos, hitPos, vel, shotgun));
-			AddLocalEntity(stmp::make_unique<MapViewTracer>(muzzlePos, hitPos, vel, shotgun));
+			AddLocalEntity(stmp::make_unique<MapViewTracer>(muzzlePos, hitPos));
 		}
 
 		void Client::BlocksFell(std::vector<IntVector3> blocks) {

@@ -546,11 +546,15 @@ namespace spades {
 						if (!p.IsSpectator() && p.IsAlive() && p.IsToolBlock())
 							CaptureColor();
 					} else if (CheckKey(cg_keyChangeMapScale, name) && down) {
+						if (!largeMapView->IsZoomed()) {
+							renderer->UpdateFlatGameMap();
 						mapView->SwitchScale();
 						Handle<IAudioChunk> c =
 						  audioDevice->RegisterSound("Sounds/Misc/SwitchMapZoom.opus");
 						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+						}
 					} else if (CheckKey(cg_keyToggleMapZoom, name) && down) {
+						renderer->UpdateFlatGameMap();
 						Handle<IAudioChunk> c = largeMapView->ToggleZoom()
 						    ? audioDevice->RegisterSound("Sounds/Misc/OpenMap.opus")
 						    : audioDevice->RegisterSound("Sounds/Misc/CloseMap.opus");

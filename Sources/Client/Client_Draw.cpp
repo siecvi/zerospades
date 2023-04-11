@@ -931,7 +931,8 @@ namespace spades {
 						DrawFirstPersonHUD();
 
 					// draw map
-					if (!largeMapView->IsZoomed())
+					bool largeMap = largeMapView->IsZoomed();
+					if (!largeMap)
 						mapView->Draw();
 
 					if (!localPlayerIsSpectator) { // player is not spectator
@@ -958,7 +959,7 @@ namespace spades {
 						DrawHitTestDebugger();
 
 					// large map view should come in front
-					if (largeMapView->IsZoomed())
+					if (largeMap)
 						largeMapView->Draw();
 				} else {
 					// chat bypass cg_hideHud

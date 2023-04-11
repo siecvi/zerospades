@@ -137,9 +137,14 @@ namespace spades {
 		}
 
 		void MapView::DrawIcon(spades::Vector3 pos, IImage& img, float rotation) {
-			if (pos.x < inRect.GetMinX() || pos.x > inRect.GetMaxX() ||
-				pos.y < inRect.GetMinY() || pos.y > inRect.GetMaxY())
-				return;
+			if ((int)cg_minimapPlayerIcon == 2 && rotation == 0.0F) {
+				pos.x = Clamp(pos.x, inRect.GetMinX(), inRect.GetMaxX());
+				pos.y = Clamp(pos.y, inRect.GetMinY(), inRect.GetMaxY());
+			} else {
+				if (pos.x < inRect.GetMinX() || pos.x > inRect.GetMaxX() ||
+				    pos.y < inRect.GetMinY() || pos.y > inRect.GetMaxY())
+					return;
+			}
 
 			Vector2 scrPos = Project(Vector2{pos.x, pos.y});
 			float c = (rotation != 0.0F) ? cosf(rotation) : 1.0F;
@@ -246,6 +251,8 @@ namespace spades {
 			Player& localPlayer = world->GetLocalPlayer().value();
 			Player& focusPlayer = focusPlayerPtr.value();
 
+			bool localPlayerIsSpectator = localPlayer.IsSpectator();
+
 			if (largeMap && zoomState < 0.0001F)
 				return;
 
@@ -279,7 +286,6 @@ namespace spades {
 
 			Vector2 inRange = mapWndSize * 0.5F * actualScale;
 			AABB2 inRect(center - inRange, center + inRange);
-
 			if (largeMap) {
 				inRect.min = MakeVector2(0, 0);
 				inRect.max = mapSize;
@@ -309,30 +315,34 @@ namespace spades {
 			this->inRect = inRect;
 			this->outRect = outRect;
 
-			// draw grid
-			Vector2 gridSize = mapSize / 8.0F;
+			Vector4 gridCol = MakeVector4(0.8F, 0.8F, 0.8F, 0.8F) * alpha;
 
-			renderer.SetColorAlphaPremultiplied(MakeVector4(0.8F, 0.8F, 0.8F, 0.8F * alpha));
+			// draw grid lines
+			Vector2 gridSize = mapSize / 8.0F;
+			renderer.SetColorAlphaPremultiplied(gridCol);
 			for (float x = gridSize.x; x < mapSize.x; x += gridSize.x) {
 				float wx = (x - inRect.GetMinX()) / inRect.GetWidth();
 				if (wx < 0.0F || wx >= 1.0F)
 					continue;
 				wx = (wx * outRect.GetWidth()) + outRect.GetMinX();
-				renderer.DrawImage(nullptr, MakeVector2(wx, outRect.GetMinY()),
-				                   AABB2(0, 0, 1, outRect.GetHeight()));
+				for (float dx = 0; dx < outRect.GetHeight(); dx += 3) {
+					renderer.DrawImage(nullptr, MakeVector2(wx, outRect.GetMinY() + dx),
+					                   AABB2(0, 0, 1, 2));
+				}
 			}
 			for (float y = gridSize.y; y < mapSize.y; y += gridSize.y) {
 				float wy = (y - inRect.GetMinY()) / inRect.GetHeight();
 				if (wy < 0.0F || wy >= 1.0F)
 					continue;
 				wy = (wy * outRect.GetHeight()) + outRect.GetMinY();
-				renderer.DrawImage(nullptr, MakeVector2(outRect.GetMinX(), wy),
-				                   AABB2(0, 0, outRect.GetWidth(), 1));
+				for (float dy = 0; dy < outRect.GetWidth(); dy += 3) {
+					renderer.DrawImage(nullptr, MakeVector2(outRect.GetMinX() + dy, wy),
+					                   AABB2(0, 0, 2, 1));
+				}
 			}
 
-			// Draw grid label
+			// draw grid label
 			Handle<IImage> mapFont = renderer.RegisterImage("Gfx/Fonts/MapFont.tga");
-
 			for (int i = 0; i < 8; i++) {
 				float startX = (float)i * gridSize.x;
 				float endX = startX + gridSize.x;
@@ -344,8 +354,7 @@ namespace spades {
 					  - std::max(startX, inRect.GetMinX()))
 					  / (endX - startX) * 2.0F, 1.0F);
 
-				renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) *
-				                                    (fade * 0.8F * alpha));
+				renderer.SetColorAlphaPremultiplied(gridCol * fade);
 
 				float center = std::max(startX, inRect.GetMinX());
 				center = 0.5F * (center + std::min(endX, inRect.GetMaxX()));
@@ -359,9 +368,8 @@ namespace spades {
 				renderer.DrawImage(mapFont, MakeVector2(wx - 4, outRect.GetMinY() + 4),
 				                   AABB2(fntX, fntY, 8, 8));
 			}
-
 			for (int i = 0; i < 8; i++) {
-				float startY = (float)i * gridSize.y;
+				float startY = (float)i * gridSize.x;
 				float endY = startY + gridSize.y;
 
 				if (startY > inRect.GetMaxY() || endY < inRect.GetMinY())
@@ -371,8 +379,7 @@ namespace spades {
 					- std::max(startY, inRect.GetMinY()))
 					/ (endY - startY) * 2.0F, 1.0F);
 
-				renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) *
-				                                    (fade * 0.8F * alpha));
+				renderer.SetColorAlphaPremultiplied(gridCol * fade);
 
 				float center = std::max(startY, inRect.GetMinY());
 				center = 0.5F * (center + std::min(endY, inRect.GetMaxY()));
@@ -387,16 +394,53 @@ namespace spades {
 				                   AABB2(fntX, fntY, 8, 8));
 			}
 
-			// draw border
-			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, alpha));
+			// draw map border
+			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1) * alpha);
 			renderer.DrawOutlinedRect(outRect.GetMinX() - 1, outRect.GetMinY() - 1,
 			                          outRect.GetMaxX() + 1, outRect.GetMaxY() + 1);
 
-			// draw objects
-			Handle<IImage> playerIcon = renderer.RegisterImage("Gfx/Map/Player.png");
-			Handle<IImage> viewIcon = renderer.RegisterImage("Gfx/Map/View.png");
+			// draw bullet tracers
+			Handle<IImage> tracerImg = renderer.RegisterImage("Gfx/White.tga");
+			const float tracerW = 0.5F;
+			const AABB2 tracerInRect{0.0F, 0.0F, tracerImg->GetWidth(), tracerImg->GetHeight()};
+			for (const auto& localEntity : client->localEntities) {
+				auto* const tracer = dynamic_cast<MapViewTracer*>(localEntity.get());
+				if (!tracer)
+					continue;
+
+				const auto line1 = tracer->GetLineSegment();
+				if (!line1)
+					continue;
+
+				auto line2 = ClipLineSegment(std::make_pair(Vector2{(*line1).first.x,
+					(*line1).first.y}, Vector2{(*line1).second.x, (*line1).second.y}), inRect);
+				if (!line2)
+					continue;
+
+				auto& line3 = *line2;
+				line3.first = Project(line3.first);
+				line3.second = Project(line3.second);
+
+				if (line3.first == line3.second)
+					continue;
+
+				Vector2 normal = (line3.second - line3.first).Normalize();
+				normal = {-normal.y, normal.x};
+
+				{
+					const Vector2 vt[] = {
+						line3.first - normal * tracerW,
+						line3.first + normal * tracerW,
+						line3.second - normal * tracerW
+					};
+
+					renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 0, 1) * alpha);
+					renderer.DrawImage(tracerImg, vt[0], vt[1], vt[2], tracerInRect);
+				}
+			}
 
 			// draw player's icon
+			Handle<IImage> playerIcon = renderer.RegisterImage("Gfx/Map/Player.png");
 			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
 				auto maybePlayer = world->GetPlayer(i);
 				if (!maybePlayer)
@@ -405,17 +449,18 @@ namespace spades {
 				Player& p = maybePlayer.value();
 				if (!p.IsAlive())
 					continue; // player is dead
-				if (&p != &localPlayer && p.IsSpectator())
+				if (p.IsSpectator() && &p != &localPlayer)
 					continue; // don't draw other spectators
-				if (!localPlayer.IsSpectator() && !localPlayer.IsTeamMate(&p))
+				if (p.IsSpectator() && &p == &localPlayer && HasTargetPlayer(cameraMode))
+					continue; // don't draw white icon when spectating a player
+				if (!localPlayerIsSpectator && !localPlayer.IsTeamMate(&p))
 					continue; // don't draw enemies when not spectating a player
 
 				IntVector3 iconColor = p.GetColor();
-				if (&p == &localPlayer && !p.IsSpectator())
+				if (&p == &localPlayer && !localPlayerIsSpectator)
 					iconColor = MakeIntVector3(0, 255, 255);
-				if (cg_minimapPlayerColor)
+				else if (cg_minimapPlayerColor)
 					iconColor = MakeIntVector3(palette[i][0], palette[i][1], palette[i][2]);
-
 				Vector4 iconColorF = ModifyColor(iconColor) * alpha;
 
 				if (cg_minimapPlayerIcon) {
@@ -429,16 +474,15 @@ namespace spades {
 						case SHOTGUN_WEAPON:
 							playerIcon = renderer.RegisterImage("Gfx/Map/Shotgun.png");
 							break;
-						default:
-							playerIcon = renderer.RegisterImage("Gfx/Map/Player.png");
-							break;
+						default: playerIcon = renderer.RegisterImage("Gfx/Map/Player.png"); break;
 					}
 				}
 
-				// Draw the focused player's view
+				// draw the focused player view
 				if (&p == &focusPlayer) {
-					if (p.IsZoomed())
-						viewIcon = renderer.RegisterImage("Gfx/Map/ViewADS.png");
+					Handle<IImage> viewIcon = focusPlayer.IsZoomed()
+						? renderer.RegisterImage("Gfx/Map/ViewADS.png")
+						: renderer.RegisterImage("Gfx/Map/View.png");
 
 					renderer.SetColorAlphaPremultiplied(iconColorF * 0.9F);
 					DrawIcon(focusPlayerPos, *viewIcon, focusPlayerAngle);
@@ -456,8 +500,9 @@ namespace spades {
 				DrawIcon(p.GetPosition(), *playerIcon, playerAngle);
 			}
 
+			// draw map objects
 			stmp::optional<IGameMode&> mode = world->GetMode();
-			if (mode && IGameMode::m_CTF == mode->ModeType()) {
+			if (mode && mode->ModeType() == IGameMode::m_CTF) {
 				CTFGameMode& ctf = dynamic_cast<CTFGameMode&>(*mode);
 				Handle<IImage> intelIcon = renderer.RegisterImage("Gfx/Map/Intel.png");
 				Handle<IImage> baseIcon = renderer.RegisterImage("Gfx/Map/CommandPost.png");
@@ -475,11 +520,11 @@ namespace spades {
 						DrawIcon(team.flagPos, *intelIcon);
 					} else if (localPlayer.GetTeamId() == (1 - tId)) {
 						// local player's team is carrying
-						size_t cId = ctf.GetTeam(1 - tId).carrierId;
+						int pId = ctf.GetTeam(1 - tId).carrierId;
 
 						// in some game modes, carrier becomes invalid
-						if (cId < world->GetNumPlayerSlots()) {
-							auto carrier = world->GetPlayer(cId);
+						if (pId < int(world->GetNumPlayerSlots())) {
+							auto carrier = world->GetPlayer(pId);
 							if (carrier && carrier->IsTeamMate(&localPlayer)) {
 								float pulse = std::max(0.5F, fabsf(sinf(world->GetTime() * 4.0F)));
 								renderer.SetColorAlphaPremultiplied(teamColorF * pulse);
@@ -488,7 +533,7 @@ namespace spades {
 						}
 					}
 				}
-			} else if (mode && IGameMode::m_TC == mode->ModeType()) {
+			} else if (mode && mode->ModeType() == IGameMode::m_TC) {
 				TCGameMode& tc = dynamic_cast<TCGameMode&>(*mode);
 				Handle<IImage> baseIcon = renderer.RegisterImage("Gfx/Map/CommandPost.png");
 				for (int i = 0; i < tc.GetNumTerritories(); i++) {
@@ -503,54 +548,7 @@ namespace spades {
 				}
 			}
 
-			// draw tracers
-			Handle<IImage> tracerImg = renderer.RegisterImage("Gfx/Ball.png");
-			const float tracerW = 2.0F;
-			const AABB2 tracerInRect{0.0F, 0.0F, tracerImg->GetWidth(), tracerImg->GetHeight()};
-
-			for (const auto& localEntity : client->localEntities) {
-				auto* const tracer = dynamic_cast<MapViewTracer*>(localEntity.get());
-				if (!tracer)
-					continue;
-
-				const auto line1 = tracer->GetLineSegment();
-				if (!line1)
-					continue;
-
-				auto line2 = ClipLineSegment(std::make_pair(Vector2{(*line1).first.x, (*line1).first.y},
-				                                 Vector2{(*line1).second.x, (*line1).second.y}), inRect);
-				if (!line2)
-					continue;
-
-				auto& line3 = *line2;
-				line3.first = Project(line3.first);
-				line3.second = Project(line3.second);
-
-				if (line3.first == line3.second)
-					continue;
-
-				Vector2 normal = (line3.second - line3.first).Normalize();
-				normal = {-normal.y, normal.x};
-
-				{
-					const Vector2 vt[] = {
-						line3.first - normal * tracerW,
-					    line3.first + normal * tracerW,
-			            line3.second - normal * tracerW
-					};
-
-					Vector4 col;
-					if (tracer->shotgun)
-						col = {0, 0, 0, 0.25};
-					else
-						col = {1, 0.8F, 0.6F, 1};
-
-					renderer.SetColorAlphaPremultiplied(col * alpha);
-					renderer.DrawImage(tracerImg, vt[0], vt[1], vt[2], tracerInRect);
-				}
-			}
-
-			// draw map sector in team color below minimap
+			// draw map sector
 			if (!largeMap && cg_minimapCoords) {
 				IFont& font = client->fontManager->GetGuiFont();
 				auto gridStr = ToGrid(focusPlayerPos.x, focusPlayerPos.y);
@@ -574,19 +572,16 @@ namespace spades {
 			}
 		}
 
-		MapViewTracer::MapViewTracer(Vector3 p1, Vector3 p2, float bulletVel, bool shotgun)
-		    : startPos(p1), velocity(bulletVel), shotgun(shotgun) {
+		MapViewTracer::MapViewTracer(Vector3 p1, Vector3 p2)
+		    : startPos(p1), velocity(300.0F) {
 			// Z coordinate doesn't matter in MapView
 			p1.z = p2.z = 0.0F;
 
 			dir = (p2 - p1).Normalize();
 			length = (p2 - p1).GetLength();
 
-			// in MapView it looks slower than it is actually, so compensate for that
-			bulletVel *= 4.0F;
-
-			const float maxTimeSpread = 1.0F / 10.0F;
-			const float shutterTime = 1.0F / 10.0F;
+			const float maxTimeSpread = 1.0F / 20.0F;
+			const float shutterTime = 1.0F / 20.0F;
 
 			visibleLength = shutterTime * velocity;
 			curDistance = -visibleLength;

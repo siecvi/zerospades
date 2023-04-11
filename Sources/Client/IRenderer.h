@@ -168,6 +168,7 @@ namespace spades {
 				DrawFilledRect(x1 - 1, y0 + 1, x1, y1 - 1); // right
 			}
 
+			virtual void UpdateFlatGameMap() = 0;
 			virtual void DrawFlatGameMap(const AABB2& outRect, const AABB2& inRect) = 0;
 
 			/** Finalizes a frame. */
