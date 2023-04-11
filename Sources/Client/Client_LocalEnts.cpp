@@ -278,6 +278,11 @@ namespace spades {
 			if (!cg_muzzleFire)
 				return;
 
+			// distance cull
+			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
+			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
+				return;
+
 			DynamicLightParam l;
 			l.origin = pos;
 			l.radius = 5.0F;
@@ -373,7 +378,7 @@ namespace spades {
 				ent->SetRadius(radius);
 				ent->SetLifeTime(3.5F + SampleRandomFloat() * 2.0F, 0.0F, 1.0F);
 				if (distSqr < 16.0F * 16.0F)
-				ent->SetBlockHitAction(BlockHitAction::BounceWeak);
+					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}
 
@@ -469,7 +474,7 @@ namespace spades {
 				ent->SetRadius(radius);
 				ent->SetLifeTime(3.5F + SampleRandomFloat() * 2.0F, 0.0F, 1.0F);
 				if (distSqr < 16.0F * 16.0F)
-				ent->SetBlockHitAction(BlockHitAction::BounceWeak);
+					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}
 

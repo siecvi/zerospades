@@ -1119,9 +1119,13 @@ namespace spades {
 			if (!cg_tracers)
 				return;
 
-			bool isFirstPerson = IsInFirstPersonView(player.GetId());
+			// distance cull
+			float distSqr = (muzzlePos - lastSceneDef.viewOrigin).GetSquaredLength2D();
+			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
+				return;
 
 			// If disabled, do not display tracers for bullets fired by the local player
+			bool isFirstPerson = IsInFirstPersonView(player.GetId());
 			if (!cg_tracersFirstPerson && isFirstPerson)
 				return;
 
