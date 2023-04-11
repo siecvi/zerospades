@@ -64,7 +64,7 @@ namespace spades {
 			ApplyBlockActions();
 
 			for (const auto& p : players) {
-				if (p)
+				if (p && !p->IsSpectator())
 					p->Update(dt);
 			}
 
