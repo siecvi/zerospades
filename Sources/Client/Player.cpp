@@ -93,16 +93,22 @@ namespace spades {
 				return;
 
 			if (newInput.crouch != input.crouch) {
-				if (newInput.crouch && !airborne) {
+				if (newInput.crouch) {
+					if (!airborne || !IsLocalPlayer()) {
 					position.z += 0.9F;
+						eye.z += 0.9F;
+					}	
 				} else {
 					// Refuse the standing-up request if there's no room
 					if (!TryUncrouch()) {
-						// ... unless the request is from the server.
-						if (IsLocalPlayer())
+						if (IsLocalPlayer()) {
 							newInput.crouch = true;
+						} else { // ... unless the request is from the server.
+							position.z -= 0.9F;
+							eye.z -= 0.9F;
 					}
 				}
+			}
 			}
 
 			input = newInput;
@@ -1067,13 +1073,18 @@ namespace spades {
 			const Handle<GameMap>& map = world.GetMap();
 			SPAssert(map);
 
-			// lower feet
+			// first check if player can lower feet (in midair)
 			if (airborne && !(map->ClipBox(x1, y1, z1)
 				|| map->ClipBox(x2, y1, z1)
 				|| map->ClipBox(x1, y2, z1)
-				|| map->ClipBox(x2, y2, z1)))
+				|| map->ClipBox(x2, y2, z1))) {
+				if (!IsLocalPlayer()) {
+					position.z -= 0.9F;
+					eye.z -= 0.9F;
+				}
 				return true;
-			else if (!(map->ClipBox(x1, y1, z2)
+			// then check if they can raise their head
+			} else if (!(map->ClipBox(x1, y1, z2)
 				|| map->ClipBox(x2, y1, z2)
 				|| map->ClipBox(x1, y2, z2)
 				|| map->ClipBox(x2, y2, z2))) {
