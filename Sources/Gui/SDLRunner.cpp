@@ -452,8 +452,12 @@ namespace spades {
 #if !NDEBUG
 					caption.append(" DEBUG build");
 #endif
+#ifdef GIT_COMMIT_HASH
+					caption.append(" " GIT_COMMIT_HASH); // add git hash to window title
+#else
 #ifdef OPENSPADES_COMPILER_STR
 					caption.append(" " OPENSPADES_COMPILER_STR); // add compiler to window title
+#endif
 #endif
 				}
 
