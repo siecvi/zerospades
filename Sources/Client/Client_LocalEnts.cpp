@@ -160,7 +160,7 @@ namespace spades {
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				ent->SetTrajectory(pos, RandomAxis() * 8.0F);
-				ent->SetRadius(0.45F);
+				ent->SetRadius(0.4F);
 				ent->SetLifeTime(2.0F, 0.0F, 1.0F);
 				ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
@@ -372,6 +372,7 @@ namespace spades {
 				ent->SetTrajectory(pos + dir * 0.2F, dir * 20.0F, 0.1F + radius * 3.0F, 1.0F);
 				ent->SetRadius(radius);
 				ent->SetLifeTime(3.5F + SampleRandomFloat() * 2.0F, 0.0F, 1.0F);
+				if (distSqr < 16.0F * 16.0F)
 				ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}
@@ -467,6 +468,7 @@ namespace spades {
 				ent->SetTrajectory(pos + dir * 0.2F, dir * 20.0F, 0.1F + radius * 3.0F, 1.0F);
 				ent->SetRadius(radius);
 				ent->SetLifeTime(3.5F + SampleRandomFloat() * 2.0F, 0.0F, 1.0F);
+				if (distSqr < 16.0F * 16.0F)
 				ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}
