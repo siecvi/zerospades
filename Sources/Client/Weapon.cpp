@@ -222,7 +222,7 @@ namespace spades {
 					case HitTypeHead: return 100;
 					case HitTypeArms: return 33;
 					case HitTypeLegs: return 33;
-					case HitTypeBlock: return 55;
+					case HitTypeBlock: return 50;
 					default: SPAssert(false); return 0;
 				}
 			}
@@ -275,9 +275,9 @@ namespace spades {
 					case HitTypeArms: return 16;
 					case HitTypeLegs: return 16;
 					case HitTypeBlock:
-						// Actually, you cast a hit per pallet.
+						// Actually, you cast a hit per pellet.
 						// --GM
-						return 22;
+						return 34;
 					default: SPAssert(false); return 0;
 				}
 			}
