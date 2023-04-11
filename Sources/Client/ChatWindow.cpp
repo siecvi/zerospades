@@ -63,7 +63,7 @@ namespace spades {
 			}
 		}
 
-		float ChatWindow::GetLineHeight() { return cg_smallFont ? 16.0F : 20.0F; }
+		float ChatWindow::GetLineHeight() { return cg_smallFont ? 12.0F : 20.0F; }
 
 		static bool isWordChar(char c) { return isalnum(c) || c == '\''; }
 
@@ -120,9 +120,9 @@ namespace spades {
 				}
 			}
 
-			entries.push_front(ChatEntry(msg, h, 15.0F));
+			entries.push_front(ChatEntry(msg, lh, 15.0F));
 
-			firstY -= h;
+			firstY -= lh;
 		}
 
 		std::string ChatWindow::ColoredMessage(const std::string& msg, char c) {
@@ -205,7 +205,7 @@ namespace spades {
 
 			float winW = GetWidth();
 			float winH = expanded ? GetBufferHeight() : GetNormalHeight();
-			float winX = 4.0F;
+			float winX = 8.0F;
 			float winY = killfeed ? 8.0F : renderer->ScreenHeight() - winH - 64.0F;
 			float lh = GetLineHeight();
 			float y = firstY;
@@ -217,8 +217,8 @@ namespace spades {
 			// note: UTF-8's longest character is 6 bytes
 
 			// Draw a box behind text when expanded
-			if (expanded) { 
-				float x1 = 0.0F;
+			if (expanded) {
+				float x1 = winX - 4.0F;
 				float y1 = winY + y;
 				float x2 = winW + 16.0F;
 				float y2 = winH + 16.0F - y;
