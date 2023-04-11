@@ -51,10 +51,10 @@ set_target_properties(OpenSpades PROPERTIES WIN32_EXECUTABLE TRUE)
 set(GIT_COMMIT_HASH "?")
 
 execute_process(
-  COMMAND git log -1 --format=%h
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-  OUTPUT_VARIABLE GIT_COMMIT_HASH
-  OUTPUT_STRIP_TRAILING_WHITESPACE
+	COMMAND git log -1 --format=%h
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	OUTPUT_VARIABLE GIT_COMMIT_HASH
+	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
 target_compile_definitions(OpenSpades PRIVATE GIT_COMMIT_HASH="${GIT_COMMIT_HASH}")
@@ -64,9 +64,9 @@ if(APPLE OR WIN32)
 	# the correct capitalization.
 	# We also want the correct capitalization on Windows.
 	set_target_properties(OpenSpades PROPERTIES OUTPUT_NAME OpenSpades)
-else(APPLE)
+else()
 	set_target_properties(OpenSpades PROPERTIES OUTPUT_NAME openspades)
-endif(APPLE)
+endif()
 
 if (APPLE)
 	# The built pak files are copied into the macOS application bundle. CMake
