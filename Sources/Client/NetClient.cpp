@@ -750,7 +750,7 @@ namespace spades {
 						// ignore this now
 						break;
 					}
-					p.SetPosition(r.ReadVector3());
+					p.RepositionPlayer(r.ReadVector3());
 				} break;
 				case PacketTypeOrientationData: {
 					Player& p = GetLocalPlayer();
@@ -787,7 +787,7 @@ namespace spades {
 								auto p = GetWorld()->GetPlayer(idx);
 								if (p && p != GetWorld()->GetLocalPlayer()
 									&& p->IsAlive() && !p->IsSpectator()) {
-									p->SetPosition(pos);
+									p->RepositionPlayer(pos);
 									p->SetOrientation(front);
 								}
 							}

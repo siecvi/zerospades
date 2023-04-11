@@ -123,7 +123,6 @@ namespace spades {
 
 			float respawnTime;
 
-			void RepositionPlayer(const Vector3&);
 			void MoveCorpse(float fsynctics);
 			void MovePlayer(float fsynctics);
 			void BoxClipMove(float fsynctics);
@@ -187,6 +186,7 @@ namespace spades {
 
 			bool IsAwaitingReloadCompletion() { return reloadingServerSide; }
 
+			void RepositionPlayer(const Vector3&);
 			void SetPosition(const Vector3&);
 			void SetOrientation(const Vector3&);
 			void SetVelocity(const Vector3&);
