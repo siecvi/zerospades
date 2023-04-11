@@ -43,6 +43,7 @@ namespace spades {
 			std::list<Entry> entries;
 
 			int GetFreeLine();
+			float GetLineHeight();
 
 		public:
 			CenterMessageView(Client*, IFont*);

@@ -121,12 +121,13 @@ namespace spades {
 			renderer->SetFogDistance(128.0F);
 
 			auto* chatFont = cg_smallFont ? &fontManager->GetSmallFont() : &fontManager->GetGuiFont();
+			auto* centerFont = cg_smallFont ? &fontManager->GetMediumFont() : &fontManager->GetLargeFont();
 
 			chatWindow = stmp::make_unique<ChatWindow>(this, &GetRenderer(), chatFont, false);
 			killfeedWindow = stmp::make_unique<ChatWindow>(this, &GetRenderer(), chatFont, true);
 
 			hurtRingView = stmp::make_unique<HurtRingView>(this);
-			centerMessageView = stmp::make_unique<CenterMessageView>(this, &fontManager->GetLargeFont());
+			centerMessageView = stmp::make_unique<CenterMessageView>(this, centerFont);
 			mapView = stmp::make_unique<MapView>(this, false);
 			largeMapView = stmp::make_unique<MapView>(this, true);
 			scoreboard = stmp::make_unique<ScoreboardView>(this);
