@@ -459,8 +459,16 @@ namespace spades {
 		bool Player::RayCastApprox(spades::Vector3 start, spades::Vector3 dir, float tolerance) {
 			Vector3 diff = position - start;
 
+			// Skip if out of range.
+			if (diff.GetSquaredLength2D() > FOG_DISTANCE * FOG_DISTANCE)
+				return false;
+
 			// |P-A| * cos(theta)
 			float c = Vector3::Dot(diff, dir);
+
+			// Looking away?
+			if (c <= 0.0F)
+				return false;
 
 			// |P-A|^2
 			float sq = diff.GetSquaredLength();
@@ -710,6 +718,7 @@ namespace spades {
 			const Handle<GameMap>& map = world.GetMap();
 			SPAssert(map);
 
+			// first do map raycast
 			GameMap::RayCastResult mapResult;
 			mapResult = map->CastRay2(muzzle, dir, 32);
 
@@ -721,25 +730,15 @@ namespace spades {
 
 				Player& other = maybeOther.value();
 				if (!other.IsAlive() || other.IsSpectator())
-					continue;
+					continue; // filter deads/spectators
+				if ((position - other.GetPosition()).GetLength() > MELEE_DISTANCE)
+					continue; // skip players outside attack range
+				if (!other.RayCastApprox(muzzle, dir))
+					continue; // quickly reject players unlikely to be hit
 
-				Vector3 pos = other.GetPosition();
-				if ((position - pos).GetLength() > MELEE_DISTANCE)
-					continue;
-
-				pos.z += 1;
-
-				Vector3 vc;
-				vc.x = Vector3::Dot(position - pos, GetRight());
-				vc.y = Vector3::Dot(position - pos, GetUp());
-				vc.z = Vector3::Dot(position - pos, GetFront());
-
-				Vector2 view = MakeVector2(vc.x, vc.y) / vc.z;
-				if (view.GetChebyshevLength() < MELEE_TOLERANCE) {
 					hitPlayer = other;
 					break;
 				}
-			}
 
 			IntVector3 outBlockPos = mapResult.hitBlock;
 			if (mapResult.hit && Collision3D(outBlockPos) && (!hitPlayer || dig)) {

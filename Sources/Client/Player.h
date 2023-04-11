@@ -251,7 +251,7 @@ namespace spades {
 			/** Does approximated ray casting.
 			 * @param dir normalized direction vector.
 			 * @return true if ray may hit the player. */
-			bool RayCastApprox(Vector3 start, Vector3 dir, float tolerance = 5.0F);
+			bool RayCastApprox(Vector3 start, Vector3 dir, float tolerance = 3.0F);
 
 			bool OverlapsWith(const AABB3&);
 			bool OverlapsWithBlock(const IntVector3&);
