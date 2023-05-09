@@ -165,13 +165,14 @@ namespace spades {
 						  return std::string();
 					  }
 				  }));
+			} else {
+				// check openAL drivers
+				SPLog("Checking OpenAL available drivers");
+				openalDevices = audio::ALDevice::DeviceList();
+				for (const auto &d: openalDevices) {
+					SPLog("%s", d.c_str());
+				}
 			}
-
-			// check openAL drivers
-			SPLog("Checking OpenAL available drivers");
-			openalDevices = audio::ALDevice::DeviceList();
-			for (const auto& d : openalDevices)
-				SPLog("%s", d.c_str());
 
 			// check GL capabilities
 
