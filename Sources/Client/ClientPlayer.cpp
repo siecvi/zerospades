@@ -1374,7 +1374,7 @@ namespace spades {
 								: GetMuzzlePositionInFirstPersonView();
 
 			// make dlight
-			client.MuzzleFire(muzzle, p.GetFront());
+			client.MuzzleFire(muzzle);
 
 			// sound ambience estimation
 			auto ambience = ComputeAmbience();

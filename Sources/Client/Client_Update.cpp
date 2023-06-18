@@ -718,7 +718,8 @@ namespace spades {
 		                                     IntVector3 blockPos, IntVector3 normal) {
 			SPADES_MARK_FUNCTION();
 
-			Vector3 shiftedHitPos = hitPos + (MakeVector3(normal) * 0.05F);
+			Vector3 origin = MakeVector3(blockPos) + 0.5F;
+			Vector3 shiftedHitPos = origin + (MakeVector3(normal) * 0.6F);
 
 			uint32_t col = map->GetColor(blockPos.x, blockPos.y, blockPos.z);
 			col = map->GetColorJit(col); // jit the colour
@@ -1060,7 +1061,7 @@ namespace spades {
 		void Client::BulletHitBlock(Vector3 hitPos, IntVector3 blockPos, IntVector3 normal) {
 			SPADES_MARK_FUNCTION();
 
-			Vector3 shiftedHitPos = hitPos + (MakeVector3(normal) * 0.05F);
+			Vector3 shiftedHitPos = hitPos + (MakeVector3(normal) * 0.1F);
 
 			uint32_t col = map->GetColor(blockPos.x, blockPos.y, blockPos.z);
 			col = map->GetColorJit(col); // jit the colour
@@ -1177,6 +1178,7 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			Vector3 origin = g.GetPosition();
+
 			if (!IsMuted() && origin.z < 63.0F) {
 				Handle<IAudioChunk> c =
 				  audioDevice->RegisterSound("Sounds/Weapons/Grenade/Bounce.opus");
@@ -1200,6 +1202,8 @@ namespace spades {
 			Vector3 origin = g.GetPosition();
 
 			if (origin.z > 63.0F) {
+				GrenadeExplosionUnderwater(origin);
+
 				if (!IsMuted()) {
 					Handle<IAudioChunk> c =
 					  audioDevice->RegisterSound("Sounds/Weapons/Grenade/WaterExplode.opus");
@@ -1216,8 +1220,6 @@ namespace spades {
 					param.volume = 2.0F;
 					audioDevice->Play(c.GetPointerOrNull(), origin, param);
 				}
-
-				GrenadeExplosionUnderwater(origin);
 			} else {
 				GrenadeExplosion(origin);
 

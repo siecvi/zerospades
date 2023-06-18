@@ -329,7 +329,7 @@ namespace spades {
 			void EmitBlockDestroyFragments(IntVector3 pos);
 			void GrenadeExplosion(Vector3);
 			void GrenadeExplosionUnderwater(Vector3);
-			void MuzzleFire(Vector3, Vector3 dir);
+			void MuzzleFire(Vector3);
 			void BulletHitWaterSurface(Vector3, IntVector3 color);
 
 			// drawings

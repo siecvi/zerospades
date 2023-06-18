@@ -177,9 +177,8 @@ namespace spades {
 									client->AddLocalEntity(std::move(ent));
 								}
 
-								if (cg_particles == 2) {
-									auto ent =
-									  stmp::make_unique<SmokeSpriteEntity>(*client, color, 70.0F);
+								if ((int)cg_particles >= 2) {
+									auto ent = stmp::make_unique<SmokeSpriteEntity>(*client, color, 70.0F);
 									ent->SetTrajectory(p3, RandomAxis() * 0.2F, 1.0F, 0.0F);
 									ent->SetRotation(getRandom() * M_PI_F * 2.0F);
 									ent->SetRadius(1.0F, 0.5F);

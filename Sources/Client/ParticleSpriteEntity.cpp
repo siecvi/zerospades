@@ -91,7 +91,6 @@ namespace spades {
 			// TODO: control clip action
 			if (blockHitAction != BlockHitAction::Ignore && map) {
 				IntVector3 lp = position.Floor();
-
 				if (map->ClipWorld(lp.x, lp.y, lp.z)) {
 					if (blockHitAction == BlockHitAction::Delete) {
 						return false;
@@ -108,8 +107,8 @@ namespace spades {
 							velocity.y = -velocity.y;
 
 						position = lastPos; // set back to old position
-						velocity *= 0.36F; // lose some velocity due to friction
-						radius *= 0.5F;
+						velocity *= 0.46F;  // lose some velocity due to friction
+						radius *= 0.75F;
 					}
 				}
 			}

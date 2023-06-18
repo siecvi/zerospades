@@ -149,20 +149,22 @@ namespace spades {
 			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
 				return;
 
+			Vector3 velBias = {0, 0, -0.5F};
+
 			// fragments
 			Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
 
 			uint32_t col = IntVectorToColor(MakeIntVector3(127, 0, 0));
 			col = map->GetColorJit(col); // jit the colour
-
 			Vector4 color = ConvertColorRGBA(IntVectorFromColor(col));
 
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
-				ent->SetTrajectory(pos, RandomAxis() * 8.0F);
+				ent->SetTrajectory(pos, (RandomAxis() + velBias * 0.5F) * 8.0F);
 				ent->SetRadius(0.4F);
-				ent->SetLifeTime(2.0F, 0.0F, 1.0F);
-				ent->SetBlockHitAction(BlockHitAction::BounceWeak);
+				ent->SetLifeTime(3.0F, 0.0F, 1.0F);
+				if (distSqr < 16.0F * 16.0F)
+					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}
 
@@ -204,6 +206,23 @@ namespace spades {
 			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
 				return;
 
+			// determines free space around for SetTrajectory
+			Vector3 velBias = {0, 0, 0};
+			if (!map->ClipBox(pos.x, pos.y, pos.z)) {
+				if (map->ClipBox(pos.x + 1.0F, pos.y, pos.z))
+					velBias.x -= 1.0F;
+				if (map->ClipBox(pos.x - 1.0F, pos.y, pos.z))
+					velBias.x += 1.0F;
+				if (map->ClipBox(pos.x, pos.y + 1.0F, pos.z))
+					velBias.y -= 1.0F;
+				if (map->ClipBox(pos.x, pos.y - 1.0F, pos.z))
+					velBias.y += 1.0F;
+				if (map->ClipBox(pos.x, pos.y, pos.z + 1.0F))
+					velBias.z -= 1.0F;
+				if (map->ClipBox(pos.x, pos.y, pos.z - 1.0F))
+					velBias.z += 1.0F;
+			}
+
 			// fragments
 			Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
 
@@ -211,9 +230,10 @@ namespace spades {
 
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
-				ent->SetTrajectory(pos, RandomAxis() * 8.0F);
+				Vector3 dir = RandomAxis() + velBias * 0.5F;
+				ent->SetTrajectory(pos + dir * 0.2F, dir * 8.0F);
 				ent->SetRadius(0.4F);
-				ent->SetLifeTime(2.0F, 0.0F, 1.0F);
+				ent->SetLifeTime(3.0F, 0.0F, 1.0F);
 				if (distSqr < 16.0F * 16.0F)
 					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
@@ -227,8 +247,8 @@ namespace spades {
 					auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 					ent->SetTrajectory(pos, RandomAxis() * 12.0F, 1.0F, 0.9F);
 					ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
-					ent->SetRadius(0.1F + SampleRandomFloat() * SampleRandomFloat() * 0.14F);
-					ent->SetLifeTime(2.0F, 0.0F, 1.0F);
+					ent->SetRadius(0.2F + SampleRandomFloat() * SampleRandomFloat() * 0.25F);
+					ent->SetLifeTime(3.0F, 0.0F, 1.0F);
 					if (distSqr < 16.0F * 16.0F)
 						ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 					localEntities.emplace_back(std::move(ent));
@@ -274,12 +294,12 @@ namespace spades {
 				ent->SetRadius(0.4F);
 				ent->SetLifeTime(3.0F, 0.0F, 1.0F);
 				if (distSqr < 16.0F * 16.0F)
-				ent->SetBlockHitAction(BlockHitAction::BounceWeak);
+					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}
 		}
 
-		void Client::MuzzleFire(spades::Vector3 pos, Vector3 dir) {
+		void Client::MuzzleFire(spades::Vector3 pos) {
 			if (!cg_muzzleFire)
 				return;
 
@@ -314,14 +334,14 @@ namespace spades {
 			}
 
 			// fire smoke
-			color = MakeVector4(1, 0.7F, 0.4F, 0.2F) * 5.0F;
-			for (int i = 0; i < 2; i++) {
+			color = MakeVector4(1.0F, 0.6F, 0.4F, 0.2F) * 5.0F;
+			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<SmokeSpriteEntity>(*this, color, 120.0F,
 					SmokeSpriteEntity::Type::Explosion);
 				ent->SetTrajectory(pos, (RandomAxis() + velBias * 0.5F) * 0.3F, 1.0F, 0.0F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
-				ent->SetRadius(0.25F, 3.0F, 0.0000005F);
-				ent->SetLifeTime(0.1F + SampleRandomFloat() * 0.025F, 0.0F, 0.1F);
+				ent->SetRadius(0.2F + SampleRandomFloat() * SampleRandomFloat() * 0.3F, 3.0F, 0.0000005F);
+				ent->SetLifeTime(0.01F + SampleRandomFloat() * 0.02F, 0.0F, 0.01F);
 				ent->SetBlockHitAction(BlockHitAction::Ignore);
 				localEntities.emplace_back(std::move(ent));
 			}
@@ -333,9 +353,6 @@ namespace spades {
 		}
 
 		void Client::GrenadeExplosion(spades::Vector3 pos) {
-			if (!cg_particles)
-				return;
-
 			// distance cull
 			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
 			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
@@ -351,6 +368,10 @@ namespace spades {
 			l.useLensFlare = true;
 			flashDlights.push_back(l);
 
+			if (!cg_particles)
+				return;
+
+			// determines free space around for SetTrajectory
 			Vector3 velBias = {0, 0, 0};
 			if (!map->ClipBox(pos.x, pos.y, pos.z)) {
 				if (map->ClipBox(pos.x + 1.0F, pos.y, pos.z))
@@ -372,14 +393,13 @@ namespace spades {
 
 			uint32_t col = IntVectorToColor(MakeIntVector3(70, 70, 70));
 			col = map->GetColorJit(col); // jit the colour
-
 			Vector4 color = ConvertColorRGBA(IntVectorFromColor(col));
 
 			for (int i = 0; i < 64; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				Vector3 dir = RandomAxis() + velBias * 0.5F;
 				float radius = 0.3F + SampleRandomFloat() * SampleRandomFloat() * 0.3F;
-				ent->SetTrajectory(pos + dir * 0.2F, dir * 20.0F, 0.1F + radius * 3.0F, 1.0F);
+				ent->SetTrajectory(pos + dir * 0.2F, dir * 20.0F, 0.1F + radius * 3.0F);
 				ent->SetRadius(radius);
 				ent->SetLifeTime(3.5F + SampleRandomFloat() * 2.0F, 0.0F, 1.0F);
 				if (distSqr < 16.0F * 16.0F)
@@ -436,9 +456,6 @@ namespace spades {
 		}
 
 		void Client::GrenadeExplosionUnderwater(spades::Vector3 pos) {
-			if (!cg_particles)
-				return;
-
 			// distance cull
 			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
 			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
@@ -446,21 +463,10 @@ namespace spades {
 
 			KickCamera(1.5F / (distSqr + 5.0F));
 
-			Vector3 velBias = {0, 0, 0};
-			if (!map->ClipBox(pos.x, pos.y, pos.z)) {
-				if (map->ClipBox(pos.x + 1.0F, pos.y, pos.z)) 
-					velBias.x -= 1.0F;
-				if (map->ClipBox(pos.x - 1.0F, pos.y, pos.z))
-					velBias.x += 1.0F;
-				if (map->ClipBox(pos.x, pos.y + 1.0F, pos.z))
-					velBias.y -= 1.0F;
-				if (map->ClipBox(pos.x, pos.y - 1.0F, pos.z))
-					velBias.y += 1.0F;
-				if (map->ClipBox(pos.x, pos.y, pos.z + 1.0F))
-					velBias.z -= 1.0F;
-				if (map->ClipBox(pos.x, pos.y, pos.z - 1.0F))
-					velBias.z += 1.0F;
-			}
+			if (!cg_particles)
+				return;
+
+			Vector3 velBias = {0, 0, -1.0F};
 
 			// fragments
 			Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
@@ -468,14 +474,13 @@ namespace spades {
 			IntVector3 p = pos.Floor();
 			uint32_t col = map->GetColor(p.x, p.y, p.z);
 			col = map->GetColorJit(col); // jit the colour
-
 			Vector4 color = ConvertColorRGBA(IntVectorFromColor(col));
 
 			for (int i = 0; i < 64; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				Vector3 dir = RandomAxis() + velBias * 0.5F;
 				float radius = 0.3F + SampleRandomFloat() * SampleRandomFloat() * 0.3F;
-				ent->SetTrajectory(pos + dir * 0.2F, dir * 20.0F, 0.1F + radius * 3.0F, 1.0F);
+				ent->SetTrajectory(pos + dir * 0.2F, dir * 16.0F, 0.1F + radius * 3.0F);
 				ent->SetRadius(radius);
 				ent->SetLifeTime(3.5F + SampleRandomFloat() * 2.0F, 0.0F, 1.0F);
 				if (distSqr < 16.0F * 16.0F)
@@ -489,12 +494,10 @@ namespace spades {
 			// water1
 			img = renderer->RegisterImage("Textures/WaterExpl.png");
 			color = MakeVector4(0.95F, 0.95F, 0.95F, 0.6F);
-			for (int i = 0; i < 8; i++) {
+			for (int i = 0; i < 7; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
-				ent->SetTrajectory(pos, (MakeVector3(SampleRandomFloat() - SampleRandomFloat(),
-				                                SampleRandomFloat() - SampleRandomFloat(),
-				                                -SampleRandomFloat() * 7.0F)) * 2.5F, 0.3F, 0.6F);
-				ent->SetRadius(1.5F + SampleRandomFloat() * SampleRandomFloat() * 0.4F, 1.3F);
+				ent->SetTrajectory(pos, (MakeVector3(0.0F, 0.0F, -SampleRandomFloat() * 7.0F)) * 2.5F, 0.3F);
+				ent->SetRadius(1.2F + SampleRandomFloat() * SampleRandomFloat() * 0.4F, 0.6F);
 				ent->SetLifeTime(2.0F + SampleRandomFloat() * 0.3F, 0.1F, 0.2F);
 				ent->SetBlockHitAction(BlockHitAction::Ignore);
 				localEntities.emplace_back(std::move(ent));
@@ -507,24 +510,24 @@ namespace spades {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				ent->SetTrajectory(pos, (MakeVector3(SampleRandomFloat() - SampleRandomFloat(),
 				                                     SampleRandomFloat() - SampleRandomFloat(),
-				                                     -SampleRandomFloat() * 10.0F)) * 3.5F);
+				                                     -SampleRandomFloat() * 7.0F)) * 3.5F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
-				ent->SetRadius(0.9F + SampleRandomFloat() * SampleRandomFloat() * 0.4F, 0.7F);
+				ent->SetRadius(0.6F + SampleRandomFloat() * SampleRandomFloat() * 0.3F, 0.5F);
 				ent->SetLifeTime(2.0F + SampleRandomFloat() * 0.3F, 0.1F, 0.2F);
 				ent->SetBlockHitAction(BlockHitAction::Ignore);
 				localEntities.emplace_back(std::move(ent));
 			}
 
 			// slow smoke
-			color.w = 0.45F;
-			for (int i = 0; i < 8; i++) {
-				auto ent = stmp::make_unique<SmokeSpriteEntity>(*this, color, 30.0F);
+			color.w = 0.3F;
+			for (int i = 0; i < 4; i++) {
+				auto ent = stmp::make_unique<SmokeSpriteEntity>(*this, color, 10.0F);
 				ent->SetTrajectory(pos, (MakeVector3(SampleRandomFloat() - SampleRandomFloat(),
 				               SampleRandomFloat() - SampleRandomFloat(),
 				               (SampleRandomFloat() - SampleRandomFloat()) * 0.2F)) * 2.0F, 1.0F, 0.0F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
-				ent->SetRadius(3.0F + SampleRandomFloat() * SampleRandomFloat() * 1.6F, 0.2F);
-				ent->SetLifeTime(3.0F + SampleRandomFloat() * 0.3F, 1.0F, 8.0F);
+				ent->SetRadius(1.5F + SampleRandomFloat() * SampleRandomFloat() * 0.6F, 0.2F);
+				ent->SetLifeTime(2.0F + SampleRandomFloat() * 0.3F, 0.2F, 1.5F);
 				ent->SetBlockHitAction(BlockHitAction::Ignore);
 				localEntities.emplace_back(std::move(ent));
 			}
@@ -535,13 +538,13 @@ namespace spades {
 		void Client::BulletHitWaterSurface(spades::Vector3 pos, IntVector3 col) {
 			if (!cg_particles)
 				return;
-			if (!cg_waterImpact)
-				return;
 
 			// distance cull
 			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
 			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
 				return;
+
+			Vector3 velBias = {0, 0, -1.0F};
 
 			// fragments
 			Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
@@ -550,15 +553,17 @@ namespace spades {
 
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
-				ent->SetTrajectory(pos, RandomAxis() * 8.0F);
+				ent->SetTrajectory(pos, (RandomAxis() + velBias * 0.5F) * 8.0F);
 				ent->SetRadius(0.4F);
-				ent->SetLifeTime(2.0F, 0.0F, 1.0F);
+				ent->SetLifeTime(3.0F, 0.0F, 1.0F);
 				if (distSqr < 16.0F * 16.0F)
 					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}
 
 			if ((int)cg_particles < 2)
+				return;
+			if (!cg_waterImpact)
 				return;
 
 			// water1
