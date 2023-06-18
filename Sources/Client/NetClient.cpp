@@ -950,7 +950,7 @@ namespace spades {
 					int weapon = r.ReadByte();
 					int team = r.ReadByte();
 					Vector3 pos = r.ReadVector3();
-					pos.z -= 2.0F;
+					pos.z -= 2.4F;
 					std::string name = r.ReadRemainingString();
 					// TODO: decode name?
 
