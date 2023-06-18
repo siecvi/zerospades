@@ -20,7 +20,7 @@
 
 // http://en.wikipedia.org/wiki/Oren–Nayar_reflectance_model
 float OrenNayar(float sigma, float dotLight, float dotEye) {
-	if (dotLight < 0.0)
+	if (dotLight <= 0.0)
 		return 0.0;
 	
 	float sigma2 = sigma * sigma;
@@ -30,7 +30,7 @@ float OrenNayar(float sigma, float dotLight, float dotEye) {
 	float scaledB = B * scale;
 	
 	vec2 dotLightEye = vec2(dotLight, dotEye);
-	vec2 sinLightEye = sqrt(1. - dotLightEye * dotLightEye);
+	vec2 sinLightEye = sqrt(1.0 - dotLightEye * dotLightEye);
 	float alphaSin = max(sinLightEye.x, sinLightEye.y);
 	float betaCos = max(dotLight, dotEye);
 	

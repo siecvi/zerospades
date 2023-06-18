@@ -39,7 +39,10 @@
 namespace spades {
 	namespace draw {
 		void GLOptimizedVoxelModel::PreloadShaders(GLRenderer& renderer) {
-			renderer.RegisterProgram("Shaders/OptimizedVoxelModel.program");
+			if (renderer.GetSettings().r_physicalLighting)
+				renderer.RegisterProgram("Shaders/OptimizedVoxelModelPhys.program");
+			else
+				renderer.RegisterProgram("Shaders/OptimizedVoxelModel.program");
 			renderer.RegisterProgram("Shaders/OptimizedVoxelModelDynamicLit.program");
 			renderer.RegisterProgram("Shaders/OptimizedVoxelModelShadowMap.program");
 			renderer.RegisterImage("Gfx/AmbientOcclusion.png");
@@ -51,7 +54,10 @@ namespace spades {
 			BuildVertices(m);
 			GenerateTexture();
 
-			program = renderer.RegisterProgram("Shaders/OptimizedVoxelModel.program");
+			if (r.GetSettings().r_physicalLighting)
+				program = renderer.RegisterProgram("Shaders/OptimizedVoxelModelPhys.program");
+			else
+				program = renderer.RegisterProgram("Shaders/OptimizedVoxelModel.program");
 			dlightProgram = renderer.RegisterProgram("Shaders/OptimizedVoxelModelDynamicLit.program");
 			shadowMapProgram = renderer.RegisterProgram("Shaders/OptimizedVoxelModelShadowMap.program");
 			aoImage = renderer.RegisterImage("Gfx/AmbientOcclusion.png").Cast<GLImage>();
@@ -640,6 +646,16 @@ namespace spades {
 			modelTexture(program);
 			modelTexture.SetValue(1);
 
+			static GLProgramUniform viewMatrixU("viewMatrix");
+			viewMatrixU(program);
+			Matrix4 viewMatrix = renderer.GetViewMatrix();
+			viewMatrixU.SetValue(viewMatrix);
+
+			static GLProgramUniform viewSpaceLight("viewSpaceLight");
+			viewSpaceLight(program);
+			Vector3 vspLight = (viewMatrix * MakeVector4(0, -1, -1, 0)).GetXYZ();
+			viewSpaceLight.SetValue(vspLight.x, vspLight.y, vspLight.z);
+
 			static GLProgramUniform sunLightDirection("sunLightDirection");
 			sunLightDirection(program);
 			Vector3 sunPos = MakeVector3(0, -1, -1);
@@ -698,7 +714,7 @@ namespace spades {
 
 				static GLProgramUniform viewModelMatrix("viewModelMatrix");
 				viewModelMatrix(program);
-				viewModelMatrix.SetValue(renderer.GetViewMatrix() * modelMatrix);
+				viewModelMatrix.SetValue(viewMatrix * modelMatrix);
 
 				static GLProgramUniform modelMatrixU("modelMatrix");
 				modelMatrixU(program);
