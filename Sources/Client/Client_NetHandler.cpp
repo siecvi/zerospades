@@ -78,15 +78,6 @@ namespace spades {
 			followAndFreeCameraState.pitch = DEG2RAD(89);
 		}
 
-		void Client::PlayerCreatedBlock(Player& p) {
-			SPADES_MARK_FUNCTION();
-
-			if (!IsMuted()) {
-				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Weapons/Block/Build.opus");
-				audioDevice->Play(c.GetPointerOrNull(), p.GetEye() + p.GetFront(), AudioParam());
-			}
-		}
-
 		void Client::TeamCapturedTerritory(int teamId, int terId) {
 			auto& tr = dynamic_cast<TCGameMode&>(*world->GetMode()).GetTerritory(terId);
 
@@ -200,16 +191,22 @@ namespace spades {
 			}
 		}
 
-		void Client::PlayBlockDestroySound(spades::IntVector3 pos) {
-			Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Misc/BlockDestroy.opus");
-			if (!IsMuted())
-				audioDevice->Play(c.GetPointerOrNull(), MakeVector3(pos) + 0.5F, AudioParam());
+		void Client::PlayerCreatedBlock(Player& p) {
+			SPADES_MARK_FUNCTION();
+
+			if (!IsMuted()) {
+				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Weapons/Block/Build.opus");
+				audioDevice->Play(c.GetPointerOrNull(), p.GetEye() + p.GetFront(), AudioParam());
+			}
 		}
 
-		void Client::PlayerDestroyedBlock(spades::IntVector3 pos) {
-			uint32_t col = map->GetColor(pos.x, pos.y, pos.z);
-			col = map->GetColorJit(col); // jit the colour
-			EmitBlockDestroyFragments(MakeVector3(pos) + 0.5F, IntVectorFromColor(col));
+		void Client::PlayBlockDestroySound(spades::Vector3 pos) {
+			SPADES_MARK_FUNCTION();
+
+			if (!IsMuted()) {
+			Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Misc/BlockDestroy.opus");
+				audioDevice->Play(c.GetPointerOrNull(), pos, AudioParam());
+		}
 		}
 
 		void Client::PlayerDestroyedBlockWithWeaponOrTool(spades::IntVector3 pos) {
@@ -218,40 +215,37 @@ namespace spades {
 			if (!map->IsSolid(pos.x, pos.y, pos.z))
 				return;
 
-			PlayBlockDestroySound(pos);
-			PlayerDestroyedBlock(pos);
+			PlayBlockDestroySound(MakeVector3(pos) + 0.5F);
+			EmitBlockDestroyFragments(pos);
 		}
 
 		void Client::PlayerDiggedBlock(spades::IntVector3 pos) {
 			SPAssert(map);
 
-			PlayBlockDestroySound(pos);
+			PlayBlockDestroySound(MakeVector3(pos) + 0.5F);
 
 			for (int z = pos.z - 1; z <= pos.z + 1; z++) {
-				if (z < 0 || z > 61)
+				if (z < 0 || z >= map->GroundDepth())
 					continue;
 				if (!map->IsSolid(pos.x, pos.y, z))
 					continue;
 
-				PlayerDestroyedBlock(MakeIntVector3(pos.x, pos.y, z));
+				EmitBlockDestroyFragments(MakeIntVector3(pos.x, pos.y, z));
 			}
 		}
 
 		void Client::GrenadeDestroyedBlock(spades::IntVector3 pos) {
 			SPAssert(map);
 
-			PlayBlockDestroySound(pos);
-
 			for (int x = pos.x - 1; x <= pos.x + 1; x++)
 			for (int y = pos.y - 1; y <= pos.y + 1; y++)
 			for (int z = pos.z - 1; z <= pos.z + 1; z++) {
-				if (z < 0 || z > 61 || x < 0 || x >= map->Width()
-					|| y < 0 || y >= map->Height())
+				if (!map->IsValidMapCoord(x, y, z) || z >= map->GroundDepth())
 					continue;
 				if (!map->IsSolid(x, y, z))
 					continue;
 
-				PlayerDestroyedBlock(MakeIntVector3(x, y, z));
+				EmitBlockDestroyFragments(MakeIntVector3(x, y, z));
 			}
 		}
 

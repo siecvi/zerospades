@@ -140,7 +140,7 @@ namespace spades {
 				Vector3 vmAxis3 = vmat.GetAxis(2);
 
 				// this could get annoying with some server scripts..
-				client->PlayBlockDestroySound(vmOrigin.Floor());
+				client->PlayBlockDestroySound(vmOrigin);
 
 				Handle<IImage> img = client->GetRenderer().RegisterImage("Gfx/White.tga");
 

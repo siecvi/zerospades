@@ -248,27 +248,32 @@ namespace spades {
 			}
 		}
 
-		void Client::EmitBlockDestroyFragments(spades::Vector3 pos, IntVector3 col) {
+		void Client::EmitBlockDestroyFragments(spades::IntVector3 pos) {
 			SPADES_MARK_FUNCTION();
 
 			if (!cg_particles)
 				return;
 
+			Vector3 origin = MakeVector3(pos) + 0.5F;
+
 			// distance cull
-			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
+			float distSqr = (origin - lastSceneDef.viewOrigin).GetSquaredLength2D();
 			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
 				return;
 
 			// fragments
 			Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
 
-			Vector4 color = ConvertColorRGBA(col);
+			uint32_t col = map->GetColor(pos.x, pos.y, pos.z);
+			col = map->GetColorJit(col); // jit the colour
+			Vector4 color = ConvertColorRGBA(IntVectorFromColor(col));
 
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
-				ent->SetTrajectory(pos, RandomAxis() * 8.0F);
+				ent->SetTrajectory(origin, RandomAxis() * 8.0F);
 				ent->SetRadius(0.4F);
-				ent->SetLifeTime(2.0F, 0.0F, 1.0F);
+				ent->SetLifeTime(3.0F, 0.0F, 1.0F);
+				if (distSqr < 16.0F * 16.0F)
 				ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}

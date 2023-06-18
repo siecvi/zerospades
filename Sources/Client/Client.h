@@ -326,7 +326,7 @@ namespace spades {
 			std::vector<DynamicLightParam> flashDlightsOld;
 			void Bleed(Vector3);
 			void EmitBlockFragments(Vector3, IntVector3 color);
-			void EmitBlockDestroyFragments(Vector3, IntVector3 color);
+			void EmitBlockDestroyFragments(IntVector3 pos);
 			void GrenadeExplosion(Vector3);
 			void GrenadeExplosionUnderwater(Vector3);
 			void MuzzleFire(Vector3, Vector3 dir);
@@ -479,15 +479,14 @@ namespace spades {
 			void ServerSentMessage(bool system, const std::string&);
 
 			void PlayerCapturedIntel(Player&);
-			void PlayerCreatedBlock(Player&);
 			void PlayerPickedIntel(Player&);
 			void PlayerDropIntel(Player&);
 			void TeamCapturedTerritory(int teamId, int territoryId);
 			void TeamWon(int);
 			void JoinedGame();
 			void LocalPlayerCreated();
-			void PlayBlockDestroySound(IntVector3);
-			void PlayerDestroyedBlock(IntVector3);
+			void PlayerCreatedBlock(Player&);
+			void PlayBlockDestroySound(Vector3);
 			void PlayerDestroyedBlockWithWeaponOrTool(IntVector3);
 			void PlayerDiggedBlock(IntVector3);
 			void GrenadeDestroyedBlock(IntVector3);
