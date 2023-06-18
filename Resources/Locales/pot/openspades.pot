@@ -65,34 +65,14 @@ msgctxt "Client"
 msgid "Disconnecting..."
 msgstr ""
 
-#: Sources/Client/Client_Draw.cpp:523
-msgctxt "Client"
-msgid "Out of Block"
-msgstr ""
-
-#: Sources/Client/Client_Draw.cpp:528
-msgctxt "Client"
-msgid "Out of Grenade"
-msgstr ""
-
 #: Sources/Client/Client_Draw.cpp:534
 msgctxt "Client"
 msgid "Reloading"
 msgstr ""
 
-#: Sources/Client/Client_Draw.cpp:536 Sources/Client/Client_Input.cpp:439
-msgctxt "Client"
-msgid "Out of Ammo"
-msgstr ""
-
 #: Sources/Client/Client_Draw.cpp:539
 msgctxt "Client"
 msgid "Press [{0}] to Reload"
-msgstr ""
-
-#: Sources/Client/Client_Draw.cpp:584
-msgctxt "Client"
-msgid "You will respawn in: {0}"
 msgstr ""
 
 #: Sources/Client/Client_Draw.cpp:586
@@ -108,6 +88,11 @@ msgstr ""
 #: Sources/Client/Client_Input.cpp:427
 msgctxt "Client"
 msgid "Out of Blocks"
+msgstr ""
+
+#: Sources/Client/Client_Input.cpp:439
+msgctxt "Client"
+msgid "Out of Ammo"
 msgstr ""
 
 #: Sources/Client/Client_Input.cpp:451
@@ -249,11 +234,6 @@ msgctxt "Client"
 msgid "Weapon Change"
 msgstr ""
 
-#: Sources/Client/Client_Update.cpp:907
-msgctxt "Client"
-msgid "You have killed {0}"
-msgstr ""
-
 #: Sources/Client/Client_Update.cpp:909
 msgctxt "Client"
 msgid "You were killed by {0}"
@@ -302,11 +282,6 @@ msgstr ""
 #: Sources/Client/NetClient.cpp:508 Sources/Client/NetClient.cpp:1277
 msgctxt "NetClient"
 msgid "Loading snapshot"
-msgstr ""
-
-#: Sources/Client/NetClient.cpp:523
-msgctxt "NetClient"
-msgid "Loading snapshot ({0}/{1})"
 msgstr ""
 
 #: Sources/Client/NetClient.cpp:528 Sources/Client/NetClient.cpp:562
@@ -577,7 +552,7 @@ msgstr ""
 
 #: Resources/Scripts/Gui/MainScreen.as:807
 msgctxt "MainScreen"
-msgid "Loading..."
+msgid "Fetching server list..."
 msgstr ""
 
 #: Resources/Scripts/Gui/MainScreen.as:825
@@ -717,16 +692,6 @@ msgctxt "Preferences"
 msgid "Blood"
 msgstr ""
 
-#: Resources/Scripts/Gui/Preferences.as:644
-msgctxt "Preferences"
-msgid "Ejecting Brass"
-msgstr ""
-
-#: Resources/Scripts/Gui/Preferences.as:645
-msgctxt "Preferences"
-msgid "Ragdoll"
-msgstr ""
-
 #: Resources/Scripts/Gui/Preferences.as:646
 msgctxt "Preferences"
 msgid "Animations"
@@ -761,11 +726,6 @@ msgstr ""
 #: Resources/Scripts/Gui/Preferences.as:654
 msgctxt "Preferences"
 msgid "Feedbacks"
-msgstr ""
-
-#: Resources/Scripts/Gui/Preferences.as:655
-msgctxt "Preferences"
-msgid "Chat Notify Sounds"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:656
@@ -895,12 +855,12 @@ msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:699
 msgctxt "Preferences"
-msgid "Walk Forward"
+msgid "Move Forward"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:700
 msgctxt "Preferences"
-msgid "Backpedal"
+msgid "Move Backward"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:701
@@ -1069,6 +1029,12 @@ msgstr ""
 #: Resources/Scripts/Gui/StartupScreen.as:1110
 #: Resources/Scripts/Gui/StartupScreen.as:1492
 msgctxt "StartupScreen"
+msgid "Renderer"
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen.as:1110
+#: Resources/Scripts/Gui/StartupScreen.as:1492
+msgctxt "StartupScreen"
 msgid "Backend"
 msgstr ""
 
@@ -1095,19 +1061,6 @@ msgid ""
 "Software renderer uses CPU to generate the game screen. Its quality and "
 "performance might be inferior to OpenGL renderer, but it works even with an "
 "unsupported GPU."
-msgstr ""
-
-#: Resources/Scripts/Gui/StartupScreen.as:1143
-msgctxt "StartupScreen"
-msgid ""
-"Antialias:Enables a technique to improve the appearance of high-contrast "
-"edges.\n"
-"\n"
-"MSAA: Performs antialiasing by generating an intermediate high-resolution "
-"image. Looks best, but doesn't cope with some settings.\n"
-"\n"
-"FXAA: Performs antialiasing by smoothing artifacts out as a post-process.|"
-"Off|MSAA 2x|4x|FXAA"
 msgstr ""
 
 #: Resources/Scripts/Gui/StartupScreen.as:1150
@@ -1176,19 +1129,9 @@ msgctxt "StartupScreen"
 msgid "The Sun causes lens flare."
 msgstr ""
 
-#: Resources/Scripts/Gui/StartupScreen.as:1177
-msgctxt "StartupScreen"
-msgid "Flares for Dynamic Lights"
-msgstr ""
-
 #: Resources/Scripts/Gui/StartupScreen.as:1178
 msgctxt "StartupScreen"
 msgid "Enables lens flare for light sources other than the Sun."
-msgstr ""
-
-#: Resources/Scripts/Gui/StartupScreen.as:1180
-msgctxt "StartupScreen"
-msgid "Color Correction"
 msgstr ""
 
 #: Resources/Scripts/Gui/StartupScreen.as:1181
@@ -1256,7 +1199,7 @@ msgstr ""
 #: Resources/Scripts/Gui/StartupScreen.as:1203
 msgctxt "StartupScreen"
 msgid ""
-"Particles|Low:Artifact occurs when a particle intersects other objects.|"
+"Particle Quality|Low:Artifact occurs when a particle intersects other objects.|"
 "Medium:Particle intersects objects smoothly.|High:Particle intersects "
 "objects smoothly, and some objects casts their shadow to particles."
 msgstr ""
@@ -1481,13 +1424,6 @@ msgctxt "StartupScreen"
 msgid "Your player name"
 msgstr ""
 
-#: Resources/Scripts/Gui/StartupScreen.as:1678
-msgctxt "StartupScreen"
-msgid ""
-"Other advanced settings only accessible through '{0}' tab and in-game "
-"commands"
-msgstr ""
-
 #: Resources/Scripts/Gui/StartupScreen.as:1748
 msgctxt "StartupScreen"
 msgid "Unknown ({0})"
@@ -1514,46 +1450,6 @@ msgctxt "StartupScreen"
 msgid "Filter"
 msgstr ""
 
-#: Resources/Scripts/Gui/UpdateCheckView.as:40
-msgctxt "UpdateCheck"
-msgid "Enable"
-msgstr ""
-
-#: Resources/Scripts/Gui/UpdateCheckView.as:47
-msgctxt "UpdateCheck"
-msgid "Show details..."
-msgstr ""
-
-#: Resources/Scripts/Gui/UpdateCheckView.as:102
-msgctxt "UpdateCheck"
-msgid "Version {0} is available! (You currently have {1})"
-msgstr ""
-
-#: Resources/Scripts/Gui/UpdateCheckView.as:105
-msgctxt "UpdateCheck"
-msgid "You're using the latest version of OpenSpades. ({0})"
-msgstr ""
-
-#: Resources/Scripts/Gui/UpdateCheckView.as:110
-msgctxt "UpdateCheck"
-msgid "Checking for updates..."
-msgstr ""
-
-#: Resources/Scripts/Gui/UpdateCheckView.as:113
-msgctxt "UpdateCheck"
-msgid "Failed to check for updates."
-msgstr ""
-
-#: Resources/Scripts/Gui/UpdateCheckView.as:116
-msgctxt "UpdateCheck"
-msgid "Automatic update check is not enabled."
-msgstr ""
-
-#: Resources/Scripts/Gui/UpdateCheckView.as:119
-msgctxt "UpdateCheck"
-msgid "Automatic update check is not available."
-msgstr ""
-
 #: Sources/Client/Client_NetHandler.cpp:258
 msgctxt "Client"
 msgid "Spectator"
@@ -1569,11 +1465,6 @@ msgctxt "Client"
 msgid "[{0}] Cycle camera mode"
 msgstr ""
 
-#: Sources/Client/Client_Draw.cpp:657
-msgctxt "Client"
-msgid "[{0}/{1}] Next/previous player"
-msgstr ""
-
 #: Sources/Client/Client_Draw.cpp:661
 msgctxt "Client"
 msgid "[{0}] Unfollow"
@@ -1587,4 +1478,510 @@ msgstr ""
 #: Sources/Client/Client_Draw.cpp:669
 msgctxt "Client"
 msgid "[{0}/{1}] Go up/down"
+msgstr ""
+
+#: Sources/Client/NetClient.cpp:1763
+msgctxt "NetClient"
+msgid "{0} second remaining"
+msgid_plural "{0} seconds remaining"
+msgstr[0] ""
+msgstr[1] ""
+
+#: Sources/Client/NetClient.cpp:1766
+msgctxt "NetClient"
+msgid "{0} minute remaining"
+msgid_plural "{0} minutes remaining"
+msgstr[0] ""
+msgstr[1] ""
+
+#: Sources/Client/Client.cpp:643
+msgctxt "Client"
+msgid "*DEAD* "
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:729
+msgctxt "Client"
+msgid "Respawning in: {0}"
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:774
+msgctxt "Client"
+msgid "Following {0} [#{1}]"
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:785
+msgctxt "Client"
+msgid "[{0}/{1}] Next/Prev player"
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:802
+msgctxt "Client"
+msgid "[{0}] Select Team/Weapon"
+msgstr ""
+
+#: Sources/Client/Client_NetHandler.cpp:66
+msgctxt "Client"
+msgid "Welcome to the server, {0}!"
+msgstr ""
+
+#: Sources/Client/Client_Update.cpp:906
+msgctxt "Client"
+msgid "You've killed {0}"
+msgstr ""
+
+#: Sources/Client/NetClient.cpp:694
+msgctxt "NetClient"
+msgid "Your network's public address has too many connections to this server."
+msgstr ""
+
+#: Resources/Scripts/Gui/Console/ConsoleWindow.as:62
+msgctxt "Console"
+msgid "Command"
+msgstr ""
+
+#: Resources/Scripts/Gui/MainScreen/MainMenu.as:215
+msgctxt "MainScreen"
+msgid "Slots"
+msgstr ""
+
+#: Resources/Scripts/Gui/MainScreen/MainMenu.as:250
+msgctxt "MainScreen"
+msgid "Ping"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:56
+msgctxt "Preferences"
+msgid "Renderer Settings"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:605
+msgctxt "Preferences"
+msgid "MARKS"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:609
+msgctxt "Preferences"
+msgid "Ragdoll Corpses"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:610
+msgctxt "Preferences"
+msgid "Corpse Line Collision"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:611
+msgctxt "Preferences"
+msgid "Bullet Tracers"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:612
+msgctxt "Preferences"
+msgid "Firstperson Tracers"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:613
+msgctxt "Preferences"
+msgid "Eject Bullet Casings"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:615
+msgctxt "Preferences"
+msgid "Hurt Screen Effects"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:628
+msgctxt "Preferences"
+msgid "Ignore Chat Messages"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:629
+msgctxt "Preferences"
+msgid "Hit Analyze Messages"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:630
+msgctxt "Preferences"
+msgid "Center Messages"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:634
+msgctxt "Preferences"
+msgid "Center Messages Scale"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:636
+msgctxt "Preferences"
+msgid "Chat Notify Sounds"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:638
+msgctxt "Preferences"
+msgid "Alert Sounds"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:640
+msgctxt "Preferences"
+msgid "Damage Indicator"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:647
+msgctxt "Preferences"
+msgid "Horizontal FOV"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:648
+msgctxt "Preferences"
+msgid "Classic Zoom"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:651
+msgctxt "Preferences"
+msgid "Master Volume"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:653
+msgctxt "Preferences"
+msgid "Hitmarker Volume"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:654
+msgctxt "Preferences"
+msgid "Hit Feedback Volume"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:655
+msgctxt "Preferences"
+msgid "Environmental Audio"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:657
+msgctxt "Preferences"
+msgid "Show Player Statistics"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:658
+msgctxt "Preferences"
+msgid "Debug Hit Detection"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:659
+msgctxt "Preferences"
+msgid "Hit Test Debugger Size"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:661
+msgctxt "Preferences"
+msgid "Toggle Hit Test Zoom"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:662
+msgctxt "Preferences"
+msgid "Debug Weapon Spread"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:663
+msgctxt "Preferences"
+msgid "Classic Viewmodel"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:665
+msgctxt "Preferences"
+msgid "Minimap"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:666
+msgctxt "Preferences"
+msgid "Minimap Size"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:668
+msgctxt "Preferences"
+msgid "Use Weapon Icons"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:669
+msgctxt "Preferences"
+msgid "Use Random Colors"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:671
+msgctxt "Preferences"
+msgid "Heads-Up Display"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:672
+msgctxt "Preferences"
+msgid "Hide HUD"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:673
+msgctxt "Preferences"
+msgid "Hud Horizontal Border"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:675
+msgctxt "Preferences"
+msgid "Hud Vertical Border"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:677
+msgctxt "Preferences"
+msgid "Chat Height"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:679
+msgctxt "Preferneces"
+msgid "Killfeed Height"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:692
+msgctxt "Preferences"
+msgid "General"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:693
+msgctxt "Preferences"
+msgid "Render Scale"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:695
+msgctxt "Preferences"
+msgid "Render Scaling Filter"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:696
+msgctxt "Preferences"
+msgid "Bicubic"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:697
+msgctxt "Preferences"
+msgid "Bilinear"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:698
+msgctxt "Preferences"
+msgid "Nearest Neighbour"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:701
+msgctxt "Preferences"
+msgid "VSync"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:702
+msgctxt "Preferences"
+msgid "Adaptive"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:707
+msgctxt "Preferences"
+msgid "World"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:708
+msgctxt "Preferences"
+msgid "Dynamic Lights"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:709
+msgctxt "Preferences"
+msgid "Tracers Lights"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:710
+msgctxt "Preferences"
+msgid "Depth Prepass"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:711
+msgctxt "Preferences"
+msgid "Occlusion Querying"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:713
+msgctxt "Preferences"
+msgid "Post-processing"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:714
+msgctxt "Preferences"
+msgid "Depth Of Field"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:715
+msgctxt "Preferences"
+msgid "Camera Blur"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:716
+msgctxt "Preferences"
+msgid "FXAA Anti-Aliasing"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:717
+msgctxt "Preferences"
+msgid "Lens Flares"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:718
+msgctxt "Preferences"
+msgid "Flares Lights"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:719
+msgctxt "Preferences"
+msgid "Color Correction"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:720
+msgctxt "Preferences"
+msgid "Sharpening"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:722
+msgctxt "Preferences"
+msgid "Saturation"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:724
+msgctxt "Preferences"
+msgid "Exposure"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:727
+msgctxt "Preferences"
+msgid "Other"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:728
+msgctxt "Preferences"
+msgid "Rendering Statistics"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:729
+msgctxt "Preferences"
+msgid "Allow CPU Rendering"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:731
+msgctxt "Preferences"
+msgid "Software Renderer"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:732
+msgctxt "Preferences"
+msgid "Thread Count"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:733
+msgctxt "Preferences"
+msgid " Threads"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:734
+msgctxt "Preferences"
+msgid "Undersampling"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:751
+msgctxt "Preferences"
+msgid "Mouse Sensitivity Type"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:752
+msgctxt "Preferences"
+msgid "Default"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:758
+msgctxt "Preferences"
+msgid "Mouse Acceleration"
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:123
+msgctxt "StartupScreen"
+msgid ""
+"Antialiasing:Enables a technique to improve the appearance of high-contrast "
+"edges.\n"
+"\n"
+"MSAA: Performs antialiasing by generating an intermediate high-resolution "
+"image. Looks best, but doesn't cope with some settings.\n"
+"\n"
+"FXAA: Performs antialiasing by smoothing artifacts out as a post-process.|"
+"Off|MSAA 2x|4x|FXAA"
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:144
+msgctxt "StartupScreen"
+msgid "V-Sync"
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:145
+msgctxt "StartupScreen"
+msgid "Enables frame rate synchronization."
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:163
+msgctxt "StartupScreen"
+msgid "Flares for Dynamic Lights."
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:199
+msgctxt "StartupScreen"
+msgid "None"
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:200
+msgctxt "StartupScreen"
+msgid "Disables the volumetric fog effect."
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:201
+msgctxt "StartupScreen"
+msgid "Level 1"
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:202
+msgctxt "StartupScreen"
+msgid "Applies local illumination to the fog."
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:203
+msgctxt "StartupScreen"
+msgid "Level 2"
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:204
+msgctxt "StartupScreen"
+msgid "Applies both local illumination and global illumination to the fog."
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:205
+msgctxt "StartupScreen"
+msgid "Warning: '{0}' must be enabled."
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:530
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:567
+msgctxt "StartupScreen"
+msgid "Volume"
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:530
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:567
+msgctxt "StartupScreen"
+msgid ""
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:638
+msgctxt "StartupScreen"
+msgid "Output Device"
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:755
+msgctxt "StartupScreen"
+msgid ""
+"Other advanced settings only accessible through '{0}' tab and in-game "
+"commands."
 msgstr ""
