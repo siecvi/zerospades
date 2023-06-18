@@ -386,7 +386,7 @@ namespace spades {
 						// play tool change sound
 						IAudioDevice& audioDevice = client.GetAudioDevice();
 						Handle<IAudioChunk> c;
-						switch (player.GetTool()) {
+						switch (currentTool) {
 							case Player::ToolSpade:
 								c = audioDevice.RegisterSound("Sounds/Weapons/Spade/RaiseLocal.opus");
 								break;
@@ -425,7 +425,8 @@ namespace spades {
 				}
 			}
 
-			{
+			bool isThirdPerson = ShouldRenderInThirdPersonView();
+			if (!isThirdPerson) {
 				Vector3 front = player.GetFront();
 				Vector3 right = player.GetRight();
 				Vector3 up = player.GetUp();
@@ -441,12 +442,12 @@ namespace spades {
 						viewWeaponOffset *= powf(1.0E-6F, dt);
 				} else {
 					float scale = dt;
-					Vector3 vel = player.GetVelocity();
 
 					// Offset the view weapon according to the player movement
-					viewWeaponOffset.x += Vector3::Dot(vel, right) * scale;
-					viewWeaponOffset.y -= Vector3::Dot(vel, front) * scale;
-					viewWeaponOffset.z += Vector3::Dot(vel, up) * scale;
+					Vector3 v = player.GetVelocity();
+					viewWeaponOffset.x += Vector3::Dot(v, right) * scale;
+					viewWeaponOffset.y -= Vector3::Dot(v, front) * scale;
+					viewWeaponOffset.z += Vector3::Dot(v, up) * scale;
 
 					// Offset the view weapon according to the camera movement
 					Vector3 diff = front - lastFront;
@@ -485,21 +486,20 @@ namespace spades {
 						softLimitFunc(viewWeaponOffset.z, 0, limitY);
 					}
 				}
-			}
 
 			if (player.IsLocalPlayer()) {
 				// Smooth the flashlight's movement
-				Vector3 o = player.GetFront();
-				Vector3 diff = o - flashlightOrientation;
+					Vector3 diff = front - flashlightOrientation;
 				float dist = diff.GetLength();
 				if (dist > 0.1F)
 					flashlightOrientation += diff.Normalize() * (dist - 0.1F);
-				flashlightOrientation = Mix(flashlightOrientation, o, 1.0F - powf(1.0E-6F, dt));
+					flashlightOrientation = Mix(flashlightOrientation, front, 1.0F - powf(1.0E-6F, dt));
 				flashlightOrientation = flashlightOrientation.Normalize();
+			}
 			}
 
 			// FIXME: should do for non-active skins?
-			asIScriptObject* curSkin = GetCurrentSkin(!ShouldRenderInThirdPersonView());
+			asIScriptObject* curSkin = GetCurrentSkin(!isThirdPerson);
 			{
 				ScriptIToolSkin interface(curSkin);
 				interface.Update(dt);
@@ -523,31 +523,31 @@ namespace spades {
 
 		void ClientPlayer::SetSkinParameterForTool(Player::ToolType type, asIScriptObject* skin) {
 			Player& p = player;
-			if (currentTool == Player::ToolSpade) {
+			WeaponInput actualWeapInput = p.GetWeaponInput();
+
+			if (type == Player::ToolSpade) {
 				ScriptISpadeSkin interface(skin);
-				if (p.GetTool() != Player::ToolSpade) {
-					interface.SetActionType(SpadeActionTypeIdle);
-					interface.SetActionProgress(0.0F);
-				} else if (p.GetWeaponInput().primary) {
+				const float nextSpadeTime = p.GetTimeToNextSpade();
+				if (actualWeapInput.primary && nextSpadeTime > 0.0F) {
 					interface.SetActionType(SpadeActionTypeBash);
-					interface.SetActionProgress(p.GetSpadeAnimationProgress());
-				} else if (p.GetWeaponInput().secondary) {
+					interface.SetActionProgress(1.0F - (nextSpadeTime / 0.2F));
+				} else if (actualWeapInput.secondary) {
 					interface.SetActionType(p.IsFirstDig() 
 						? SpadeActionTypeDigStart : SpadeActionTypeDig);
-					interface.SetActionProgress(p.GetDigAnimationProgress());
+					interface.SetActionProgress(1.0F - p.GetTimeToNextDig());
 				} else {
 					interface.SetActionType(SpadeActionTypeIdle);
 					interface.SetActionProgress(0.0F);
 				}
-			} else if (currentTool == Player::ToolBlock) {
+			} else if (type == Player::ToolBlock) {
 				ScriptIBlockSkin interface(skin);
 				interface.SetReadyState(1.0F - (p.GetTimeToNextBlock() / 0.5F));
 				interface.SetBlockColor(ConvertColorRGB(p.GetBlockColor()));
-			} else if (currentTool == Player::ToolGrenade) {
+			} else if (type == Player::ToolGrenade) {
 				ScriptIGrenadeSkin interface(skin);
 				interface.SetReadyState(1.0F - (p.GetTimeToNextGrenade() / 0.5F));
-				interface.SetCookTime(p.GetWeaponInput().primary ? p.GetGrenadeCookTime() : 0.0F);
-			} else if (currentTool == Player::ToolWeapon) {
+				interface.SetCookTime(actualWeapInput.primary ? p.GetGrenadeCookTime() : 0.0F);
+			} else if (type == Player::ToolWeapon) {
 				Weapon& w = p.GetWeapon();
 				ScriptIWeaponSkin interface(skin);
 				interface.SetReadyState(1.0F - (w.GetTimeToNextFire() / w.GetDelay()));
@@ -557,7 +557,7 @@ namespace spades {
 				interface.SetReloading(w.IsReloading());
 				interface.SetReloadProgress(w.GetReloadProgress());
 			} else {
-				SPInvalidEnum("currentTool", currentTool);
+				SPInvalidEnum("currentTool", type);
 			}
 		}
 
@@ -578,15 +578,13 @@ namespace spades {
 		}
 
 		asIScriptObject* ClientPlayer::GetCurrentSkin(bool viewSkin) {
-			asIScriptObject* curSkin;
 			switch (currentTool) {
-				case Player::ToolSpade: curSkin = viewSkin ? spadeViewSkin : spadeSkin; break;
-				case Player::ToolBlock: curSkin = viewSkin ? blockViewSkin : blockSkin; break;
-				case Player::ToolWeapon: curSkin = viewSkin ? weaponViewSkin : weaponSkin; break;
-				case Player::ToolGrenade: curSkin = viewSkin ? grenadeViewSkin : grenadeSkin; break;
+				case Player::ToolSpade: return viewSkin ? spadeViewSkin : spadeSkin; break;
+				case Player::ToolBlock: return viewSkin ? blockViewSkin : blockSkin; break;
+				case Player::ToolWeapon: return viewSkin ? weaponViewSkin : weaponSkin; break;
+				case Player::ToolGrenade: return viewSkin ? grenadeViewSkin : grenadeSkin; break;
 				default: SPInvalidEnum("currentTool", currentTool);
 			}
-			return curSkin;
 		}
 
 		std::array<Vector3, 3> ClientPlayer::GetFlashlightAxes() {
@@ -604,10 +602,9 @@ namespace spades {
 			World* world = client.GetWorld();
 			Matrix4 eyeMatrix = GetEyeMatrix();
 
-			Vector3 const origin = eyeMatrix.GetOrigin();
-
 			// Configure the clipping region for the localplayer view in case of overdraw
 			{
+				Vector3 const origin = eyeMatrix.GetOrigin();
 				Vector3 const outset(20.0F, 20.0F, 20.0F);
 
 				sandboxedRenderer->SetClipBox(AABB3(origin - outset, origin + outset));
@@ -649,18 +646,8 @@ namespace spades {
 			// Moving this to the scripting environment means
 			// breaking compatibility with existing scripts.
 			if (cg_classicViewWeapon) {
+				Matrix4 mat = Matrix4::Scale(0.033F);
 				Vector3 trans(0.0F, 0.0F, 0.0F);
-
-				float sprint = SmoothStep(sprintState);
-				float putdown = 1.0F - toolRaiseState;
-				putdown *= putdown;
-				putdown = std::min(1.0F, putdown * 1.5F);
-				float raiseState = (p.GetTool() == currentTool) ? (1.0F - putdown) : 0.0F;
-				if (sprint > 0.0F || raiseState < 1.0F) {
-					float per = std::max(sprint, 1.0F - raiseState) * 8;
-					trans.x -= per;
-					trans.z += per;
-				}
 
 				Vector3 v = player.GetVelocity();
 				float bob = std::max(fabsf(v.x), fabsf(v.y)) / 1000;
@@ -673,29 +660,38 @@ namespace spades {
 				if (!p.IsOnGroundOrWade())
 					trans.z -= v.z * 0.2F;
 
-				Matrix4 mat = Matrix4::Scale(0.033F);
+				if (sprintState > 0.0F || toolRaiseState < 1.0F) {
+					float per = std::max(sprintState, 1.0F - toolRaiseState) * 5;
+					trans.x -= per;
+					trans.z += per;
+				}
 
 				Handle<IModel> model;
 				ModelRenderParam param;
 				param.depthHack = true;
-				param.customColor = ConvertColorRGB(p.GetBlockColor());
+				param.customColor = ConvertColorRGB(p.GetColor());
 
+				const float nextSpadeTime = p.GetTimeToNextSpade();
+				const float nextDigTime = p.GetTimeToNextDig();
 				const float nextBlockTime = p.GetTimeToNextBlock();
-				const float cookGrenadeTime = p.GetGrenadeCookTime();
 				const float nextFireTime = w.GetTimeToNextFire();
-				const float reloadProgress = (1.0F - w.GetReloadProgress());
+
+				const float spadeProgress = 1.0F - (nextSpadeTime / 0.2F);
+				const float spadeDigProgress = 1.0F - nextDigTime;
+				const float cookGrenadeTime = p.GetGrenadeCookTime();
+				const float reloadProgress = 1.0F - w.GetReloadProgress();
 
 				WeaponInput actualWeapInput = p.GetWeaponInput();
 
 				switch (currentTool) {
 					case Player::ToolSpade:
 						model = renderer.RegisterModel("Models/Weapons/Spade/Spade.kv6");
-						if (actualWeapInput.primary) {
-							float f = 1.0F - p.GetSpadeAnimationProgress();
+						if (actualWeapInput.primary && nextSpadeTime > 0.0F) {
+							float f = 1.0F - spadeProgress;
 							mat = Matrix4::Rotate(MakeVector3(1, 0, 0), f * 1.25F) * mat;
 							mat = Matrix4::Translate(0.0F, f * 0.5F, f * 0.25F) * mat;
-						} else if (actualWeapInput.secondary) {
-							float f = 1.0F - p.GetDigAnimationProgress();
+						} else if (actualWeapInput.secondary && nextDigTime > 0.0F) {
+							float f = 1.0F - spadeDigProgress;
 							float f2;
 							if (f >= 0.6F) {
 								f2 = 0.0F;
@@ -717,6 +713,7 @@ namespace spades {
 						}
 						break;
 					case Player::ToolBlock:
+						param.customColor = ConvertColorRGB(p.GetBlockColor());
 						model = renderer.RegisterModel("Models/Weapons/Block/Block.kv6");
 						if (nextBlockTime > 0.0F) {
 							float f = nextBlockTime * 8;
@@ -727,16 +724,16 @@ namespace spades {
 					case Player::ToolGrenade:
 						model = renderer.RegisterModel("Models/Weapons/Grenade/Grenade.kv6");
 						if (actualWeapInput.primary) {
-							float f = cookGrenadeTime * DEG2RAD(45);
+							float f = cookGrenadeTime;
 							trans.x -= f;
 							trans.z -= f;
 						}
 						break;
 					case Player::ToolWeapon: {
-						if (actualWeapInput.secondary)
+						// don't draw model when aiming
+						if (aimDownState > 0.99F)
 							return;
 
-						param.customColor = ConvertColorRGB(p.GetColor());
 						switch (w.GetWeaponType()) {
 							case RIFLE_WEAPON:
 								model = renderer.RegisterModel("Models/Weapons/Rifle/Weapon.kv6");
@@ -768,9 +765,9 @@ namespace spades {
 				trans += Vector3(-0.33F, 0.66F, 0.4F);
 				trans += 0.015F; // adjust to match voxlap
 				trans += viewWeaponOffset;
-				mat = Matrix4::Translate(trans) * mat;
 
-				param.matrix = eyeMatrix * mat;
+				param.matrix = Matrix4::Translate(trans) * mat;
+				param.matrix = eyeMatrix * param.matrix;
 				renderer.RenderModel(*model, param);
 
 				return;
@@ -816,7 +813,7 @@ namespace spades {
 			// common process
 			{
 				ScriptIViewToolSkin interface(curSkin);
-				interface.SetEyeMatrix(GetEyeMatrix());
+				interface.SetEyeMatrix(eyeMatrix);
 				interface.SetSwing(viewWeaponOffset);
 			}
 			{
@@ -1021,15 +1018,17 @@ namespace spades {
 			}
 
 			if (inp.sprint)
-				armPitch -= 0.5F * sprintState;
+				armPitch -= 0.9F * sprintState;
 
 			// Moving this to the scripting environment means
 			// breaking compatibility with existing scripts.
+			WeaponInput actualWeapInput = p.GetWeaponInput();
+
 			if (currentTool == Player::ToolSpade) {
 				float nextSpadeTime = p.GetTimeToNextSpade();
 				if (nextSpadeTime > 0.0F)
 					armPitch -= (nextSpadeTime / 0.2F);
-				if (p.GetWeaponInput().secondary)
+				if (actualWeapInput.secondary)
 					armPitch -= 1.0F - p.GetTimeToNextDig();
 			} else if (currentTool == Player::ToolBlock) {
 				float nextBlockTime = p.GetTimeToNextBlock();
@@ -1041,7 +1040,7 @@ namespace spades {
 					armPitch += nextFireTime;
 			} else if (currentTool == Player::ToolGrenade) {
 				float fuse = p.GetGrenadeCookTime();
-				if (p.GetWeaponInput().primary)
+				if (actualWeapInput.primary)
 					armPitch += fuse * DEG2RAD(30);
 			}
 
@@ -1132,7 +1131,7 @@ namespace spades {
 			auto& mode = *world->GetMode();
 			if (mode.ModeType() == IGameMode::m_CTF) {
 				auto& ctfMode = static_cast<CTFGameMode&>(mode);
-				if (ctfMode.PlayerHasIntel(*world, player)) {
+				if (ctfMode.PlayerHasIntel(p)) {
 					model = renderer.RegisterModel("Models/MapObjects/Intel.kv6");
 					IntVector3 teamColor = world->GetTeamColor(1 - p.GetTeamId());
 					param.customColor = ConvertColorRGB(teamColor);
@@ -1168,9 +1167,8 @@ namespace spades {
 			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
 				return;
 
-			bool shouldRender = ShouldRenderInThirdPersonView();
-
-			if (!shouldRender)
+			bool isThirdPerson = ShouldRenderInThirdPersonView();
+			if (!isThirdPerson)
 				AddToSceneFirstPersonView();
 			else
 				AddToSceneThirdPersonView();
@@ -1190,8 +1188,8 @@ namespace spades {
 					                      Vector4{0.0F, 0.0F, 1.0F, 1.0F});
 				};
 
-				drawAxes(shouldRender ? GetMuzzlePosition() : GetMuzzlePositionInFirstPersonView());
-				drawAxes(shouldRender ? GetCaseEjectPosition() : GetCaseEjectPositionInFirstPersonView());
+				drawAxes(isThirdPerson ? GetMuzzlePosition() : GetMuzzlePositionInFirstPersonView());
+				drawAxes(isThirdPerson ? GetCaseEjectPosition() : GetCaseEjectPositionInFirstPersonView());
 			}
 		}
 
@@ -1369,7 +1367,9 @@ namespace spades {
 		void ClientPlayer::FiredWeapon() {
 			Player& p = player;
 
-			Vector3 muzzle = ShouldRenderInThirdPersonView()
+			bool isThirdPerson = ShouldRenderInThirdPersonView();
+
+			Vector3 muzzle = isThirdPerson
 								? GetMuzzlePosition()
 								: GetMuzzlePositionInFirstPersonView();
 
@@ -1380,14 +1380,14 @@ namespace spades {
 			auto ambience = ComputeAmbience();
 
 			// FIXME: what if current tool isn't weapon?
-			asIScriptObject* skin = ShouldRenderInThirdPersonView() ? weaponSkin : weaponViewSkin;
+			asIScriptObject* skin = isThirdPerson ? weaponSkin : weaponViewSkin;
 
 			{
 				ScriptIWeaponSkin2 interface(skin);
 				if (interface.ImplementsInterface()) {
 					interface.SetSoundEnvironment(ambience.room, ambience.size, ambience.distance);
 					interface.SetSoundOrigin(p.GetEye());
-				} else if (ShouldRenderInThirdPersonView() && !hasValidOriginMatrix) {
+				} else if (isThirdPerson && !hasValidOriginMatrix) {
 					// Legacy skin scripts rely on OriginMatrix which is only updated when
 					// the player's location is within the fog range.
 					return;
@@ -1456,8 +1456,10 @@ namespace spades {
 		}
 
 		void ClientPlayer::ReloadingWeapon() {
+			bool isThirdPerson = ShouldRenderInThirdPersonView();
+
 			// FIXME: what if current tool isn't weapon?
-			asIScriptObject* skin = ShouldRenderInThirdPersonView() ? weaponSkin : weaponViewSkin;
+			asIScriptObject* skin = isThirdPerson ? weaponSkin : weaponViewSkin;
 
 			// sound ambience estimation
 			auto ambience = ComputeAmbience();
@@ -1467,7 +1469,7 @@ namespace spades {
 				if (interface.ImplementsInterface()) {
 					interface.SetSoundEnvironment(ambience.room, ambience.size, ambience.distance);
 					interface.SetSoundOrigin(player.GetEye());
-				} else if (ShouldRenderInThirdPersonView() && !hasValidOriginMatrix) {
+				} else if (isThirdPerson && !hasValidOriginMatrix) {
 					// Legacy skin scripts rely on OriginMatrix which is only updated when
 					// the player's location is within the fog range.
 					return;

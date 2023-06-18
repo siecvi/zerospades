@@ -75,10 +75,9 @@ namespace spades {
 
 				const auto& pos = it->second;
 				if (map && map->IsSolid(pos.x, pos.y, pos.z)) {
-					uint32_t color = map->GetColor(pos.x, pos.y, pos.z);
-					int health = 100;
-					color = ((health & 0xFF) << 24) | (color & 0xFFFFFF);
-					map->Set(pos.x, pos.y, pos.z, true, color);
+					uint32_t col = map->GetColor(pos.x, pos.y, pos.z);
+					col = (col & 0xFFFFFF) | (100UL << 24);
+					map->Set(pos.x, pos.y, pos.z, true, col);
 				}
 
 				damagedBlocksQueueMap.erase(damagedBlocksQueueMap.find(pos));
@@ -216,7 +215,7 @@ namespace spades {
 			for (const auto& creation : createdBlocks) {
 				const auto& pos = creation.first;
 				const auto& col = creation.second;
-				uint32_t color = col.x | (col.y << 8) | (col.z << 16) | (100UL << 24);
+				uint32_t color = IntVectorToColor(col) | (100UL << 24);
 				color = map->GetColorJit(color); // jit the colour
 				if (map->IsSolid(pos.x, pos.y, pos.z)) {
 					map->Set(pos.x, pos.y, pos.z, true, color);

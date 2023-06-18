@@ -400,35 +400,32 @@ namespace spades {
 				}
 
 				// Add vibration effects
-				{
+				if (shakeLevel >= 1) {
 					float nadeVib = grenadeVibration;
 					if (nadeVib > 0.0F) {
-						if (shakeLevel >= 1) {
-							nadeVib *= 10.0F;
-							if (nadeVib > 1.0F)
-								nadeVib = 1.0F;
-							roll += (SampleRandomFloat() - SampleRandomFloat()) * 0.2F * nadeVib;
-							vibPitch += (SampleRandomFloat() - SampleRandomFloat()) * 0.1F * nadeVib;
-							vibYaw += (SampleRandomFloat() - SampleRandomFloat()) * 0.1F * nadeVib;
-							scale -= (SampleRandomFloat() - SampleRandomFloat()) * 0.1F * nadeVib;
+						nadeVib *= 10.0F;
+						if (nadeVib > 1.0F)
+							nadeVib = 1.0F;
+						roll += (SampleRandomFloat() - SampleRandomFloat()) * 0.2F * nadeVib;
+						vibPitch += (SampleRandomFloat() - SampleRandomFloat()) * 0.1F * nadeVib;
+						vibYaw += (SampleRandomFloat() - SampleRandomFloat()) * 0.1F * nadeVib;
+						scale -= (SampleRandomFloat() - SampleRandomFloat()) * 0.1F * nadeVib;
 
-							def.radialBlur += nadeVib * 0.1F;
-						}
+						def.radialBlur += nadeVib * 0.1F;
 					}
 				}
-				{
+
+				if (shakeLevel >= 2) {
 					float nadeVib = grenadeVibrationSlow;
 					if (nadeVib > 0.0F) {
-						if (shakeLevel >= 2) {
-							nadeVib *= 4.0F;
-							if (nadeVib > 1.0F)
-								nadeVib = 1.0F;
-							nadeVib *= nadeVib;
+						nadeVib *= 4.0F;
+						if (nadeVib > 1.0F)
+							nadeVib = 1.0F;
+						nadeVib *= nadeVib;
 
-							roll += coherentNoiseSamplers[0].Sample(time * 8.0F) * 0.2F * nadeVib;
-							vibPitch += coherentNoiseSamplers[1].Sample(time * 12.0F) * 0.1F * nadeVib;
-							vibYaw += coherentNoiseSamplers[2].Sample(time * 11.0F) * 0.1F * nadeVib;
-						}
+						roll += coherentNoiseSamplers[0].Sample(time * 8.0F) * 0.2F * nadeVib;
+						vibPitch += coherentNoiseSamplers[1].Sample(time * 12.0F) * 0.1F * nadeVib;
+						vibYaw += coherentNoiseSamplers[2].Sample(time * 11.0F) * 0.1F * nadeVib;
 					}
 				}
 
@@ -516,10 +513,9 @@ namespace spades {
 			position.z -= 0.03F * 3.0F;
 
 			ModelRenderParam param;
-			Matrix4 mat = g.GetOrientation().ToRotationMatrix() * Matrix4::Scale(0.03F);
-			mat = Matrix4::Translate(position) * mat;
-			param.matrix = mat;
-
+			param.matrix = Matrix4::Translate(position);
+			param.matrix = param.matrix * g.GetOrientation().ToRotationMatrix();
+			param.matrix = param.matrix * Matrix4::Scale(0.03F);
 			renderer->RenderModel(*model, param);
 		}
 
@@ -573,8 +569,8 @@ namespace spades {
 				// draw flag
 				if (!mode.GetTeam(1 - tId).hasIntel) {
 					param.matrix = Matrix4::Translate(team.flagPos);
+					param.matrix = param.matrix * Matrix4::Rotate(MakeVector3(0, 0, 1), time);
 					param.matrix = param.matrix * Matrix4::Scale(0.1F);
-					param.matrix *= Matrix4::Rotate(MakeVector3(0, 0, 1), time);
 					renderer->RenderModel(*intel, param);
 				}
 			}

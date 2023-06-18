@@ -25,8 +25,8 @@ namespace spades {
 
 			velocity *= 0.5F; // make it slower for visual effect
 
-			const float maxTimeSpread = 1.0F / 30.0F;
-			const float shutterTime = 1.0F / 30.0F;
+			const float maxTimeSpread = 1.0F / 60.0F;
+			const float shutterTime = 1.0F / 100.0F;
 
 			visibleLength = shutterTime * velocity;
 			curDistance = -visibleLength;

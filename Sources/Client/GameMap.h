@@ -182,10 +182,15 @@ namespace spades {
 			inline uint32_t GetDirtColor(int x, int y, int z) {
 				int j = groundCols[(z >> 3) + 1];
 				int i = groundCols[(z >> 3)];
-				i = i + (((j - i) * (z & 7)) >> 3);
-				i = (i & 0xFF00FF) + (i & 0xFF00);
-				i += 4 * ((abs((x & 7) - 4) << 16) + (abs((y & 7) - 4) << 8) + abs((z & 7) - 4));
-				return (i + 0x10101 * (rand() % 7)) | 0x3F000000;
+				i += ((j - i) * (z & 7)) >> 3;
+
+				IntVector3 col;
+				col.x = abs((x & 7) - 4);
+				col.y = abs((y & 7) - 4);
+				col.z = abs((z & 7) - 4);
+				i += 4 * (col.x << 16 | col.y << 8 | col.z);
+
+				return i + (0x10101 * (rand() % 7));
 			}
 
 		private:

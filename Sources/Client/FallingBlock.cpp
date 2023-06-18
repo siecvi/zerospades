@@ -118,7 +118,7 @@ namespace spades {
 				usePrecisePhysics = true;
 
 			if (MoveBlock(dt) == 2) {
-				if (!client->IsMuted() && distSqr < 40.0F * 40.0F) {
+				if (!client->IsMuted() && distSqr < 16.0F * 16.0F) {
 					IAudioDevice& dev = client->GetAudioDevice();
 					Handle<IAudioChunk> c = dev.RegisterSound("Sounds/Player/Bounce.opus");
 					dev.Play(c.GetPointerOrNull(), matrix.GetOrigin(), AudioParam());
@@ -224,14 +224,14 @@ namespace spades {
 					ret = 2; // play sound
 
 				IntVector3 lp2 = lastMat.GetOrigin().Floor();
-				if (lp.z != lp2.z &&
-				    ((lp.x == lp2.x && lp.y == lp2.y) || !map->ClipWorld(lp.x, lp.y, lp2.z)))
+				if (lp.z != lp2.z && ((lp.x == lp2.x && lp.y == lp2.y)
+					|| !map->ClipWorld(lp.x, lp.y, lp2.z)))
 					velocity.z = -velocity.z;
-				else if (lp.x != lp2.x &&
-				         ((lp.y == lp2.y && lp.z == lp2.z) || !map->ClipWorld(lp2.x, lp.y, lp.z)))
+				else if (lp.x != lp2.x && ((lp.y == lp2.y && lp.z == lp2.z)
+					|| !map->ClipWorld(lp2.x, lp.y, lp.z)))
 					velocity.x = -velocity.x;
-				else if (lp.y != lp2.y &&
-				         ((lp.x == lp2.x && lp.z == lp2.z) || !map->ClipWorld(lp.x, lp2.y, lp.z)))
+				else if (lp.y != lp2.y && ((lp.x == lp2.x && lp.z == lp2.z)
+					|| !map->ClipWorld(lp.x, lp2.y, lp.z)))
 					velocity.y = -velocity.y;
 
 				matrix = lastMat; // set back to old position
@@ -250,7 +250,7 @@ namespace spades {
 		void FallingBlock::Render3D() {
 			ModelRenderParam param;
 			param.ghost = true;
-			param.opacity = std::max(0.25F, (1.0F * time));
+			param.opacity = std::max(0.25F, time);
 			param.matrix = matrix;
 			client->GetRenderer().RenderModel(*model, param);
 		}

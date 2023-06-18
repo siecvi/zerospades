@@ -68,7 +68,7 @@ namespace spades {
 			}
 
 			stmp::optional<IGameMode&> mode = w->GetMode();
-			if (!mode || IGameMode::m_TC != mode->ModeType())
+			if (!mode || mode->ModeType() != IGameMode::m_TC)
 				return;
 
 			TCGameMode& tc = dynamic_cast<TCGameMode&>(mode.value());

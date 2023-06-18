@@ -104,8 +104,8 @@ namespace spades {
 			void ReloadingWeapon();
 			void ReloadedWeapon();
 
-			float GetAimDownState() { return aimDownState; }
 			float GetSprintState() { return sprintState; }
+			float GetAimDownState() { return aimDownState; }
 
 			bool ShouldRenderInThirdPersonView();
 

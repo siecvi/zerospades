@@ -150,10 +150,10 @@ namespace spades {
 			Vector3 lastFront;
 			float lastPosSentTime;
 			float lastOriSentTime;
-			int lastHealth;
 			float lastHurtTime;
 			float lastAliveTime;
 			float lastHitTime;
+			int lastHealth;
 			int lastScore;
 			int curKills;
 			int curDeaths;
@@ -180,8 +180,8 @@ namespace spades {
 			};
 			std::list<DamageIndicator> damageIndicators;
 
-			float GetAimDownState();
 			float GetSprintState();
+			float GetAimDownState();
 
 			/**
 			 * Queries whether the local player is allowed to use a tool in this state.

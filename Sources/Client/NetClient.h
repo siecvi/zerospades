@@ -141,6 +141,7 @@ namespace spades {
 
 			void MapLoaded();
 
+			void SendMapCached();
 			void SendVersion();
 			void SendVersionEnhanced(const std::set<std::uint8_t>& propertyIds);
 			void SendSupportedExtensions();
@@ -182,16 +183,16 @@ namespace spades {
 			void SendOrientation(Vector3);
 			void SendPlayerInput(PlayerInput);
 			void SendWeaponInput(WeaponInput);
+			void SendHit(int targetPlayerId, HitType type);
+			void SendGrenade(const Grenade&);
+			void SendTool();
+			void SendHeldBlockColor();
 			void SendBlockAction(IntVector3, BlockActionType);
 			void SendBlockLine(IntVector3 v1, IntVector3 v2);
-			void SendReload();
-			void SendTool();
-			void SendGrenade(const Grenade&);
-			void SendHeldBlockColor();
-			void SendHit(int targetPlayerId, HitType type);
 			void SendChat(std::string, bool global);
-			void SendWeaponChange(WeaponType);
+			void SendReload();
 			void SendTeamChange(int team);
+			void SendWeaponChange(WeaponType);
 			void SendHandShakeValid(int challenge);
 
 			double GetDownlinkBps() { return bandwidthMonitor->GetDownlinkBps(); }

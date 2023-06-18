@@ -36,12 +36,12 @@ namespace spades {
 			return teams[t];
 		}
 
-		bool CTFGameMode::PlayerHasIntel(World& world, Player& player) {
+		bool CTFGameMode::PlayerHasIntel(Player& player) {
 			if (player.IsSpectator())
 				return false;
 
 			auto& team = teams[player.GetTeamId()];
-			return team.hasIntel && (int)team.carrierId == player.GetId();
+			return team.hasIntel && int(team.carrierId) == player.GetId();
 		}
 
 		void CTFGameMode::ResetTeamScoreAndIntelHoldingStatus() {

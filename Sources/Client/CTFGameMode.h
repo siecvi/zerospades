@@ -53,7 +53,7 @@ namespace spades {
 			int GetCaptureLimit() { return captureLimit; }
 			void SetCaptureLimit(int v) { captureLimit = v; }
 
-			bool PlayerHasIntel(World& world, Player& player);
+			bool PlayerHasIntel(Player& player);
 
 			/**
 			 * Resets both team score and the holding status of both flags.

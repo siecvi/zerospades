@@ -73,6 +73,9 @@ namespace spades {
 				return;
 			}
 
+			if (hits.empty())
+				return;
+
 			SceneDefinition def;
 			def.viewOrigin = localPlayer->GetEye();
 			def.viewAxis[0] = localPlayer->GetRight();
@@ -81,9 +84,9 @@ namespace spades {
 
 			auto toViewCoord = [&](const Vector3& targPos) {
 				Vector3 targetViewPos;
-				targetViewPos.x = Vector3::Dot(targPos - def.viewOrigin, def.viewAxis[0]);
-				targetViewPos.y = Vector3::Dot(targPos - def.viewOrigin, def.viewAxis[1]);
-				targetViewPos.z = Vector3::Dot(targPos - def.viewOrigin, def.viewAxis[2]);
+				targetViewPos.x = Vector3::Dot(targPos, def.viewAxis[0]);
+				targetViewPos.y = Vector3::Dot(targPos, def.viewAxis[1]);
+				targetViewPos.z = Vector3::Dot(targPos, def.viewAxis[2]);
 				return targetViewPos;
 			};
 
@@ -98,9 +101,11 @@ namespace spades {
 				if (!p->IsAlive() || p->IsSpectator())
 					continue;
 
-				Vector3 vc = toViewCoord(p->GetEye());
-				if (vc.GetSquaredLength2D() > FOG_DISTANCE * FOG_DISTANCE)
+				Vector3 diff = p->GetEye() - def.viewOrigin;
+				if (diff.GetSquaredLength2D() > FOG_DISTANCE * FOG_DISTANCE)
 					continue;
+
+				auto vc = toViewCoord(diff);
 				if (vc.z <= 0.0F)
 					continue;
 
@@ -112,14 +117,14 @@ namespace spades {
 				    fabsf(view.y) > bodySize + 2.5F)
 					continue;
 
-				float prange = view.GetChebyshevLength() + bodySize;
+				float prange = std::max(fabsf(vc.x), fabsf(vc.y)) + bodySize;
 				range = std::max(range, 2.0F * atanf(prange / vc.z));
 			}
 
 			// fit FoV to include all bullets
 			for (const auto& v : bullets) {
-				auto vc = toViewCoord(v + def.viewOrigin);
-				float prange = std::max(fabsf(vc.x), fabsf(vc.y)) * 1.5F;
+				auto vc = toViewCoord(v);
+				float prange = std::max(fabsf(vc.x), fabsf(vc.y));
 				range = std::max(range, 2.0F * atanf(prange / vc.z));
 			}
 
@@ -188,10 +193,7 @@ namespace spades {
 					continue;
 				if (!p->IsAlive() || p->IsSpectator())
 					continue;
-
 				if (!p->RayCastApprox(def.viewOrigin, def.viewAxis[2]))
-					continue;
-				if ((p->GetEye() - def.viewOrigin).GetSquaredLength2D() > FOG_DISTANCE * FOG_DISTANCE)
 					continue;
 
 				auto hitboxes = p->GetHitBoxes();
@@ -234,7 +236,7 @@ namespace spades {
 				{
 					float fov = tanf(def.fovY * 0.5F);
 					for (const auto& v : bullets) {
-						auto vc = toViewCoord(v + def.viewOrigin);
+						auto vc = toViewCoord(v);
 						vc /= vc.z * fov;
 						float x = floorf(size * (0.5F + 0.5F * vc.x));
 						float y = floorf(size * (0.5F - 0.5F * vc.y));

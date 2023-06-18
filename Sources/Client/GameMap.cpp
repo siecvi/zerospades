@@ -41,7 +41,7 @@ namespace spades {
 			} u;
 			u.c = col;
 			std::swap(u.bytes[0], u.bytes[2]);
-			return (u.c & 0xFFFFFF) | (100UL * 0x1000000UL);
+			return (u.c & 0xFFFFFF) | (100UL << 24);
 		}
 
 		GameMap::GameMap() {

@@ -131,7 +131,7 @@ namespace spades {
 			float playersHeight = 264.0F - teamBarHeight;
 			float playersTop = teamBarTop + teamBarHeight;
 			float playersBottom = playersTop + playersHeight;
-
+			
 			bool areSpectatorsPr = AreSpectatorsPresent();
 			float spectatorsHeight = areSpectatorsPr ? 78.0F : 0.0F;
 
@@ -274,7 +274,7 @@ namespace spades {
 				auto& mode = *world->GetMode();
 				if (mode.ModeType() == IGameMode::m_CTF) {
 					auto& ctfMode = static_cast<CTFGameMode&>(mode);
-					if (ctfMode.PlayerHasIntel(*world, *world->GetPlayer(ent.id))) {
+					if (ctfMode.PlayerHasIntel(*world->GetPlayer(ent.id))) {
 						Handle<IImage> img = renderer.RegisterImage("Gfx/Map/Intel.png");
 						float pulse = std::max(0.5F, fabsf(sinf(world->GetTime() * 4.0F)));
 						renderer.SetColorAlphaPremultiplied(white * pulse);

@@ -31,7 +31,6 @@
 #include "World.h"
 #include <Core/Debug.h>
 #include <Core/Exception.h>
-#include <Core/Settings.h>
 
 namespace spades {
 	namespace client {
@@ -66,8 +65,8 @@ namespace spades {
 
 			nextSpadeTime = 0.0F;
 			nextDigTime = 0.0F;
-			nextGrenadeTime = 0.0F;
 			nextBlockTime = 0.0F;
+			nextGrenadeTime = 0.0F;
 			firstDig = false;
 			lastReloadingTime = 0.0F;
 		
@@ -117,10 +116,10 @@ namespace spades {
 		void Player::SetWeaponInput(WeaponInput newInput) {
 			SPADES_MARK_FUNCTION();
 
-			auto* listener = world.GetListener();
-
 			if (!IsAlive())
 				return;
+
+			auto* listener = world.GetListener();
 
 			if (IsWalking() && !input.crouch && input.sprint) {
 				newInput.primary = false;
@@ -137,7 +136,9 @@ namespace spades {
 					}
 				}
 			} else if (tool == ToolGrenade) {
-				if (!IsReadyToUseTool() && IsLocalPlayer())
+				if (world.GetTime() < nextGrenadeTime)
+					newInput.primary = false;
+				if (grenades <= 0 && IsLocalPlayer())
 					newInput.primary = false;
 
 				if (newInput.primary != weapInput.primary) {
@@ -154,12 +155,8 @@ namespace spades {
 							listener->PlayerPulledGrenadePin(*this);
 					}
 				}
-			} else if (tool == ToolBlock) {
-				// work-around for bug that placing block occasionally becomes impossible
-				if (world.GetTime() - nextBlockTime > GetToolPrimaryDelay())
-					nextBlockTime = world.GetTime();
-
-				if (world.GetTime() < nextBlockTime && IsLocalPlayer()) {
+			} else if (tool == ToolBlock && IsLocalPlayer()) {
+				if (world.GetTime() < nextBlockTime) {
 					newInput.primary = false;
 					newInput.secondary = false;
 				}
@@ -172,7 +169,7 @@ namespace spades {
 							blockCursorDragging = true;
 							blockCursorDragPos = blockCursorPos;
 						} else {
-							if (listener && IsLocalPlayer()) // cannot build; invalid position.
+							if (listener) // cannot build; invalid position.
 								listener->LocalPlayerBuildError(BuildFailureReason::InvalidPosition);
 						}
 					} else {
@@ -180,16 +177,15 @@ namespace spades {
 							if (blockCursorActive) {
 								int blocks = world.CubeLine(blockCursorDragPos, blockCursorPos, 64).size();
 								if (blocks <= blockStocks) {
-									if (listener && IsLocalPlayer())
+									if (listener)
 										listener->LocalPlayerCreatedLineBlock(blockCursorDragPos, blockCursorPos);
-									// blockStocks -= blocks.size(); decrease when created
 								} else {
-									if (listener && IsLocalPlayer()) // cannot build; insufficient blocks.
+									if (listener) // cannot build; insufficient blocks.
 										listener->LocalPlayerBuildError(BuildFailureReason::InsufficientBlocks);
 								}
 								nextBlockTime = world.GetTime() + GetToolSecondaryDelay();
 							} else {
-								if (listener && IsLocalPlayer()) // cannot build; invalid position.
+								if (listener) // cannot build; invalid position.
 									listener->LocalPlayerBuildError(BuildFailureReason::InvalidPosition);
 							}
 						}
@@ -203,15 +199,13 @@ namespace spades {
 					if (newInput.primary) {
 						if (!weapInput.primary)
 							lastSingleBlockBuildSeqDone = false;
-						if (blockCursorActive && blockStocks > 0) {
-							if (listener && IsLocalPlayer())
+						if (blockStocks > 0 && blockCursorActive) {
+							if (listener)
 								listener->LocalPlayerBlockAction(blockCursorPos, BlockActionCreate);
 
 							lastSingleBlockBuildSeqDone = true;
-							// blockStocks--; decrease when created
-
 							nextBlockTime = world.GetTime() + GetToolPrimaryDelay();
-						} else if (blockStocks > 0 && airborne && canPending && IsLocalPlayer()) {
+						} else if (blockStocks > 0 && airborne && canPending) {
 							pendingPlaceBlock = true;
 							pendingPlaceBlockPos = blockCursorPos;
 						}
@@ -219,11 +213,14 @@ namespace spades {
 						blockCursorActive = false;
 						blockCursorDragging = false;
 					} else {
-						if (!lastSingleBlockBuildSeqDone) {
-							if (listener && IsLocalPlayer()) // cannot build; invalid position.
+						if (listener && !lastSingleBlockBuildSeqDone) // cannot build; invalid position.
 								listener->LocalPlayerBuildError(BuildFailureReason::InvalidPosition);
 						}
 					}
+			} else if (tool == ToolBlock) {
+				if (newInput.secondary != weapInput.secondary && !newInput.secondary) {
+					if (world.GetTime() > nextBlockTime)
+						nextBlockTime = world.GetTime() + GetToolPrimaryDelay();
 				}
 			} else if (tool == ToolWeapon) {
 				weapon->SetShooting(newInput.primary);
@@ -301,7 +298,7 @@ namespace spades {
 		void Player::SetPosition(const spades::Vector3& v) {
 			SPADES_MARK_FUNCTION();
 
-			eye = position = v;
+			position = eye = v;
 		}
 
 		void Player::SetVelocity(const spades::Vector3& v) {
@@ -658,15 +655,14 @@ namespace spades {
 					listener->AddBulletTracer(*this, muzzle, finalHitPos);
 			} // one pellet done
 
+			if (this->IsLocalPlayer()) {
 			// do hit test debugging
 			auto* debugger = world.GetHitTestDebugger();
-			if (debugger && IsLocalPlayer())
+				if (debugger)
 				debugger->SaveImage(playerHits, bulletVectors);
 
-			if (IsLocalPlayer()) {
-				Vector2 rec = weapon->GetRecoil();
-
 				// Horizontal recoil is driven by a triangular wave generator.
+				Vector2 rec = weapon->GetRecoil();
 				int timer = world.GetTimeMS();
 				rec.x *= (timer % 1024 < 512)
 					? (timer % 512) - 255.5F
@@ -855,9 +851,9 @@ namespace spades {
 				&& !map->ClipBox(bx, position.y - 0.45F, nz + z)
 				&& !map->ClipBox(bx, position.y + 0.45F, nz + z))
 				z -= 0.9F;
-			if (z < -1.36F)
+			if (z < -1.36F) {
 				position.x = nx;
-			else if (!input.crouch && orientation.z < 0.5F && !input.sprint) {
+			} else if (!input.crouch && orientation.z < 0.5F && !input.sprint) {
 				z = 0.35F;
 				while (z >= -2.36F
 					&& !map->ClipBox(bx, position.y - 0.45F, nz + z)
@@ -879,9 +875,9 @@ namespace spades {
 				&& !map->ClipBox(position.x - 0.45F, by, nz + z)
 				&& !map->ClipBox(position.x + 0.45F, by, nz + z))
 				z -= 0.9F;
-			if (z < -1.36F)
+			if (z < -1.36F) {
 				position.y = ny;
-			else if (!input.crouch && orientation.z < 0.5F && !input.sprint && !climb) {
+			} else if (!input.crouch && orientation.z < 0.5F && !input.sprint && !climb) {
 				z = 0.35F;
 				while (z >= -2.36F
 					&& !map->ClipBox(position.x - 0.45F, by, nz + z)
@@ -1136,6 +1132,7 @@ namespace spades {
 		float Player::GetTimeToNextDig() { return nextDigTime - world.GetTime(); }
 		float Player::GetTimeToNextBlock() { return nextBlockTime - world.GetTime(); }
 		float Player::GetTimeToNextGrenade() { return nextGrenadeTime - world.GetTime(); }
+		float Player::GetGrenadeCookTime() { return world.GetTime() - grenadeTime; }
 
 		float Player::GetToolPrimaryDelay() {
 			SPADES_MARK_FUNCTION_DEBUG();
@@ -1170,8 +1167,6 @@ namespace spades {
 			SPAssert(weapInput.secondary);
 			return 1.0F - (GetTimeToNextDig() / GetToolSecondaryDelay());
 		}
-
-		float Player::GetGrenadeCookTime() { return world.GetTime() - grenadeTime; }
 
 		void Player::KilledBy(KillType type, Player& killer, int respawnTime) {
 			SPADES_MARK_FUNCTION();
@@ -1215,7 +1210,7 @@ namespace spades {
 			Matrix4 const lower = Matrix4::Translate(GetOrigin())
 				* Matrix4::Rotate(MakeVector3(0, 0, 1), yaw);
 			Matrix4 const torso = lower
-				* Matrix4::Translate(0, 0, -(input.crouch ? 0.55F : 1));
+				* Matrix4::Translate(0, 0, -(input.crouch ? 0.55F : 1.0F));
 			Matrix4 const head = torso
 				* Matrix4::Rotate(MakeVector3(1, 0, 0), pitch);
 

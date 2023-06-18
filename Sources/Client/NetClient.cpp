@@ -635,14 +635,6 @@ namespace spades {
 
 		stmp::optional<World&> NetClient::GetWorld() { return client->GetWorld(); }
 
-		stmp::optional<Player&> NetClient::GetPlayerOrNull(int pId) {
-			SPADES_MARK_FUNCTION();
-			if (!GetWorld())
-				SPRaise("Invalid Player ID %d: No world", pId);
-			if (pId < 0 || pId >= int(GetWorld()->GetNumPlayerSlots()))
-				return NULL;
-			return GetWorld()->GetPlayer(pId);
-		}
 		Player& NetClient::GetPlayer(int pId) {
 			SPADES_MARK_FUNCTION();
 			if (!GetWorld())
@@ -653,6 +645,14 @@ namespace spades {
 				SPRaise("Invalid Player ID %d: Doesn't exist", pId);
 			return GetWorld()->GetPlayer(pId).value();
 		}
+		stmp::optional<Player&> NetClient::GetPlayerOrNull(int pId) {
+			SPADES_MARK_FUNCTION();
+			if (!GetWorld())
+				SPRaise("Invalid Player ID %d: No world", pId);
+			if (pId < 0 || pId >= int(GetWorld()->GetNumPlayerSlots()))
+				return NULL;
+			return GetWorld()->GetPlayer(pId);
+		}
 
 		Player& NetClient::GetLocalPlayer() {
 			SPADES_MARK_FUNCTION();
@@ -662,13 +662,13 @@ namespace spades {
 				SPRaise("Failed to get local player: no local player");
 			return GetWorld()->GetLocalPlayer().value();
 		}
-
 		stmp::optional<Player&> NetClient::GetLocalPlayerOrNull() {
 			SPADES_MARK_FUNCTION();
 			if (!GetWorld())
 				SPRaise("Failed to get local player: no world");
 			return GetWorld()->GetLocalPlayer();
 		}
+
 		PlayerInput ParsePlayerInput(uint8_t bits) {
 			PlayerInput inp;
 			inp.moveForward = (bits & (1 << 0)) != 0;
@@ -681,7 +681,6 @@ namespace spades {
 			inp.sprint = (bits & (1 << 7)) != 0;
 			return inp;
 		}
-
 		WeaponInput ParseWeaponInput(uint8_t bits) {
 			WeaponInput inp;
 			inp.primary = ((bits & (1 << 0)) != 0);
@@ -692,7 +691,7 @@ namespace spades {
 		std::string NetClient::DisconnectReasonString(uint32_t num) {
 			switch (num) {
 				case 1: return _Tr("NetClient", "You are banned from this server.");
-				case 2: return _Tr("NetClient", "You have too many connections to this server.");
+				case 2: return _Tr("NetClient", "Your network's public address has too many connections to this server.");
 				case 3: return _Tr("NetClient", "Incompatible client protocol version.");
 				case 4: return _Tr("NetClient", "Server full");
 				case 10: return _Tr("NetClient", "You were kicked from this server.");
@@ -769,7 +768,7 @@ namespace spades {
 						if (protocolVersion == 4) {
 							idx = r.ReadByte();
 							if (idx < 0 || idx >= properties->GetMaxNumPlayerSlots())
-								SPRaise("Invalid player number %d received with WorldUpdate", idx);
+								SPRaise("Invalid player ID %d received with WorldUpdate", idx);
 						}
 
 						Vector3 pos = r.ReadVector3();
@@ -799,12 +798,10 @@ namespace spades {
 					if (!GetWorld())
 						break;
 					{
-						int pId = r.ReadByte();
-						Player& p = GetPlayer(pId);
-
+						Player& p = GetPlayer(r.ReadByte());
 						PlayerInput inp = ParsePlayerInput(r.ReadByte());
 
-						if (GetWorld()->GetLocalPlayer() == &p) {
+						if (&p == GetWorld()->GetLocalPlayer()) {
 							if (inp.jump) // handle "/fly" jump
 								p.PlayerJump();
 
@@ -818,12 +815,10 @@ namespace spades {
 					if (!GetWorld())
 						break;
 					{
-						int pId = r.ReadByte();
-						Player& p = GetPlayer(pId);
-
+						Player& p = GetPlayer(r.ReadByte());
 						WeaponInput inp = ParseWeaponInput(r.ReadByte());
 
-						if (GetWorld()->GetLocalPlayer() == &p)
+						if (&p == GetWorld()->GetLocalPlayer())
 							break;
 
 						p.SetWeaponInput(inp);
@@ -851,6 +846,7 @@ namespace spades {
 				case PacketTypeSetTool: {
 					Player& p = GetPlayer(r.ReadByte());
 					int tool = r.ReadByte();
+
 					switch (tool) {
 						case 0: p.SetTool(Player::ToolSpade); break;
 						case 1: p.SetTool(Player::ToolBlock); break;
@@ -898,10 +894,11 @@ namespace spades {
 							case 3: p->SetTool(Player::ToolGrenade); break;
 							default: SPRaise("Received invalid tool type: %d", tool);
 						}
+
 						p->SetHeldBlockColor(color);
 						GetWorld()->SetPlayer(pId, std::move(p));
 
-						World::PlayerPersistent& pers = GetWorld()->GetPlayerPersistent(pId);
+						auto& pers = GetWorld()->GetPlayerPersistent(pId);
 						pers.name = name;
 						pers.kills = kills;
 
@@ -919,7 +916,7 @@ namespace spades {
 					Vector3 pos = r.ReadVector3();
 
 					stmp::optional<IGameMode&> mode = GetWorld()->GetMode();
-					if (mode && IGameMode::m_CTF == mode->ModeType()) {
+					if (mode && mode->ModeType() == IGameMode::m_CTF) {
 						auto& ctf = dynamic_cast<CTFGameMode&>(mode.value());
 						switch (type) {
 							case BLUE_BASE: ctf.GetTeam(0).basePos = pos; break;
@@ -927,7 +924,7 @@ namespace spades {
 							case GREEN_BASE: ctf.GetTeam(1).basePos = pos; break;
 							case GREEN_FLAG: ctf.GetTeam(1).flagPos = pos; break;
 						}
-					} else if (mode && IGameMode::m_TC == mode->ModeType()) {
+					} else if (mode && mode->ModeType() == IGameMode::m_TC) {
 						auto& tc = dynamic_cast<TCGameMode&>(mode.value());
 						if (type >= tc.GetNumTerritories()) {
 								SPRaise("Invalid territory id specified: %d (max = %d)",
@@ -955,7 +952,7 @@ namespace spades {
 					// TODO: decode name?
 
 					if (pId < 0 || pId >= properties->GetMaxNumPlayerSlots()) {
-						SPLog("Ignoring invalid playerid %d (pyspades bug?: %s)", pId, name.c_str());
+						SPLog("Ignoring invalid player ID %d (pyspades bug?: %s)", pId, name.c_str());
 						break;
 					}
 
@@ -973,7 +970,7 @@ namespace spades {
 					GetWorld()->SetPlayer(pId, std::move(p));
 
 					Player& pRef = GetWorld()->GetPlayer(pId).value();
-					World::PlayerPersistent& pers = GetWorld()->GetPlayerPersistent(pId);
+					auto& pers = GetWorld()->GetPlayerPersistent(pId);
 
 					if (!name.empty()) // sometimes becomes empty
 						pers.name = name;
@@ -1010,7 +1007,6 @@ namespace spades {
 						client->PlayerDestroyedBlockWithWeaponOrTool(pos);
 						cells.push_back(pos);
 						GetWorld()->DestroyBlock(cells);
-
 						if (p && p->IsToolSpade())
 							p->GotBlock();
 					} else if (action == BlockActionDig) {
@@ -1130,6 +1126,8 @@ namespace spades {
 					Player& p = GetPlayer(r.ReadByte());
 					Player* killer = &GetPlayer(r.ReadByte());
 					int kt = r.ReadByte();
+					int respawnTime = r.ReadByte();
+
 					KillType type;
 					switch (kt) {
 						case 0: type = KillTypeWeapon; break;
@@ -1141,15 +1139,14 @@ namespace spades {
 						case 6: type = KillTypeClassChange; break;
 						default: SPInvalidEnum("kt", kt);
 					}
-
-					int respawnTime = r.ReadByte();
 					switch (type) {
 						case KillTypeFall:
-						case KillTypeClassChange:
-						case KillTypeTeamChange: killer = &p; break;
+						case KillTypeTeamChange:
+						case KillTypeClassChange: killer = &p; break;
 						default: break;
 					}
 					p.KilledBy(type, *killer, respawnTime);
+
 					if (&p != killer)
 						GetWorld()->GetPlayerPersistent(killer->GetId()).kills++;
 				} break;
@@ -1173,16 +1170,8 @@ namespace spades {
 				} break;
 				case PacketTypeMapStart: {
 					// next map!
-					if (protocolVersion == 4) {
-						// The AoS 0.76 protocol allows the client to load a map from a local cache
-						// if possible. After receiving MapStart, the client should respond with
-						// MapCached to indicate whether the map with a given checksum exists in the
-						// cache or not. We didn't implement a local cache, so we always ask the
-						// server to send fresh map data.
-						NetPacketWriter w(PacketTypeMapCached);
-						w.WriteByte((uint8_t)0);
-						enet_peer_send(peer, 0, w.CreatePacket());
-					}
+					if (protocolVersion == 4)
+						SendMapCached();
 
 					client->SetWorld(NULL);
 
@@ -1498,6 +1487,58 @@ namespace spades {
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
 
+		void NetClient::SendHit(int targetPlayerId, HitType type) {
+			SPADES_MARK_FUNCTION();
+
+			NetPacketWriter w(PacketTypeHitPacket);
+			w.WriteByte((uint8_t)targetPlayerId);
+			switch (type) {
+				case HitTypeTorso: w.WriteByte((uint8_t)0); break;
+				case HitTypeHead: w.WriteByte((uint8_t)1); break;
+				case HitTypeArms: w.WriteByte((uint8_t)2); break;
+				case HitTypeLegs: w.WriteByte((uint8_t)3); break;
+				case HitTypeMelee: w.WriteByte((uint8_t)4); break;
+				default: SPInvalidEnum("type", type);
+			}
+			enet_peer_send(peer, 0, w.CreatePacket());
+		}
+
+		void NetClient::SendGrenade(const Grenade& g) {
+			SPADES_MARK_FUNCTION();
+
+			NetPacketWriter w(PacketTypeGrenadePacket);
+			w.WriteByte((uint8_t)GetLocalPlayer().GetId());
+			w.WriteFloat(g.GetFuse());
+			w.WriteVector3(g.GetPosition());
+			w.WriteVector3(g.GetVelocity());
+			enet_peer_send(peer, 0, w.CreatePacket());
+		}
+
+		void NetClient::SendTool() {
+			SPADES_MARK_FUNCTION();
+
+			NetPacketWriter w(PacketTypeSetTool);
+			w.WriteByte((uint8_t)GetLocalPlayer().GetId());
+			Player::ToolType type = GetLocalPlayer().GetTool();
+			switch (type) {
+				case Player::ToolSpade: w.WriteByte((uint8_t)0); break;
+				case Player::ToolBlock: w.WriteByte((uint8_t)1); break;
+				case Player::ToolWeapon: w.WriteByte((uint8_t)2); break;
+				case Player::ToolGrenade: w.WriteByte((uint8_t)3); break;
+				default: SPInvalidEnum("tool", type);
+			}
+			enet_peer_send(peer, 0, w.CreatePacket());
+		}
+
+		void NetClient::SendHeldBlockColor() {
+			SPADES_MARK_FUNCTION();
+
+			NetPacketWriter w(PacketTypeSetColour);
+			w.WriteByte((uint8_t)GetLocalPlayer().GetId());
+			w.WriteColor(GetLocalPlayer().GetBlockColor());
+			enet_peer_send(peer, 0, w.CreatePacket());
+		}
+
 		void NetClient::SendBlockAction(spades::IntVector3 v, BlockActionType type) {
 			SPADES_MARK_FUNCTION();
 
@@ -1524,6 +1565,17 @@ namespace spades {
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
 
+		void NetClient::SendChat(std::string text, bool global) {
+			SPADES_MARK_FUNCTION();
+
+			NetPacketWriter w(PacketTypeChatMessage);
+			w.WriteByte((uint8_t)GetLocalPlayer().GetId());
+			w.WriteByte((uint8_t)(global ? 0 : 1));
+			w.WriteString(text);
+			w.WriteByte((uint8_t)0);
+			enet_peer_send(peer, 0, w.CreatePacket());
+		}
+
 		void NetClient::SendReload() {
 			SPADES_MARK_FUNCTION();
 
@@ -1534,65 +1586,12 @@ namespace spades {
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
 
-		void NetClient::SendHeldBlockColor() {
+		void NetClient::SendTeamChange(int team) {
 			SPADES_MARK_FUNCTION();
 
-			NetPacketWriter w(PacketTypeSetColour);
+			NetPacketWriter w(PacketTypeChangeTeam);
 			w.WriteByte((uint8_t)GetLocalPlayer().GetId());
-			w.WriteColor(GetLocalPlayer().GetBlockColor());
-			enet_peer_send(peer, 0, w.CreatePacket());
-		}
-
-		void NetClient::SendTool() {
-			SPADES_MARK_FUNCTION();
-
-			NetPacketWriter w(PacketTypeSetTool);
-			w.WriteByte((uint8_t)GetLocalPlayer().GetId());
-			switch (GetLocalPlayer().GetTool()) {
-				case Player::ToolSpade: w.WriteByte((uint8_t)0); break;
-				case Player::ToolBlock: w.WriteByte((uint8_t)1); break;
-				case Player::ToolWeapon: w.WriteByte((uint8_t)2); break;
-				case Player::ToolGrenade: w.WriteByte((uint8_t)3); break;
-				default: SPInvalidEnum("tool", GetLocalPlayer().GetTool());
-			}
-			enet_peer_send(peer, 0, w.CreatePacket());
-		}
-
-		void NetClient::SendGrenade(const Grenade& g) {
-			SPADES_MARK_FUNCTION();
-
-			NetPacketWriter w(PacketTypeGrenadePacket);
-			w.WriteByte((uint8_t)GetLocalPlayer().GetId());
-			w.WriteFloat(g.GetFuse());
-			w.WriteVector3(g.GetPosition());
-			w.WriteVector3(g.GetVelocity());
-			enet_peer_send(peer, 0, w.CreatePacket());
-		}
-
-		void NetClient::SendHit(int targetPlayerId, HitType type) {
-			SPADES_MARK_FUNCTION();
-
-			NetPacketWriter w(PacketTypeHitPacket);
-			w.WriteByte((uint8_t)targetPlayerId);
-			switch (type) {
-				case HitTypeTorso: w.WriteByte((uint8_t)0); break;
-				case HitTypeHead: w.WriteByte((uint8_t)1); break;
-				case HitTypeArms: w.WriteByte((uint8_t)2); break;
-				case HitTypeLegs: w.WriteByte((uint8_t)3); break;
-				case HitTypeMelee: w.WriteByte((uint8_t)4); break;
-				default: SPInvalidEnum("type", type);
-			}
-			enet_peer_send(peer, 0, w.CreatePacket());
-		}
-
-		void NetClient::SendChat(std::string text, bool global) {
-			SPADES_MARK_FUNCTION();
-
-			NetPacketWriter w(PacketTypeChatMessage);
-			w.WriteByte((uint8_t)GetLocalPlayer().GetId());
-			w.WriteByte((uint8_t)(global ? 0 : 1));
-			w.WriteString(text);
-			w.WriteByte((uint8_t)0);
+			w.WriteByte((uint8_t)team);
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
 
@@ -1605,12 +1604,16 @@ namespace spades {
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
 
-		void NetClient::SendTeamChange(int team) {
+		void NetClient::SendMapCached() {
 			SPADES_MARK_FUNCTION();
 
-			NetPacketWriter w(PacketTypeChangeTeam);
-			w.WriteByte((uint8_t)GetLocalPlayer().GetId());
-			w.WriteByte((uint8_t)team);
+			// The AoS 0.76 protocol allows the client to load a map from a local cache
+			// if possible. After receiving MapStart, the client should respond with
+			// MapCached to indicate whether the map with a given checksum exists in the
+			// cache or not. We didn't implement a local cache, so we always ask the
+			// server to send fresh map data.
+			NetPacketWriter w(PacketTypeMapCached);
+			w.WriteByte((uint8_t)0);
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
 
@@ -1761,16 +1764,17 @@ namespace spades {
 				(numBytesDownloaded + 500) / 1000, ((int)bytesPerSec + 500) / 1000);
 
 			// Estimate the remaining time
-			float secsLeft = (1.0F - progress) / progressPerSec;
-			if (secsLeft < 86400.0F) {
-				int secs = (int)secsLeft + 1;
+			float secondsRemaining = (1.0F - progress) / progressPerSec;
+			if (secondsRemaining < 86400.0F) {
+				int seconds = (int)secondsRemaining + 1;
 
 				text += ", ";
-
-				if (secs < 120)
-					text += _Tr("NetClient", "{0}s left", secs);
+				if (seconds < 120)
+					text += _TrN("NetClient", "{0} second remaining",
+						"{0} seconds remaining", seconds);
 				else
-					text += _Tr("NetClient", "{0}m{1}s left", secs / 60, secs);
+					text += _TrN("NetClient", "{0} minute remaining",
+						"{0} minutes remaining", seconds / 60);
 			}
 
 			return text;

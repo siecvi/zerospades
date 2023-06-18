@@ -206,7 +206,7 @@ namespace spades {
 		  {0, 255, 128},   // 20 Spring Green	#00FF80
 		  {255, 128, 128}, // 21 Salmon			#FF8080
 		  {128, 255, 128}, // 22 Light Green	#80FF80
-		  {128, 128, 255}, // 23 light Blue		#8080FF
+		  {128, 128, 255}, // 23 Light Blue		#8080FF
 		  {128, 255, 255}, // 24 Light Cyan		#80FFFF
 		  {255, 255, 128}, // 25 Light Yellow	#FFFF80
 		  {255, 128, 255}, // 26 Light Magenta	#FF80FF

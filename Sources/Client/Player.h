@@ -102,8 +102,8 @@ namespace spades {
 			float nextSpadeTime;
 			float nextDigTime;
 			bool firstDig;
-			float nextGrenadeTime;
 			float nextBlockTime;
+			float nextGrenadeTime;
 			bool holdingGrenade;
 			float grenadeTime;
 			bool blockCursorActive;
@@ -215,7 +215,6 @@ namespace spades {
 			Vector3 GetEye() { return eye; }
 			Vector3 GetOrigin(); // actually not origin at all!
 			Vector3 GetVelocity() { return velocity; }
-			int GetMoveSteps() { return moveSteps; }
 
 			World& GetWorld() { return world; }
 
@@ -231,16 +230,16 @@ namespace spades {
 			float GetTimeToNextBlock();
 			float GetTimeToNextGrenade();
 
+			float GetGrenadeCookTime();
+			bool IsCookingGrenade() { return tool == ToolGrenade && holdingGrenade; }
+
 			float GetToolPrimaryDelay();
 			float GetToolSecondaryDelay();
-
 			float GetSpadeAnimationProgress();
 			float GetDigAnimationProgress();
 			bool IsFirstDig() const { return firstDig; }
 
-			float GetGrenadeCookTime();
-			bool IsCookingGrenade() { return tool == ToolGrenade && holdingGrenade; }
-
+			int GetMoveSteps() { return moveSteps; }
 			float GetWalkAnimationProgress() {
 				return moveDistance * 0.5F + (float)(moveSteps)*0.5F;
 			}

@@ -54,8 +54,8 @@ namespace spades {
 
 		void Client::LocalPlayerCreated() {
 			freeCameraState.position = lastSceneDef.viewOrigin;
-			weapInput = WeaponInput();
 			playerInput.jump = PlayerInput().jump;
+			weapInput = WeaponInput();
 		}
 
 		void Client::JoinedGame() {
@@ -204,9 +204,9 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			if (!IsMuted()) {
-			Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Misc/BlockDestroy.opus");
+				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Misc/BlockDestroy.opus");
 				audioDevice->Play(c.GetPointerOrNull(), pos, AudioParam());
-		}
+			}
 		}
 
 		void Client::PlayerDestroyedBlockWithWeaponOrTool(spades::IntVector3 pos) {

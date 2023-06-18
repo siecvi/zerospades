@@ -340,7 +340,7 @@ namespace spades {
 			net = stmp::make_unique<NetClient>(this);
 			net->Connect(hostname);
 
-			// decide log file name
+			// get host/time string
 			std::string fn = hostname.ToString(false);
 			std::string fn2;
 			{
@@ -349,9 +349,7 @@ namespace spades {
 				::time(&t);
 				tm = *localtime(&t);
 				char buf[256];
-				sprintf(buf, "%04d%02d%02d%02d%02d%02d_",
-					tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
-					tm.tm_hour, tm.tm_min, tm.tm_sec);
+				strftime(buf, sizeof(buf), "%Y%m%d%H%M%S_", &tm);
 				fn2 = buf;
 			}
 			for (size_t i = 0; i < fn.size(); i++) {
@@ -361,13 +359,14 @@ namespace spades {
 				else
 					fn2 += '_';
 			}
-			fn2 = "NetLogs/" + fn2 + ".log";
 
+			// decide log file name
+			const std::string logFn = "NetLogs/" + fn2 + ".log";
 			try {
-				logStream = FileManager::OpenForWriting(fn2.c_str());
-				SPLog("Netlog Started at '%s'", fn2.c_str());
+				logStream = FileManager::OpenForWriting(logFn.c_str());
+				SPLog("Netlog started at '%s'", logFn.c_str());
 			} catch (const std::exception& ex) {
-				SPLog("Failed to open netlog file '%s' (%s)", fn2.c_str(), ex.what());
+				SPLog("Failed to open netlog file '%s' (%s)", logFn.c_str(), ex.what());
 			}
 		}
 
@@ -634,8 +633,20 @@ namespace spades {
 
 			if (!ignoreMessages) {
 				std::string s;
-				if (global)
-					s = _Tr("Client", p.IsAlive() ? "[Global] " : "*DEAD* ");
+				if (global) {
+					//! Prefix added to global chat messages.
+					//!
+					//! Example: [Global] playername: blah blah
+					//! if sender is dead: *DEAD* playername: oof
+					//!
+					//! Crowdin warns that this string shouldn't be translated,
+					//! but it actually can be.
+					//! The extra whitespace is not a typo.
+					if (p.IsAlive())
+						s = _Tr("Client", "[Global] ");
+					else
+						s = _Tr("Client", "*DEAD* ");
+				}
 				s += ChatWindow::TeamColorMessage(p.GetName(), p.GetTeamId());
 				s += ": ";
 				s += msg;

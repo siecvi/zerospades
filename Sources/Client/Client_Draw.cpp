@@ -342,7 +342,7 @@ namespace spades {
 				if (cg_playerNames == 1) {
 					Vector3 diff = origin - lastSceneDef.viewOrigin;
 					float dist = diff.GetLength2D();
-					if (dist < FOG_DISTANCE)
+					if (dist <= FOG_DISTANCE)
 						sprintf(buf, "%s [%.1f]", nameStr.c_str(), dist);
 				}
 
@@ -677,8 +677,9 @@ namespace spades {
 					continue;
 				}
 
-				ent.position += ent.velocity * dt;
-				ent.velocity.z += 32.0F * dt * -0.25F;
+				ent.position.x += ent.velocity.x * dt;
+				ent.position.y += ent.velocity.y * dt;
+				ent.position.z -= 2.0F * dt;
 
 				++it;
 			}
@@ -998,51 +999,44 @@ namespace spades {
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
-			float prgW = 440.0F;
-			float prgH = 8.0F;
-			float prgX = (sw - prgW) * 0.5F;
-			float prgY = sh - 48.0F;
+			float prgBarW = 440.0F;
+			float prgBarH = 8.0F;
+			float prgBarX = (sw - prgBarW) * 0.5F;
+			float prgBarY = sh - 48.0F;
 
 			auto statusStr = net->GetStatusString();
 			IFont& font = fontManager->GetGuiFont();
 			Vector2 size = font.Measure(statusStr);
-			Vector2 pos = MakeVector2((sw - size.x) * 0.5F, prgY - 10.0F);
-			pos.y -= size.y;
-
+			Vector2 pos = MakeVector2((sw - size.x) * 0.5F, prgBarY - 10.0F - size.y);
 			Vector4 grayCol = MakeVector4(0.5, 0.5, 0.5, 1);
-			Vector3 blueCol = MakeVector3(0, 0.5, 1);
-
 			font.Draw(statusStr, pos, 1.0F, grayCol);
 
-			// background bar
+			// Draw background bar
 			renderer->SetColorAlphaPremultiplied(grayCol * 0.5F);
-			renderer->DrawImage(nullptr, AABB2(prgX, prgY, prgW, prgH));
+			renderer->DrawImage(nullptr, AABB2(prgBarX, prgBarY, prgBarW, prgBarH));
 
-			// Normal progress bar
+			// Draw progress bar
 			if (net->GetStatus() == NetClientStatusReceivingMap) {
-				float prg = mapReceivingProgressSmoothed;
+				const Vector3 progressBarColor = MakeVector3(0, 0.5, 1);
+				const float progressBarMaxWidth = prgBarW * mapReceivingProgressSmoothed;
 
-				float w = prgW * prg;
-				for (float x = 0; x < w; x++) {
-					float tempperc = x / w;
-					Vector3 color = Mix(blueCol * 0.25F, blueCol, tempperc);
+				for (float x = 0; x < progressBarMaxWidth; x++) {
+					const float tempperc = x / progressBarMaxWidth;
+					const Vector3 color = Mix(progressBarColor * 0.25F, progressBarColor, tempperc);
 					renderer->SetColorAlphaPremultiplied(MakeVector4(color.x, color.y, color.z, 1));
-					renderer->DrawImage(nullptr, AABB2(prgX + x, prgY, 1.0F, prgH));
+					renderer->DrawImage(nullptr, AABB2(prgBarX + x, prgBarY, 1.0F, prgBarH));
 				}
 			} else { // Indeterminate progress bar
-				float pos = timeSinceInit / 3.6F;
-				pos -= floorf(pos);
-				float centX = pos * (prgW + 400.0F) - 200.0F;
+				const float progressPosition = fmodf(timeSinceInit * 0.7F, 1.0F);
+				const float centerX = progressPosition * (prgBarW + 400.0F) - 200.0F;
 
-				for (float x = 0; x < prgW; x++) {
-					float op = 1.0F - fabsf(x - centX) / 200.0F;
-					op = std::max(op, 0.0F) * 0.5F + 0.05F;
-					renderer->SetColorAlphaPremultiplied(grayCol * op);
-					renderer->DrawImage(nullptr, AABB2(prgX + x, prgY, 1.0F, prgH));
+				for (float x = 0; x < prgBarW; x++) {
+					float opacity = 1.0F - fabsf(x - centerX) / 200.0F;
+					opacity = std::max(opacity, 0.0F) * 0.5F + 0.05F;
+					renderer->SetColorAlphaPremultiplied(grayCol * opacity);
+					renderer->DrawImage(nullptr, AABB2(prgBarX + x, prgBarY, 1.0F, prgBarH));
 				}
 			}
-
-			DrawAlert();
 		}
 
 		void Client::DrawStats() {

@@ -104,14 +104,14 @@ namespace spades {
 				    fabsf(velocity.z) > BOUNCE_SOUND_THRESHOLD)
 					ret = 2; // play sound
 
-				if (lp.z != lp2.z &&
-				    ((lp.x == lp2.x && lp.y == lp2.y) || !m->ClipWorld(lp.x, lp.y, lp2.z)))
+				if (lp.z != lp2.z && ((lp.x == lp2.x && lp.y == lp2.y)
+					|| !m->ClipWorld(lp.x, lp.y, lp2.z)))
 					velocity.z = -velocity.z;
-				else if (lp.x != lp2.x &&
-				         ((lp.y == lp2.y && lp.z == lp2.z) || !m->ClipWorld(lp2.x, lp.y, lp.z)))
+				else if (lp.x != lp2.x && ((lp.y == lp2.y && lp.z == lp2.z)
+					|| !m->ClipWorld(lp2.x, lp.y, lp.z)))
 					velocity.x = -velocity.x;
-				else if (lp.y != lp2.y &&
-				         ((lp.x == lp2.x && lp.z == lp2.z) || !m->ClipWorld(lp.x, lp2.y, lp.z)))
+				else if (lp.y != lp2.y && ((lp.x == lp2.x && lp.z == lp2.z)
+					|| !m->ClipWorld(lp.x, lp2.y, lp.z)))
 					velocity.y = -velocity.y;
 
 				position = oldPos; // set back to old position

@@ -138,12 +138,14 @@ namespace spades {
 			if (!p)
 				return;
 
+			const Handle<GameMap>& map = GetWorld()->GetMap();
+
 			uint32_t col;
-			IntVector3 pos;
-			if (!world->GetMap()->CastRay(p->GetEye(), p->GetFront(), FOG_DISTANCE, pos))
+			IntVector3 outBlockPos;
+			if (!map->CastRay(p->GetEye(), p->GetFront(), 256, outBlockPos))
 				col = IntVectorToColor(world->GetFogColor());
 			else
-				col = world->GetMap()->GetColorWrapped(pos.x, pos.y, pos.z);
+				col = map->GetColorWrapped(outBlockPos.x, outBlockPos.y, outBlockPos.z);
 
 			p->SetHeldBlockColor(IntVectorFromColor(col));
 			net->SendHeldBlockColor();
@@ -177,12 +179,16 @@ namespace spades {
 				// disable input when UI is open
 				if (NeedsAbsoluteMouseCoordinate()) {
 					weapInput.primary = false;
-					if (p->IsSpectator() || !p->IsToolWeapon())
 						weapInput.secondary = false;
 
 					// don't reset player input if chat is open
 					if (!AcceptsTextInput())
 						playerInput = PlayerInput();
+
+					// reset all "delayed actions"
+					scoreboardVisible = false;
+					debugHitTestZoom = false;
+					largeMapView->SetZoom(false);
 				}
 
 				if (p->IsSpectator())
@@ -390,7 +396,7 @@ namespace spades {
 			WeaponInput winp = weapInput;
 
 			Vector3 vel = player.GetVelocity();
-			if (vel.GetLength2D() < 0.1F)
+			if (vel.GetSquaredLength2D() < 0.01F)
 				inp.sprint = false;
 
 			// Can't use a tool while sprinting or switching to another tool, etc.
@@ -477,8 +483,6 @@ namespace spades {
 				}
 			}
 
-			lastScore = player.GetScore();
-
 			// show block count when building block lines.
 			if (player.IsAlive() && player.IsToolBlock() && player.IsBlockCursorDragging()) {
 				if (player.IsBlockCursorActive()) {
@@ -529,6 +533,8 @@ namespace spades {
 			} else {
 				lastHealth = player.GetHealth();
 			}
+
+			lastScore = player.GetScore();
 		}
 
 #pragma mark - IWorldListener Handlers
@@ -843,7 +849,6 @@ namespace spades {
 			// add chat message
 			std::string s, cause;
 			s += ChatWindow::TeamColorMessage(killer.GetName(), killer.GetTeamId());
-			s += " [";
 			switch (kt) {
 				case KillTypeWeapon:
 					switch (killer.GetWeapon().GetWeaponType()) {
@@ -862,6 +867,7 @@ namespace spades {
 				default: cause += "???"; break;
 			}
 
+			s += " [";
 			if (&killer != &victim && killer.IsTeamMate(&victim))
 				s += ChatWindow::ColoredMessage(cause, MsgColorFriendlyFire);
 			else if (killer.IsLocalPlayer() || victim.IsLocalPlayer())
@@ -1016,7 +1022,7 @@ namespace spades {
 				if ((bool)cg_hitAnalyze) {
 					char buf[256];
 
-					int dist = int((by.GetPosition() - hurtPlayer.GetPosition()).GetLength());
+					float dist = (by.GetEye() - hurtPlayer.GetEye()).GetLength();
 					float dt = (world->GetTime() - lastHitTime) * 1000;
 
 					std::string hitType;
@@ -1028,13 +1034,14 @@ namespace spades {
 						default: hitType = "Head"; break;
 					}
 
-					std::string weapoName = by.IsToolSpade() ? "Melee" : by.GetWeapon().GetName();
+					std::string weapoName = by.IsToolSpade()
+						? "Melee" : by.GetWeapon().GetName();
 
 					if (dt > 0.0F && lastHitTime > 0.0F)
-						sprintf(buf, "%s hit %s dist: %d blocks dT: %.0fms",
+						sprintf(buf, "%s hit %s dist: %.1f blocks dT: %.0fms",
 							weapoName.c_str(), hitType.c_str(), dist, dt);
 					else
-						sprintf(buf, "%s hit %s dist: %d blocks dT: NA",
+						sprintf(buf, "%s hit %s dist: %.1f blocks dT: NA",
 							weapoName.c_str(), hitType.c_str(), dist);
 
 					scriptedUI->RecordChatLog(buf);

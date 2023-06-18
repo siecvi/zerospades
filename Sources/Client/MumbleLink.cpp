@@ -125,21 +125,22 @@ namespace spades {
 		//
 		// 1 unit = 1 meter
 
-		auto posPerMetre = player->GetPosition() * metrePerBlock;
-
 		// Unit vector pointing out of the avatar's eyes aka "At"-vector.
-		SetMumbleVector3(mumbleLinkedMemory->fAvatarFront, player->GetFront());
+		const auto& avatarFrontVector = player->GetFront();
+		SetMumbleVector3(mumbleLinkedMemory->fAvatarFront, avatarFrontVector);
 
 		// Unit vector pointing out of the top of the avatar's head aka "Up"-vector
 		// (here Top points straight up).
-		SetMumbleVector3(mumbleLinkedMemory->fAvatarTop, player->GetUp());
+		const auto& avatarTopVector = player->GetUp();
+		SetMumbleVector3(mumbleLinkedMemory->fAvatarTop, avatarTopVector);
 
 		// Position of the avatar (here standing slightly off the origin)
-		SetMumbleVector3(mumbleLinkedMemory->fAvatarPosition, posPerMetre);
+		const auto& avatarPosition = player->GetPosition() * metrePerBlock;
+		SetMumbleVector3(mumbleLinkedMemory->fAvatarPosition, avatarPosition);
 
 		// Same as avatar but for the camera.
-		SetMumbleVector3(mumbleLinkedMemory->fCameraPosition, posPerMetre);
-		SetMumbleVector3(mumbleLinkedMemory->fCameraFront, player->GetFront());
-		SetMumbleVector3(mumbleLinkedMemory->fCameraTop, player->GetUp());
+		SetMumbleVector3(mumbleLinkedMemory->fCameraPosition, avatarPosition);
+		SetMumbleVector3(mumbleLinkedMemory->fCameraFront, avatarFrontVector);
+		SetMumbleVector3(mumbleLinkedMemory->fCameraTop, avatarTopVector);
 	}
 } // namespace spades
