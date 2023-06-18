@@ -29,10 +29,10 @@ namespace spades {
 				Vector2 pos = ScreenPosition;
 				Vector2 size = Size;
 
-				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, Hover ? 0.12F : 0.0F);
-				r.DrawImage(null, AABB2(pos.x, pos.y, size.x, size.y));
+				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, Hover ? 0.2F : 0.0F);
+				DrawFilledRect(r, pos.x + 1, pos.y + 1, pos.x + size.x - 1, pos.y + size.y - 1);
 
-				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, Hover ? 0.7F : 0.0F);
+				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, Hover ? 0.3F : 0.0F);
 				DrawOutlinedRect(r, pos.x, pos.y, pos.x + size.x, pos.y + size.y);
 
 				Vector2 txtSize = Font.Measure(Caption);
@@ -85,9 +85,9 @@ namespace spades {
 				view.handler(-1);
 			}
 			void Render() {
-				Renderer@ renderer = Manager.Renderer;
-				renderer.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 0.5F);
-				renderer.DrawImage(null, ScreenBounds);
+				Renderer@ r = Manager.Renderer;
+				r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 0.5F);
+				r.DrawImage(null, ScreenBounds);
 				UIElement::Render();
 			}
 		}
@@ -126,7 +126,7 @@ namespace spades {
 			float maxHeight = size.y - y;
 			float height = 24.0F * float(items.length);
 			if (height > maxHeight)
-				height = maxHeight;
+				height = maxHeight - 20.0F;
 
 			bg.Bounds = AABB2(0.0F, 0.0F, size.x, size.y);
 			view.Bounds = AABB2(x, y, width, height);

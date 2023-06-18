@@ -44,7 +44,7 @@
 
 DEFINE_SPADES_SETTING(cg_fov, "68");
 DEFINE_SPADES_SETTING(cg_horizontalFov, "0");
-DEFINE_SPADES_SETTING(cg_classicZoomedFov, "0");
+DEFINE_SPADES_SETTING(cg_classicZoom, "0");
 DEFINE_SPADES_SETTING(cg_thirdperson, "0");
 DEFINE_SPADES_SETTING(cg_manualFocus, "0");
 DEFINE_SPADES_SETTING(cg_depthOfFieldAmount, "1");
@@ -135,7 +135,7 @@ namespace spades {
 				case SHOTGUN_WEAPON: delta = 0.4F; break;
 			}
 
-			if (cg_classicZoomedFov)
+			if (cg_classicZoom)
 				delta = 1.0F;
 
 			float ads = clientPlayers[p.GetId()]->GetAimDownState();

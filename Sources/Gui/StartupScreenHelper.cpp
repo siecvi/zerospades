@@ -36,6 +36,7 @@
 #include <Core/FileManager.h>
 #include <Core/Settings.h>
 #include <Core/ShellApi.h>
+#include <Core/VersionInfo.h>
 #include <Gui/Icon.h>
 #include <Gui/Main.h>
 #include <OpenSpades.h>
@@ -648,7 +649,7 @@ namespace spades {
 		std::string StartupScreenHelper::GetOperatingSystemType() {
 #if defined(OS_PLATFORM_LINUX)
 			return "Linux";
-#elif defined(TARGET_OS_MAC)
+#elif defined(OS_PLATFORM_MAC)
 			return "Mac";
 #elif defined(OS_PLATFORM_WINDOWS)
 			return "Windows";

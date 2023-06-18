@@ -97,12 +97,12 @@ namespace spades {
 			void Render() {
 				UIElement::Render();
 
-				Renderer@ renderer = Manager.Renderer;
+				Renderer@ r = Manager.Renderer;
 				Vector2 pos = ScreenPosition;
 				Vector2 size = Size;
 
-				renderer.ColorNP = Vector4(0.9F, 0.9F, 0.9F, 1.0F);
-				renderer.DrawImage(null, AABB2(pos.x, pos.y + 24.0F, size.x, 1.0F));
+				r.ColorNP = Vector4(0.9F, 0.9F, 0.9F, 1.0F);
+				r.DrawImage(null, AABB2(pos.x, pos.y + 24.0F, size.x, 1.0F));
 			}
 		}
 	}

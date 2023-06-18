@@ -20,7 +20,7 @@
 
 namespace spades {
 	class MessageBoxScreen : spades::ui::UIElement {
-		private float contentsTop, contentsHeight;
+		private float ContentsTop, ContentsHeight;
 
 		spades::ui::EventHandler@ Closed;
 		int ResultIndex = -1;
@@ -33,8 +33,8 @@ namespace spades {
 			@Font = Manager.RootElement.Font;
 			this.Bounds = owner.Bounds;
 
-			auto sw = Manager.ScreenWidth;
-			auto sh = Manager.ScreenHeight;
+			float sw = Manager.ScreenWidth;
+			float sh = Manager.ScreenHeight;
 
 			float spacing = 16.0F;
 			float contentsWidth = sw - spacing;
@@ -43,19 +43,13 @@ namespace spades {
 				contentsWidth = maxContentsWidth;
 
 			float contentsLeft = (sw - contentsWidth) * 0.5F;
-			contentsHeight = height;
-			contentsTop = (sh - contentsHeight) * 0.5F;
-
+			ContentsHeight = height;
+			ContentsTop = (sh - ContentsHeight) * 0.5F;
+			
 			{
 				spades::ui::Label label(Manager);
-				label.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.4F);
-				label.Bounds = Bounds;
-				AddChild(label);
-			}
-			{
-				spades::ui::Label label(Manager);
-				label.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.8F);
-				label.Bounds = AABB2(0.0F, contentsTop - 13.0F, Size.x, contentsHeight + 27.0F);
+				label.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.9F);
+				label.Bounds = AABB2(0.0F, ContentsTop - 13.0F, Size.x, ContentsHeight + 27.0F);
 				AddChild(label);
 			}
 
@@ -64,7 +58,7 @@ namespace spades {
 				button.Caption = buttons[i];
 				button.Bounds = AABB2(contentsLeft + contentsWidth -
 										  (150.0F + 10.0F) * (buttons.length - i) + 10.0F,
-									  contentsTop + contentsHeight - 30.0F, 150.0F, 30.0F);
+									  ContentsTop + ContentsHeight - 30.0F, 150.0F, 30.0F);
 
 				MessageBoxScreenButtonHandler handler;
 				@handler.screen = this;
@@ -76,7 +70,7 @@ namespace spades {
 				spades::ui::TextViewer viewer(Manager);
 				AddChild(viewer);
 				viewer.Bounds =
-					AABB2(contentsLeft, contentsTop, contentsWidth, contentsHeight - 40.0F);
+					AABB2(contentsLeft, ContentsTop, contentsWidth, ContentsHeight - 40.0F);
 				viewer.Text = text;
 			}
 		}
@@ -103,17 +97,13 @@ namespace spades {
 		}
 
 		void Render() {
+			Renderer@ r = Manager.Renderer;
 			Vector2 pos = ScreenPosition;
 			Vector2 size = Size;
-			Renderer@ r = Manager.Renderer;
-
-			r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.08F);
-			r.DrawImage(null, AABB2(pos.x, pos.y + contentsTop - 15.0F, size.x, 1.0F));
-			r.DrawImage(null, AABB2(pos.x, pos.y + contentsTop + contentsHeight + 15.0F, size.x, 1.0F));
-
-			r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.2F);
-			r.DrawImage(null, AABB2(pos.x, pos.y + contentsTop - 14.0F, size.x, 1.0F));
-			r.DrawImage(null, AABB2(pos.x, pos.y + contentsTop + contentsHeight + 14.0F, size.x, 1.0F));
+			
+			r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.07F);
+			r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop - 14.0F, size.x, 1.0F));
+			r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop + ContentsHeight + 14.0F, size.x, 1.0F));
 
 			UIElement::Render();
 		}

@@ -197,9 +197,9 @@ namespace spades {
 					}
 				} else {
 					if (up) {
-						r.DrawImage(image, Vector2(pos.x + siz, pos.y + siz),
-									Vector2(pos.x - siz, pos.y + siz),
-									Vector2(pos.x + siz, pos.y - siz), srcRect);
+						r.DrawImage(image, Vector2(pos.x - siz, pos.y + siz),
+									Vector2(pos.x + siz, pos.y + siz),
+									Vector2(pos.x - siz, pos.y - siz), srcRect);
 					} else {
 						r.DrawImage(image, Vector2(pos.x - siz, pos.y - siz),
 									Vector2(pos.x + siz, pos.y - siz),
@@ -284,7 +284,7 @@ namespace spades {
 			}
 
 			float TrackBarAreaLength { get { return Length - ButtonSize - ButtonSize; } }
-			float TrackBarLength { get { return Max(TrackBarAreaLength * (LargeChange / (MaxValue - MinValue + LargeChange)), 40.0F); } }
+			float TrackBarLength { get { return Max(TrackBarAreaLength * (LargeChange / (MaxValue - MinValue + LargeChange)), 16.0F); } }
 			float TrackBarMovementRange { get { return TrackBarAreaLength - TrackBarLength; } }
 
 			float TrackBarPosition {

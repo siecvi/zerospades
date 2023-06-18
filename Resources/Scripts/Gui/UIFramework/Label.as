@@ -14,43 +14,42 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
 
  */
 
 #include "UIFramework.as"
 
 namespace spades {
-	namespace ui {
+    namespace ui {
 
-		class Label : UIElement {
-			string Text;
-			Vector4 BackgroundColor = Vector4(0, 0, 0, 0);
-			Vector4 TextColor = Vector4(1, 1, 1, 1);
-			Vector2 Alignment = Vector2(0.0F, 0.0F);
-			float TextScale = 1.0F;
+        class Label : UIElement {
+            string Text;
+            Vector4 BackgroundColor = Vector4(0, 0, 0, 0);
+            Vector4 TextColor = Vector4(1, 1, 1, 1);
+            Vector2 Alignment = Vector2(0.0F, 0.0F);
+            float TextScale = 1.0F;
 
-			Label(UIManager@ manager) { super(manager); }
-			void Render() {
-				Renderer@ r = Manager.Renderer;
-				Vector2 pos = ScreenPosition;
-				Vector2 size = Size;
+            Label(UIManager@ manager) { super(manager); }
+            void Render() {
+                Renderer@ r = Manager.Renderer;
+                Vector2 pos = ScreenPosition;
+                Vector2 size = Size;
 
-				if (BackgroundColor.w > 0.0F) {
-					r.ColorNP = BackgroundColor;
-					r.DrawImage(null, AABB2(pos.x, pos.y, size.x, size.y));
-				}
+                if (BackgroundColor.w > 0.0F) {
+                    r.ColorNP = BackgroundColor;
+                    r.DrawImage(null, AABB2(pos.x, pos.y, size.x, size.y));
+                }
 
-				if (Text.length > 0) {
-					Font@ font = this.Font;
-					string text = this.Text;
-					Vector2 txtSize = font.Measure(text) * TextScale;
-					Vector2 txtPos;
-					txtPos = pos + (size - txtSize) * Alignment;
+                if (Text.length > 0) {
+                    Font@ font = this.Font;
+                    string text = this.Text;
+                    Vector2 textSize = font.Measure(text) * TextScale;
+                    Vector2 textPos = pos + (size - textSize) * Alignment;
 
-					font.Draw(text, txtPos, TextScale, TextColor);
-				}
-			}
-		}
-	}
+                    font.Draw(text, textPos, TextScale, TextColor);
+                }
+            }
+        }
+    }
 }

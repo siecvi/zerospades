@@ -172,7 +172,7 @@ namespace spades {
 				Vector2 size = Size;
 
 				r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 0.2F);
-				r.DrawImage(null, AABB2(pos.x, pos.y, size.x, size.y));
+				DrawFilledRect(r, pos.x + 1, pos.y + 1, pos.x + size.x - 1, pos.y + size.y - 1);
 
 				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.06F);
 				DrawOutlinedRect(r, pos.x, pos.y, pos.x + size.x, pos.y + size.y);

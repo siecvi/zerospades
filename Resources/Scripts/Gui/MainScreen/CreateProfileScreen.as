@@ -20,44 +20,39 @@
 
 namespace spades {
 	class CreateProfileScreen : spades::ui::UIElement {
-
-		private float contentsTop, contentsHeight;
+		private float ContentsTop, ContentsHeight;
 
 		spades::ui::EventHandler@ Closed;
 		private spades::ui::UIElement@ owner;
 		private spades::ui::Field@ nameField;
 		private spades::ui::Button@ okButton;
+		private FontManager@ fontManager;
 
 		private ConfigItem cg_playerName("cg_playerName", "Deuce");
 		private ConfigItem cg_playerNameIsSet("cg_playerNameIsSet", "0");
 
-		CreateProfileScreen(spades::ui::UIElement@ owner) {
+		CreateProfileScreen(spades::ui::UIElement@ owner, FontManager@ fontManager) {
 			super(owner.Manager);
 			@this.owner = owner;
-			@Font = Manager.RootElement.Font;
+			@this.fontManager = fontManager;
 			this.Bounds = owner.Bounds;
 
 			float contentsWidth = 500.0F;
 			float contentsLeft = (Manager.ScreenWidth - contentsWidth) * 0.5F;
-			contentsHeight = 188.0F;
-			contentsTop = (Manager.ScreenHeight - contentsHeight) * 0.5F;
+			ContentsHeight = 188.0F;
+			ContentsTop = (Manager.ScreenHeight - ContentsHeight) * 0.5F;
+
 			{
 				spades::ui::Label label(Manager);
-				label.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.4F);
-				label.Bounds = Bounds;
-				AddChild(label);
-			}
-			{
-				spades::ui::Label label(Manager);
-				label.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.8F);
-				label.Bounds = AABB2(0.0F, contentsTop - 13.0F, Size.x, contentsHeight + 27.0F);
+				label.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.9F);
+				label.Bounds = AABB2(0.0F, ContentsTop - 13.0F, Size.x, ContentsHeight + 27.0F);
 				AddChild(label);
 			}
 			{
 				spades::ui::Button button(Manager);
 				button.Caption = _Tr("CreateProfileScreen", "OK");
 				button.Bounds = AABB2(contentsLeft + contentsWidth - 140.0F,
-									  contentsTop + contentsHeight - 40.0F, 140.0F, 30.0F);
+									  ContentsTop + ContentsHeight - 40.0F, 140.0F, 30.0F);
 				@button.Activated = spades::ui::EventHandler(this.OnOkPressed);
 				button.Enable = false;
 				AddChild(button);
@@ -66,28 +61,28 @@ namespace spades {
 			{
 				spades::ui::Button button(Manager);
 				button.Caption = _Tr("CreateProfileScreen", "Decide later");
-				button.Bounds = AABB2(contentsLeft, contentsTop + contentsHeight - 40.0F, 140.0F, 30.0F);
+				button.Bounds = AABB2(contentsLeft, ContentsTop + ContentsHeight - 40.0F, 140.0F, 30.0F);
 				@button.Activated = spades::ui::EventHandler(this.OnChooseLater);
 				AddChild(button);
 			}
 			{
 				spades::ui::Label label(Manager);
 				label.Text = _Tr("CreateProfileScreen", "Welcome to OpenSpades");
-				label.TextScale = 1.3F;
-				label.Bounds = AABB2(contentsLeft, contentsTop + 10.0F, contentsWidth, 32.0F);
+				@label.Font = fontManager.HeadingFont;
+				label.Bounds = AABB2(contentsLeft, ContentsTop + 10.0F, contentsWidth, 32.0F);
 				label.Alignment = Vector2(0.0F, 0.5F);
 				AddChild(label);
 			}
 			{
 				spades::ui::Label label(Manager);
 				label.Text = _Tr("CreateProfileScreen", "Choose a player name:");
-				label.Bounds = AABB2(contentsLeft, contentsTop + 42.0F, contentsWidth, 32.0F);
+				label.Bounds = AABB2(contentsLeft, ContentsTop + 42.0F, contentsWidth, 32.0F);
 				label.Alignment = Vector2(0.0F, 0.5F);
 				AddChild(label);
 			}
 			{
 				@nameField = spades::ui::Field(Manager);
-				nameField.Bounds = AABB2(contentsLeft, contentsTop + 74.0F, contentsWidth, 30.0F);
+				nameField.Bounds = AABB2(contentsLeft, ContentsTop + 74.0F, contentsWidth, 30.0F);
 				nameField.Placeholder = _Tr("CreateProfileScreen", "Player name");
 				@nameField.Changed = spades::ui::EventHandler(this.OnNameChanged);
 				nameField.MaxLength = 15;
@@ -97,7 +92,7 @@ namespace spades {
 			{
 				spades::ui::Label label(Manager);
 				label.Text = _Tr("CreateProfileScreen", "You can change it later in the Setup dialog.");
-				label.Bounds = AABB2(contentsLeft, contentsTop + 106.0F, contentsWidth, 32.0F);
+				label.Bounds = AABB2(contentsLeft, ContentsTop + 106.0F, contentsWidth, 32.0F);
 				label.Alignment = Vector2(0.0F, 0.5F);
 				AddChild(label);
 			}
@@ -147,16 +142,16 @@ namespace spades {
 		}
 
 		void Render() {
+			Renderer@ r = Manager.Renderer;
 			Vector2 pos = ScreenPosition;
 			Vector2 size = Size;
-			Renderer@ r = Manager.Renderer;
 
 			r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.08F);
-			r.DrawImage(null, AABB2(pos.x, pos.y + contentsTop - 15.0F, size.x, 1.0F));
-			r.DrawImage(null, AABB2(pos.x, pos.y + contentsTop + contentsHeight + 15.0F, size.x, 1.0F));
+			r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop - 15.0F, size.x, 1.0F));
+			r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop + ContentsHeight + 15.0F, size.x, 1.0F));
 			r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.2F);
-			r.DrawImage(null, AABB2(pos.x, pos.y + contentsTop - 14.0F, size.x, 1.0F));
-			r.DrawImage(null, AABB2(pos.x, pos.y + contentsTop + contentsHeight + 14.0F, size.x, 1.0F));
+			r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop - 14.0F, size.x, 1.0F));
+			r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop + ContentsHeight + 14.0F, size.x, 1.0F));
 
 			UIElement::Render();
 		}

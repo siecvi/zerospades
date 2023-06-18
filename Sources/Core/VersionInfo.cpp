@@ -1,22 +1,17 @@
-#if __linux__
-	#define OS_PLATFORM_LINUX
-#elif TARGET_OS_MAC
-	#define OS_PLATFORM_MAC
-#elif defined _WIN32 || defined _WIN64
-	#define OS_PLATFORM_WINDOWS
+#include "VersionInfo.h"
+
+#if defined(OS_PLATFORM_WINDOWS)
 	#include <Windows.h>
 	#include <sstream>
 	#include <VersionHelpers.h> // Requires windows 8.1 sdk at least
 #endif
-
-#include "VersionInfo.h"
 
 std::string VersionInfo::GetVersionInfo() {
 	std::string result;
 
 #if defined(OS_PLATFORM_LINUX)
 	result = "Linux";
-#elif defined(TARGET_OS_MAC)
+#elif defined(OS_PLATFORM_MAC)
 	result = "Mac OS X";
 #elif defined(OS_PLATFORM_WINDOWS)
 	if (IsWindowsXPOrGreater() && !IsWindowsVistaOrGreater()) {

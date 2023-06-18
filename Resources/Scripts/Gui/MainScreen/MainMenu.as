@@ -70,7 +70,7 @@ namespace spades {
 		spades::ui::Button@ filterProtocol4Button;
 		spades::ui::Button@ filterEmptyButton;
 		spades::ui::Button@ filterFullButton;
-		spades::ui::Field@ filterField;
+		spades::ui::Field@ filterField; // Use addressField instead?
 
 		spades::ui::ListView@ serverList;
 		MainScreenServerListLoadingView@ loadingView;
@@ -85,29 +85,43 @@ namespace spades {
 			super(ui.manager);
 			@this.ui = ui;
 			@this.helper = ui.helper;
+			
+			float sw = Manager.ScreenWidth;
+            float sh = Manager.ScreenHeight;
 
-			float contentsWidth = 750.0F;
-			float contentsLeft = (Manager.ScreenWidth - contentsWidth) * 0.5F;
-			float footerPos = Manager.ScreenHeight - 50.0F;
+            float contentsWidth = sw - 16.0F;
+            float maxContentsWidth = 750.0F;
+            if (contentsWidth > maxContentsWidth)
+                contentsWidth = maxContentsWidth;
+				
+			float contentsLeft = (sw - contentsWidth) * 0.5F;
+			float footerPos = sh - 50.0F;
+			
 			{
 				spades::ui::Button button(Manager);
 				button.Caption = _Tr("MainScreen", "Connect");
+				button.HotKeyText = "[Enter]";
 				button.Bounds = AABB2(contentsLeft + contentsWidth - 150.0F, 200.0F, 150.0F, 30.0F);
 				@button.Activated = spades::ui::EventHandler(this.OnConnectPressed);
 				AddChild(button);
 			}
 			{
 				@addressField = spades::ui::Field(Manager);
-				addressField.Bounds = AABB2(contentsLeft, 200.0F, contentsWidth - 240.0F, 30.0F);
+				addressField.Bounds = AABB2(contentsLeft, 200.0F, contentsWidth - 270.0F, 30.0F);
 				addressField.Placeholder = _Tr("MainScreen", "Quick Connect");
 				addressField.Text = cg_lastQuickConnectHost.StringValue;
 				@addressField.Changed = spades::ui::EventHandler(this.OnAddressChanged);
 				AddChild(addressField);
 			}
 			{
+				RefreshButton button(Manager);
+				button.Bounds = AABB2(contentsLeft + contentsWidth - 270.0F, 200.0F, 30.0F, 30.0F);
+				@button.Activated = spades::ui::EventHandler(this.OnRefreshServerListPressed);
+				AddChild(button);
+			}
+			{
 				@protocol3Button = ProtocolButton(Manager);
-				protocol3Button.Bounds =
-					AABB2(contentsLeft + contentsWidth - 240.0F + 6.0F, 200.0F, 40.0F, 30.0F);
+				protocol3Button.Bounds = AABB2(contentsLeft + contentsWidth - 240.0F + 6.0F, 200.0F, 40.0F, 30.0F);
 				protocol3Button.Caption = _Tr("MainScreen", "0.75");
 				@protocol3Button.Activated = spades::ui::EventHandler(this.OnProtocol3Pressed);
 				protocol3Button.Toggle = true;
@@ -116,8 +130,7 @@ namespace spades {
 			}
 			{
 				@protocol4Button = ProtocolButton(Manager);
-				protocol4Button.Bounds =
-					AABB2(contentsLeft + contentsWidth - 200.0F + 6.0F, 200.0F, 40.0F, 30.0F);
+				protocol4Button.Bounds = AABB2(contentsLeft + contentsWidth - 200.0F + 6.0F, 200.0F, 40.0F, 30.0F);
 				protocol4Button.Caption = _Tr("MainScreen", "0.76");
 				@protocol4Button.Activated = spades::ui::EventHandler(this.OnProtocol4Pressed);
 				protocol4Button.Toggle = true;
@@ -127,6 +140,7 @@ namespace spades {
 			{
 				spades::ui::Button button(Manager);
 				button.Caption = _Tr("MainScreen", "Quit");
+				button.HotKeyText = "[Esc]";
 				button.Bounds = AABB2(contentsLeft + contentsWidth - 100.0F, footerPos, 100.0F, 30.0F);
 				@button.Activated = spades::ui::EventHandler(this.OnQuitPressed);
 				AddChild(button);
@@ -143,12 +157,6 @@ namespace spades {
 				button.Caption = _Tr("MainScreen", "Setup");
 				button.Bounds = AABB2(contentsLeft + contentsWidth - 304.0F, footerPos, 100.0F, 30.0F);
 				@button.Activated = spades::ui::EventHandler(this.OnSetupPressed);
-				AddChild(button);
-			}
-			{
-				RefreshButton button(Manager);
-				button.Bounds = AABB2(contentsLeft + contentsWidth - 364.0F, footerPos, 30.0F, 30.0F);
-				@button.Activated = spades::ui::EventHandler(this.OnRefreshServerListPressed);
 				AddChild(button);
 			}
 			{
@@ -192,61 +200,61 @@ namespace spades {
 			}
 			{
 				@filterField = spades::ui::Field(Manager);
-				filterField.Bounds = AABB2(contentsLeft + 260.0F, footerPos, 120.0F, 30.0F);
+				filterField.Bounds = AABB2(contentsLeft + 260.0F, footerPos, contentsWidth - 570.0F, 30.0F);
 				filterField.Placeholder = _Tr("MainScreen", "Filter");
 				@filterField.Changed = spades::ui::EventHandler(this.OnFilterTextChanged);
 				AddChild(filterField);
 			}
 			{
 				@serverList = spades::ui::ListView(Manager);
-				serverList.Bounds = AABB2(contentsLeft, 270.0F, contentsWidth, footerPos - 280.0F);
+				serverList.Bounds = AABB2(contentsLeft, 270.0F, contentsWidth, footerPos - 284.0F);
 				AddChild(serverList);
 			}
 			{
 				ServerListHeader header(Manager);
-				header.Bounds = AABB2(contentsLeft + 2.0F, 240.0F, 260.0F, 30.0F);
+				header.Bounds = AABB2(contentsLeft + 2.0F, 246.0F, 260.0F - 2.0F, 24.0F);
 				header.Text = _Tr("MainScreen", "Server Name");
 				@header.Activated = spades::ui::EventHandler(this.SortServerListByName);
 				AddChild(header);
 			}
 			{
 				ServerListHeader header(Manager);
-				header.Bounds = AABB2(contentsLeft + 260.0F, 240.0F, 70.0F, 30.0F);
+				header.Bounds = AABB2(contentsLeft + 260.0F, 246.0F, 70.0F, 24.0F);
 				header.Text = _Tr("MainScreen", "Slots");
 				@header.Activated = spades::ui::EventHandler(this.SortServerListByNumPlayers);
 				AddChild(header);
 			}
 			{
 				ServerListHeader header(Manager);
-				header.Bounds = AABB2(contentsLeft + 330.0F, 240.0F, 140.0F, 30.0F);
+				header.Bounds = AABB2(contentsLeft + 330.0F, 246.0F, 140.0F, 24.0F);
 				header.Text = _Tr("MainScreen", "Map Name");
 				@header.Activated = spades::ui::EventHandler(this.SortServerListByMapName);
 				AddChild(header);
 			}
 			{
 				ServerListHeader header(Manager);
-				header.Bounds = AABB2(contentsLeft + 470.0F, 240.0F, 100.0F, 30.0F);
+				header.Bounds = AABB2(contentsLeft + 470.0F, 246.0F, 100.0F, 24.0F);
 				header.Text = _Tr("MainScreen", "Game Mode");
 				@header.Activated = spades::ui::EventHandler(this.SortServerListByGameMode);
 				AddChild(header);
 			}
 			{
 				ServerListHeader header(Manager);
-				header.Bounds = AABB2(contentsLeft + 570.0F, 240.0F, 60.0F, 30.0F);
+				header.Bounds = AABB2(contentsLeft + 570.0F, 246.0F, 60.0F, 24.0F);
 				header.Text = _Tr("MainScreen", "Ver.");
 				@header.Activated = spades::ui::EventHandler(this.SortServerListByProtocol);
 				AddChild(header);
 			}
 			{
 				ServerListHeader header(Manager);
-				header.Bounds = AABB2(contentsLeft + 630.0F, 240.0F, 60.0F, 30.0F);
+				header.Bounds = AABB2(contentsLeft + 630.0F, 246.0F, 60.0F, 24.0F);
 				header.Text = _Tr("MainScreen", "Loc.");
 				@header.Activated = spades::ui::EventHandler(this.SortServerListByCountry);
 				AddChild(header);
 			}
 			{
 				ServerListHeader header(Manager);
-				header.Bounds = AABB2(contentsLeft + 690.0F, 240.0F, 60.0F, 30.0F);
+				header.Bounds = AABB2(contentsLeft + 690.0F, 246.0F, contentsWidth - 690.0F + 2.0F, 24.0F);
 				header.Text = _Tr("MainScreen", "Ping");
 				@header.Activated = spades::ui::EventHandler(this.SortServerListByPing);
 				AddChild(header);
@@ -263,6 +271,7 @@ namespace spades {
 				errorView.Visible = false;
 				AddChild(errorView);
 			}
+			
 			LoadServerList();
 		}
 
@@ -421,13 +430,13 @@ namespace spades {
 		private void OnFilterEmptyPressed(spades::ui::UIElement@ sender) {
 			filterFullButton.Toggled = false;
 			UpdateServerList();
+		}		
+		private void OnFilterTextChanged(spades::ui::UIElement@ sender) { 
+			UpdateServerList(); 
 		}
-		private void OnFilterTextChanged(spades::ui::UIElement@ sender) { UpdateServerList(); }
-
+		
 		private void OnRefreshServerListPressed(spades::ui::UIElement@ sender) { LoadServerList(); }
-
 		private void OnQuitPressed(spades::ui::UIElement@ sender) { ui.shouldExit = true; }
-
 		private void OnCreditsPressed(spades::ui::UIElement@ sender) {
 			AlertScreen al(this, ui.helper.Credits, Min(500.0F, Manager.Renderer.ScreenHeight - 100.0F));
 			al.Run();
@@ -467,13 +476,14 @@ namespace spades {
 			if (IsEnabled) {
 				string msg = helper.GetPendingErrorMessage();
 				if (msg.length > 0) {
-					// try to maek the "disconnected" message more friendly.
-					if (msg.findFirst("Disconnected:") >= 0) {
-						int ind1 = msg.findFirst("Disconnected:");
+					// try to make the "disconnected" message more friendly.
+					string findStr = "Disconnected:";
+					if (msg.findFirst(findStr) >= 0) {
+						int ind1 = msg.findFirst(findStr);
 						int ind2 = msg.findFirst("\n", ind1);
 						if (ind2 < 0)
 							ind2 = msg.length;
-						ind1 += "Disconnected:".length;
+						ind1 += findStr.length;
 						msg = msg.substr(ind1, ind2 - ind1);
 						msg = _Tr(
 							"MainScreen",

@@ -169,6 +169,7 @@ namespace spades {
 			{
 				spades::ui::Button button(Manager);
 				button.Caption = _Tr("Client", "Say");
+				button.HotKeyText = "[Enter]";
 				button.Bounds = AABB2(winX + winW - 244.0F, winY + 36.0F, 120.0F, 30.0F);
 				@button.Activated = spades::ui::EventHandler(this.OnSay);
 				AddChild(button);
@@ -177,6 +178,7 @@ namespace spades {
 			{
 				spades::ui::Button button(Manager);
 				button.Caption = _Tr("Client", "Cancel");
+				button.HotKeyText = "[Esc]";
 				button.Bounds = AABB2(winX + winW - 120.0F, winY + 36.0F, 120.0F, 30.0F);
 				@button.Activated = spades::ui::EventHandler(this.OnCancel);
 				AddChild(button);
@@ -188,7 +190,6 @@ namespace spades {
 				field.MaxLength = 90; // more like 95, but just to make sure
 				@field.Changed = spades::ui::EventHandler(this.OnFieldChanged);
 				AddChild(field);
-				UpdateState();
 			}
 			{
 				@globalButton = spades::ui::SimpleButton(Manager);
@@ -208,6 +209,8 @@ namespace spades {
 				@teamButton.Activated = spades::ui::EventHandler(this.OnSetTeam);
 				AddChild(teamButton);
 			}
+			
+			UpdateState();
 		}
 
 		void UpdateState() { sayButton.Enable = field.Text.length > 0; }
@@ -277,11 +280,8 @@ namespace spades {
 			if (IsEnabled and key == "Escape") {
 				OnCancel(this);
 			} else if (IsEnabled and key == "Enter") {
-				if (field.Text.length == 0) {
-					OnCancel(this);
-				} else {
+				if (field.Text.length > 0)
 					OnSay(this);
-				}
 			} else {
 				UIElement::HotKey(key);
 			}

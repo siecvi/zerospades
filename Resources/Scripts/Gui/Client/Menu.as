@@ -41,16 +41,10 @@ namespace spades {
 			{
 				spades::ui::Label label(Manager);
 				label.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.5F);
-				label.Bounds = AABB2(0.0F, 0.0F, sw, sh);
-				AddChild(label);
-			}
-
-			{
-				spades::ui::Label label(Manager);
-				label.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.5F);
 				label.Bounds = AABB2(winX - 8.0F, winY - 8.0F, winW + 16.0F, winH + 16.0F);
 				AddChild(label);
 			}
+			
 			{
 				spades::ui::Button button(Manager);
 				button.Caption = _Tr("Client", "Back to Game");

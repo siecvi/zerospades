@@ -99,10 +99,12 @@ namespace spades {
 			// TODO: `ctf` and `tc` are only valid throughout the
 			// method call's duration. Move them to a new context type
 			auto mode = world->GetMode();
-			ctf = IGameMode::m_CTF == mode->ModeType()
-				? dynamic_cast<CTFGameMode*>(mode.get_pointer()) : NULL;
-			tc = IGameMode::m_TC == mode->ModeType()
-				? dynamic_cast<TCGameMode*>(mode.get_pointer()) : NULL;
+			ctf = mode->ModeType() == IGameMode::m_CTF
+				? dynamic_cast<CTFGameMode*>(mode.get_pointer())
+				: NULL;
+			tc = mode->ModeType() == IGameMode::m_TC
+				? dynamic_cast<TCGameMode*>(mode.get_pointer())
+				: NULL;
 
 			Handle<IImage> img;
 			IFont& font = client->fontManager->GetSquareDesignFont();
@@ -112,36 +114,33 @@ namespace spades {
 			float sw = renderer.ScreenWidth();
 			float sh = renderer.ScreenHeight();
 
-			float spacingWidth = 8.0F;
-			float contentsWidth = sw + spacingWidth;
-			float maxContentsWidth = 800.0F + spacingWidth;
-			if (contentsWidth >= maxContentsWidth)
+			float contentsWidth = sw + 8.0F;
+			float maxContentsWidth = 800.0F;
+			if (contentsWidth > maxContentsWidth)
 				contentsWidth = maxContentsWidth;
 
-			float spacingHeight = 156.0F;
-			float contentsHeight = sh - spacingHeight;
-			float maxContentsHeight = 600.0F - spacingHeight;
-			if (contentsHeight >= maxContentsHeight)
+			float contentsHeight = sh - 156.0F;
+			float maxContentsHeight = 360.0F;
+			if (contentsHeight > maxContentsHeight)
 				contentsHeight = maxContentsHeight;
 
 			float teamBarTop = (sh - contentsHeight) * 0.5F;
 			float teamBarHeight = 60.0F;
 			float contentsLeft = (sw - contentsWidth) * 0.5F;
 			float contentsRight = contentsLeft + contentsWidth;
-			float playersHeight = 300.0F - teamBarHeight;
-			float spectatorsHeight = 78.0F;
+			float playersHeight = 264.0F - teamBarHeight;
 			float playersTop = teamBarTop + teamBarHeight;
 			float playersBottom = playersTop + playersHeight;
 
 			bool areSpectatorsPr = AreSpectatorsPresent();
+			float spectatorsHeight = areSpectatorsPr ? 78.0F : 0.0F;
 
 			// draw shadow
 			img = renderer.RegisterImage("Gfx/Scoreboard/TopShadow.tga");
 			size.y = 32.0F;
 			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.2F));
 			renderer.DrawImage(img, AABB2(0, teamBarTop - size.y, sw, size.y));
-			renderer.DrawImage(img, AABB2(0, playersBottom
-				+ (areSpectatorsPr ? spectatorsHeight : 0) + size.y, sw, -size.y));
+			renderer.DrawImage(img, AABB2(0, playersBottom + spectatorsHeight + size.y, sw, -size.y));
 
 			// draw team bar
 			renderer.SetColorAlphaPremultiplied(AdjustColor(GetTeamColor(0), 0.8F, 0.3F));
@@ -155,15 +154,15 @@ namespace spades {
 			renderer.DrawImage(img, AABB2(contentsLeft, playersTop - size.y, size.x, size.y));
 			renderer.DrawImage(img, AABB2(contentsRight, playersTop - size.y, -size.x, size.y));
 
-			str = world->GetTeam(0).name;
-			pos.x = contentsLeft + 110.0F;
+			str = world->GetTeamName(0);
+			pos.x = contentsLeft + 120.0F;
 			pos.y = teamBarTop + 5.0F;
 			font.Draw(str, pos + MakeVector2(0, 2), 1.0F, MakeVector4(0, 0, 0, 0.5));
 			font.Draw(str, pos, 1.0F, white);
 
-			str = world->GetTeam(1).name;
+			str = world->GetTeamName(1);
 			size = font.Measure(str);
-			pos.x = contentsRight - 110.0F - size.x;
+			pos.x = contentsRight - 120.0F - size.x;
 			pos.y = teamBarTop + 5.0F;
 			font.Draw(str, pos + MakeVector2(0, 2), 1.0F, MakeVector4(0, 0, 0, 0.5));
 			font.Draw(str, pos, 1.0F, white);
@@ -192,8 +191,7 @@ namespace spades {
 			// players background
 			img = renderer.RegisterImage("Gfx/Scoreboard/PlayersBg.png");
 			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1));
-			renderer.DrawImage(img, AABB2(0, playersTop, sw,
-				playersHeight + (areSpectatorsPr ? spectatorsHeight : 0)));
+			renderer.DrawImage(img, AABB2(0, playersTop, sw, playersHeight + spectatorsHeight));
 
 			// draw players
 			DrawPlayers(0, contentsLeft, playersTop, (contentsRight - contentsLeft) * 0.5F, playersHeight);
@@ -250,9 +248,9 @@ namespace spades {
 				float rowY = top + 6.0F + row * rowHeight;
 				float colX = left + colWidth * (float)col;
 
+				// draw player id
 				sprintf(buf, "#%d", ent.id); // FIXME: 1-base?
 				size = font.Measure(buf);
-
 				if (cg_minimapPlayerColor) {
 					IntVector3 colorplayer = MakeIntVector3(palette[ent.id][0], palette[ent.id][1], palette[ent.id][2]);
 					Vector4 colorplayerF = ModifyColor(colorplayer);
@@ -261,12 +259,13 @@ namespace spades {
 					font.Draw(buf, MakeVector2(colX + 35.0F - size.x, rowY), 1.0F, white);
 				}
 
+				// draw player name
 				Vector4 color = ent.alive ? white : MakeVector4(0.5, 0.5, 0.5, 1);
 				if (stmp::make_optional(ent.id) == world->GetLocalPlayerIndex())
 					color = GetTeamColor(team);
-
 				font.Draw(ent.name, MakeVector2(colX + 40.0F, rowY), 1.0F, color);
 
+				// draw player score
 				sprintf(buf, "%d", ent.score);
 				size = font.Measure(buf);
 				font.Draw(buf, MakeVector2(colX + colWidth - 10.0F - size.x, rowY), 1.0F, white);
@@ -278,7 +277,7 @@ namespace spades {
 					if (ctfMode.PlayerHasIntel(*world, *world->GetPlayer(ent.id))) {
 						Handle<IImage> img = renderer.RegisterImage("Gfx/Map/Intel.png");
 						float pulse = std::max(0.5F, fabsf(sinf(world->GetTime() * 4.0F)));
-						renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) * pulse);
+						renderer.SetColorAlphaPremultiplied(white * pulse);
 						renderer.DrawImage(img, AABB2(colX + colWidth - 30.0F - size.x,
 						                              rowY + 2.0F, 16.0F, 16.0F));
 					}

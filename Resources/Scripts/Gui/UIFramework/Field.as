@@ -351,13 +351,12 @@ namespace spades {
 			}
 
 			void DrawHighlight(Renderer@ r, float x, float y, float w, float h) {
-				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.2F);
+				r.ColorNP = HighlightColor;
 				r.DrawImage(null, AABB2(x, y, w, h));
 			}
 
 			void DrawBeam(Renderer@ r, float x, float y, float h) {
 				float pulse = float((int(Manager.Time * 2.0F)) & 1);
-
 				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, pulse);
 				r.DrawImage(null, AABB2(x - 1.0F, y, 2.0F, h));
 			}
@@ -372,8 +371,8 @@ namespace spades {
 				Vector2 pos = ScreenPosition;
 				Vector2 size = Size;
 				Font@ font = this.Font;
-				Vector2 textPos = TextOrigin + pos;
 				string text = Text;
+				Vector2 textPos = TextOrigin + pos;
 
 				string composition = this.EditingText;
 				int editStart = this.TextEditingRangeStart;
@@ -429,7 +428,7 @@ namespace spades {
 			private bool hover;
 			Field(UIManager@ manager) {
 				super(manager);
-				TextOrigin = Vector2(2.0F, 2.0F);
+				TextOrigin = Vector2(4.0F, 4.0F);
 			}
 			void MouseEnter() {
 				hover = true;

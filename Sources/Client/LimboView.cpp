@@ -18,8 +18,6 @@
 
  */
 
-#include <sstream>
-
 #include "Client.h"
 #include "Fonts.h"
 #include "IAudioChunk.h"
@@ -219,10 +217,10 @@ namespace spades {
 				}
 
 				Vector4 fillColor = {0.2F, 0.2F, 0.2F, 0.5F};
-				if (item.hover)
-					fillColor = MakeVector4(0.4F, 0.4F, 0.4F, 1) * 0.7F;
 				if (selected)
 					fillColor = MakeVector4(0.7F, 0.7F, 0.7F, 1) * 0.9F;
+				else if (item.hover)
+					fillColor = MakeVector4(0.4F, 0.4F, 0.4F, 1) * 0.7F;
 
 				renderer.SetColorAlphaPremultiplied(fillColor);
 				renderer.DrawImage(nullptr, item.rect);
@@ -246,12 +244,11 @@ namespace spades {
 					pos.x += 5.0F;
 					pos.y += (item.rect.GetHeight() - size.y) * 0.5F;
 					font.DrawShadow(msg, pos, 1.0F, color, shadowColor);
+
 					if (index > 0) {
-						std::stringstream ss;
-						ss << index;
-						msg = ss.str();
+						msg = "[" + ToString(index) + "]";
 						pos.x = (item.rect.GetMaxX() - 5.0F) - font.Measure(msg).x;
-						font.DrawShadow(msg, pos, 1.0F, color, shadowColor);
+						font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 0.6F), shadowColor);
 					}
 				}
 			}

@@ -55,6 +55,7 @@ namespace spades {
 			{
 				spades::ui::Button button(Manager);
 				button.Caption = _Tr("StartupScreen", "Start");
+				button.HotKeyText = "[Enter]";
 				button.Bounds = AABB2(sw - 170.0F, 20.0F, 150.0F, 30.0F);
 				@button.Activated = spades::ui::EventHandler(this.OnStartPressed);
 				AddChild(button);
@@ -62,7 +63,7 @@ namespace spades {
 			{
 				spades::ui::CheckBox button(Manager);
 				button.Caption = _Tr("StartupScreen", "Skip this screen next time");
-				button.Bounds = AABB2(580.0F, 64.0F, sw - 600.0F, 24.0F);
+				button.Bounds = AABB2(360.0F, 50.0F, sw - 380.0F, 20.0F); // note: this is updated later soon
 				AddChild(button);
 				@bypassStartupWindowCheck = button;
 				@button.Activated = spades::ui::EventHandler(this.OnBypassStartupWindowCheckChanged);
@@ -105,6 +106,12 @@ namespace spades {
 				tabStrip.AddItem(_Tr("StartupScreen", "System Info"), profileTab);
 				tabStrip.AddItem(_Tr("StartupScreen", "Advanced"), advancedTab);
 				@tabStrip.Changed = spades::ui::EventHandler(this.OnTabChanged);
+				
+				// Reposition the "Skip this screen next time" check box
+                spades::ui::UIElement @[] @tabStripItems = tabStrip.GetChildren();
+				float items = tabStripItems[tabStripItems.length - 1].Bounds.max.x;
+                float right = items + tabStrip.Bounds.min.x;
+                bypassStartupWindowCheck.Bounds = AABB2(right - 20.0F, 50.0F, sw - items, 20.0F);
 			}
 
 			LoadConfig();

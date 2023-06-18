@@ -90,15 +90,7 @@ namespace spades {
 			// draw title logo
 			Image@ img = renderer.RegisterImage("Gfx/Title/LogoSmall.png");
 			renderer.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 1.0F * fade);
-			renderer.DrawImage(img, AABB2(10.0F + (2.0F - img.Width) * (1.0F - fade), 10.0F, img.Width, img.Height));
-
-			Font@ font = manager.RootElement.Font;
-			string text = "Version 0.0.5";
-			Vector2 position(225.0F, 34.0F + (2.0F - img.Width) * (1.0F - fade));
-
-			float pulse = sin(abs(manager.Time * 2.0F));
-			font.DrawShadow(text, position, 1.0F, Vector4(0.0F, 0.0F, 0.0F, pulse), Vector4(0.5F, 1.0F, 0.5F, pulse));
-			font.DrawShadow(text, position, 1.0F, Vector4(0.7F, 1.0F, 0.7F, fade), Vector4(0.5F, 1.0F, 0.5F, fade));
+			renderer.DrawImage(img, AABB2(10.0F - img.Width * (1.0F - fade), 10.0F, img.Width, img.Height));
 
 			manager.RunFrame(dt);
 			manager.Render();

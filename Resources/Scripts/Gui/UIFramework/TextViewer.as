@@ -39,7 +39,7 @@ namespace spades {
 			private TextViewerSelectionState@ selection;
 
 			TextViewerItemUI(UIManager@ manager, TextViewerItem@ item,
-							 TextViewerSelectionState@ selection) {
+				TextViewerSelectionState@ selection) {
 				super(manager);
 
 				text = item.Text;
@@ -59,9 +59,9 @@ namespace spades {
 				Vector2 size = Size;
 				float textScale = 1.0F;
 				Font@ font = this.Font;
-
+				
+				// Draw selection
 				if (selection.FocusElement.IsFocused) {
-					// Draw selection
 					int start = selection.SelectionStart - index;
 					int end = selection.SelectionEnd - index;
 					if (start < 0)
@@ -80,8 +80,7 @@ namespace spades {
 
 				if (text.length > 0) {
 					Vector2 txtSize = font.Measure(text) * textScale;
-					Vector2 txtPos;
-					txtPos = pos + (size - txtSize) * Vector2(0.0F, 0.0F);
+					Vector2 txtPos = pos + (size - txtSize) * Vector2(0.0F, 0.0F);
 
 					font.Draw(text, txtPos, textScale, textColor);
 				}
@@ -203,12 +202,12 @@ namespace spades {
 				return TextViewerItemUI(manager, lines[row], selection);
 			}
 
-			void RecycleElement(UIElement @elem) {}
+			void RecycleElement(UIElement@ elem) {}
 		}
 
 		class TextViewer : ListViewBase {
 			private string text;
-			private TextViewerModel @textmodel;
+			private TextViewerModel@ textmodel;
 			private TextViewerSelectionState selection;
 			private bool dragging = false;
 			private Image@ image;

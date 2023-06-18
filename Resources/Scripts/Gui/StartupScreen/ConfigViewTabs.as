@@ -60,7 +60,7 @@ namespace spades {
 			AddLabel(0.0F, 0.0F, 24.0F, _Tr("StartupScreen", "Resolution"));
 			{
 				StartupScreenGraphicsDisplayResolutionEditor e(ui);
-				e.Bounds = AABB2(100.0F, 0.0F, 124.0F, 24.0F);
+				e.Bounds = AABB2(110.0F, 0.0F, 124.0F, 24.0F);
 				AddChild(e);
 				@resEdit = e;
 			}
@@ -68,7 +68,7 @@ namespace spades {
 			{
 				spades::ui::CheckBox e(Manager);
 				e.Caption = _Tr("StartupScreen", "Fullscreen Mode");
-				e.Bounds = AABB2(230.0F, 0.0F, 200.0F, 24.0F);
+				e.Bounds = AABB2(240.0F, 0.0F, 200.0F, 24.0F);
 				HelpHandler(
 					helpView,
 					_Tr("StartupScreen",
@@ -80,11 +80,11 @@ namespace spades {
 				@fullscreenCheck = e;
 			}
 
-			AddLabel(0.0F, 30.0F, 24.0F, _Tr("StartupScreen", "Backend"));
+			AddLabel(0.0F, 30.0F, 24.0F, _Tr("StartupScreen", "Renderer"));
 			{
 				spades::ui::RadioButton e(Manager);
 				e.Caption = _Tr("StartupScreen", "OpenGL");
-				e.Bounds = AABB2(100.0F, 30.0F, 140.0F, 24.0F);
+				e.Bounds = AABB2(110.0F, 30.0F, 140.0F, 24.0F);
 				e.GroupName = "driver";
 				HelpHandler(
 					helpView,
@@ -99,7 +99,7 @@ namespace spades {
 			{
 				spades::ui::RadioButton e(Manager);
 				e.Caption = _Tr("StartupScreen", "Software");
-				e.Bounds = AABB2(250.0F, 30.0F, 140.0F, 24.0F);
+				e.Bounds = AABB2(260.0F, 30.0F, 140.0F, 24.0F);
 				e.GroupName = "driver";
 				HelpHandler(
 					helpView,
@@ -160,7 +160,7 @@ namespace spades {
 						_Tr("StartupScreen", "The Sun causes lens flare.")));
 					cplx.AddEditor(StartupScreenConfigCheckItemEditor(
 						ui, StartupScreenConfig(ui, "r_lensFlareDynamic"), "0", "1",
-						_Tr("StartupScreen", "Flares for Dynamic Lights"),
+						_Tr("StartupScreen", "Flares for Dynamic Lights."),
 						_Tr("StartupScreen", "Enables lens flare for light sources other than the Sun.")));
 					cplx.AddEditor(StartupScreenConfigCheckItemEditor(
 						ui, StartupScreenConfig(ui, "r_colorCorrection"), "0", "1",
@@ -188,7 +188,7 @@ namespace spades {
 				cfg.AddRow(StartupScreenConfigSelectItemEditor(
 					ui, StartupScreenConfig(ui, "r_softParticles"), "0|1|2",
 					_Tr("StartupScreen",
-						"Particles|"
+						"Particle Quality|"
 						"Low:Artifact occurs when a particle intersects other objects.|"
 						"Medium:Particle intersects objects smoothly.|"
 						"High:Particle intersects objects smoothly, and some objects casts " "their shadow to particles.")));
@@ -202,7 +202,7 @@ namespace spades {
 					_Tr("StartupScreen", "Applies local illumination to the fog.") + "|" +
 					_Tr("StartupScreen", "Level 2") + ":"  +
 					_Tr("StartupScreen", "Applies both local illumination and global illumination to the fog.") + "\n\n" +
-					_Tr("StartupScreen", "Warning: {0} must be enabled.", _Tr("StartupScreen", "Global Illumination"))));
+					_Tr("StartupScreen", "Warning: '{0}' must be enabled.", _Tr("StartupScreen", "Global Illumination"))));
 
 				{
 					StartupScreenComplexConfig cplx;
@@ -311,7 +311,7 @@ namespace spades {
 			Renderer@ r = Manager.Renderer;
 			Image@ img = r.RegisterImage("Gfx/UI/ScrollArrow.png");
 			AABB2 bnd = ScreenBounds;
-			Vector2 p = (bnd.min + bnd.max) * 0.5f + Vector2(-8.0F, 8.0F);
+			Vector2 p = (bnd.min + bnd.max) * 0.5F + Vector2(-8.0F, 8.0F);
 			r.DrawImage(img, AABB2(p.x, p.y, 16.0F, -16.0F));
 		}
 	}
@@ -331,6 +331,7 @@ namespace spades {
 				spades::ui::Field e(Manager);
 				AddChild(e);
 				e.Bounds = AABB2(0, 0, 45.0F, 24.0F);
+				e.TextOrigin.y *= 0.5F;
 				e.DenyNonAscii = true;
 				@e.Changed = spades::ui::EventHandler(this.ValueEditHandler);
 				@widthField = e;
@@ -339,6 +340,7 @@ namespace spades {
 				spades::ui::Field e(Manager);
 				AddChild(e);
 				e.Bounds = AABB2(53, 0, 45.0F, 24.0F);
+				e.TextOrigin.y *= 0.5F;
 				e.DenyNonAscii = true;
 				@e.Changed = spades::ui::EventHandler(this.ValueEditHandler);
 				@heightField = e;
@@ -519,7 +521,6 @@ namespace spades {
 				AddChild(e);
 				@driverNull = e;
 			}
-
 			{
 				StartupScreenConfigView cfg(Manager);
 
@@ -542,21 +543,13 @@ namespace spades {
 					_Tr("StartupScreen",
 						"Enables extended features provided by the OpenAL driver to create "
 						"more ambience.")));
-
-				{
-					StartupScreenAudioOpenALEditor e(ui);
-					AddChild(e);
-					@editOpenAL = e;
-					cfg.AddRow(editOpenAL);
-				}
-
+						
 				cfg.Finalize();
 				cfg.SetHelpTextHandler(HelpTextHandler(this.HandleHelpText));
 				cfg.Bounds = AABB2(0.0F, 30.0F, mainWidth, size.y - 30.0F);
 				AddChild(cfg);
 				@configViewOpenAL = cfg;
 			}
-
 			{
 				StartupScreenConfigView cfg(Manager);
 
@@ -578,6 +571,14 @@ namespace spades {
 				cfg.Bounds = AABB2(0.0F, 30.0F, mainWidth, size.y - 30.0F);
 				AddChild(cfg);
 				@configViewYSR = cfg;
+			}
+			
+			AddLabel(0.0F, 120.0F, 24.0F, _Tr("StartupScreen", "Output Device"));
+			{
+				StartupScreenAudioOpenALEditor e(ui);
+				AddChild(e);
+				e.Bounds = AABB2(160.0F, 120.0F, 354.0F, 24.0F);
+				@editOpenAL = e;
 			}
 		}
 
@@ -632,12 +633,11 @@ namespace spades {
 			super(ui.manager);
 			@this.ui = ui;
 			@helper = ui.helper;
-
-			AddLabel(0.0F, 0.0F, 20.0F, _Tr("StartupScreen", "Devices"));
+			
 			{
 				StartupScreenDropdownListDropdownButton e(Manager);
 				AddChild(e);
-				e.Bounds = AABB2(80.0F, 0.0F, 400.0F, 20.0F);
+				e.Bounds = AABB2(0.0F, 0.0F, 354.0F, 24.0F);
 				@e.Activated = spades::ui::EventHandler(this.ShowDropdown);
 				@dropdownButton = e;
 			}
@@ -645,9 +645,9 @@ namespace spades {
 
 		void LoadConfig() {
 			string drivername = openal.StringValue;
-			string name = _Tr("StartupScreen", "Default device", drivername);
+			string name = _Tr("StartupScreen", "System default", drivername);
 			if (drivername == "")
-				name = _Tr("StartupScreen", "Default device");
+				name = _Tr("StartupScreen", "System default");
 
 			int cnt = helper.GetNumAudioOpenALDevices();
 			for (int i = 0; i < cnt; i++) {
@@ -659,7 +659,7 @@ namespace spades {
 		}
 
 		private void ShowDropdown(spades::ui::UIElement@) {
-			string[] items = {_Tr("StartupScreen", "Default device")};
+			string[] items = {_Tr("StartupScreen", "System default")};
 			int cnt = helper.GetNumAudioOpenALDevices();
 			for (int i = 0; i < cnt; i++) {
 				string s = helper.GetAudioOpenALDevice(i);
@@ -685,7 +685,7 @@ namespace spades {
 	class StartupScreenGenericTab : spades::ui::UIElement, LabelAddable {
 		StartupScreenUI@ ui;
 		StartupScreenHelper@ helper;
-		StartupScreenLocaleEditor@ locale;
+		StartupScreenLocaleEditor@ editLocale;
 
 		StartupScreenGenericTab(StartupScreenUI@ ui, Vector2 size) {
 			super(ui.manager);
@@ -700,8 +700,8 @@ namespace spades {
 			{
 				StartupScreenLocaleEditor e(ui);
 				AddChild(e);
-				e.Bounds = AABB2(160.0F, 0.0F, 400.0F, 24.0F);
-				@locale = e;
+				e.Bounds = AABB2(160.0F, 0.0F, 348.0F, 24.0F);
+				@editLocale = e;
 			}
 
 			AddLabel(0.0F, 30.0F, 30.0F, _Tr("StartupScreen", "Tools"));
@@ -728,7 +728,7 @@ namespace spades {
 			}
 		}
 
-		void LoadConfig() { locale.LoadConfig(); }
+		void LoadConfig() { editLocale.LoadConfig(); }
 
 		private void OnBrowseUserDirectoryPressed(spades::ui::UIElement@) {
 			if (helper.BrowseUserDirectory())
@@ -750,7 +750,7 @@ namespace spades {
 				+ "- " + _Tr("StartupScreen", "Your player name") + "\n"
 				+ "- " +
 				_Tr("StartupScreen",
-					"Other advanced settings only accessible through '{0}' tab and in-game commands",
+					"Other advanced settings only accessible through '{0}' tab and in-game commands.",
 					_Tr("StartupScreen", "Advanced"));
 			ConfirmScreen al(Parent, msg, 200.0F);
 			@al.Closed = spades::ui::EventHandler(OnResetSettingsConfirmed);
@@ -806,10 +806,11 @@ namespace spades {
 			super(ui.manager);
 			@this.ui = ui;
 			@helper = ui.helper;
+			
 			{
 				StartupScreenDropdownListDropdownButton e(Manager);
 				AddChild(e);
-				e.Bounds = AABB2(0.0F, 0.0F, 400.0F, 24.0F);
+				e.Bounds = AABB2(0.0F, 0.0F, 348.0F, 24.0F);
 				@e.Activated = spades::ui::EventHandler(this.ShowDropdown);
 				@dropdownButton = e;
 			}
@@ -920,6 +921,7 @@ namespace spades {
 				spades::ui::Field e(Manager);
 				e.Placeholder = _Tr("StartupScreen", "Filter");
 				e.Bounds = AABB2(0.0F, 0.0F, size.x, 24.0F);
+				e.TextOrigin *= 0.5F;
 				@e.Changed = spades::ui::EventHandler(this.OnFilterChanged);
 				AddChild(e);
 				@filter = e;

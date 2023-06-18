@@ -50,18 +50,18 @@ namespace spades {
 				maxDescLen = Max(maxDescLen, font.Measure(candidates[i].Description).x);
 			}
 
+			float h = float(candidates.length) * rowHeight;
 			Vector2 pos = this.ScreenPosition;
 
-			r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 0.5F);
-			r.DrawImage(null, AABB2(pos.x, pos.y, maxNameLen + maxDescLen + 20.0F,
-				float(candidates.length) * rowHeight + 10.0F));
+			r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 0.75F);
+			r.DrawImage(null, AABB2(pos.x, pos.y - 10.0F, maxNameLen + maxDescLen + 20.0F, h));
 
 			for (uint i = 0, len = candidates.length; i < len; i++) {
 				font.DrawShadow(candidates[i].Name,
-					pos + Vector2(5.0F, 8.0F + float(i) * rowHeight), 1.0F,
+					pos + Vector2(5.0F, (float(i) * rowHeight) - 10.0F), 1.0F,
 						Vector4(1.0F, 1.0F, 1.0F, 0.7F), Vector4(0.0F, 0.0F, 0.0F, 0.3F));
 				font.DrawShadow(candidates[i].Description,
-					pos + Vector2(15.0F + maxNameLen, 8.0F + float(i) * rowHeight), 1.0F,
+					pos + Vector2(15.0F + maxNameLen, (float(i) * rowHeight) - 10.0F), 1.0F,
 						Vector4(1.0F, 1.0F, 1.0F, 1.0F), Vector4(0.0F, 0.0F, 0.0F, 0.4F));
 			}
 		}

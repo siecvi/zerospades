@@ -37,7 +37,7 @@ namespace spades {
 	}
 
 	class ChatLogWindow : spades::ui::UIElement {
-		float contentsTop, contentsHeight;
+		float ContentsTop, ContentsHeight;
 
 		ClientUI@ ui;
 		private ClientUIHelper@ helper;
@@ -59,33 +59,28 @@ namespace spades {
 			float sw = Manager.ScreenWidth;
 			float sh = Manager.ScreenHeight;
 
-			float spacing = 16.0F;
-			float contentsWidth = sw - spacing;
-			float maxContentsWidth = 800.0F - spacing;
-			if (contentsWidth >= maxContentsWidth)
+			float contentsWidth = sw - 16.0F;
+			float maxContentsWidth = 700.0F;
+			if (contentsWidth > maxContentsWidth)
 				contentsWidth = maxContentsWidth;
 
 			float contentsLeft = (sw - contentsWidth) * 0.5F;
-			contentsHeight = sh - 200.0F;
-			contentsTop = (sh - contentsHeight - 106.0F) * 0.5F;
+			ContentsHeight = sh - 200.0F;
+			ContentsTop = (sh - ContentsHeight - 106.0F) * 0.5F;
 
 			{
 				spades::ui::Label label(Manager);
-				label.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.4F);
-				label.Bounds = Bounds;
+				label.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.9F);
+				label.Bounds = AABB2(0.0F, ContentsTop - 13.0F, Size.x, ContentsHeight + 27.0F);
 				AddChild(label);
 			}
-			{
-				spades::ui::Label label(Manager);
-				label.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.8F);
-				label.Bounds = AABB2(0.0F, contentsTop - 13.0F, Size.x, contentsHeight + 27.0F);
-				AddChild(label);
-			}
+			
 			{
 				spades::ui::Button button(Manager);
 				button.Caption = _Tr("Client", "Close");
+				button.HotKeyText = "[Esc]";
 				button.Bounds = AABB2(contentsLeft + contentsWidth - 150.0F,
-					contentsTop + contentsHeight - 30.0F, 150.0F, 30.0F);
+					ContentsTop + ContentsHeight - 30.0F, 150.0F, 30.0F);
 				@button.Activated = spades::ui::EventHandler(this.OnOkPressed);
 				AddChild(button);
 			}
@@ -93,7 +88,7 @@ namespace spades {
 				spades::ui::Button button(Manager);
 				button.Caption = _Tr("Client", "Say Global");
 				button.Bounds = AABB2(contentsLeft,
-					contentsTop + contentsHeight - 30.0F, 150.0F, 30.0F);
+					ContentsTop + ContentsHeight - 30.0F, 150.0F, 30.0F);
 				@button.Activated = spades::ui::EventHandler(this.OnGlobalChat);
 				AddChild(button);
 				@this.sayButton1 = button;
@@ -102,7 +97,7 @@ namespace spades {
 				spades::ui::Button button(Manager);
 				button.Caption = _Tr("Client", "Say Team");
 				button.Bounds = AABB2(contentsLeft + 155.0F,
-					contentsTop + contentsHeight - 30.0F, 150.0F, 30.0F);
+					ContentsTop + ContentsHeight - 30.0F, 150.0F, 30.0F);
 				@button.Activated = spades::ui::EventHandler(this.OnTeamChat);
 				AddChild(button);
 				@this.sayButton2 = button;
@@ -110,8 +105,8 @@ namespace spades {
 			{
 				spades::ui::TextViewer viewer(Manager);
 				AddChild(viewer);
-				viewer.Bounds = AABB2(contentsLeft, contentsTop,
-					contentsWidth, contentsHeight - 40.0F);
+				viewer.Bounds = AABB2(contentsLeft, ContentsTop,
+					contentsWidth, ContentsHeight - 40.0F);
 				@this.viewer = viewer;
 			}
 		}
@@ -174,16 +169,13 @@ namespace spades {
 		}
 
 		void Render() {
+			Renderer@ r = Manager.Renderer;
 			Vector2 pos = ScreenPosition;
 			Vector2 size = Size;
-			Renderer@ r = Manager.Renderer;
 
-			r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.08F);
-			r.DrawImage(null, AABB2(pos.x, pos.y + contentsTop - 15.0F, size.x, 1.0F));
-			r.DrawImage(null, AABB2(pos.x, pos.y + contentsTop + contentsHeight + 15.0F, size.x, 1.0F));
-			r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.2F);
-			r.DrawImage(null, AABB2(pos.x, pos.y + contentsTop - 14.0F, size.x, 1.0F));
-			r.DrawImage(null, AABB2(pos.x, pos.y + contentsTop + contentsHeight + 14.0F, size.x, 1.0F));
+			r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.07F);
+			r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop - 14.0F, size.x, 1.0F));
+			r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop + ContentsHeight + 14.0F, size.x, 1.0F));
 
 			UIElement::Render();
 		}

@@ -789,9 +789,9 @@ namespace spades {
 			}
 
 			void Render(Vector2 pos) {
-				Renderer@ renderer = manager.Renderer;
-				renderer.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 1.0F);
-				renderer.DrawImage(image, Vector2(pos.x - hotSpot.x, pos.y - hotSpot.y));
+				Renderer@ r = manager.Renderer;
+				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 1.0F);
+				r.DrawImage(image, Vector2(pos.x - hotSpot.x, pos.y - hotSpot.y));
 			}
 		}
 

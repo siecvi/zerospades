@@ -49,7 +49,7 @@ namespace spades {
 				bgcolor.w = 0.15F;
 
 			r.ColorNP = bgcolor;
-			r.DrawImage(null, AABB2(pos.x, pos.y, size.x, size.y));
+			r.DrawImage(null, AABB2(pos.x + 1.0F, pos.y + 1.0F, size.x, size.y));
 
 			Vector4 col = Vector4(1.0F, 1.0F, 1.0F, 1.0F);
 			if (not Hover and not item.Favorite and item.NumPlayers == 0) {
@@ -58,7 +58,7 @@ namespace spades {
 			}
 
 			// Draw server name
-			Font.Draw(item.Name, ScreenPosition + Vector2(4.0F, 2.0F), 1.0F, fgcolor);
+			Font.Draw(item.Name, pos + Vector2(4.0F, 2.0F), 1.0F, fgcolor);
 
 			// Draw server slots
 			string playersStr = ToString(item.NumPlayers) + "/" + ToString(item.MaxPlayers);
@@ -145,11 +145,11 @@ namespace spades {
 				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.3F);
 			else if (Hover)
 				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.15F);
-			else
+			else 
 				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.0F);
 			r.DrawImage(null, AABB2(pos.x - 2.0F, pos.y, size.x, size.y));
 
-			Font.Draw(Text, ScreenPosition + Vector2(0.0F, 2.0F), 1.0F, Vector4(1.0F, 1.0F, 1.0F, 1.0F));
+			Font.Draw(Text, pos + Vector2(0.0F, 2.0F), 1.0F, Vector4(1.0F, 1.0F, 1.0F, 1.0F));
 		}
 	}
 
@@ -160,10 +160,9 @@ namespace spades {
 			Vector2 pos = ScreenPosition;
 			Vector2 size = Size;
 			Font@ font = this.Font;
-			string text = _Tr("MainScreen", "Loading...");
+			string text = _Tr("MainScreen", "Fetching server list...");
 			Vector2 txtSize = font.Measure(text);
-			Vector2 txtPos;
-			txtPos = pos + (size - txtSize) * 0.5F;
+			Vector2 txtPos = pos + (size - txtSize) * 0.5F;
 
 			font.Draw(text, txtPos, 1.0F, Vector4(1.0F, 1.0F, 1.0F, 0.8F));
 		}
@@ -178,8 +177,7 @@ namespace spades {
 			Font@ font = this.Font;
 			string text = _Tr("MainScreen", "Failed to fetch the server list.");
 			Vector2 txtSize = font.Measure(text);
-			Vector2 txtPos;
-			txtPos = pos + (size - txtSize) * 0.5F;
+			Vector2 txtPos = pos + (size - txtSize) * 0.5F;
 
 			font.Draw(text, txtPos, 1.0F, Vector4(1.0F, 1.0F, 1.0F, 0.8F));
 		}

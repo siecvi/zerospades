@@ -59,7 +59,7 @@ namespace spades {
 			if (cg_playerName.StringValue != "" and cg_playerName.StringValue != "Deuce")
 				cg_playerNameIsSet.IntValue = 1;
 			if (not cg_playerNameIsSet.BoolValue) {
-				CreateProfileScreen al(mainMenu);
+				CreateProfileScreen al(mainMenu, fontManager);
 				al.Run();
 			}
 		}
