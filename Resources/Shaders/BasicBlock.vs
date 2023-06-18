@@ -21,10 +21,9 @@
 uniform mat4 projectionViewMatrix;
 uniform mat4 viewMatrix;
 uniform vec3 chunkPosition;
-uniform float fogDistance;
+uniform vec3 sunLightDirection;
 uniform vec3 viewOriginVector;
 
-// --- Vertex attribute ---
 // [x, y, z]
 attribute vec3 positionAttribute;
 
@@ -51,18 +50,21 @@ void main() {
 	vec4 vertexPos = vec4(chunkPosition + positionAttribute, 1.0);
 
 	gl_Position = projectionViewMatrix * vertexPos;
-
+	
+	// ambient occlusion
+	ambientOcclusionCoord = (ambientOcclusionCoordAttribute + 0.5) * (1.0 / 256.0);
+	
 	color = colorAttribute;
 	color.xyz *= color.xyz; // linearize
 
-	// ambient occlusion
-	ambientOcclusionCoord = (ambientOcclusionCoordAttribute + 0.5) * (1.0 / 256.0);
-
+	// lambert reflection
+	//vec3 normal = normalAttribute;
+	//color.w = max(dot(normal, sunLightDirection), 0.0);
+	
 	vec2 horzRelativePos = vertexPos.xy - viewOriginVector.xy;
 	float horzDistance = dot(horzRelativePos, horzRelativePos);
 	fogDensity = ComputeFogDensity(horzDistance).xyz;
 
 	vec3 fixedWorldPosition = chunkPosition + fixedPositionAttribute * 0.5;
-
 	PrepareShadowForMap(vertexPos.xyz, fixedWorldPosition, normalAttribute);
 }

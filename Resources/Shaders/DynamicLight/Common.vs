@@ -35,7 +35,6 @@ void PrepareForDynamicLightNoBump(vec3 vertexCoord, vec3 normal) {
 	PrepareForMapShadow(vertexCoord);
 
 	vec3 lightPosition = dynamicLightOrigin;
-
 	if (dynamicLightIsLinear) {
 		// Linear light approximation - choose the closest point on the light
 		// geometry as the representative light source
@@ -49,7 +48,6 @@ void PrepareForDynamicLightNoBump(vec3 vertexCoord, vec3 normal) {
 
 	// projection
 	lightTexCoord = (dynamicLightSpotMatrix * vec4(vertexCoord, 1.0)).xyw;
-
 }
 
 // TODO: bumpmapping variant (requires tangent vector)

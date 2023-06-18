@@ -28,12 +28,12 @@ uniform vec2 sampleOffsetScale;
 
 varying vec2 texCoord;
 
-float decodeDepth(float w, float near, float far){
+float decodeDepth(float w, float near, float far) {
     return far * near / mix(far, near, w);
 }
 
 // d(decodeDepth)/dw
-float decodeDepthDW(float w, float near, float far){
+float decodeDepthDW(float w, float near, float far) {
     return far * near * (far - near) / pow(mix(far, near, w), 2.0);
 }
 
@@ -41,8 +41,7 @@ float minabs(float a, float b) {
     return abs(a) < abs(b) ? a : b;
 }
 
-vec2 complexMultiply(vec2 a, vec2 b)
-{
+vec2 complexMultiply(vec2 a, vec2 b) {
     vec3 t = vec3(b, -b.y);
     return vec2(dot(a.xy, t.xz), dot(a.xy, t.yx));
 }
@@ -93,7 +92,7 @@ void main() {
     // Decay parameter
     float depthDecayScale = -2.0;
 
-    float sampleDecay = 1.;
+    float sampleDecay = 1.0;
     float ret = 0.0;
 
     for (int i = 0; i < 16; ++i) {
@@ -105,16 +104,16 @@ void main() {
 
         decodedDepth += 0.1; // FIXME: this value needs to be tweaked?
 
-        vec3 viewCoord =  vec3((sampleCoord * 2.0 - 1.0) * fieldOfView, 1.) * decodedDepth;
+        vec3 viewCoord =  vec3((sampleCoord * 2.0 - 1.0) * fieldOfView, 1.0) * decodedDepth;
         vec3 relativeViewCoord = normalize(viewCoord - originViewCoord);
         float cosHorizon = -dot(relativeViewCoord, originNormal);
         float depthDecay = exp2(depthDecayScale * abs(decodedDepth - originDepth));
 
         ret = mix(ret, max(ret, cosHorizon), sampleDecay * depthDecay);
 
-        sampleDistance += 1. + sampleDistance * 0.3;
+        sampleDistance += 1.0 + sampleDistance * 0.3;
         sampleDir = complexMultiply(sampleDir, sampleRot);
-        sampleDecay *= .92;
+        sampleDecay *= 0.92;
     }
 
     ret = 1.0 - ret;

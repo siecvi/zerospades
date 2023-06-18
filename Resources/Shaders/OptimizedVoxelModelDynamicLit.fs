@@ -43,8 +43,7 @@ void main() {
 	gl_FragColor.xyz *= gl_FragColor.xyz;
 
 	// lighting
-	vec3 shading = EvaluateDynamicLightNoBump();
-	gl_FragColor.xyz *= shading;
+	gl_FragColor.xyz *= EvaluateDynamicLightNoBump();
 
 	// apply fog fading
 	gl_FragColor.xyz = mix(gl_FragColor.xyz, vec3(0.0), fogDensity);

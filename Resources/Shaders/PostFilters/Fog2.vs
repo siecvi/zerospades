@@ -28,9 +28,9 @@ varying vec4 viewcentricWorldPositionPartial;
 
 void main() {
 	vec2 pos = positionAttribute;
-
-	vec2 scrPos = pos * 2. - 1.;
-	gl_Position = vec4(scrPos, 0.5, 1.);
+	vec2 scrPos = pos * 2.0 - 1.0;
+	
+	gl_Position = vec4(scrPos, 0.5, 1.0);
 
 	texCoord = pos;
 

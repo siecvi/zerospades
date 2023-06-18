@@ -19,6 +19,6 @@
  */
 
 void DoShadowMapRender() {
-	// depth is all we nneed
+	// depth is all we need
 	gl_FragColor = vec4(1.0);
 }

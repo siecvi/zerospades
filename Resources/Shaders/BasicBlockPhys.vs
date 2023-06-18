@@ -21,9 +21,9 @@
 uniform mat4 projectionViewMatrix;
 uniform mat4 viewMatrix;
 uniform vec3 chunkPosition;
+uniform vec3 sunLightDirection;
 uniform vec3 viewOriginVector;
 
-// --- Vertex attribute ---
 // [x, y, z]
 attribute vec3 positionAttribute;
 
@@ -45,7 +45,6 @@ varying vec3 fogDensity;
 
 varying vec3 viewSpaceCoord;
 varying vec3 viewSpaceNormal;
-
 varying vec3 reflectionDir;
 
 void PrepareShadowForMap(vec3 vertexCoord, vec3 fixedVertexCoord, vec3 normal);
@@ -53,33 +52,30 @@ vec4 ComputeFogDensity(float poweredLength);
 
 void main() {
 	vec4 vertexPos = vec4(chunkPosition + positionAttribute, 1.0);
-
+	
 	gl_Position = projectionViewMatrix * vertexPos;
-
+	
+	// ambient occlusion
+	ambientOcclusionCoord = (ambientOcclusionCoordAttribute + 0.5) * (1.0 / 256.0);
+	
 	color = colorAttribute;
 	color.xyz *= color.xyz; // linearize
 
 	// lambert reflection
-	vec3 sunDir = normalize(vec3(0.0, -1.0, -1.0));
-	color.w = dot(sunDir, normalAttribute);
-
-	// ambient occlusion
-	ambientOcclusionCoord = (ambientOcclusionCoordAttribute + 0.5) * (1.0 / 256.0);
-
 	vec3 normal = normalAttribute;
+	color.w = dot(normal, sunLightDirection);
 
 	vec2 horzRelativePos = vertexPos.xy - viewOriginVector.xy;
 	float horzDistance = dot(horzRelativePos, horzRelativePos);
 	fogDensity = ComputeFogDensity(horzDistance).xyz;
 
 	vec3 fixedWorldPosition = chunkPosition + fixedPositionAttribute * 0.5;
-
 	PrepareShadowForMap(vertexPos.xyz, fixedWorldPosition, normal);
 
 	// used for diffuse lighting
 	viewSpaceCoord = (viewMatrix * vertexPos).xyz;
-	viewSpaceNormal = (viewMatrix * vec4(normal, 0.0)).xyz;
-
-	// used for specular lighting
+	viewSpaceNormal = normalize((viewMatrix * vec4(normal, 0.0)).xyz);
+	
+	// reflection vector (used for specular lighting)
 	reflectionDir = reflect(vertexPos.xyz - viewOriginVector, normal);
 }

@@ -47,11 +47,11 @@ vec4 applyFXAA(vec2 fragCoord, sampler2D tex)
     float lumaM  = dot(rgbM,  luma);
 	
 #if USE_HDR
-	lumaNW = clamp(lumaNW, 0., 1.);
-	lumaNE = clamp(lumaNE, 0., 1.);
-	lumaSW = clamp(lumaSW, 0., 1.);
-	lumaSE = clamp(lumaSE, 0., 1.);
-	lumaM = clamp(lumaM, 0., 1.);
+	lumaNW = clamp(lumaNW, 0.0, 1.0);
+	lumaNE = clamp(lumaNE, 0.0, 1.0);
+	lumaSW = clamp(lumaSW, 0.0, 1.0);
+	lumaSE = clamp(lumaSE, 0.0, 1.0);
+	lumaM = clamp(lumaM, 0.0, 1.0);
 #endif
 	
     float lumaMin = min(lumaM, min(min(lumaNW, lumaNE), min(lumaSW, lumaSE)));
@@ -77,10 +77,8 @@ vec4 applyFXAA(vec2 fragCoord, sampler2D tex)
 									 texture2D(tex, fragCoord * inverseVP + dir * 0.5).xyz);
 	
     float lumaB = dot(rgbB, luma);
-    if ((lumaB < lumaMin) || (lumaB > lumaMax))
-        color = vec4(rgbA, 1.0);
-    else
-        color = vec4(rgbB, 1.0);
+    color = ((lumaB < lumaMin) || (lumaB > lumaMax)) 
+		? vec4(rgbA, 1.0) : vec4(rgbB, 1.0);
     return color;
 }
 

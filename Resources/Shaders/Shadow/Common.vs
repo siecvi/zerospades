@@ -18,12 +18,12 @@
 
  */
 
-void PrepareForMapShadow(vec3 vertexCoord, vec3 normal) ;
+void PrepareForMapShadow(vec3 vertexCoord, vec3 normal);
 void PrepareForModelShadow(vec3 vertexCoord, vec3 normal);
 void PrepareForMapRadiosity(vec3 vertexCoord, vec3 normal);
-void PrepareForRadiosityForMap_Map(vec3 vertexCoord, vec3 centerCoord, vec3 normal);
+void PrepareForMapRadiosityForMap(vec3 vertexCoord, vec3 centerCoord, vec3 normal);
 
-void PrepareForShadow(vec3 vertexCoord, vec3 normal) {
+void PrepareShadow(vec3 vertexCoord, vec3 normal) {
 	PrepareForMapShadow(vertexCoord, normal);
 	PrepareForModelShadow(vertexCoord, normal);
 	PrepareForMapRadiosity(vertexCoord, normal);
@@ -33,5 +33,5 @@ void PrepareForShadow(vec3 vertexCoord, vec3 normal) {
 void PrepareShadowForMap(vec3 vertexCoord, vec3 centerCoord, vec3 normal) {
 	PrepareForMapShadow(centerCoord + normal * 0.1, normal);
 	PrepareForModelShadow(vertexCoord, normal);
-	PrepareForRadiosityForMap_Map(vertexCoord, centerCoord, normal);
+	PrepareForMapRadiosityForMap(vertexCoord, centerCoord, normal);
 }

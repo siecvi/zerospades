@@ -203,11 +203,6 @@ namespace spades {
 			fogDistance(basicProgram);
 			fogDistance.SetValue(renderer.GetFogDistance());
 
-			static GLProgramUniform viewSpaceLight("viewSpaceLight");
-			viewSpaceLight(basicProgram);
-			Vector3 vspLight = (renderer.GetViewMatrix() * MakeVector4(0, -1, -1, 0)).GetXYZ();
-			viewSpaceLight.SetValue(vspLight.x, vspLight.y, vspLight.z);
-
 			static GLProgramUniform fogColor("fogColor");
 			fogColor(basicProgram);
 			Vector3 fogCol = renderer.GetFogColorForSolidPass();
@@ -244,9 +239,21 @@ namespace spades {
 			projectionViewMatrix(basicProgram);
 			projectionViewMatrix.SetValue(renderer.GetProjectionViewMatrix());
 
-			static GLProgramUniform viewMatrix("viewMatrix");
-			viewMatrix(basicProgram);
-			viewMatrix.SetValue(renderer.GetViewMatrix());
+			static GLProgramUniform viewMatrixU("viewMatrix");
+			viewMatrixU(basicProgram);
+			Matrix4 viewMatrix = renderer.GetViewMatrix();
+			viewMatrixU.SetValue(viewMatrix);
+
+			static GLProgramUniform viewSpaceLight("viewSpaceLight");
+			viewSpaceLight(basicProgram);
+			Vector3 vspLight = (viewMatrix * MakeVector4(0, -1, -1, 0)).GetXYZ();
+			viewSpaceLight.SetValue(vspLight.x, vspLight.y, vspLight.z);
+
+			static GLProgramUniform sunLightDirection("sunLightDirection");
+			sunLightDirection(basicProgram);
+			Vector3 sunPos = MakeVector3(0, -1, -1);
+			sunPos = sunPos.Normalize();
+			sunLightDirection.SetValue(sunPos.x, sunPos.y, sunPos.z);
 
 			static GLProgramUniform viewOriginVector("viewOriginVector");
 			viewOriginVector(basicProgram);

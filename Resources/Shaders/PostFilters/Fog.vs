@@ -18,8 +18,6 @@
  
  */
 
-
-
 attribute vec2 positionAttribute;
 attribute vec4 colorAttribute;
 
@@ -35,21 +33,19 @@ varying vec3 shadowRayDirection;
 
 vec3 transformToShadow(vec3 v) {
 	v.y -= v.z;
-	v *= vec3(1., 1., 1. / 255.);
+	v *= vec3(1.0, 1.0, 1.0 / 255.0);
 	return v;
 }
 
-void main() {
-	
+void main() {	
 	vec2 pos = positionAttribute;
+	vec2 scrPos = pos * 2.0 - 1.0;
 	
-	vec2 scrPos = pos * 2. - 1.;
-	
-	gl_Position = vec4(scrPos, 0.5, 1.);
+	gl_Position = vec4(scrPos, 0.5, 1.0);
 	
 	texCoord = pos;
 	viewTan.xy = mix(-fov, fov, pos);
-	viewTan.z = 1.;
+	viewTan.z = 1.0;
 	
 	shadowOrigin = transformToShadow(viewOrigin);
 	
@@ -58,6 +54,4 @@ void main() {
 	viewDir += viewAxisFront;
 	
 	shadowRayDirection = transformToShadow(viewDir);
-	
 }
-

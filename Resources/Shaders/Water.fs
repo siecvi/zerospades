@@ -32,7 +32,7 @@ uniform vec3 skyColor;
 uniform vec2 zNearFar;
 uniform vec4 fovTan;
 uniform vec4 waterPlane;
-uniform vec3 viewOrigin;
+uniform vec3 viewOriginVector;
 
 uniform vec2 displaceScale;
 
@@ -49,7 +49,7 @@ float depthAt(vec2 pt) {
 }
 
 void main() {
-	vec3 worldPositionFromOrigin = worldPosition - viewOrigin;
+	vec3 worldPositionFromOrigin = worldPosition - viewOriginVector;
 	vec4 waveCoord = worldPosition.xyxy
 		* vec4(vec2(0.08), vec2(0.15704))
 		+ vec4(0.0, 0.0, 0.754, 0.1315);
@@ -142,7 +142,7 @@ void main() {
 	// reflectivity
 	vec3 sunlight = EvaluateSunLight();
 	vec3 ongoing = normalize(worldPositionFromOrigin);
-	float reflective = dot(ongoing, wave.xyz);
+	float reflective = dot(wave, ongoing);
 	reflective = clamp(1.0 - reflective, 0.0, 1.0);
 	reflective *= reflective;
 	reflective *= reflective;
@@ -151,14 +151,12 @@ void main() {
 	// fresnel refrection to sky
 	gl_FragColor.xyz = mix(gl_FragColor.xyz,
 		mix(skyColor * reflective * 0.6,
-			fogColor, fogDensity), reflective);
+			fogColor, fogDensity), reflective * att);
 
 	// specular reflection
 	if (dot(sunlight, vec3(1.0)) > 0.0001) {
-		vec3 refl = reflect(ongoing, wave.xyz);
-		float spec = dot(refl, normalize(vec3(0.0, -1.0, -1.0)));
-		spec = max(spec, 0.0);
-
+		vec3 refl = reflect(ongoing, wave);
+		float spec = max(dot(refl, normalize(vec3(0.0, -1.0, -1.0))), 0.0);
 		spec *= spec; // ^2
 		spec *= spec; // ^4
 		spec *= spec; // ^16

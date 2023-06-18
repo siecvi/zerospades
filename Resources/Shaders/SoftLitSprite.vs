@@ -26,8 +26,6 @@ uniform vec3 frontVector;
 uniform vec3 viewOriginVector;
 uniform vec2 zNearFar;
 
-uniform float fogDistance;
-
 attribute vec4 positionAttribute;
 attribute vec3 spritePosAttribute;
 attribute vec4 colorAttribute;
@@ -44,7 +42,7 @@ varying vec4 depthRange;
 varying vec3 normal;
 varying vec4 dlR, dlG, dlB;
 
-void PrepareForShadow(vec3 worldOrigin, vec3 normal);
+void PrepareShadow(vec3 worldOrigin, vec3 normal);
 vec4 ComputeFogDensity(float poweredLength);
 
 void main() {
@@ -68,7 +66,7 @@ void main() {
 	// compute normal for virtual volume sprite
 	normal = (pos - center) - frontVector;
 	normal = normalize(normal);
-	PrepareForShadow(pos, normal);
+	PrepareShadow(pos, normal);
 
 	// move sprite to the front of the volume
 	float centerDepth = dot(center - viewOriginVector, frontVector);

@@ -19,12 +19,12 @@
  */
 
 uniform mat4 projectionViewModelMatrix;
+uniform mat4 viewModelMatrix;
 uniform mat4 modelMatrix;
 uniform mat4 modelNormalMatrix;
-uniform mat4 viewModelMatrix;
 uniform vec3 modelOrigin;
-uniform vec2 texScale;
 uniform vec3 viewOriginVector;
+uniform vec2 texScale;
 
 // [x, y, z]
 attribute vec3 positionAttribute;
@@ -46,16 +46,15 @@ void main() {
 
 	gl_Position = projectionViewModelMatrix * vertexPos;
 
-	textureCoord = textureCoordAttribute.xy * texScale.xy;
+	textureCoord = textureCoordAttribute * texScale;
 
-	vec2 horzRelativePos = (modelMatrix * vertexPos).xy - viewOriginVector.xy;
+	// compute normal
+	vec3 normal = normalize((modelNormalMatrix * vec4(normalAttribute, 1.0)).xyz);
+	
+	vec3 worldPosition = (modelMatrix * vertexPos).xyz;
+	vec2 horzRelativePos = worldPosition.xy - viewOriginVector.xy;
 	float horzDistance = dot(horzRelativePos, horzRelativePos);
 	fogDensity = ComputeFogDensity(horzDistance).xyz;
 
-	// compute normal
-	vec3 normal = normalAttribute;
-	normal = (modelNormalMatrix * vec4(normal, 1.0)).xyz;
-	normal = normalize(normal);
-
-	PrepareForDynamicLightNoBump((modelMatrix * vertexPos).xyz, normal);
+	PrepareForDynamicLightNoBump(worldPosition, normal);
 }

@@ -24,6 +24,6 @@ void PrepareForMapRadiosity(vec3 vertexCoord, vec3 normal) {
 	hemisphereLighting = 1.0 - normal.z * 0.2;
 }
 
-void PrepareForRadiosityForMap_Map(vec3 vertexCoord, vec3 centerCoord, vec3 normal) {
+void PrepareForMapRadiosityForMap(vec3 vertexCoord, vec3 centerCoord, vec3 normal) {
 	hemisphereLighting = 1.0 - normal.z * 0.2;
 }

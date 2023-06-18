@@ -662,7 +662,7 @@ namespace spades {
 				static GLProgramUniform fogColor("fogColor");
 				static GLProgramUniform skyColor("skyColor");
 				static GLProgramUniform zNearFar("zNearFar");
-				static GLProgramUniform viewOrigin("viewOrigin");
+				static GLProgramUniform viewOriginVector("viewOriginVector");
 				static GLProgramUniform displaceScale("displaceScale");
 				static GLProgramUniform fovTan("fovTan");
 				static GLProgramUniform waterPlane("waterPlane");
@@ -676,27 +676,30 @@ namespace spades {
 				fogColor(prg);
 				skyColor(prg);
 				zNearFar(prg);
-				viewOrigin(prg);
+				viewOriginVector(prg);
 				displaceScale(prg);
 				fovTan(prg);
 				waterPlane(prg);
 
-				projectionViewModelMatrix.SetValue(renderer.GetProjectionViewMatrix() * mat);
-				projectionViewMatrix.SetValue(renderer.GetProjectionViewMatrix());
+				Matrix4 viewMat = renderer.GetViewMatrix();
+				Matrix4 viewProjMat = renderer.GetProjectionViewMatrix();
+
+				projectionViewModelMatrix.SetValue(viewProjMat * mat);
+				projectionViewMatrix.SetValue(viewProjMat);
 				modelMatrix.SetValue(mat);
-				viewModelMatrix.SetValue(renderer.GetViewMatrix() * mat);
-				viewMatrix.SetValue(renderer.GetViewMatrix());
+				viewModelMatrix.SetValue(viewMat * mat);
+				viewMatrix.SetValue(viewMat);
 				fogDistance.SetValue(fogDist);
 				fogColor.SetValue(fogCol.x, fogCol.y, fogCol.z);
 				skyColor.SetValue(skyCol.x, skyCol.y, skyCol.z);
 				zNearFar.SetValue(def.zNear, def.zFar);
-				viewOrigin.SetValue(def.viewOrigin.x, def.viewOrigin.y, def.viewOrigin.z);
+				viewOriginVector.SetValue(def.viewOrigin.x, def.viewOrigin.y, def.viewOrigin.z);
 				displaceScale.SetValue(1.0F / tanf(def.fovX * 0.5F), 1.0F / tanf(def.fovY * 0.5F));
 				fovTan.SetValue(tanf(def.fovX * 0.5F), -tanf(def.fovY * 0.5F), -tanf(def.fovX * 0.5F),
 				                tanf(def.fovY * 0.5F));
 
 				// make water plane in view coord
-				Matrix4 wmat = renderer.GetViewMatrix() * mat;
+				Matrix4 wmat = viewMat * mat;
 				Vector3 dir = wmat.GetAxis(2);
 				waterPlane.SetValue(dir.x, dir.y, dir.z, -Vector3::Dot(dir, wmat.GetOrigin()));
 

@@ -21,8 +21,7 @@
 uniform mat4 projectionViewModelMatrix;
 uniform mat4 modelMatrix;
 uniform mat4 viewModelMatrix;
-uniform vec3 viewOrigin;
-uniform float fogDistance;
+uniform vec3 viewOriginVector;
 
 // [x, y]
 attribute vec2 positionAttribute;
@@ -34,24 +33,22 @@ varying vec3 worldPosition;
 
 uniform sampler2D waveTexture;
 
-void PrepareForShadow(vec3 worldOrigin, vec3 normal);
+void PrepareShadow(vec3 worldOrigin, vec3 normal);
 vec4 ComputeFogDensity(float poweredLength);
 
 void main() {
 	vec4 vertexPos = vec4(positionAttribute.xy, 0.0, 1.0);
 
 	worldPosition = (modelMatrix * vertexPos).xyz;
-
+	viewPosition = (viewModelMatrix * vertexPos).xyz;
+	
 	gl_Position = projectionViewModelMatrix * vertexPos;
 	screenPosition = gl_Position.xyw;
 	screenPosition.xy = (screenPosition.xy + screenPosition.z) * 0.5;
 
-	vec4 viewPos = viewModelMatrix * vertexPos;
-	vec2 horzRelativePos = (modelMatrix * vertexPos).xy - viewOrigin.xy;
+	vec2 horzRelativePos = worldPosition.xy - viewOriginVector.xy;
 	float horzDistance = dot(horzRelativePos, horzRelativePos);
 	fogDensity = ComputeFogDensity(horzDistance).xyz;
 
-	viewPosition = viewPos.xyz;
-
-	PrepareForShadow((modelMatrix * vertexPos).xyz, vec3(0.0, 0.0, -1.0));
+	PrepareShadow(worldPosition, vec3(0.0, 0.0, -1.0));
 }

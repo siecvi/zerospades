@@ -35,6 +35,8 @@ void main() {
 	float ao = texture2D(ambientOcclusionTexture, ambientOcclusionCoord).x;
 	vec3 diffuseShading = EvaluateAmbientLight(ao);
 	diffuseShading += vec3(color.w) * EvaluateSunLight();
+	
+	// apply diffuse shading
 	gl_FragColor.xyz *= diffuseShading;
 
 	// apply fog fading

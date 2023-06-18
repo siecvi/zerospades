@@ -31,7 +31,6 @@ uniform float farBlur;
 
 varying vec2 texCoord;
 
-
 float decodeDepth(float w, float near, float far){
 	return far * near / mix(far, near, w);
 }

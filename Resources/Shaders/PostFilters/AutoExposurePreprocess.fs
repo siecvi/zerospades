@@ -30,9 +30,8 @@ void main() {
 	float brightness = max(max(color.x, color.y), color.z);
 
 	// remove NaN and Infinity
-	if (!(brightness >= 0.0 && brightness <= 16.0)) {
+	if (!(brightness >= 0.0 && brightness <= 16.0))
 		brightness = 0.05;
-	}
 
 	// lower bound
 	brightness = max(0.05, brightness);

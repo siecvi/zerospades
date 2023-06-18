@@ -20,7 +20,6 @@
 
 uniform sampler2D depthTexture;
 uniform sampler2D mainTexture;
-
 uniform vec3 fogColor;
 uniform vec2 zNearFar;
 

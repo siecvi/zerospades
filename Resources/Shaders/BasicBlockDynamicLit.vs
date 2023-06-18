@@ -21,10 +21,8 @@
 uniform mat4 projectionViewMatrix;
 uniform mat4 viewMatrix;
 uniform vec3 chunkPosition;
-uniform float fogDistance;
 uniform vec3 viewOriginVector;
 
-// --- Vertex attribute ---
 // [x, y, z]
 attribute vec3 positionAttribute;
 

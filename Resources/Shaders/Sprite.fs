@@ -19,7 +19,6 @@
  */
 
 uniform sampler2D mainTexture;
-
 uniform vec3 fogColor;
 
 varying vec4 color;
@@ -34,9 +33,9 @@ void main() {
 	gl_FragColor.xyz *= gl_FragColor.w; // premultiplied alpha
 	gl_FragColor *= color;
 
-	vec4 fogColorPremuld = vec4(fogColor, 1.0);
+	vec3 fogColorPremuld = fogColor;
 	fogColorPremuld *= gl_FragColor.w;
-	gl_FragColor = mix(gl_FragColor, fogColorPremuld, fogDensity);
+	gl_FragColor.xyz = mix(gl_FragColor.xyz, fogColorPremuld, fogDensity.xyz);
 
 	if (dot(gl_FragColor, vec4(1.0)) < 0.002)
 		discard;

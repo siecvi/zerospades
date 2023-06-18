@@ -22,8 +22,7 @@
 uniform mat4 projectionViewMatrix;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
-uniform vec3 viewOrigin;
-uniform float fogDistance;
+uniform vec3 viewOriginVector;
 
 // [x, y]
 attribute vec2 positionAttribute;
@@ -36,14 +35,14 @@ varying vec2 worldPositionOriginal;
 
 uniform sampler2DArray waveTextureArray;
 
-void PrepareForShadow(vec3 worldOrigin, vec3 normal);
+void PrepareShadow(vec3 worldOrigin, vec3 normal);
 vec4 ComputeFogDensity(float poweredLength);
 
 vec3 DisplaceWater(vec2 worldPos) {
 	vec4 waveCoord = worldPos.xyxy * vec4(vec2(0.08), vec2(0.15704))
 		+ vec4(0.0, 0.0, 0.754, 0.1315);
 
-	vec2 waveCoord2 = worldPos.xy * 0.02344 + vec2(.154, .7315);
+	vec2 waveCoord2 = worldPos.xy * 0.02344 + vec2(0.154, 0.7315);
 
 	float wave = texture2DArrayLod(waveTextureArray, vec3(waveCoord.xy, 0.0), 0.0).w;
 	float disp = mix(-0.1, 0.1, wave) * 0.4;
@@ -67,18 +66,16 @@ void main() {
 
 	worldPosition = (modelMatrix * vertexPos).xyz;
 	worldPositionOriginal = worldPosition.xy;
-	worldPosition += DisplaceWater(worldPosition.xy);
-
+	worldPosition += DisplaceWater(worldPositionOriginal);
+	viewPosition = (viewMatrix * vec4(worldPosition, 1.0)).xyz;
+	
 	gl_Position = projectionViewMatrix * vec4(worldPosition, 1.0);
 	screenPosition = gl_Position.xyw;
 	screenPosition.xy = (screenPosition.xy + screenPosition.z) * 0.5;
 
-	vec4 viewPos = viewMatrix * vec4(worldPosition, 1.0);
-	vec2 horzRelativePos = worldPosition.xy - viewOrigin.xy;
+	vec2 horzRelativePos = worldPosition.xy - viewOriginVector.xy;
 	float horzDistance = dot(horzRelativePos, horzRelativePos);
 	fogDensity = ComputeFogDensity(horzDistance).xyz;
 
-	viewPosition = viewPos.xyz;
-
-	PrepareForShadow(worldPosition, vec3(0.0, 0.0, -1.0));
+	PrepareShadow(worldPosition, vec3(0.0, 0.0, -1.0));
 }

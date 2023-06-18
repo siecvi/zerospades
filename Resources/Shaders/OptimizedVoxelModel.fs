@@ -28,7 +28,7 @@ uniform vec3 fogColor;
 uniform vec3 customColor;
 uniform float modelOpacity;
 
-vec3 EvaluateSunLight();
+float VisibilityOfSunLight();
 vec3 EvaluateAmbientLight(float detailAmbientOcclusion);
 
 void main() {
@@ -59,7 +59,8 @@ void main() {
 	float ao = texture2D(ambientOcclusionTexture, ambientOcclusionCoord).x;
 	vec3 diffuseShading = EvaluateAmbientLight(ao);
 	diffuseShading += vec3(flatShading) * EvaluateSunLight();
-
+	
+	// apply diffuse shading
 	if (!isEmissive)
 		gl_FragColor.xyz *= diffuseShading;
 

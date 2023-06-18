@@ -26,8 +26,6 @@ uniform vec3 frontVector;
 uniform vec3 viewOriginVector;
 uniform vec2 zNearFar;
 
-uniform float fogDistance;
-
 attribute vec4 positionAttribute;
 attribute vec3 spritePosAttribute;
 attribute vec4 colorAttribute;

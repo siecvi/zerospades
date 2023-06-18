@@ -27,12 +27,12 @@ varying vec3 ambientShadowTextureCoord;
 varying vec3 normalVarying;
 
 void PrepareForMapRadiosity(vec3 vertexCoord, vec3 normal) {
-	radiosityTextureCoord = (vertexCoord + vec3(0.0, 0.0, 0.0)) / vec3(512.0, 512., 64.0);
+	radiosityTextureCoord = (vertexCoord + vec3(0.0, 0.0, 0.0)) / vec3(512.0, 512.0, 64.0);
 	ambientShadowTextureCoord = (vertexCoord + vec3(0.0, 0.0, 1.0)) / vec3(512.0, 512.0, 65.0);
 	normalVarying = normal;
 }
 
-void PrepareForRadiosityForMap_Map(vec3 vertexCoord, vec3 centerCoord, vec3 normal) {
+void PrepareForMapRadiosityForMap(vec3 vertexCoord, vec3 centerCoord, vec3 normal) {
 	radiosityTextureCoord = (vertexCoord + vec3(0.0, 0.0, 0.0)) / vec3(512.0, 512.0, 64.0);
 	ambientShadowTextureCoord = (vertexCoord + vec3(0.0, 0.0, 1.0) + normal * 0.5) / vec3(512.0, 512.0, 65.0);
 

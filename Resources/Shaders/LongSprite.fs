@@ -19,7 +19,6 @@
  */
 
 uniform sampler2D mainTexture;
-
 uniform vec3 fogColor;
 
 varying vec4 color;

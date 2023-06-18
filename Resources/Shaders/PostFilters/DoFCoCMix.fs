@@ -30,5 +30,4 @@ void main() {
 	float op = 2.0 * max(cocBlur, coc) - coc;
 	op = max(op, coc);
 	gl_FragColor = vec4(op);
-	
 }

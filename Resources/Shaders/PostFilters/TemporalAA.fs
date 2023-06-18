@@ -18,7 +18,6 @@
 
  */
 
-
 uniform sampler2D inputTexture;
 uniform sampler2D depthTexture;
 uniform sampler2D previousTexture;
@@ -33,8 +32,7 @@ varying vec4 viewcentricWorldPositionPartial;
 /* UE4-style temporal AA. Implementation is based on my ShaderToy submission */
 
 // YUV-RGB conversion routine from Hyper3D
-vec3 encodePalYuv(vec3 rgb)
-{
+vec3 encodePalYuv(vec3 rgb) {
     return vec3(
         dot(rgb, vec3(0.299, 0.587, 0.114)),
         dot(rgb, vec3(-0.14713, -0.28886, 0.436)),
@@ -42,8 +40,7 @@ vec3 encodePalYuv(vec3 rgb)
     );
 }
 
-vec3 decodePalYuv(vec3 yuv)
-{
+vec3 decodePalYuv(vec3 yuv) {
     return vec3(
         dot(yuv, vec3(1., 0., 1.13983)),
         dot(yuv, vec3(1., -0.39465, -0.58060)),
@@ -88,8 +85,8 @@ void main() {
     // Calculate the approximate fog factor
     //
     // It's used to prevent barely-visible objects from being blurred away.
-    vec4 viewcentricWorldPosition =
-      viewcentricWorldPositionPartial + viewProjectionMatrixInv * vec4(0.0, 0.0, inputZ, 0.0);
+    vec4 viewcentricWorldPosition = viewcentricWorldPositionPartial 
+		+ viewProjectionMatrixInv * vec4(0.0, 0.0, inputZ, 0.0);
     viewcentricWorldPosition.xyz /= viewcentricWorldPosition.w;
 
     float voxlapDistanceSq = dot(viewcentricWorldPosition.xy, viewcentricWorldPosition.xy);

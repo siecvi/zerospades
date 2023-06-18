@@ -36,7 +36,7 @@ uniform vec3 skyColor;
 uniform vec2 zNearFar;
 uniform vec4 fovTan;
 uniform vec4 waterPlane;
-uniform vec3 viewOrigin;
+uniform vec3 viewOriginVector;
 
 uniform vec2 displaceScale;
 
@@ -54,7 +54,7 @@ float depthAt(vec2 pt) {
 }
 
 void main() {
-	vec3 worldPositionFromOrigin = worldPosition - viewOrigin;
+	vec3 worldPositionFromOrigin = worldPosition - viewOriginVector;
 	vec4 waveCoord = worldPositionOriginal.xyxy
 		* vec4(vec2(0.08), vec2(0.15704))
 		+ vec4(0., 0., 0.754, 0.1315);
@@ -78,7 +78,7 @@ void main() {
 	wave2.xy *= 0.02344 * 2.5;
 	wave.xy += wave2;
 
-	wave.z = (1.0 / 128.0) / (4.0); // (negated normal vector!)
+	wave.z = (1.0 / 128.0) / 4.0; // (negated normal vector!)
 	wave.xyz = normalize(wave.xyz);
 
 	vec2 origScrPos = screenPosition.xy / screenPosition.z;
@@ -167,9 +167,8 @@ void main() {
 #endif
 
 	// reflectivity
-	float reflective = dot(ongoing, wave.xyz);
-	reflective = clamp(1.0 - reflective, 0.0, 1.0);
-
+	float dotNV = dot(wave, ongoing);
+	float reflective = clamp(1.0 - dotNV, 0.0, 1.0);
     float orig_reflective = reflective;
 	reflective *= reflective;
 	reflective *= reflective;
@@ -182,7 +181,7 @@ void main() {
 	// fade the water reflection so that we don't see sharp boundary of water
 	refl *= att;
 #endif
-	gl_FragColor.xyz = mix(gl_FragColor.xyz, refl, reflective);
+	gl_FragColor.xyz = mix(gl_FragColor.xyz, refl, reflective * att);
 
 	/* ------- Specular Reflection -------- */
 
@@ -190,19 +189,23 @@ void main() {
 	if (dot(sunlight, vec3(1.0)) > 0.0001) {
 		// can't use CockTorrance here -- CockTorrance's fresenel term
 		// is hard-coded for higher roughness values
-		vec3 halfVec = vec3(0.0, 1.0, 1.0) + ongoing;
-		halfVec = (dot(halfVec, halfVec) < 0.00000000001) ? vec3(1.0, 0.0, 0.0) : normalize(halfVec);
-		float halfVecDot = max(dot(halfVec, wave), 0.00001);
+		vec3 lightVec = vec3(0.0, 1.0, 1.0);
+		vec3 halfVec = lightVec + ongoing;
+		halfVec = (dot(halfVec, halfVec) < 0.00000000001) 
+			? vec3(1.0, 0.0, 0.0) : normalize(halfVec);		
+		
+		float dotNL = max(dot(wave, lightVec), 0.0);
+		float dotNH = max(dot(wave, halfVec), 0.00001);
+		
+		// distribution
 		float m = 0.002 + 0.0003 / (abs(ongoing.z) + 0.0006); // roughness
-		float spec = GGXDistribution(m, halfVecDot);
+		float spec = GGXDistribution(m, dotNH);
 
 		// fresnel
 		spec *= reflective;
 
 		// geometric shadowing (Kelemen)
-		float dot1 = dot(vec3(0.0, 1.0, 1.0), wave);
-		float dot2 = dot(ongoing, wave);
-		float visibility = dot1 * dot2 / (halfVecDot * halfVecDot);
+		float visibility = (dotNL*dotNV) / (dotNH*dotNH);
 		spec *= max(0.0, visibility);
 
 		// limit brightness (flickering specular reflection might cause seizure to some people)
@@ -217,4 +220,3 @@ void main() {
 
 	gl_FragColor.w = 1.0;
 }
-

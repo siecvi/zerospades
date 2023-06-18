@@ -26,7 +26,6 @@ varying vec2 texCoord;
 
 void main() {
 	gl_FragColor = texture2D(mainTexture, texCoord);
-	gl_FragColor.w = 1.;
+	gl_FragColor.w = 1.0;
 	gl_FragColor *= color;
 }
-

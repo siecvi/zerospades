@@ -21,5 +21,5 @@
 uniform float fogDistance;
 
 vec4 ComputeFogDensity(float poweredLength) {
-	return vec4(clamp(poweredLength * pow(1.0 / fogDistance, 2.0), 0.0, 1.0));
+	return vec4(min(poweredLength * (1.0 / fogDistance / fogDistance), 1.0));
 }

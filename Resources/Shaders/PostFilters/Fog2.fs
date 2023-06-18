@@ -45,14 +45,14 @@ varying vec4 viewcentricWorldPositionPartial;
  */
 vec3 transformToShadow(vec3 v) {
 	v.y -= v.z;
-	v *= vec3(1. / 512., 1. / 512., 1. / 255.);
+	v *= vec3(1.0 / 512.0, 1.0 / 512.0, 1.0 / 255.0);
 	return v;
 }
 
 vec3 DecodeRadiosityValue(vec3 val) {
 	// reverse bias
-	val *= 1023. / 1022.;
-	val = (val * 2.) - 1.;
+	val *= 1023.0 / 1022.0;
+	val = (val * 2.0) - 1.0;
 #if USE_RADIOSITY == 1
 	// the low-precision radiosity texture uses a non-linear encoding
 	val *= val * sign(val);
@@ -62,8 +62,8 @@ vec3 DecodeRadiosityValue(vec3 val) {
 
 void main() {
 	float localClipZ = texture2D(depthTexture, texCoord).x;
-	vec4 viewcentricWorldPosition =
-	  viewcentricWorldPositionPartial + viewProjectionMatrixInv * vec4(0.0, 0.0, localClipZ, 0.0);
+	vec4 viewcentricWorldPosition = viewcentricWorldPositionPartial 
+		+ viewProjectionMatrixInv * vec4(0.0, 0.0, localClipZ, 0.0);
 	viewcentricWorldPosition.xyz /= viewcentricWorldPosition.w;
 
 	// Clip the ray by the VOXLAP fog end distance. (We don't want objects outside
@@ -75,20 +75,14 @@ void main() {
 	// Calculate the supposed fog factor of the current pixel based on the
 	// VOXLAP's cylindrical fog density model.
 	float goalFogFactor = min(voxlapDistanceSq / (fogDistance * fogDistance), 1.0);
-	if (localClipZ == 1.0) {
-		// The sky should have the fog color.
+	
+	// The sky should have the fog color.
+	if (localClipZ == 1.0)
 		goalFogFactor = 1.0;
-	}
 
 	// OpenSpades' fog model uses a Rayleigh-scattering-style wavelength-
 	// dependent fog density. (See `Shaders/Fog.vs`)
-	vec3 goalFogFactorColor;
-	{
-		float weakenedDensity = 1. - goalFogFactor;
-		weakenedDensity *= weakenedDensity;
-		goalFogFactorColor =
-		  mix(vec3(goalFogFactor), vec3(1. - weakenedDensity), vec3(0., 0.3, 1.0));
-	}
+	vec3 goalFogFactorColor = vec3(goalFogFactor);
 
 	// ---------------------------------------------------------------------
 	// Calculate the in-scattering radiance (the amount of incoming light scattered
@@ -133,9 +127,9 @@ void main() {
 	float sunlightFactor = 0.0;
 
 	// AO sampling
-	vec3 currentRadiosityTextureCoord = (viewOrigin + vec3(0., 0., 0.)) / vec3(512., 512., 64.);
+	vec3 currentRadiosityTextureCoord = (viewOrigin + vec3(0.0, 0.0, 0.0)) / vec3(512.0, 512.0, 64.0);
 	vec3 radiosityTextureCoordDelta =
-	  viewcentricWorldPosition.xyz / float(numSamples) / vec3(512., 512., 64.);
+	  viewcentricWorldPosition.xyz / float(numSamples) / vec3(512.0, 512.0, 64.0);
 
 	currentRadiosityTextureCoord += radiosityTextureCoordDelta * dither;
 
@@ -143,9 +137,9 @@ void main() {
 
 	// Secondary diffuse reflection sampling
 	vec3 currentAmbientShadowTextureCoord =
-	  (viewOrigin + vec3(0.0, 0.0, 1.0)) / vec3(512., 512., 65.);
+	  (viewOrigin + vec3(0.0, 0.0, 1.0)) / vec3(512.0, 512.0, 65.0);
 	vec3 ambientShadowTextureCoordDelta =
-	  viewcentricWorldPosition.xyz / float(numSamples) / vec3(512., 512., 65.);
+	  viewcentricWorldPosition.xyz / float(numSamples) / vec3(512.0, 512.0, 65.0);
 	vec3 radiosityFactor = vec3(0.0);
 	float currentRadiosityCutoff = currentAmbientShadowTextureCoord.z * 10.0 + 1.0;
 	float radiosityCutoffDelta = ambientShadowTextureCoordDelta.z * 10.0;
@@ -160,7 +154,7 @@ void main() {
 
 		// AO sampling
 		float aoFactor = texture3D(ambientShadowTexture, currentAmbientShadowTextureCoord).x;
-		aoFactor = max(aoFactor, 0.); // for some reason, mainTexture value becomes negative(?)
+		aoFactor = max(aoFactor, 0.0); // for some reason, mainTexture value becomes negative(?)
 		ambientFactor += aoFactor * weight;
 
 		// Secondary diffuse reflection sampling
@@ -193,7 +187,7 @@ void main() {
 	// ---------------------------------------------------------------------
 
 	// add gradient
-	vec3 sunDir = normalize(vec3(0., -1., -1.));
+	vec3 sunDir = normalize(vec3(0.0, -1.0, -1.0));
 	float bright = dot(sunDir, normalize(viewcentricWorldPosition.xyz));
 	sunlightFactorColor *= bright * 0.5 + 1.0;
 	ambientFactorColor *= bright * 0.5 + 1.0;

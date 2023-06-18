@@ -37,9 +37,7 @@ void main() {
 	vec4 vertexPos = vec4(positionAttribute.xyz + modelOrigin, 1.0);
 	
 	// compute normal
-	vec3 normal = normalAttribute;
-	normal = (modelNormalMatrix * vec4(normal, 1.0)).xyz;
-	normal = normalize(normal);
+	vec3 normal = normalize((modelNormalMatrix * vec4(normalAttribute, 1.0)).xyz);
 
 	PrepareForShadowMapRender((modelMatrix * vertexPos).xyz, normal);
 }

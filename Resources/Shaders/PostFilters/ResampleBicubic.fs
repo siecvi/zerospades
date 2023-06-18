@@ -58,10 +58,8 @@ vec3 cubicTex2D(sampler2D tex, vec2 coord, vec2 inverseTexSize) {
 
 	vec2 g0 = w0 + w1;
 	vec2 g1 = w2 + w3;
-	vec2 h0 =
-	  (w1 / g0) - vec2(0.5) + index; // h0 = w1/g0 - 1, move from [-0.5, extent-0.5] to [0, extent]
-	vec2 h1 =
-	  (w3 / g1) + vec2(1.5) + index; // h1 = w3/g1 + 1, move from [-0.5, extent-0.5] to [0, extent]
+	vec2 h0 = (w1 / g0) - vec2(0.5) + index; // h0 = w1/g0 - 1, move from [-0.5, extent-0.5] to [0, extent]
+	vec2 h1 = (w3 / g1) + vec2(1.5) + index; // h1 = w3/g1 + 1, move from [-0.5, extent-0.5] to [0, extent]
 
 	// fetch the four linear interpolations
 	vec3 tex00 = texture2D(tex, vec2(h0.x, h0.y) * inverseTexSize).xyz;
