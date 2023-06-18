@@ -367,11 +367,13 @@ namespace spades {
 					}
 				}
 			} else if (tool == ToolBlock && IsLocalPlayer()) {
+				Vector3 muzzle = GetEye(), dir = GetFront();
+
 				const Handle<GameMap>& map = world.GetMap();
 				SPAssert(map);
 
-				GameMap::RayCastResult res;
-				res = map->CastRay2(GetEye(), GetFront(), 12);
+				GameMap::RayCastResult mapResult;
+				mapResult = map->CastRay2(muzzle, dir, 12);
 
 				canPending = false;
 				if (blockCursorDragging) {
@@ -389,14 +391,14 @@ namespace spades {
 					}
 				}
 
-				if (res.hit
-					&& Collision3D(res.hitBlock + res.normal)
-					&& !OverlapsWithBlock(res.hitBlock + res.normal)
-					&&  map->IsValidBuildCoord(res.hitBlock + res.normal)
+				if (mapResult.hit
+					&& InBuildRange(mapResult.hitBlock + mapResult.normal)
+					&& !OverlapsWithBlock(mapResult.hitBlock + mapResult.normal)
+					&&  map->IsValidBuildCoord(mapResult.hitBlock + mapResult.normal)
 					&& !pendingPlaceBlock) {
 					// Building is possible, and there's no delayed block placement.
 					blockCursorActive = true;
-					blockCursorPos = res.hitBlock + res.normal;
+					blockCursorPos = mapResult.hitBlock + mapResult.normal;
 				} else if (pendingPlaceBlock) {
 					// Delayed Placement: When player attempts to place a block
 					// while jumping and placing block is currently impossible
@@ -406,38 +408,34 @@ namespace spades {
 						// player is no longer airborne, or doesn't have a block to place.
 						pendingPlaceBlock = false;
 						lastSingleBlockBuildSeqDone = true;
-					} else if (Collision3D(pendingPlaceBlockPos)
+					} else if (InBuildRange(mapResult.hitBlock + mapResult.normal)
 						&& !OverlapsWithBlock(pendingPlaceBlockPos)
 						&& map->IsValidBuildCoord(pendingPlaceBlockPos)) {
 						// now building became possible.
-						SPAssert(IsLocalPlayer());
-
 						if (listener)
 							listener->LocalPlayerBlockAction(pendingPlaceBlockPos, BlockActionCreate);
 
 						pendingPlaceBlock = false;
 						lastSingleBlockBuildSeqDone = true;
-						// blockStocks--; decrease when created
-
 						nextBlockTime = world.GetTime() + GetToolPrimaryDelay();
 					}
 				} else {
 					// Delayed Block Placement can be activated only
 					// when the only reason making placement impossible
 					// is that block to be placed overlaps with the player's hitbox.
-					canPending = res.hit
-						&& Collision3D(res.hitBlock + res.normal)
-						&& map->IsValidBuildCoord(res.hitBlock + res.normal);
+					canPending = mapResult.hit
+						&& InBuildRange(mapResult.hitBlock + mapResult.normal)
+						&& map->IsValidBuildCoord(mapResult.hitBlock + mapResult.normal);
 					blockCursorActive = false;
 
 					int dist = 11;
-					for (; (dist >= 1) && !Collision3D(res.hitBlock + res.normal); dist--)
-						res = map->CastRay2(eye, orientation, dist);
-					for (; (dist < 12) && Collision3D(res.hitBlock + res.normal); dist++)
-						res = map->CastRay2(eye, orientation, dist);
-					blockCursorPos = res.hitBlock + res.normal;
+					for (; (dist >= 1) && InBuildRange(mapResult.hitBlock + mapResult.normal); dist--)
+						mapResult = map->CastRay2(muzzle, dir, dist);
+					for (; (dist < 12) && InBuildRange(mapResult.hitBlock + mapResult.normal); dist++)
+						mapResult = map->CastRay2(muzzle, dir, dist);
+					blockCursorPos = mapResult.hitBlock + mapResult.normal;
 				}
-			} else if (tool == ToolBlock && !IsLocalPlayer()) {
+			} else if (tool == ToolBlock) {
 				if (weapInput.primary && world.GetTime() > nextBlockTime)
 					nextBlockTime = world.GetTime() + GetToolPrimaryDelay();
 			} else if (tool == ToolGrenade) {
@@ -742,7 +740,7 @@ namespace spades {
 				Player& other = maybeOther.value();
 				if (!other.IsAlive() || other.IsSpectator())
 					continue; // filter deads/spectators
-				if ((position - other.GetPosition()).GetLength() > MELEE_DISTANCE)
+				if ((other.GetEye() - muzzle).GetLength() > MELEE_DISTANCE)
 					continue; // skip players outside attack range
 				if (!other.RayCastApprox(muzzle, dir))
 					continue; // quickly reject players unlikely to be hit
@@ -752,7 +750,13 @@ namespace spades {
 				}
 
 			IntVector3 outBlockPos = mapResult.hitBlock;
-			if (mapResult.hit && Collision3D(outBlockPos) && (!hitPlayer || dig)) {
+			IntVector3 outBlockNormal = mapResult.normal;
+
+			Vector3 blockF = MakeVector3(outBlockPos) + 0.5F;
+			Vector3 shiftedPos = blockF + (MakeVector3(outBlockNormal) * 0.6F);
+			float hitBlockDist = (shiftedPos - muzzle).GetChebyshevLength();
+
+			if (mapResult.hit && hitBlockDist < MAX_DIG_DISTANCE && (!hitPlayer || dig)) {
 				if (map->IsValidMapCoord(outBlockPos.x, outBlockPos.y, outBlockPos.z)) {
 					SPAssert(map->IsSolid(outBlockPos.x, outBlockPos.y, outBlockPos.z));
 
@@ -780,7 +784,7 @@ namespace spades {
 
 					if (listener)
 						listener->PlayerHitBlockWithSpade(*this,
-							mapResult.hitPos, outBlockPos, mapResult.normal);
+							mapResult.hitPos, outBlockPos, outBlockNormal);
 				}
 			} else if (hitPlayer && !dig) {
 				// The custom state data, optionally set by `BulletHitPlayer`'s implementation
@@ -1269,19 +1273,19 @@ namespace spades {
 
 		bool Player::OverlapsWithBlock(const spades::IntVector3& v) {
 			SPADES_MARK_FUNCTION_DEBUG();
-			return OverlapsWith(AABB3(v.x, v.y, v.z, 1, 1, 1));
+			Vector3 blockF = MakeVector3(v);
+			return OverlapsWith(AABB3(blockF.x, blockF.y, blockF.z, 1, 1, 1));
 		}
 
 #pragma mark - Block Construction
 
-		static bool VectorCollision(Vector3 v1, Vector3 v2, float distance) {
-			return (fabsf(v1.x - v2.x) < distance &&
-					fabsf(v1.y - v2.y) < distance &&
-			        fabsf(v1.z - v2.z) < distance);
+		float Player::GetDistanceToBlock(const spades::IntVector3& v) {
+			Vector3 blockF = MakeVector3(v) + 0.5F;
+			return (blockF - GetEye()).GetChebyshevLength();
 		}
 
-		bool Player::Collision3D(spades::IntVector3 v, float distance) {
-			return VectorCollision(position, MakeVector3(v) + 0.5F, distance);
+		bool Player::InBuildRange(const spades::IntVector3& v) {
+			return GetDistanceToBlock(v) < MAX_BLOCK_DISTANCE;
 		}
 	} // namespace client
 } // namespace spades

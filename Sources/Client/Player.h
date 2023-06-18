@@ -255,7 +255,8 @@ namespace spades {
 
 			bool OverlapsWith(const AABB3&);
 			bool OverlapsWithBlock(const IntVector3&);
-			bool Collision3D(IntVector3, float distance = 3.0F);
+			float GetDistanceToBlock(const spades::IntVector3&);
+			bool InBuildRange(const IntVector3&);
 		};
 	} // namespace client
 } // namespace spades

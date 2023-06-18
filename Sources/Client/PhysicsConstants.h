@@ -25,18 +25,14 @@
 #define FALL_DAMAGE_VELOCITY 0.58F
 #define FALL_DAMAGE_SCALAR 4096
 #define BOUNCE_SOUND_THRESHOLD 0.1F
-#define TC_CAPTURE_RATE 0.05F
 #define TC_CAPTURE_DISTANCE 16.0F
+#define TC_CAPTURE_RATE 0.05F
 #define NEUTRAL_TEAM 2
 #define FOG_DISTANCE 128
 
-// actually this is server-side constraint.
-// actual value differs on vanilla client
 #define MELEE_DISTANCE 3
-#define MAX_BLOCK_DISTANCE 6
-#define MAX_DIG_DISTANCE 6
-#define MELEE_TOLERANCE 2.0F
-#define HIT_TOLERANCE 5.0F
+#define MAX_BLOCK_DISTANCE 3
+#define MAX_DIG_DISTANCE 3
 
 enum WeaponType { RIFLE_WEAPON, SMG_WEAPON, SHOTGUN_WEAPON };
 
