@@ -1394,9 +1394,9 @@ namespace spades {
 				auto beginLabel = w.GetPosition();
 				switch (static_cast<VersionInfoPropertyId>(propertyId)) {
 					case VersionInfoPropertyId::ApplicationNameAndVersion:
-						w.WriteByte((uint8_t)OpenSpades_VERSION_MAJOR);
-						w.WriteByte((uint8_t)OpenSpades_VERSION_MINOR);
-						w.WriteByte((uint8_t)OpenSpades_VERSION_REVISION);
+						w.WriteByte((uint8_t)OPENSPADES_VERSION_MAJOR);
+						w.WriteByte((uint8_t)OPENSPADES_VERSION_MINOR);
+						w.WriteByte((uint8_t)OPENSPADES_VERSION_REVISION);
 						w.WriteString("OpenSpades");
 						break;
 					case VersionInfoPropertyId::UserLocale:
@@ -1627,12 +1627,15 @@ namespace spades {
 		void NetClient::SendVersion() {
 			SPADES_MARK_FUNCTION();
 
+			std::string osInfo = VersionInfo::GetVersionInfo();
+			osInfo += " | ZeroSpades 0.0.5 " GIT_COMMIT_HASH;
+
 			NetPacketWriter w(PacketTypeVersionSend);
 			w.WriteByte((uint8_t)'o');
-			w.WriteByte((uint8_t)OpenSpades_VERSION_MAJOR);
-			w.WriteByte((uint8_t)OpenSpades_VERSION_MINOR);
-			w.WriteByte((uint8_t)OpenSpades_VERSION_REVISION);
-			w.WriteString(VersionInfo::GetVersionInfo());
+			w.WriteByte((uint8_t)OPENSPADES_VERSION_MAJOR);
+			w.WriteByte((uint8_t)OPENSPADES_VERSION_MINOR);
+			w.WriteByte((uint8_t)OPENSPADES_VERSION_REVISION);
+			w.WriteString(osInfo);
 
 			SPLog("Sending version back.");
 			enet_peer_send(peer, 0, w.CreatePacket());

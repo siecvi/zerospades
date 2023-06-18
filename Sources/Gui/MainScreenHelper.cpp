@@ -150,7 +150,7 @@ namespace spades {
 							self->buffer.append(reinterpret_cast<char *>(ptr), numBytes);
 							return numBytes;
 						};
-						curl_easy_setopt(cHandle.get(), CURLOPT_USERAGENT, OpenSpades_VER_STR);
+						curl_easy_setopt(cHandle.get(), CURLOPT_USERAGENT, PACKAGE_STRING);
 						curl_easy_setopt(cHandle.get(), CURLOPT_URL, cl_serverListUrl.CString());
 						curl_easy_setopt(cHandle.get(), CURLOPT_WRITEFUNCTION, curlWriteCallback);
 						curl_easy_setopt(cHandle.get(), CURLOPT_WRITEDATA, this);

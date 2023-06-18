@@ -46,7 +46,5 @@ std::string VersionInfo::GetVersionInfo() {
 	result = "Unknown OS";
 #endif
 
-	result += " | ZeroSpades 0.0.5 " GIT_COMMIT_HASH;
-
 	return result;
 }
