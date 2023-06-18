@@ -209,7 +209,7 @@ namespace spades {
 			               const Vector2& outTopRight, const Vector2& outBottomLeft,
 			               const AABB2& inRect) override;
 			
-			void UpdateFlatGameMap();
+			void UpdateFlatGameMap() override;
 			void DrawFlatGameMap(const AABB2& outRect, const AABB2& inRect) override;
 
 			void FrameDone() override;
