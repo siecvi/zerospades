@@ -28,7 +28,7 @@ uniform vec3 fogColor;
 uniform vec3 customColor;
 uniform float modelOpacity;
 
-float VisibilityOfSunLight();
+vec3 EvaluateSunLight();
 vec3 EvaluateAmbientLight(float detailAmbientOcclusion);
 
 void main() {
