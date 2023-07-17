@@ -55,7 +55,10 @@
 		void AddToScene() {
 			Matrix4 mat = CreateScaleMatrix(0.05F);
 			mat = mat * CreateScaleMatrix(-1, -1, 1);
-			mat = CreateTranslateMatrix(0.45F, -0.9F, -0.05F) * mat;
+			
+			Vector3 trans = Vector3(0.4F, -0.9F, 0.0F);
+			trans -= 0.01F; // stop z-fighting		
+			mat = CreateTranslateMatrix(trans) * mat;
 
 			if (actionType == spades::SpadeActionType::Bash) {
 				@model = @pickaxeModel;

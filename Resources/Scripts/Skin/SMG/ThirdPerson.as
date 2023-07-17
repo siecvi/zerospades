@@ -133,7 +133,10 @@ namespace spades {
         void AddToScene() {
             Matrix4 mat = CreateScaleMatrix(0.05F);
 			mat = mat * CreateScaleMatrix(-1, -1, 1);
-            mat = CreateTranslateMatrix(0.35F, -1.0F, 0.0F) * mat;
+			
+			Vector3 trans = Vector3(0.4F, -0.9F, 0.0F);
+			trans -= 0.01F; // stop z-fighting		
+			mat = CreateTranslateMatrix(trans) * mat;
 
             ModelRenderParam param;
             param.matrix = originMatrix * mat;

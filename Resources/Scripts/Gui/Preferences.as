@@ -58,7 +58,7 @@ namespace spades {
             ContentsTop = (sh - ContentsHeight) * 0.5F;
             ContentsLeft = (sw - ContentsWidth) * 0.5F;
             ContentsRight = ContentsLeft + ContentsWidth;
-			
+
             {
                 spades::ui::Label label(Manager);
                 label.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.9F);
@@ -74,7 +74,7 @@ namespace spades {
             {
                 PreferenceTabButton button(Manager);
                 button.Caption = _Tr("Preferences", "Back");
-				button.HotKeyText = "[Esc]";
+                button.HotKeyText = "[Esc]";
                 button.Bounds = AABB2(ContentsLeft + 10.0F,
                     ContentsTop + 10.0F + float(tabs.length) * 32.0F + 5.0F, 150.0F, 30.0F);
                 @button.Activated = spades::ui::EventHandler(this.OnClosePressed);
@@ -136,7 +136,7 @@ namespace spades {
             Vector2 pos = ScreenPosition;
             Vector2 size = Size;
 
-			r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.07F);
+            r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.07F);
             r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop - 14.0F, size.x, 1.0F));
             r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop + ContentsHeight + 14.0F, size.x, 1.0F));
 
@@ -744,7 +744,7 @@ namespace spades {
         private FontManager@ fontManager;
 
         float FieldX, FieldWidth, FieldHeight;
-		
+
         StandardPreferenceLayouter(spades::ui::UIElement@ parent, FontManager@ fontManager) {
             @Parent = parent;
             @this.fontManager = fontManager;
@@ -752,17 +752,17 @@ namespace spades {
             float sw = Parent.Manager.ScreenWidth;
             float sh = Parent.Manager.ScreenHeight;
 
-			FieldX = sw - 440.0F;
+            FieldX = sw - 440.0F;
             float maxFieldX = 250.0F;
             if (FieldX > maxFieldX)
                 FieldX = maxFieldX;
 
-			FieldWidth = sw - 400.0F;
+            FieldWidth = sw - 400.0F;
             float maxFieldWidth = 320.0F;
             if (FieldWidth > maxFieldWidth)
                 FieldWidth = maxFieldWidth;
-				
-			FieldHeight = sh - 8.0F;
+
+            FieldHeight = sh - 8.0F;
             float maxFieldHeight = 550.0F;
             if (FieldHeight > maxFieldHeight)
                 FieldHeight = maxFieldHeight;
@@ -992,7 +992,7 @@ namespace spades {
 			layouter.AddVolumeSlider(_Tr("Preferences", "Respawn Beep Sound"), "cg_respawnSoundGain");
             layouter.AddVolumeSlider(_Tr("Preferences", "Hit Feedback Sound"), "cg_hitFeedbackSoundGain");
             layouter.AddVolumeSlider(_Tr("Preferences", "Headshot Feedback Sound"), "cg_headshotFeedbackSoundGain");
-            layouter.AddToggleField(_Tr("Preferences", "Hit Indicator"), "cg_hitIndicator");
+			layouter.AddToggleField(_Tr("Preferences", "Hit Indicator"), "cg_hitIndicator");
             layouter.AddToggleField(_Tr("Preferences", "Damage Indicator"), "cg_damageIndicators");
 
             layouter.AddHeading(_Tr("Preferences", "AoS 0.75/0.76 Compatibility"));
@@ -1014,7 +1014,8 @@ namespace spades {
             64, 256, 8, ConfigNumberFormatter(0, "px"));
             layouter.AddControl(_Tr("Preferences", "Toggle Hit Test Zoom"), "cg_keyToggleHitTestZoom");
             layouter.AddToggleField(_Tr("Preferences", "Debug Weapon Spread"), "cg_debugAim");
-            layouter.AddToggleField(_Tr("Preferences", "Classic Viewmodel"), "cg_classicViewWeapon");
+            layouter.AddToggleField(_Tr("Preferences", "Classic View Model"), "cg_classicViewWeapon");
+            layouter.AddToggleField(_Tr("Preferences", "Default Player Models"), "cg_defaultPlayerModels");
 
             layouter.AddHeading(_Tr("Preferences", "Minimap"));
             layouter.AddSliderField(_Tr("Preferences", "Minimap Size"), "cg_minimapSize",

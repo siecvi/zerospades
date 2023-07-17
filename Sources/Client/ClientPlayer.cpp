@@ -62,6 +62,7 @@ DEFINE_SPADES_SETTING(cg_hideBody, "0");
 DEFINE_SPADES_SETTING(cg_hideArms, "0");
 DEFINE_SPADES_SETTING(cg_debugToolSkinAnchors, "0");
 DEFINE_SPADES_SETTING(cg_trueAimDownSight, "1");
+DEFINE_SPADES_SETTING(cg_defaultPlayerModels, "0");
 
 namespace spades {
 	namespace client {
@@ -487,15 +488,15 @@ namespace spades {
 					}
 				}
 
-			if (player.IsLocalPlayer()) {
-				// Smooth the flashlight's movement
+				if (player.IsLocalPlayer()) {
+					// Smooth the flashlight's movement
 					Vector3 diff = front - flashlightOrientation;
-				float dist = diff.GetLength();
-				if (dist > 0.1F)
-					flashlightOrientation += diff.Normalize() * (dist - 0.1F);
+					float dist = diff.GetLength();
+					if (dist > 0.1F)
+						flashlightOrientation += diff.Normalize() * (dist - 0.1F);
 					flashlightOrientation = Mix(flashlightOrientation, front, 1.0F - powf(1.0E-6F, dt));
-				flashlightOrientation = flashlightOrientation.Normalize();
-			}
+					flashlightOrientation = flashlightOrientation.Normalize();
+				}
 			}
 
 			// FIXME: should do for non-active skins?
@@ -866,21 +867,18 @@ namespace spades {
 			param.depthHack = true;
 			param.customColor = ConvertColorRGB(p.GetColor());
 
-			auto weaponName = w.GetName();
-			auto path = "Models/Player/" + weaponName;
+			std::string fullPath = "Models/Player/";
+			if (!cg_defaultPlayerModels)
+				fullPath += w.GetName() + "/";
+
+			const auto getModel = [&](const std::string& fn) -> Handle<IModel> {
+				return renderer.RegisterModel((fullPath + fn + ".kv6").c_str());
+			};
 
 			// Legs and Torso
 			if (!cg_hideBody) {
-				Handle<IModel> legModel;
-				Handle<IModel> torsoModel;
-
-				if (inp.crouch) {
-					legModel = renderer.RegisterModel((path + "/LegCrouch.kv6").c_str());
-					torsoModel = renderer.RegisterModel((path + "/TorsoCrouch.kv6").c_str());
-				} else {
-					legModel = renderer.RegisterModel((path + "/Leg.kv6").c_str());
-					torsoModel = renderer.RegisterModel((path + "/Torso.kv6").c_str());
-				}
+				Handle<IModel> legModel = getModel(inp.crouch ? "LegCrouch" : "Leg");
+				Handle<IModel> torsoModel = getModel(inp.crouch ? "TorsoCrouch" : "Torso");
 
 				{
 					param.matrix = leg1 * scaler;
@@ -898,8 +896,8 @@ namespace spades {
 
 			// Arms
 			if (!cg_hideArms && leftHand.GetSquaredLength() > 0.01F && rightHand.GetSquaredLength() > 0.01F) {
-				Handle<IModel> armModel = renderer.RegisterModel((path + "/Arm.kv6").c_str());
-				Handle<IModel> upperModel = renderer.RegisterModel((path + "/UpperArm.kv6").c_str());
+				Handle<IModel> armModel = getModel("Arm");
+				Handle<IModel> upperModel = getModel("UpperArm");
 
 				const float armlen = 0.5F;
 
@@ -945,12 +943,17 @@ namespace spades {
 			IRenderer& renderer = client.GetRenderer();
 			World* world = client.GetWorld();
 
-			auto weaponName = p.GetWeapon().GetName();
-			auto path = "Models/Player/" + weaponName;
+			std::string fullPath = "Models/Player/";
+			if (!cg_defaultPlayerModels)
+				fullPath += p.GetWeapon().GetName() + "/";
+
+			const auto getModel = [&](const std::string& fn) -> Handle<IModel> {
+				return renderer.RegisterModel((fullPath + fn + ".kv6").c_str());
+			};
 
 			if (!p.IsAlive()) {
 				if (!cg_ragdoll) {
-					Handle<IModel> model = renderer.RegisterModel((path + "/Dead.kv6").c_str());
+					Handle<IModel> model = getModel("Dead");
 					ModelRenderParam param;
 					param.customColor = ConvertColorRGB(p.GetColor());
 					param.matrix = Matrix4::FromAxis(-p.GetRight(),
@@ -1076,10 +1079,7 @@ namespace spades {
 
 			// Legs
 			{
-				if (inp.crouch)
-					model = renderer.RegisterModel((path + "/LegCrouch.kv6").c_str());
-				else
-					model = renderer.RegisterModel((path + "/Leg.kv6").c_str());
+				model = getModel(inp.crouch ? "LegCrouch" : "Leg");
 
 				param.matrix = leg1 * scaler;
 				renderer.RenderModel(*model, param);
@@ -1090,10 +1090,7 @@ namespace spades {
 
 			// Torso
 			{
-				if (inp.crouch)
-					model = renderer.RegisterModel((path + "/TorsoCrouch.kv6").c_str());
-				else
-					model = renderer.RegisterModel((path + "/Torso.kv6").c_str());
+				model = getModel(inp.crouch ? "TorsoCrouch" : "Torso");
 
 				param.matrix = torso * scaler;
 				renderer.RenderModel(*model, param);
@@ -1101,7 +1098,7 @@ namespace spades {
 
 			// Arms
 			{
-				model = renderer.RegisterModel((path + "/Arms.kv6").c_str());
+				model = getModel("Arms");
 
 				param.matrix = arms * scaler;
 				renderer.RenderModel(*model, param);
@@ -1109,7 +1106,7 @@ namespace spades {
 
 			// Head
 			{
-				model = renderer.RegisterModel((path + "/Head.kv6").c_str());
+				model = getModel("Head");
 
 				param.matrix = head * scaler;
 				renderer.RenderModel(*model, param);
@@ -1370,8 +1367,8 @@ namespace spades {
 			bool isThirdPerson = ShouldRenderInThirdPersonView();
 
 			Vector3 muzzle = isThirdPerson
-								? GetMuzzlePosition()
-								: GetMuzzlePositionInFirstPersonView();
+				? GetMuzzlePosition()
+				: GetMuzzlePositionInFirstPersonView();
 
 			// make dlight
 			client.MuzzleFire(muzzle);
@@ -1436,8 +1433,8 @@ namespace spades {
 
 			if (model) {
 				Vector3 origin = ShouldRenderInThirdPersonView()
-									? GetCaseEjectPosition()
-									: GetCaseEjectPositionInFirstPersonView();
+					? GetCaseEjectPosition()
+					: GetCaseEjectPositionInFirstPersonView();
 
 				Vector3 o = p.GetFront();
 				Vector3 vel = o * 0.5F + p.GetRight() + p.GetUp() * 0.2F;

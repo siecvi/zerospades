@@ -290,6 +290,15 @@ namespace spades {
 			renderer->RegisterModel("Models/MapObjects/Intel.kv6");
 			renderer->RegisterModel("Models/MapObjects/CheckPoint.kv6");
 			renderer->RegisterModel("Models/MapObjects/BlockCursorLine.kv6");
+			renderer->RegisterModel("Models/Player/Dead.kv6");
+			renderer->RegisterModel("Models/Player/Arm.kv6");
+			renderer->RegisterModel("Models/Player/UpperArm.kv6");
+			renderer->RegisterModel("Models/Player/LegCrouch.kv6");
+			renderer->RegisterModel("Models/Player/TorsoCrouch.kv6");
+			renderer->RegisterModel("Models/Player/Leg.kv6");
+			renderer->RegisterModel("Models/Player/Torso.kv6");
+			renderer->RegisterModel("Models/Player/Arms.kv6");
+			renderer->RegisterModel("Models/Player/Head.kv6");
 			renderer->RegisterModel("Models/Player/Rifle/Dead.kv6");
 			renderer->RegisterModel("Models/Player/Rifle/Arm.kv6");
 			renderer->RegisterModel("Models/Player/Rifle/UpperArm.kv6");
