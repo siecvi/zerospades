@@ -51,7 +51,7 @@ DEFINE_SPADES_SETTING(cg_ragdoll, "1");
 SPADES_SETTING(cg_blood);
 DEFINE_SPADES_SETTING(cg_ejectBrass, "1");
 DEFINE_SPADES_SETTING(cg_hitFeedbackSoundGain, "0.2");
-DEFINE_SPADES_SETTING(cg_hitMarkSoundGain, "0.2");
+DEFINE_SPADES_SETTING(cg_headshotFeedbackSoundGain, "0.2");
 DEFINE_SPADES_SETTING(cg_deathSoundGain, "0.2");
 DEFINE_SPADES_SETTING(cg_tracers, "1");
 DEFINE_SPADES_SETTING(cg_tracersFirstPerson, "1");
@@ -982,9 +982,10 @@ namespace spades {
 
 			if (!IsMuted() && !hitScanState.hasPlayedNormalHitSound) {
 				Handle<IAudioChunk> c;
+				AudioParam param;
 				if (type == HitTypeMelee) {
 					c = audioDevice->RegisterSound("Sounds/Weapons/Spade/HitPlayer.opus");
-					audioDevice->Play(c.GetPointerOrNull(), hitPos, AudioParam());
+					audioDevice->Play(c.GetPointerOrNull(), hitPos, param);
 				} else {
 					switch (SampleRandomInt(0, 2)) {
 						case 0:
@@ -998,16 +999,13 @@ namespace spades {
 							break;
 					}
 
-					AudioParam param;
 					param.volume = 4.0F;
 					audioDevice->Play(c.GetPointerOrNull(), hitPos, param);
 				}
 
 				if (by.IsLocalPlayer() && type != HitTypeHead) {
-					Handle<IAudioChunk> c =
-					  audioDevice->RegisterSound("Sounds/Feedback/HitFeedback.opus");
-					AudioParam param;
-					param.volume = cg_hitMarkSoundGain;
+					c = audioDevice->RegisterSound("Sounds/Feedback/HitFeedback.opus");
+					param.volume = cg_hitFeedbackSoundGain;
 					audioDevice->PlayLocal(c.GetPointerOrNull(), param);
 				}
 
@@ -1059,7 +1057,7 @@ namespace spades {
 					Handle<IAudioChunk> c =
 					  audioDevice->RegisterSound("Sounds/Feedback/HeadshotFeedback.opus");
 					AudioParam param;
-					param.volume = cg_hitFeedbackSoundGain;
+					param.volume = cg_headshotFeedbackSoundGain;
 					audioDevice->PlayLocal(c.GetPointerOrNull(), param);
 
 					hitScanState.hasPlayedHeadshotSound = true;
@@ -1105,8 +1103,8 @@ namespace spades {
 				EmitBlockFragments(shiftedHitPos, color);
 
 				if (!IsMuted()) {
-					Handle<IAudioChunk> c;
-					c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Block.opus");
+					Handle<IAudioChunk> c =
+					  audioDevice->RegisterSound("Sounds/Weapons/Impacts/Block.opus");
 					AudioParam param;
 					param.volume = 2.0F;
 					audioDevice->Play(c.GetPointerOrNull(), shiftedHitPos, param);

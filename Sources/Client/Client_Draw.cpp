@@ -82,6 +82,7 @@ DEFINE_SPADES_SETTING(cg_playerNameY, "0");
 DEFINE_SPADES_SETTING(cg_dbgHitTestSize, "128");
 DEFINE_SPADES_SETTING(cg_damageIndicators, "1");
 DEFINE_SPADES_SETTING(cg_hurtScreenEffects, "1");
+DEFINE_SPADES_SETTING(cg_respawnSoundGain, "1");
 
 SPADES_SETTING(cg_smallFont);
 SPADES_SETTING(cg_minimapSize);
@@ -776,7 +777,9 @@ namespace spades {
 						Handle<IAudioChunk> c = (secs == 1)
 							? audioDevice->RegisterSound("Sounds/Feedback/Beep1.opus")
 							: audioDevice->RegisterSound("Sounds/Feedback/Beep2.opus");
-						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+						AudioParam param;
+						param.volume = cg_respawnSoundGain;
+						audioDevice->PlayLocal(c.GetPointerOrNull(), param);
 					}
 
 					lastCount = secs;
