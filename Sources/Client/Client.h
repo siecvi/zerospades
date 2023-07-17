@@ -155,10 +155,12 @@ namespace spades {
 			float lastHitTime;
 			int lastHealth;
 			int lastScore;
+			int meleeKills;
+			int grenadeKills;
+			int placedBlocks;
 			int curKills;
 			int curDeaths;
 			int curStreak;
-			int lastStreak;
 			int bestStreak;
 			float worldSetTime;
 			bool hasDelayedReload;
@@ -485,6 +487,7 @@ namespace spades {
 			void TeamWon(int);
 			void JoinedGame();
 			void LocalPlayerCreated();
+			void RegisterPlacedBlocks(int c) { placedBlocks += c; };
 			void PlayerCreatedBlock(Player&);
 			void PlayBlockDestroySound(Vector3);
 			void PlayerDestroyedBlockWithWeaponOrTool(IntVector3);

@@ -999,32 +999,36 @@ namespace spades {
 							GetWorld()->CreateBlock(pos, temporaryPlayerBlockColor);
 						} else {
 							GetWorld()->CreateBlock(pos, p->GetBlockColor());
-							client->PlayerCreatedBlock(*p);
-							if (!GetWorld()->GetMap()->IsSolidWrapped(pos.x, pos.y, pos.z))
+							if (!GetWorld()->GetMap()->IsSolidWrapped(pos.x, pos.y, pos.z)) {
 								p->UseBlocks(1);
+								if (p->IsLocalPlayer())
+									client->RegisterPlacedBlocks(1);
+						}
+							client->PlayerCreatedBlock(*p);
 						}
 					} else if (action == BlockActionTool) {
-						client->PlayerDestroyedBlockWithWeaponOrTool(pos);
 						cells.push_back(pos);
 						GetWorld()->DestroyBlock(cells);
 						if (p && p->IsToolSpade())
 							p->GotBlock();
+						client->PlayerDestroyedBlockWithWeaponOrTool(pos);
 					} else if (action == BlockActionDig) {
-						client->PlayerDiggedBlock(pos);
 						for (int z = -1; z <= 1; z++)
 							cells.push_back(MakeIntVector3(pos.x, pos.y, pos.z + z));
 						GetWorld()->DestroyBlock(cells);
+						client->PlayerDiggedBlock(pos);
 					} else if (action == BlockActionGrenade) {
-						client->GrenadeDestroyedBlock(pos);
 						for (int x = -1; x <= 1; x++)
 						for (int y = -1; y <= 1; y++)
 						for (int z = -1; z <= 1; z++)
 							cells.push_back(MakeIntVector3(pos.x + x, pos.y + y, pos.z + z));
 						GetWorld()->DestroyBlock(cells);
+						client->GrenadeDestroyedBlock(pos);
 					}
 				} break;
 				case PacketTypeBlockLine: {
 					stmp::optional<Player&> p = GetPlayerOrNull(r.ReadByte());
+
 					IntVector3 pos1, pos2;
 					pos1 = r.ReadIntVector3();
 					pos2 = r.ReadIntVector3();
@@ -1037,8 +1041,11 @@ namespace spades {
 					}
 
 					if (p) {
+						int blocks = static_cast<int>(cells.size());
+						p->UseBlocks(blocks);
+						if (p->IsLocalPlayer())
+							client->RegisterPlacedBlocks(blocks);
 						client->PlayerCreatedBlock(*p);
-						p->UseBlocks(static_cast<int>(cells.size()));
 					}
 				} break;
 				case PacketTypeStateData:

@@ -752,12 +752,15 @@ namespace spades {
 			if (&killer != &victim && killer.IsLocalPlayer()) {
 				curKills++;
 				curStreak++;
+				if (kt == KillTypeMelee)
+					meleeKills++;
+				else if (kt == KillTypeGrenade)
+					grenadeKills++;
 			}
 
 			// Register local deaths
 			if (victim.IsLocalPlayer()) {
 				curDeaths++;
-				lastStreak = curStreak;
 				if (curStreak > bestStreak)
 					bestStreak = curStreak;
 				curStreak = 0;

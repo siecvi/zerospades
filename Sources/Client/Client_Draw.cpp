@@ -66,6 +66,8 @@ SPADES_SETTING(cg_keyLimbo);
 DEFINE_SPADES_SETTING(cg_screenshotFormat, "jpeg");
 DEFINE_SPADES_SETTING(cg_stats, "0");
 DEFINE_SPADES_SETTING(cg_playerStats, "0");
+DEFINE_SPADES_SETTING(cg_playerStatsShowPlacedBlocks, "0");
+DEFINE_SPADES_SETTING(cg_playerStatsHeight, "70");
 DEFINE_SPADES_SETTING(cg_hideHud, "0");
 DEFINE_SPADES_SETTING(cg_hudAmmoStyle, "0");
 DEFINE_SPADES_SETTING(cg_hudBorderX, "16");
@@ -77,6 +79,7 @@ DEFINE_SPADES_SETTING(cg_dbgHitTestSize, "128");
 DEFINE_SPADES_SETTING(cg_damageIndicators, "1");
 DEFINE_SPADES_SETTING(cg_hurtScreenEffects, "1");
 
+SPADES_SETTING(cg_smallFont);
 SPADES_SETTING(cg_minimapSize);
 
 namespace spades {
@@ -639,13 +642,15 @@ namespace spades {
 		void Client::DrawPlayerStats() {
 			SPADES_MARK_FUNCTION();
 
-			IFont& font = fontManager->GetSmallFont();
+			IFont& font = cg_smallFont
+				? fontManager->GetSmallFont()
+				: fontManager->GetGuiFont();
 
 			float sh = renderer->ScreenHeight();
 
 			float x = 8.0F;
 			float y = sh * 0.5F;
-			y -= 64.0F;
+			y -= (float)cg_playerStatsHeight;
 
 			auto addLine = [&](const char* format, ...) {
 				char buf[256];
@@ -655,15 +660,19 @@ namespace spades {
 				va_end(va);
 
 				Vector2 pos = MakeVector2(x, y);
-				y += 16.0F;
+				y += cg_smallFont ? 12.0F : 20.0F;
 				font.DrawShadow(buf, pos, 1.0F, MakeVector4(1, 1, 1, 0.8F),
 				                MakeVector4(0, 0, 0, 0.8F));
 			};
 
 			addLine("K/D Ratio: %.3g", curKills / float(std::max(1, curDeaths)));
 			addLine("Kill Streak: %d", curStreak);
-			addLine("Last Streak: %d", lastStreak);
 			addLine("Best Streak: %d", bestStreak);
+			addLine("Melee Kills: %d", meleeKills);
+			addLine("Grenade Kills: %d", grenadeKills);
+
+			if (cg_playerStatsShowPlacedBlocks)
+				addLine("Blocks Placed: %d", placedBlocks);
 		}
 
 		void Client::UpdateDamageIndicators(float dt) {
