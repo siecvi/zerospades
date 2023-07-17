@@ -60,6 +60,7 @@ DEFINE_SPADES_SETTING(cg_alertSounds, "1");
 DEFINE_SPADES_SETTING(cg_serverAlert, "1");
 DEFINE_SPADES_SETTING(cg_privateMessageAlert, "0");
 DEFINE_SPADES_SETTING(cg_skipDeadPlayersWhenDead, "1");
+DEFINE_SPADES_SETTING(cg_ignorePrivateMessages, "0");
 DEFINE_SPADES_SETTING(cg_ignoreChatMessages, "0");
 DEFINE_SPADES_SETTING(cg_smallFont, "0");
 
@@ -709,14 +710,10 @@ namespace spades {
 
 			// Display private messages in green
 			if (msg.substr(0, 8) == "PM from ") {
-				std::string s = "PM from " + msg.substr(8);
-
-				// Display private messages as alerts
-				if (cg_privateMessageAlert) {
-					ShowAlert(s, AlertType::Notice);
+				if (cg_ignorePrivateMessages)
 					return;
-				}
 
+				std::string s = "PM from " + msg.substr(8);
 				chatWindow->AddMessage(ChatWindow::ColoredMessage(s, MsgColorGreen));
 				return;
 			}

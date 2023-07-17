@@ -691,6 +691,7 @@ namespace spades {
             layouter.AddSliderField(_Tr("Preferences", "Center Messages Scale"), "cg_centerMessageScale",
             0.75, 1, 0.01, ConfigNumberFormatter(2, ""));
             layouter.AddToggleField(_Tr("Preferences", "Ignore Chat Messages"), "cg_ignoreChatMessages");
+            layouter.AddToggleField(_Tr("Preferences", "Ignore Private Messages"), "cg_ignorePrivateMessages");
             layouter.AddToggleField(_Tr("Preferences", "Hit Analyze Messages"), "cg_hitAnalyze");
             layouter.AddVolumeSlider(_Tr("Preferences", "Chat Notify Sounds"), "cg_chatBeep");
             layouter.AddToggleField(_Tr("Preferences", "Show Alerts"), "cg_alerts");
