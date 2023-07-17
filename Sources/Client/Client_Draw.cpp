@@ -224,7 +224,7 @@ namespace spades {
 		void Client::DrawPlayingTime() {
 			float sw = renderer->ScreenWidth();
 
-			int now = (int)world->GetTime();
+			int now = (int)(time - worldSetTime);
 			int mins = now / 60;
 			int secs = now - mins * 60;
 			char buf[64];
@@ -236,7 +236,7 @@ namespace spades {
 		}
 
 		void Client::DrawHurtSprites() {
-			float per = (world->GetTime() - lastHurtTime) / 1.5F;
+			float per = (time - lastHurtTime) / 1.5F;
 			if (per < 0.0F || per > 1.0F)
 				return;
 
@@ -285,11 +285,10 @@ namespace spades {
 
 			float hpper = p.GetHealth() / 100.0F;
 
-			float wTime = world->GetTime();
-			float timeSinceLastHurt = wTime - lastHurtTime;
-
 			const float fadeOutTime = 0.35F;
-			if (wTime >= lastHurtTime && timeSinceLastHurt < fadeOutTime) {
+			float timeSinceLastHurt = time - lastHurtTime;
+
+			if (time >= lastHurtTime && timeSinceLastHurt < fadeOutTime) {
 				float per = timeSinceLastHurt / fadeOutTime;
 				per = 1.0F - per;
 				per *= 0.3F + (1.0F - hpper) * 0.7F;
@@ -826,14 +825,13 @@ namespace spades {
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
-			const float fadeOutTime = 1.0F;
-			float fade = 1.0F - ((time - alertDisappearTime) / fadeOutTime);
+			float fade = 1.0F - (time - alertDisappearTime);
 			fade = std::min(fade, 1.0F);
 			if (fade <= 0.0F)
 				return;
 
-			float borderFade = 1.0F - ((time - alertAppearTime) / 0.5F);
-			borderFade = Clamp(borderFade, 0.0F, 1.0F);
+			float borderFade = (time - alertAppearTime) / 0.5F;
+			borderFade = Clamp(1.0F - borderFade, 0.0F, 1.0F);
 
 			Handle<IImage> alertIcon = renderer->RegisterImage("Gfx/AlertIcon.png");
 
@@ -910,10 +908,11 @@ namespace spades {
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
-			// fade the map (draw)
-			float fade = Clamp((world->GetTime() - 1.0F) / 2.2F, 0.0F, 1.0F);
-			if (fade < 1.0F) {
-				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1.0F - fade));
+			// fade the map when the world starts (draw)
+			float timeSinceWorldStart = time - worldSetTime;
+			float fade = Clamp(1.0F - (timeSinceWorldStart - 1.0F) / 2.5F, 0.0F, 1.0F);
+			if (fade > 0.0F) {
+				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, fade));
 				renderer->DrawImage(nullptr, AABB2(0, 0, sw, sh));
 			}
 

@@ -146,10 +146,6 @@ namespace spades {
 		void PaletteView::Update() {}
 
 		void PaletteView::Draw() {
-			World* w = client->GetWorld();
-			if (!w)
-				return;
-
 			float sw = renderer.ScreenWidth();
 			float sh = renderer.ScreenHeight();
 
@@ -169,7 +165,7 @@ namespace spades {
 					renderer.DrawFilledRect(x, y, x + 6, y + 6);
 
 					if (sel == i) {
-						float p = float((int(w->GetTime() * 4.0F)) & 1);
+						float p = float((int(client->GetTime() * 4.0F)) & 1);
 						renderer.SetColorAlphaPremultiplied(MakeVector4(p, p, p, 1));
 						renderer.DrawOutlinedRect(x - 1, y - 1, x + 7, y + 7);
 					}

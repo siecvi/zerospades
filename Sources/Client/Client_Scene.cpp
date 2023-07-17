@@ -114,9 +114,8 @@ namespace spades {
 		}
 
 		float Client::GetLocalFireVibration() {
-			float localFireVibration = 0.0F;
-			localFireVibration = time - localFireVibrationTime;
-			localFireVibration = 1.0F - localFireVibration / 0.1F;
+			float localFireVibration = time - localFireVibrationTime;
+			localFireVibration = 1.0F - (localFireVibration / 0.1F);
 			if (localFireVibration < 0.0F)
 				localFireVibration = 0.0F;
 			return localFireVibration;
@@ -267,17 +266,14 @@ namespace spades {
 						// Hurt effect
 						if (cg_hurtScreenEffects) {
 							float hpper = p.GetHealth() / 100.0F;
-
-							float wTime = world->GetTime();
-							float timeSinceLastHurt = wTime - lastHurtTime;
-
-							if (wTime >= lastHurtTime && timeSinceLastHurt < 0.15F) {
-								float per = 1.0F - timeSinceLastHurt / 0.15F;
+							float timeSinceLastHurt = time - lastHurtTime;
+							if (time >= lastHurtTime && timeSinceLastHurt < 0.15F) {
+								float per = 1.0F - (timeSinceLastHurt / 0.15F);
 								per *= 0.5F - hpper * 0.3F;
 								def.blurVignette += per * 6.0F;
 							}
-							if (wTime >= lastHurtTime && timeSinceLastHurt < 0.2F) {
-								float per = 1.0F - timeSinceLastHurt / 0.2F;
+							if (time >= lastHurtTime && timeSinceLastHurt < 0.2F) {
+								float per = 1.0F - (timeSinceLastHurt / 0.2F);
 								per *= 0.5F - hpper * 0.3F;
 								def.saturation *= std::max(0.0F, 1.0F - per * 4.0F);
 							}

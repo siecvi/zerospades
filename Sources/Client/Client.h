@@ -474,6 +474,8 @@ namespace spades {
 			SceneDefinition GetLastSceneDef() { return lastSceneDef; }
 			IAudioDevice& GetAudioDevice() { return *audioDevice; }
 
+			float GetTime() { return time; }
+
 			bool WantsToBeClosed() override;
 			bool IsMuted();
 

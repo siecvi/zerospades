@@ -532,8 +532,8 @@ namespace spades {
 						spr.strength *= 1.5F - hpper;
 				}
 
+				lastHurtTime = time;
 				lastHealth = player.GetHealth();
-				lastHurtTime = world->GetTime();
 			} else {
 				lastHealth = player.GetHealth();
 			}
