@@ -58,7 +58,6 @@ DEFINE_SPADES_SETTING(cg_chatBeep, "1");
 DEFINE_SPADES_SETTING(cg_alerts, "1");
 DEFINE_SPADES_SETTING(cg_alertSounds, "1");
 DEFINE_SPADES_SETTING(cg_serverAlert, "1");
-DEFINE_SPADES_SETTING(cg_privateMessageAlert, "0");
 DEFINE_SPADES_SETTING(cg_skipDeadPlayersWhenDead, "1");
 DEFINE_SPADES_SETTING(cg_ignorePrivateMessages, "0");
 DEFINE_SPADES_SETTING(cg_ignoreChatMessages, "0");

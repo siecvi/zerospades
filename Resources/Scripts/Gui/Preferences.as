@@ -1006,6 +1006,9 @@ namespace spades {
             layouter.AddToggleField(_Tr("Preferences", "Classic Zoom"), "cg_classicZoom");
             layouter.AddToggleField(_Tr("Preferences", "Show Statistics"), "cg_stats");
             layouter.AddToggleField(_Tr("Preferences", "Show Player Statistics"), "cg_playerStats");
+            layouter.AddToggleField(_Tr("Preferences", "Show Placed Blocks"), "cg_playerStatsShowPlacedBlocks");
+            layouter.AddSliderField(_Tr("Preferences", "Player Statistics Height"), "cg_playerStatsHeight",
+            0, 100, 1, ConfigNumberFormatter(0, "px"));
             layouter.AddToggleField(_Tr("Preferences", "Debug Hit Detection"), "cg_debugHitTest");
             layouter.AddSliderField(_Tr("Preferences", "Hit Test Debugger Size"), "cg_dbgHitTestSize",
             64, 256, 8, ConfigNumberFormatter(0, "px"));
