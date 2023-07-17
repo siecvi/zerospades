@@ -299,19 +299,22 @@ namespace spades {
 		Matrix4 GetViewWeaponMatrix() {
 			Matrix4 mat;
 
-			// sprint animation
-			mat = CreateEulerAnglesMatrix(Vector3(0.3F, -0.1F, -0.55F) * sprintSpring.position) * mat;
-			mat = CreateTranslateMatrix(Vector3(0.23F, -0.05F, 0.15F) * sprintSpring.position) * mat;
-
-			// raise gun animation
-			mat = CreateRotateMatrix(Vector3(0, 0, 1), raiseSpring.position * -1.3F) * mat;
-			mat = CreateRotateMatrix(Vector3(0, 1, 0), raiseSpring.position * 0.2F) * mat;
-			mat = CreateTranslateMatrix(Vector3(0.1F, -0.3F, 0.1F) * raiseSpring.position) * mat;
-
 			float sp = 1.0F - AimDownSightStateSmooth;
 
+			// sprint animation
+			mat = CreateEulerAnglesMatrix(Vector3(0.3F, -0.1F, -0.55F) * sprintSpring.position * sp) * mat;
+			mat = CreateTranslateMatrix(Vector3(0.23F, -0.05F, 0.15F) * sprintSpring.position * sp) * mat;
+
+			// raise gun animation
+			mat = CreateRotateMatrix(Vector3(0, 0, 1), raiseSpring.position * -1.3F * sp) * mat;
+			mat = CreateRotateMatrix(Vector3(0, 1, 0), raiseSpring.position * 0.2F * sp) * mat;
+			mat = CreateTranslateMatrix(Vector3(0.1F, -0.3F, 0.1F) * raiseSpring.position * sp) * mat;
+
 			// recoil animation
-			Vector3 recoilRot = Vector3(-0.75, 0.3, 0.3) * recoilVerticalSpring.position;
+            Vector3 recoilRot(0, 0, 0);
+            recoilRot.x = -1.0F * recoilVerticalSpring.position;
+			recoilRot.y = 0.3F * recoilRotationSpring.position;
+			recoilRot.z = 0.3F * recoilRotationSpring.position;
 			Vector3 recoilOffset = Vector3(0, 0, -0.1) * recoilVerticalSpring.position * sp;
 			recoilOffset -= Vector3(0, 0.5, 0) * recoilBackSpring.position;
 			mat = CreateEulerAnglesMatrix(recoilRot * sp) * mat;
@@ -329,7 +332,7 @@ namespace spades {
 			mat = mat * CreateEulerAnglesMatrix(swingRot * sp);
 
 			Vector3 pivot = Vector3(0.05F, 0.0F, 0.05F);
-			Vector3 sightPos = (frontSightAttachment - pivot) * globalScale;
+			Vector3 sightPos = (frontSightAttachment - pivot) * globalScale;	
 			mat = AdjustToAlignSight(mat, sightPos, AimDownSightStateSmooth);
 			mat = AdjustToReload(mat);
 
