@@ -519,6 +519,12 @@ namespace spades {
 						  "Vector2&in, const AABB2& in)",
 						  asFUNCTION(DrawImage5), asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);
+						r = eng->RegisterObjectMethod("Renderer", "void DrawFilledRect(float, float, float, float)",
+							asMETHODPR(IRenderer, DrawFilledRect, (float, float, float, float), void), asCALL_THISCALL);
+						manager->CheckError(r);
+						r = eng->RegisterObjectMethod("Renderer", "void DrawOutlinedRect(float, float, float, float)",
+							asMETHODPR(IRenderer, DrawOutlinedRect, (float, float, float, float), void), asCALL_THISCALL);
+						manager->CheckError(r);
 						r = eng->RegisterObjectMethod(
 						  "Renderer", "void DrawFlatGameMap(const AABB2&in, const AABB2& in)",
 						  asMETHOD(IRenderer, DrawFlatGameMap), asCALL_THISCALL);

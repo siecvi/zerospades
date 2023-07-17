@@ -30,10 +30,10 @@ namespace spades {
 				Vector2 size = Size;
 
 				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, Hover ? 0.2F : 0.0F);
-				DrawFilledRect(r, pos.x + 1, pos.y + 1, pos.x + size.x - 1, pos.y + size.y - 1);
+				r.DrawFilledRect(pos.x + 1, pos.y + 1, pos.x + size.x - 1, pos.y + size.y - 1);
 
 				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, Hover ? 0.3F : 0.0F);
-				DrawOutlinedRect(r, pos.x, pos.y, pos.x + size.x, pos.y + size.y);
+				r.DrawOutlinedRect(pos.x, pos.y, pos.x + size.x, pos.y + size.y);
 
 				Vector2 txtSize = Font.Measure(Caption);
 				Font.DrawShadow(Caption, pos + (size - txtSize) * Vector2(0.0F, 0.5F)

@@ -523,7 +523,9 @@ namespace spades {
 					r = eng->RegisterGlobalFunction("Vector3 Ceil(const Vector3& in)",
 					                                asFUNCTION(Vector3Funcs::Ceil), asCALL_CDECL);
 					manager->CheckError(r);
-
+					r = eng->RegisterGlobalFunction("Vector3 ConvertColorRGB(const IntVector3& in)",
+					                                asFUNCTION(ConvertColorRGB), asCALL_CDECL);
+					manager->CheckError(r);
 					r = eng->RegisterGlobalFunction("Vector3 HSV(float h, float s, float v)",
 					                                asFUNCTION(HSV2RGB), asCALL_CDECL);
 					manager->CheckError(r);
@@ -686,6 +688,9 @@ namespace spades {
 
 					r = eng->RegisterGlobalFunction("Vector4 Ceil(const Vector4& in)",
 					                                asFUNCTION(Vector4Funcs::Ceil), asCALL_CDECL);
+					manager->CheckError(r);
+					r = eng->RegisterGlobalFunction("Vector4 ConvertColorRGBA(const IntVector3& in)",
+					                                asFUNCTION(ConvertColorRGBA), asCALL_CDECL);
 					manager->CheckError(r);
 
 					struct Matrix4Funcs {

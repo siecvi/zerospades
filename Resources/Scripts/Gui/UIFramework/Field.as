@@ -453,7 +453,7 @@ namespace spades {
 					r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.1F);
 				else
 					r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.06F);
-				DrawOutlinedRect(r, pos.x, pos.y, pos.x + size.x, pos.y + size.y);
+				r.DrawOutlinedRect(pos.x, pos.y, pos.x + size.x, pos.y + size.y);
 
 				FieldBase::Render();
 			}

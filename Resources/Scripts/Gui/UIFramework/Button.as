@@ -185,7 +185,7 @@ namespace spades {
                     r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.07F);
                 else
                     r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.03F);
-                DrawOutlinedRect(r, pos.x, pos.y, pos.x + size.x, pos.y + size.y);
+                r.DrawOutlinedRect(pos.x, pos.y, pos.x + size.x, pos.y + size.y);
 				
 				pos += Vector2(4.0F, 4.0F);
                 size -= Vector2(8.0F, 8.0F);
@@ -282,7 +282,7 @@ namespace spades {
                     r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.04F);
                 else
                     r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.02F);
-                DrawOutlinedRect(r, pos.x, pos.y, pos.x + size.x, pos.y + size.y);
+                r.DrawOutlinedRect(pos.x, pos.y, pos.x + size.x, pos.y + size.y);
 
                 Vector2 txtSize = Font.Measure(Caption);
                 Font.DrawShadow(Caption, pos + (size - txtSize) * 0.5F + Vector2(8.0F, 0.0F), 1.0F,
@@ -321,10 +321,10 @@ namespace spades {
                     color.w *= 0.5F;
 
                 r.ColorNP = color;
-                DrawFilledRect(r, pos.x + 1, pos.y + 1, pos.x + size.x - 1, pos.y + size.y - 1);
+                r.DrawFilledRect(pos.x + 1, pos.y + 1, pos.x + size.x - 1, pos.y + size.y - 1);
 
                 r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 1.0F);
-                DrawOutlinedRect(r, pos.x + 1, pos.y + 1, pos.x + size.x - 1, pos.y + size.y - 1);
+                r.DrawOutlinedRect(pos.x + 1, pos.y + 1, pos.x + size.x - 1, pos.y + size.y - 1);
 
                 Font@ font = this.Font;
                 string text = this.Caption;

@@ -80,7 +80,7 @@ namespace spades {
                 Vector2 size = Size;
 
 				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.07F);
-                DrawFilledRect(r, pos.x + 4, pos.y + 1, pos.x + size.x - 4, pos.y + size.y - 1);
+                r.DrawFilledRect(pos.x + 4, pos.y + 1, pos.x + size.x - 4, pos.y + size.y - 1);
 
                 if (Dragging and Hover)
                     r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.3F);
@@ -88,7 +88,7 @@ namespace spades {
                     r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.2F);
                 else
                     r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.1F);
-                DrawOutlinedRect(r, pos.x + 4, pos.y + 1, pos.x + size.x - 4, pos.y + size.y - 1);
+                r.DrawOutlinedRect(pos.x + 4, pos.y + 1, pos.x + size.x - 4, pos.y + size.y - 1);
             }
         }
 
@@ -158,7 +158,7 @@ namespace spades {
                 r.DrawImage(null, AABB2(pos.x, pos.y, size.x, size.y));
 
                 r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.04F);
-                DrawOutlinedRect(r, pos.x, pos.y, pos.x + size.x, pos.y + size.y);
+                r.DrawOutlinedRect(pos.x, pos.y, pos.x + size.x, pos.y + size.y);
 
                 ScrollBarBase::Render();
             }
