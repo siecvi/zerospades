@@ -576,7 +576,7 @@ namespace spades {
 			// draw "press ... to reload"
 			if (tool == Player::ToolWeapon) {
 				std::string msg = "";
-				if (weap.IsReloading() || p.IsAwaitingReloadCompletion())
+				if (weapon.IsReloading() || p.IsAwaitingReloadCompletion())
 					msg = _Tr("Client", "Reloading");
 				else if (stockNum > 0 && clipNum < (clipSize / 4))
 					msg = _Tr("Client", "Press [{0}] to Reload", TrKey(cg_keyReloadWeapon));
