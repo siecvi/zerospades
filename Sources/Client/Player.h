@@ -97,6 +97,7 @@ namespace spades {
 
 			float lastClimbTime;
 			float lastJumpTime;
+			bool lastJump;
 
 			// tools
 			float nextSpadeTime;

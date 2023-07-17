@@ -399,6 +399,10 @@ namespace spades {
 			if (vel.GetSquaredLength2D() < 0.01F)
 				inp.sprint = false;
 
+			// don't allow jumping in the air
+			if (inp.jump && !player.IsOnGroundOrWade())
+				inp.jump = false;
+
 			// Can't use a tool while sprinting or switching to another tool, etc.
 			if (!CanLocalPlayerUseTool()) {
 				winp.primary = false;

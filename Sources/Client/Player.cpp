@@ -39,6 +39,7 @@ namespace spades {
 		    : world(w) {
 			SPADES_MARK_FUNCTION();
 
+			lastJump = false;
 			lastClimbTime = -100;
 			lastJumpTime = -100;
 			tool = ToolWeapon;
@@ -924,7 +925,7 @@ namespace spades {
 		}
 
 		void Player::PlayerJump() {
-			input.jump = false;
+			lastJump = true;
 			velocity.z = -0.36F;
 
 			if (world.GetListener() && world.GetTime() - lastJumpTime > 0.1F) {
@@ -977,8 +978,11 @@ namespace spades {
 				return;
 			}
 
-			if (input.jump && IsOnGroundOrWade())
+			if (input.jump && !lastJump && IsOnGroundOrWade()) {
 				PlayerJump();
+			} else if (!input.jump) {
+				lastJump = false;
+			}
 
 			float f = fsynctics; // player acceleration scalar
 			if (airborne)
