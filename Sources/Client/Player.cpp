@@ -523,8 +523,6 @@ namespace spades {
 
 				dir = pelletDir.Normalize();
 
-				bulletVectors.push_back(dir);
-
 				// first do map raycast
 				GameMap::RayCastResult mapResult;
 				mapResult = map->CastRay2(muzzle, dir, 256);
@@ -621,6 +619,9 @@ namespace spades {
 					if (hitPlayerDist2D < FOG_DISTANCE) {
 						finalHitPos = muzzle + dir * hitPlayerDist3D;
 
+						if (this->IsLocalPlayer())
+							bulletVectors.push_back(finalHitPos);
+
 						HitType hitType;
 						switch (hitPart) {
 							case HitBodyPart::Head:
@@ -659,7 +660,7 @@ namespace spades {
 			if (this->IsLocalPlayer()) {
 			// do hit test debugging
 			auto* debugger = world.GetHitTestDebugger();
-				if (debugger)
+				if (debugger && !playerHits.empty())
 				debugger->SaveImage(playerHits, bulletVectors);
 
 				// Horizontal recoil is driven by a triangular wave generator.

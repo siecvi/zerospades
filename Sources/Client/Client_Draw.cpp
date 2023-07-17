@@ -674,6 +674,8 @@ namespace spades {
 				float alpha = debugHitTestZoom ? debugHitTestZoomState : 1.0F;
 				renderer->SetColorAlphaPremultiplied(MakeVector4(alpha, alpha, alpha, alpha));
 				renderer->DrawImage(debugHitTestImage, outRect, AABB2(128, 512 - 128, 256, 256 - 512)); // flip Y axis
+
+				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, alpha));
 				renderer->DrawOutlinedRect(outRect.min.x - 1, outRect.min.y - 1, outRect.max.x + 1, outRect.max.y + 1);
 			}
 		}
