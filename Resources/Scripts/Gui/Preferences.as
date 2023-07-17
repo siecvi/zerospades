@@ -738,6 +738,8 @@ namespace spades {
             10, 100, 1, ConfigNumberFormatter(0, "px"));
             layouter.AddSliderField(_Tr("Preferneces", "Killfeed Height"), "cg_killfeedHeight",
             10, 100, 1, ConfigNumberFormatter(0, "px"));
+            layouter.AddToggleField(_Tr("Preferences", "Small Chat Font"),
+                "cg_smallFont", not options.GameActive);
 
             layouter.FinishLayout();
         }
