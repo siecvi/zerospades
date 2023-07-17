@@ -69,9 +69,13 @@ DEFINE_SPADES_SETTING(cg_playerStats, "0");
 DEFINE_SPADES_SETTING(cg_playerStatsShowPlacedBlocks, "0");
 DEFINE_SPADES_SETTING(cg_playerStatsHeight, "70");
 DEFINE_SPADES_SETTING(cg_hideHud, "0");
+DEFINE_SPADES_SETTING(cg_hudColor, "0");
+DEFINE_SPADES_SETTING(cg_hudColorR, "255");
+DEFINE_SPADES_SETTING(cg_hudColorG, "255");
+DEFINE_SPADES_SETTING(cg_hudColorB, "255");
 DEFINE_SPADES_SETTING(cg_hudAmmoStyle, "0");
-DEFINE_SPADES_SETTING(cg_hudBorderX, "16");
-DEFINE_SPADES_SETTING(cg_hudBorderY, "16");
+DEFINE_SPADES_SETTING(cg_hudSafezoneX, "1");
+DEFINE_SPADES_SETTING(cg_hudSafezoneY, "1");
 DEFINE_SPADES_SETTING(cg_playerNames, "2");
 DEFINE_SPADES_SETTING(cg_playerNameX, "0");
 DEFINE_SPADES_SETTING(cg_playerNameY, "0");
@@ -466,25 +470,53 @@ namespace spades {
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
-			float x = sw - (int)cg_hudBorderX;
-			float y = sh - (int)cg_hudBorderY;
+			float ratio = (sw / sh);
+			float safeZoneXMin = 0.75F;
+			if (ratio < 0.26F)
+				safeZoneXMin = 0.28F;
+			else if (ratio < 0.56F)
+				safeZoneXMin = 0.475F;
 
-			// Draw damage rings
+			float safeZoneX = Clamp((float)cg_hudSafezoneX, safeZoneXMin, 1.0F);
+			float safeZoneY = Clamp((float)cg_hudSafezoneY, 0.85F, 1.0F);
+
+			float x = (sw - 16.0F) * safeZoneX;
+			float y = (sh - 16.0F) * safeZoneY;
+
+			// draw damage rings
 			hurtRingView->Draw();
 
 			Player& p = GetWorld()->GetLocalPlayer().value();
-
-			Weapon& weap = p.GetWeapon();
+			Weapon& weapon = p.GetWeapon();
 			Player::ToolType tool = p.GetTool();
 
 			Handle<IImage> ammoIcon;
 			float iw, ih, spacing = 1.0F;
 			int clipNum, clipSize, stockNum, stockMax;
 
-			Vector4 color = MakeVector4(1, 1, 1, 1);
-			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.5);
-
 			int ammoStyle = cg_hudAmmoStyle;
+
+			IntVector3 col;
+			switch ((int)cg_hudColor) {
+				case 1: col = p.GetColor(); break; // team color
+				case 2: col = MakeIntVector3(120, 200, 255); break; // light blue
+				case 3: col = MakeIntVector3(0, 100, 255); break; // blue
+				case 4: col = MakeIntVector3(230, 100, 255); break; // purple
+				case 5: col = MakeIntVector3(255, 50, 50); break; // red
+				case 6: col = MakeIntVector3(255, 120, 50); break; // orange
+				case 7: col = MakeIntVector3(255, 255, 0); break; // yellow
+				case 8: col = MakeIntVector3(0, 255, 0); break; // green
+				case 9: col = MakeIntVector3(0, 255, 120); break; // aqua
+				case 10: col = MakeIntVector3(255, 120, 150); break; // pink
+				default: // custom
+					col.x = (int)cg_hudColorR;
+					col.y = (int)cg_hudColorG;
+					col.z = (int)cg_hudColorB;
+					break;
+			}
+
+			Vector4 color = ConvertColorRGBA(col);
+			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.5);
 
 			switch (tool) {
 				case Player::ToolSpade:
@@ -499,7 +531,7 @@ namespace spades {
 					clipSize = stockMax = 3;
 					break;
 				case Player::ToolWeapon: {
-					switch (weap.GetWeaponType()) {
+					switch (weapon.GetWeaponType()) {
 						case RIFLE_WEAPON:
 							ammoIcon = renderer->RegisterImage("Gfx/Bullet/7.62mm.png");
 							iw = 6.0F;
@@ -516,26 +548,26 @@ namespace spades {
 							iw = 8.0F;
 							ih = iw * 2.5F;
 							break;
-						default: SPInvalidEnum("weap.GetWeaponType()", weap.GetWeaponType());
+						default: SPInvalidEnum("weapon.GetWeaponType()", weapon.GetWeaponType());
 					}
 
-					clipNum = weap.GetAmmo();
-					clipSize = weap.GetClipSize();
+					clipNum = weapon.GetAmmo();
+					clipSize = weapon.GetClipSize();
 					clipSize = std::max(clipSize, clipNum);
 
-					if (ammoStyle != 1) {
+					if (ammoStyle < 1) {
 						for (int i = 0; i < clipSize; i++) {
 							float ix = x - ((float)(i + 1) * (iw + spacing));
 							float iy = y - ih;
 
 							renderer->SetColorAlphaPremultiplied((clipNum >= i + 1)
-								? color : MakeVector4(0.4F, 0.4F, 0.4F, 1));
+								? color : (color * MakeVector4(0.4F, 0.4F, 0.4F, 1)));
 							renderer->DrawImage(ammoIcon, AABB2(ix, iy, iw, ih));
 						}
 					}
 
-					stockNum = weap.GetStock();
-					stockMax = weap.GetMaxStock();
+					stockNum = weapon.GetStock();
+					stockMax = weapon.GetMaxStock();
 				} break;
 				default: SPInvalidEnum("p.GetTool()", tool);
 			}
@@ -552,39 +584,46 @@ namespace spades {
 					IFont& font = fontManager->GetGuiFont();
 					Vector2 size = font.Measure(msg);
 					Vector2 pos = MakeVector2((sw - size.x) * 0.5F, sh * (2.0F / 3.0F));
-					font.DrawShadow(msg, pos, 1.0F, color, shadowColor);
+					font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1), shadowColor);
 				}
 			}
 
 			// draw remaining ammo counter
 			{
-				float per = std::min((2.0F * stockNum) / (float)stockMax, 1.0F);
-				color = MakeVector4(1, per, per, 1);
+				float per = Clamp((float)stockNum / (float)(stockMax / 3), 0.0F, 1.0F);
+				Vector4 col = color + (MakeVector4(1, 0, 0, 1) - color) * (1.0F - per);
 
 				auto stockStr = ToString(stockNum);
-				if (ammoStyle == 1 && tool == Player::ToolWeapon)
+				if (ammoStyle >= 1 && tool == Player::ToolWeapon)
 					stockStr = ToString(clipNum) + "-" + stockStr;
 
 				IFont& font = fontManager->GetSquareDesignFont();
 				Vector2 size = font.Measure(stockStr);
 				Vector2 pos = MakeVector2(x, y) - size;
-				if (ammoStyle != 1)
+				if (ammoStyle < 1)
 					pos.y -= ih;
 
-				font.DrawShadow(stockStr, pos, 1.0F, color, shadowColor);
+				font.DrawShadow(stockStr, pos, 1.0F, col, shadowColor);
 			}
 
 			// draw player health
 			{
-				int hp = p.GetHealth();
-				float per = hp / 100.0F;
-				color = MakeVector4(1, per, per, 1);
+				float hurtTime = time - lastHurtTime;
+				hurtTime = 1.0F - (hurtTime / 0.25F);
+				if (hurtTime < 0.0F)
+					hurtTime = 0.0F;
+
+				int hp = p.GetHealth(); // current player health
+				int maxHealth = 100; // server doesn't send this
+				float hpFrac = Clamp((float)hp / (float)maxHealth, 0.0F, 1.0F);
+				Vector4 col = color + (MakeVector4(1, 0, 0, 1) - color) * (1.0F - hpFrac);
+				col = col + (MakeVector4(1, 1, 1, 1) - col) * hurtTime;
 
 				auto healthStr = ToString(hp);
 				IFont& font = fontManager->GetSquareDesignFont();
 				Vector2 size = font.Measure(healthStr);
 				Vector2 pos = MakeVector2(sw - x, y - size.y);
-				font.DrawShadow(healthStr, pos, 1.0F, color, shadowColor);
+				font.DrawShadow(healthStr, pos, 1.0F, col, shadowColor);
 			}
 
 			if (tool == Player::ToolBlock)

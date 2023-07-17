@@ -271,6 +271,37 @@ namespace spades {
         }
     }
 
+    class ConfigHUDColorFormatter : ConfigNumberFormatter {
+        ConfigHUDColorFormatter() {
+            super(0, "");
+        }
+
+        string Format(float value) {
+            if (value == 1)
+                return _Tr("Preferences", "Team Color");
+            else if (value == 2)
+                return _Tr("Preferences", "Light Blue");
+            else if (value == 3)
+                return _Tr("Preferences", "Blue");
+            else if (value == 4)
+                return _Tr("Preferences", "Purple");
+            else if (value == 5)
+                return _Tr("Preferences", "Red");
+            else if (value == 6)
+                return _Tr("Preferences", "Orange");
+            else if (value == 7)
+                return _Tr("Preferences", "Yellow");
+            else if (value == 8)
+                return _Tr("Preferences", "Green");
+            else if (value == 9)
+                return _Tr("Preferences", "Aqua");
+            else if (value == 10)
+                return _Tr("Preferences", "Pink");
+            else
+                return _Tr("Preferences", "Custom");
+        }
+    }
+
     class ConfigCrosshairColorFormatter : ConfigNumberFormatter {
         ConfigCrosshairColorFormatter() {
             super(0, "");
@@ -988,10 +1019,14 @@ namespace spades {
 
             layouter.AddHeading(_Tr("Preferences", "Heads-Up Display"));
             layouter.AddToggleField(_Tr("Preferences", "Hide HUD"), "cg_hideHud");
-            layouter.AddSliderField(_Tr("Preferences", "Hud Horizontal Border"), "cg_hudBorderX",
-            2, 320, 2, ConfigNumberFormatter(0, "px"));
-            layouter.AddSliderField(_Tr("Preferences", "Hud Vertical Border"), "cg_hudBorderY",
-            2, 240, 2, ConfigNumberFormatter(0, "px"));
+            layouter.AddSliderGroup(_Tr("Preferences", "HUD Edge Position"),
+            array<string> = { "cg_hudSafezoneX", "cg_hudSafezoneY"},
+            0.2, 1, 0.01, 2, array<string> = { "X: ", "Y: "});
+            layouter.AddSliderField(_Tr("Preferences", "HUD Color"), "cg_hudColor",
+            0, 10, 1, ConfigHUDColorFormatter());
+            layouter.AddSliderGroup(_Tr("Preferences", "Custom Color"),
+            array<string> = { "cg_hudColorR", "cg_hudColorG", "cg_hudColorB"},
+            0, 255, 1, 0, array<string> = { "R: ", "G: ", "B: "});
             layouter.AddSliderField(_Tr("Preferences", "Chat Height"), "cg_chatHeight",
             10, 100, 1, ConfigNumberFormatter(0, "px"));
             layouter.AddSliderField(_Tr("Preferneces", "Killfeed Height"), "cg_killfeedHeight",
