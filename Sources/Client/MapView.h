@@ -59,7 +59,6 @@ namespace spades {
 			void Update(float dt);
 			void SwitchScale();
 			bool IsZoomed() { return zoomed; }
-			bool ToggleZoom();
 			void SetZoom(bool value) { zoomed = value; };
 			std::string ToGrid(float x, float y);
 

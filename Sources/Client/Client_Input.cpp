@@ -50,6 +50,7 @@ DEFINE_SPADES_SETTING(cg_mouseExpPower, "1");
 DEFINE_SPADES_SETTING(cg_invertMouseY, "0");
 
 DEFINE_SPADES_SETTING(cg_holdAimDownSight, "0");
+DEFINE_SPADES_SETTING(cg_holdMapZoom, "0");
 
 DEFINE_SPADES_SETTING(cg_keyAttack, "LeftMouseButton");
 DEFINE_SPADES_SETTING(cg_keyAltAttack, "RightMouseButton");
@@ -553,12 +554,20 @@ namespace spades {
 						  audioDevice->RegisterSound("Sounds/Misc/SwitchMapZoom.opus");
 						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 						}
-					} else if (CheckKey(cg_keyToggleMapZoom, name) && down) {
+					} else if (CheckKey(cg_keyToggleMapZoom, name)) {
+						if (down || cg_holdMapZoom) {
+							bool zoomed = largeMapView->IsZoomed();
+							zoomed = !zoomed;
+							if (cg_holdMapZoom)
+								zoomed = down;
+
 						renderer->UpdateFlatGameMap();
-						Handle<IAudioChunk> c = largeMapView->ToggleZoom()
+							largeMapView->SetZoom(zoomed);
+							Handle<IAudioChunk> c = zoomed
 						    ? audioDevice->RegisterSound("Sounds/Misc/OpenMap.opus")
 						    : audioDevice->RegisterSound("Sounds/Misc/CloseMap.opus");
 						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+						}
 					} else if (CheckKey(cg_keyScoreboard, name)) {
 						scoreboardVisible = down;
 					} else if (CheckKey(cg_keyLimbo, name) && down) {

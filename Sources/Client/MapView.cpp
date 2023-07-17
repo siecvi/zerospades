@@ -170,11 +170,6 @@ namespace spades {
 			lastScale = actualScale;
 		}
 
-		bool MapView::ToggleZoom() {
-			zoomed = !zoomed;
-			return zoomed;
-		}
-
 		std::string MapView::ToGrid(float x, float y) {
 			auto letter = char(int('A') + int(x / 64));
 			auto number = std::to_string(int(y / 64) + 1);

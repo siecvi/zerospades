@@ -826,6 +826,7 @@ namespace spades {
             layouter.AddControl(_Tr("Preferences", "Sprint"), "cg_keySprint");
 
             layouter.AddHeading(_Tr("Preferences", "Misc"));
+            layouter.AddToggleField(_Tr("Preferences", "Hold Large Map"), "cg_holdMapZoom");
             layouter.AddControl(_Tr("Preferences", "Minimap Scale"), "cg_keyChangeMapScale");
             layouter.AddControl(_Tr("Preferences", "Toggle Map"), "cg_keyToggleMapZoom");
             layouter.AddControl(_Tr("Preferences", "Flashlight"), "cg_keyFlashlight");
