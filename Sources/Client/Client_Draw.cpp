@@ -65,6 +65,7 @@ SPADES_SETTING(cg_keyCrouch);
 SPADES_SETTING(cg_keyLimbo);
 DEFINE_SPADES_SETTING(cg_screenshotFormat, "jpeg");
 DEFINE_SPADES_SETTING(cg_stats, "0");
+DEFINE_SPADES_SETTING(cg_statsBackground, "1");
 DEFINE_SPADES_SETTING(cg_playerStats, "0");
 DEFINE_SPADES_SETTING(cg_playerStatsShowPlacedBlocks, "0");
 DEFINE_SPADES_SETTING(cg_playerStatsHeight, "70");
@@ -236,7 +237,7 @@ namespace spades {
 			sprintf(buf, "%d:%.02d", mins, secs);
 			IFont& font = fontManager->GetMediumFont();
 			Vector2 size = font.Measure(buf);
-			Vector2 pos = MakeVector2((sw - size.x) * 0.5F, 48.0F - size.y);
+			Vector2 pos = MakeVector2((sw - size.x) * 0.5F, 56.0F - size.y);
 			font.DrawShadow(buf, pos, 1.0F, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.5));
 		}
 
@@ -1094,6 +1095,10 @@ namespace spades {
 		void Client::DrawStats() {
 			SPADES_MARK_FUNCTION();
 
+			// only draw stats when scoreboard is visible
+			if (!scoreboardVisible && (int)cg_stats == 3)
+				return;
+
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
@@ -1130,30 +1135,36 @@ namespace spades {
 
 			// add margin
 			const float margin = 4.0F;
-			IFont& font = fontManager->GetGuiFont();
+			IFont& font = cg_smallFont
+				? fontManager->GetSmallFont()
+				: fontManager->GetGuiFont();
 			Vector2 size = font.Measure(str) + (margin * 2.0F);
 			Vector2 pos = MakeVector2(sw, sh) - size;
-			pos.x *= 0.5F;
-			pos.y += margin;
-
-			float x = pos.x;
-			float y = pos.y + margin;
-			float w = pos.x + size.x;
-			float h = pos.y + size.y - margin;
+			pos *= MakeVector2(0.5F, ((int)cg_stats < 2) ? 1.0F : 0.0F);
+			pos.y += ((int)cg_stats < 2) ? (margin * 0.5F) : -(margin * 0.5F);
 
 			Vector4 color = MakeVector4(1, 1, 1, 1);
 			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.5);
+
+			if (cg_statsBackground) {
+			float x = pos.x;
+				float y = pos.y + (margin * 0.5F);
+			float w = pos.x + size.x;
+				float h = pos.y + size.y - (margin * 0.5F);
 
 			// draw background
 			renderer->SetColorAlphaPremultiplied(shadowColor);
 			renderer->DrawFilledRect(x + 1, y + 1, w - 1, h - 1);
 
-			// draw border
-			renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1));
+				// draw outline
+				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.8F));
 			renderer->DrawOutlinedRect(x, y, w, h);
+			}
 
 			// draw text
-			font.DrawShadow(str, pos + margin, 1.0F, color, shadowColor);
+			Vector2 textPos = pos + MakeVector2(margin,
+				cg_smallFont ? -(margin * 0.5F) : margin);
+			font.DrawShadow(str, textPos, 1.0F, color, shadowColor);
 		}
 
 		void Client::Draw2D() {
