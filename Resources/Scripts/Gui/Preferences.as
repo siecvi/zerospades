@@ -302,8 +302,8 @@ namespace spades {
         }
     }
 
-    class ConfigCrosshairColorFormatter : ConfigNumberFormatter {
-        ConfigCrosshairColorFormatter() {
+    class ConfigTargetColorFormatter : ConfigNumberFormatter {
+        ConfigTargetColorFormatter() {
             super(0, "");
         }
 
@@ -548,41 +548,99 @@ namespace spades {
         }
     }
 
-    class ConfigCrosshair : spades::ui::UIElement {
-        private ConfigItem cg_crosshair("cg_crosshair", "1");
-        private ConfigItem cg_crosshairColor("cg_crosshairColor", "0");
-        private ConfigItem cg_crosshairColorR("cg_crosshairColorR", "255");
-        private ConfigItem cg_crosshairColorG("cg_crosshairColorG", "255");
-        private ConfigItem cg_crosshairColorB("cg_crosshairColorB", "255");
-        private ConfigItem cg_crosshairAlpha("cg_crosshairAlpha", "255");
-        private ConfigItem cg_crosshairLines("cg_crosshairLines", "1");
-        private ConfigItem cg_crosshairGap("cg_crosshairGap", "4");
-        private ConfigItem cg_crosshairSize("cg_crosshairSize", "5");
-        private ConfigItem cg_crosshairThickness("cg_crosshairThickness", "1");
-        private ConfigItem cg_crosshairTStyle("cg_crosshairTStyle", "0");
-        private ConfigItem cg_crosshairDot("cg_crosshairDot", "0");
-        private ConfigItem cg_crosshairDotAlpha("cg_crosshairDotAlpha", "255");
-        private ConfigItem cg_crosshairDotThickness("cg_crosshairDotThickness", "1");
-        private ConfigItem cg_crosshairOutline("cg_crosshairOutline", "1");
-        private ConfigItem cg_crosshairOutlineAlpha("cg_crosshairOutlineAlpha", "255");
-        private ConfigItem cg_crosshairOutlineThickness("cg_crosshairOutlineThickness", "1");
-        private ConfigItem cg_crosshairOutlineRounded("cg_crosshairOutlineRounded", "0");
-        private ConfigItem cg_crosshairDynamic("cg_crosshairDynamic", "1");
-        private ConfigItem cg_crosshairDynamicSplitDist("cg_crosshairDynamicSplitdist", "7");
+    class ConfigTarget : spades::ui::UIElement {
+        private ConfigItem cg_target("cg_target", "1");
+        private ConfigItem cg_targetLines("cg_targetLines", "1");
+        private ConfigItem cg_targetColor("cg_targetColor", "0");
+        private ConfigItem cg_targetColorR("cg_targetColorR", "255");
+        private ConfigItem cg_targetColorG("cg_targetColorG", "255");
+        private ConfigItem cg_targetColorB("cg_targetColorB", "255");
+        private ConfigItem cg_targetAlpha("cg_targetAlpha", "255");
+        private ConfigItem cg_targetGap("cg_targetGap", "4");
+        private ConfigItem cg_targetSizeHorizontal("cg_targetSizeHorizontal", "5");
+        private ConfigItem cg_targetSizeVertical("cg_targetSizeVertical", "5");
+        private ConfigItem cg_targetThickness("cg_targetThickness", "1");
+        private ConfigItem cg_targetTStyle("cg_targetTStyle", "0");
+        private ConfigItem cg_targetDot("cg_targetDot", "0");
+        private ConfigItem cg_targetDotColorR("cg_targetDotColorR", "255");
+        private ConfigItem cg_targetDotColorG("cg_targetDotColorG", "255");
+        private ConfigItem cg_targetDotColorB("cg_targetDotColorB", "255");
+        private ConfigItem cg_targetDotAlpha("cg_targetDotAlpha", "255");
+        private ConfigItem cg_targetDotThickness("cg_targetDotThickness", "1");
+        private ConfigItem cg_targetOutline("cg_targetOutline", "1");
+        private ConfigItem cg_targetOutlineColorR("cg_targetOutlineColorR", "0");
+        private ConfigItem cg_targetOutlineColorG("cg_targetOutlineColorG", "0");
+        private ConfigItem cg_targetOutlineColorB("cg_targetOutlineColorB", "0");
+        private ConfigItem cg_targetOutlineAlpha("cg_targetOutlineAlpha", "255");
+        private ConfigItem cg_targetOutlineThickness("cg_targetOutlineThickness", "1");
+        private ConfigItem cg_targetOutlineRoundedStyle("cg_targetOutlineRoundedStyle", "0");
+        private ConfigItem cg_targetDynamic("cg_targetDynamic", "1");
+        private ConfigItem cg_targetDynamicSplitDist("cg_targetDynamicSplitdist", "7");
 
-        ConfigCrosshair(spades::ui::UIManager@ manager) {
+        ConfigTarget(spades::ui::UIManager@ manager) {
             super(manager);
+        }
+
+        private void OnResetPressed(spades::ui::UIElement@ sender) {
+            cg_targetLines.StringValue = cg_targetLines.DefaultValue;
+            cg_targetColor.StringValue = cg_targetColor.DefaultValue;
+            cg_targetColorR.StringValue = cg_targetColorR.DefaultValue;
+            cg_targetColorG.StringValue = cg_targetColorG.DefaultValue;
+            cg_targetColorB.StringValue = cg_targetColorB.DefaultValue;
+            cg_targetAlpha.StringValue = cg_targetAlpha.DefaultValue;
+            cg_targetGap.StringValue = cg_targetGap.DefaultValue;
+            cg_targetSizeHorizontal.StringValue = cg_targetSizeHorizontal.DefaultValue;
+            cg_targetSizeVertical.StringValue = cg_targetSizeVertical.DefaultValue;
+            cg_targetThickness.StringValue = cg_targetThickness.DefaultValue;
+            cg_targetTStyle.StringValue = cg_targetTStyle.DefaultValue;
+            cg_targetDot.StringValue = cg_targetDot.DefaultValue;
+            cg_targetDotColorR.StringValue = cg_targetDotColorR.DefaultValue;
+            cg_targetDotColorG.StringValue = cg_targetDotColorG.DefaultValue;
+            cg_targetDotColorB.StringValue = cg_targetDotColorB.DefaultValue;
+            cg_targetDotAlpha.StringValue = cg_targetDotAlpha.DefaultValue;
+            cg_targetDotThickness.StringValue = cg_targetDotThickness.DefaultValue;
+            cg_targetOutline.StringValue = cg_targetOutline.DefaultValue;
+            cg_targetOutlineColorR.StringValue = cg_targetOutlineColorR.DefaultValue;
+            cg_targetOutlineColorG.StringValue = cg_targetOutlineColorG.DefaultValue;
+            cg_targetOutlineColorB.StringValue = cg_targetOutlineColorB.DefaultValue;
+            cg_targetOutlineAlpha.StringValue = cg_targetOutlineAlpha.DefaultValue;
+            cg_targetOutlineThickness.StringValue = cg_targetOutlineThickness.DefaultValue;
+            cg_targetOutlineRoundedStyle.StringValue = cg_targetOutlineRoundedStyle.DefaultValue;
+            cg_targetDynamic.StringValue = cg_targetDynamic.DefaultValue;
+            cg_targetDynamicSplitDist.StringValue = cg_targetDynamicSplitDist.DefaultValue;
+        }
+
+        private void OnRandomizePressed(spades::ui::UIElement@ sender) {
+            cg_targetColorR.IntValue = GetRandom(0, 255);
+            cg_targetColorG.IntValue = GetRandom(0, 255);
+            cg_targetColorB.IntValue = GetRandom(0, 255);
+            cg_targetAlpha.IntValue = GetRandom(50, 255);
+            cg_targetGap.IntValue = GetRandom(1, 10);
+            cg_targetSizeHorizontal.IntValue = GetRandom(1, 10);
+            cg_targetSizeVertical.IntValue = cg_targetSizeHorizontal.IntValue;
+            cg_targetThickness.IntValue = GetRandom(1, 4);
+            cg_targetDot.IntValue = GetRandom(2);
+            cg_targetDotColorR.IntValue = GetRandom(0, 255);
+            cg_targetDotColorG.IntValue = GetRandom(0, 255);
+            cg_targetDotColorB.IntValue = GetRandom(0, 255);
+            cg_targetDotAlpha.IntValue = GetRandom(50, 255);
+            cg_targetDotThickness.IntValue = cg_targetThickness.IntValue;
+            cg_targetOutline.IntValue = GetRandom(2);
+            cg_targetOutlineColorR.IntValue = GetRandom(0, 255);
+            cg_targetOutlineColorG.IntValue = GetRandom(0, 255);
+            cg_targetOutlineColorB.IntValue = GetRandom(0, 255);
+            cg_targetOutlineAlpha.IntValue = GetRandom(50, 255);
+            cg_targetOutlineRoundedStyle.IntValue = GetRandom(2);
         }
 
         void Render() {
             Renderer@ r = Manager.Renderer;
             Vector2 pos = ScreenPosition;
             Vector2 size = Size;
-
             Vector2 center = pos + size * 0.5F;
 
             IntVector3 col;
-            switch (cg_crosshairColor.IntValue) {
+            switch (cg_targetColor.IntValue) {
                 case 1: col = IntVector3(250, 50, 50); break; // red
                 case 2: col = IntVector3(50, 250, 50); break; // green
                 case 3: col = IntVector3(50, 50, 250); break; // blue
@@ -590,19 +648,19 @@ namespace spades {
                 case 5: col = IntVector3(50, 250, 250); break; // cyan
                 case 6: col = IntVector3(250, 50, 250); break; // pink
                 default: // custom
-                    col.x = cg_crosshairColorR.IntValue;
-                    col.y = cg_crosshairColorG.IntValue;
-                    col.z = cg_crosshairColorB.IntValue;
+                    col.x = cg_targetColorR.IntValue;
+                    col.y = cg_targetColorG.IntValue;
+                    col.z = cg_targetColorB.IntValue;
                     break;
             }
 
             Vector4 color = ConvertColorRGBA(col);
-            color.w = Clamp(cg_crosshairAlpha.IntValue, 0, 255) / 255.0F;
+            color.w = Clamp(cg_targetAlpha.IntValue, 0, 255) / 255.0F;
 
             // draw preview background
             float luminosity = color.x + color.y + color.z;
             float opacity = 1.0F - luminosity;
-            r.ColorNP = cg_crosshairOutline.BoolValue
+            r.ColorNP = cg_targetOutline.BoolValue
                     ? Vector4(0.6F, 0.6F, 0.6F, 0.9F)
                     : Vector4(opacity, opacity, opacity, 0.6F);
             r.DrawImage(null, AABB2(pos.x, pos.y, size.x, size.y));
@@ -611,80 +669,150 @@ namespace spades {
             r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.1F);
             r.DrawOutlinedRect(pos.x, pos.y, pos.x + size.x, pos.y + size.y);
 
-            // draw crosshair
-            if (cg_crosshair.BoolValue) {
-				bool drawlines = cg_crosshairLines.BoolValue;
-                bool useTStyle = cg_crosshairTStyle.BoolValue;
-                float lineGap = Clamp(cg_crosshairGap.FloatValue, -5.0F, 5.0F);
-                float lineLength = Clamp(cg_crosshairSize.FloatValue, 0.0F, 10.0F);
-                float lineThickness = Clamp(cg_crosshairThickness.FloatValue, 1.0F, 4.0F);
-                bool drawDot = cg_crosshairDot.BoolValue;
-                float dotAlpha = Clamp(cg_crosshairDotAlpha.IntValue, 0, 255) / 255.0F;
-                float dotThickness = Clamp(cg_crosshairDotThickness.FloatValue, 1.0F, 4.0F);
-                bool drawOutline = cg_crosshairOutline.BoolValue;
-                float outlineAlpha = Clamp(cg_crosshairOutlineAlpha.IntValue, 0, 255) / 255.0F;
-                float outlineThickness = Clamp(cg_crosshairOutlineThickness.FloatValue, 1.0F, 4.0F);
-                bool outlineRounded = cg_crosshairOutlineRounded.BoolValue;
-
-                DrawCrosshair(r, center,
-					drawlines, useTStyle, lineGap, lineLength, lineThickness, color,
-                    drawDot, dotAlpha, dotThickness,
-					drawOutline, outlineAlpha, outlineThickness, outlineRounded);
-            } else { // draw default target
+            // draw target
+            if (cg_target.IntValue == 1) { // draw default target
                 Image@ sightImage = r.RegisterImage("Gfx/Target.png");
                 Vector2 imgSize = Vector2(sightImage.Width, sightImage.Height);
                 r.ColorNP = color;
-                r.DrawImage(sightImage, center - imgSize * 0.5F);
+                r.DrawImage(sightImage, center - (imgSize * 0.5F));
+            } else if (cg_target.IntValue == 2) { // draw custom target
+                TargetParam param;
+                param.lineColor = color;
+                param.drawLines = cg_targetLines.BoolValue;
+                param.useTStyle = cg_targetTStyle.BoolValue;
+                param.lineGap = Clamp(cg_targetGap.FloatValue, -10.0F, 10.0F);
+                param.lineLength.x = Clamp(cg_targetSizeHorizontal.FloatValue, 0.0F, 10.0F);
+                param.lineLength.y = Clamp(cg_targetSizeVertical.FloatValue, 0.0F, 10.0F);
+                param.lineThickness = Clamp(cg_targetThickness.FloatValue, 1.0F, 4.0F);
+
+                param.drawDot = cg_targetDot.BoolValue;
+                col.x = cg_targetDotColorR.IntValue;
+                col.y = cg_targetDotColorG.IntValue;
+                col.z = cg_targetDotColorB.IntValue;
+                color = ConvertColorRGBA(col);
+                color.w = Clamp(cg_targetDotAlpha.IntValue, 0, 255) / 255.0F;
+                param.dotColor = color;
+                param.dotThickness = Clamp(cg_targetDotThickness.FloatValue, 1.0F, 4.0F);
+
+                param.drawOutline = cg_targetOutline.BoolValue;
+                param.useRoundedStyle = cg_targetOutlineRoundedStyle.BoolValue;
+                col.x = cg_targetOutlineColorR.IntValue;
+                col.y = cg_targetOutlineColorG.IntValue;
+                col.z = cg_targetOutlineColorB.IntValue;
+                color = ConvertColorRGBA(col);
+                color.w = Clamp(cg_targetOutlineAlpha.IntValue, 0, 255) / 255.0F;
+                param.outlineColor = color;
+                param.outlineThickness = Clamp(cg_targetOutlineThickness.FloatValue, 1.0F, 4.0F);
+
+                DrawTarget(r, center, param);
             }
         }
     }
 
     class ConfigScope : spades::ui::UIElement {
         private ConfigItem cg_pngScope("cg_pngScope", "0");
-        private ConfigItem cg_crosshairScopeColor("cg_crosshairScopeColor", "0");
-        private ConfigItem cg_crosshairScopeColorR("cg_crosshairScopeColorR", "255");
-        private ConfigItem cg_crosshairScopeColorG("cg_crosshairScopeColorG", "255");
-        private ConfigItem cg_crosshairScopeColorB("cg_crosshairScopeColorB", "255");
-        private ConfigItem cg_crosshairScopeAlpha("cg_crosshairScopeAlpha", "255");
-        private ConfigItem cg_crosshairScopeLines("cg_crosshairScopeLines", "1");
-        private ConfigItem cg_crosshairScopeGap("cg_crosshairScopeGap", "4");
-        private ConfigItem cg_crosshairScopeSize("cg_crosshairScopeSize", "5");
-        private ConfigItem cg_crosshairScopeThickness("cg_crosshairScopeThickness", "1");
-        private ConfigItem cg_crosshairScopeTStyle("cg_crosshairScopeTStyle", "0");
-        private ConfigItem cg_crosshairScopeDot("cg_crosshairScopeDot", "0");
-        private ConfigItem cg_crosshairScopeDotAlpha("cg_crosshairScopeDotAlpha", "255");
-        private ConfigItem cg_crosshairScopeDotThickness("cg_crosshairScopeDotThickness", "1");
-        private ConfigItem cg_crosshairScopeOutline("cg_crosshairScopeOutline", "1");
-        private ConfigItem cg_crosshairScopeOutlineAlpha("cg_crosshairScopeOutlineAlpha", "255");
-        private ConfigItem cg_crosshairScopeOutlineThickness("cg_crosshairScopeOutlineThickness", "1");
-        private ConfigItem cg_crosshairScopeOutlineRounded("cg_crosshairScopeOutlineRounded", "0");
-        private ConfigItem cg_crosshairScopeDynamic("cg_crosshairScopeDynamic", "1");
-        private ConfigItem cg_crosshairScopeDynamicSplitDist("cg_crosshairScopeDynamicSplitdist", "7");
+        private ConfigItem cg_scopeLines("cg_scopeLines", "1");
+        private ConfigItem cg_scopeColor("cg_scopeColor", "0");
+        private ConfigItem cg_scopeColorR("cg_scopeColorR", "255");
+        private ConfigItem cg_scopeColorG("cg_scopeColorG", "0");
+        private ConfigItem cg_scopeColorB("cg_scopeColorB", "255");
+        private ConfigItem cg_scopeAlpha("cg_scopeAlpha", "255");
+        private ConfigItem cg_scopeGap("cg_scopeGap", "4");
+        private ConfigItem cg_scopeSizeHorizontal("cg_scopeSizeHorizontal", "5");
+        private ConfigItem cg_scopeSizeVertical("cg_scopeSizeVertical", "5");
+        private ConfigItem cg_scopeThickness("cg_scopeThickness", "1");
+        private ConfigItem cg_scopeTStyle("cg_scopeTStyle", "0");
+        private ConfigItem cg_scopeDot("cg_scopeDot", "0");
+        private ConfigItem cg_scopeDotColorR("cg_scopeDotColorR", "0");
+        private ConfigItem cg_scopeDotColorG("cg_scopeDotColorG", "0");
+        private ConfigItem cg_scopeDotColorB("cg_scopeDotColorB", "0");
+        private ConfigItem cg_scopeDotAlpha("cg_scopeDotAlpha", "255");
+        private ConfigItem cg_scopeDotThickness("cg_scopeDotThickness", "1");
+        private ConfigItem cg_scopeOutline("cg_scopeOutline", "1");
+        private ConfigItem cg_scopeOutlineColorR("cg_scopeOutlineColorR", "0");
+        private ConfigItem cg_scopeOutlineColorG("cg_scopeOutlineColorG", "0");
+        private ConfigItem cg_scopeOutlineColorB("cg_scopeOutlineColorB", "0");
+        private ConfigItem cg_scopeOutlineAlpha("cg_scopeOutlineAlpha", "255");
+        private ConfigItem cg_scopeOutlineThickness("cg_scopeOutlineThickness", "1");
+        private ConfigItem cg_scopeOutlineRoundedStyle("cg_scopeOutlineRoundedStyle", "0");
+        private ConfigItem cg_scopeDynamic("cg_scopeDynamic", "1");
+        private ConfigItem cg_scopeDynamicSplitDist("cg_scopeDynamicSplitdist", "7");
 
         ConfigScope(spades::ui::UIManager@ manager) {
             super(manager);
+        }
+
+        private void OnResetPressed(spades::ui::UIElement@ sender) {
+            cg_scopeLines.StringValue = cg_scopeLines.DefaultValue;
+            cg_scopeColor.StringValue = cg_scopeColor.DefaultValue;
+            cg_scopeColorR.StringValue = cg_scopeColorR.DefaultValue;
+            cg_scopeColorG.StringValue = cg_scopeColorG.DefaultValue;
+            cg_scopeColorB.StringValue = cg_scopeColorB.DefaultValue;
+            cg_scopeAlpha.StringValue = cg_scopeAlpha.DefaultValue;
+            cg_scopeGap.StringValue = cg_scopeGap.DefaultValue;
+            cg_scopeSizeHorizontal.StringValue = cg_scopeSizeHorizontal.DefaultValue;
+            cg_scopeSizeVertical.StringValue = cg_scopeSizeVertical.DefaultValue;
+            cg_scopeThickness.StringValue = cg_scopeThickness.DefaultValue;
+            cg_scopeTStyle.StringValue = cg_scopeTStyle.DefaultValue;
+            cg_scopeDot.StringValue = cg_scopeDot.DefaultValue;
+            cg_scopeDotColorR.StringValue = cg_scopeDotColorR.DefaultValue;
+            cg_scopeDotColorG.StringValue = cg_scopeDotColorG.DefaultValue;
+            cg_scopeDotColorB.StringValue = cg_scopeDotColorB.DefaultValue;
+            cg_scopeDotAlpha.StringValue = cg_scopeDotAlpha.DefaultValue;
+            cg_scopeDotThickness.StringValue = cg_scopeDotThickness.DefaultValue;
+            cg_scopeOutline.StringValue = cg_scopeOutline.DefaultValue;
+            cg_scopeOutlineColorR.StringValue = cg_scopeOutlineColorR.DefaultValue;
+            cg_scopeOutlineColorG.StringValue = cg_scopeOutlineColorG.DefaultValue;
+            cg_scopeOutlineColorB.StringValue = cg_scopeOutlineColorB.DefaultValue;
+            cg_scopeOutlineAlpha.StringValue = cg_scopeOutlineAlpha.DefaultValue;
+            cg_scopeOutlineThickness.StringValue = cg_scopeOutlineThickness.DefaultValue;
+            cg_scopeOutlineRoundedStyle.StringValue = cg_scopeOutlineRoundedStyle.DefaultValue;
+            cg_scopeDynamic.StringValue = cg_scopeDynamic.DefaultValue;
+            cg_scopeDynamicSplitDist.StringValue = cg_scopeDynamicSplitDist.DefaultValue;
+        }
+
+        private void OnRandomizePressed(spades::ui::UIElement@ sender) {
+            cg_scopeColorR.IntValue = GetRandom(0, 255);
+            cg_scopeColorG.IntValue = GetRandom(0, 255);
+            cg_scopeColorB.IntValue = GetRandom(0, 255);
+            cg_scopeAlpha.IntValue = GetRandom(50, 255);
+            cg_scopeGap.IntValue = GetRandom(1, 10);
+            cg_scopeSizeHorizontal.IntValue = GetRandom(1, 10);
+            cg_scopeSizeVertical.IntValue = cg_scopeSizeHorizontal.IntValue;
+            cg_scopeThickness.IntValue = GetRandom(1, 4);
+            cg_scopeDot.IntValue = GetRandom(2);
+            cg_scopeDotColorR.IntValue = GetRandom(0, 255);
+            cg_scopeDotColorG.IntValue = GetRandom(0, 255);
+            cg_scopeDotColorB.IntValue = GetRandom(0, 255);
+            cg_scopeDotAlpha.IntValue = GetRandom(50, 255);
+            cg_scopeDotThickness.IntValue = cg_scopeThickness.IntValue;
+            cg_scopeOutline.IntValue = GetRandom(2);
+            cg_scopeOutlineColorR.IntValue = GetRandom(0, 255);
+            cg_scopeOutlineColorG.IntValue = GetRandom(0, 255);
+            cg_scopeOutlineColorB.IntValue = GetRandom(0, 255);
+            cg_scopeOutlineAlpha.IntValue = GetRandom(50, 255);
+            cg_scopeOutlineRoundedStyle.IntValue = GetRandom(2);
         }
 
         void Render() {
             Renderer@ r = Manager.Renderer;
             Vector2 pos = ScreenPosition;
             Vector2 size = Size;
-
             Vector2 center = pos + size * 0.5F;
 
             IntVector3 col;
-            col.x = cg_crosshairScopeColorR.IntValue;
-            col.y = cg_crosshairScopeColorG.IntValue;
-            col.z = cg_crosshairScopeColorB.IntValue;
+            col.x = cg_scopeColorR.IntValue;
+            col.y = cg_scopeColorG.IntValue;
+            col.z = cg_scopeColorB.IntValue;
 
             Vector4 color = ConvertColorRGBA(col);
-            color.w = Clamp(cg_crosshairScopeAlpha.IntValue, 0, 255) / 255.0F;
+            color.w = Clamp(cg_scopeAlpha.IntValue, 0, 255) / 255.0F;
 
             // draw preview background
             if (cg_pngScope.IntValue >= 2) {
                 float luminosity = color.x + color.y + color.z;
                 float opacity = 1.0F - luminosity;
-                if (cg_crosshairScopeOutline.BoolValue and cg_pngScope.IntValue == 3)
+                if (cg_scopeOutline.BoolValue and cg_pngScope.IntValue == 3)
                     r.ColorNP = Vector4(0.6F, 0.6F, 0.6F, 0.9F);
                 else
                     r.ColorNP = Vector4(opacity, opacity, opacity, 0.6F);
@@ -697,35 +825,47 @@ namespace spades {
             r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.1F);
             r.DrawOutlinedRect(pos.x, pos.y, pos.x + size.x, pos.y + size.y);
 
-            // draw crosshair
-            if (cg_pngScope.IntValue == 3) { // draw custom crosshair scope
-				bool drawLines = cg_crosshairScopeLines.BoolValue;
-                bool useTStyle = cg_crosshairScopeTStyle.BoolValue;
-                float lineGap = Clamp(cg_crosshairScopeGap.FloatValue, -5.0F, 5.0F);
-                float lineLength = Clamp(cg_crosshairScopeSize.FloatValue, 0.0F, 10.0F);
-                float lineThickness = Clamp(cg_crosshairScopeThickness.FloatValue, 1.0F, 4.0F);
-                bool drawDot = cg_crosshairScopeDot.BoolValue;
-                float dotAlpha = Clamp(cg_crosshairScopeDotAlpha.IntValue, 0, 255) / 255.0F;
-                float dotThickness = Clamp(cg_crosshairScopeDotThickness.FloatValue, 1.0F, 4.0F);
-                bool drawOutline = cg_crosshairScopeOutline.BoolValue;
-                float outlineAlpha = Clamp(cg_crosshairScopeOutlineAlpha.IntValue, 0, 255) / 255.0F;
-                float outlineThickness = Clamp(cg_crosshairScopeOutlineThickness.FloatValue, 1.0F, 4.0F);
-                bool outlineRounded = cg_crosshairScopeOutlineRounded.BoolValue;
-
-                DrawCrosshair(r, center,
-					drawLines, useTStyle, lineGap, lineLength, lineThickness, color,
-                    drawDot, dotAlpha, dotThickness,
-					drawOutline, outlineAlpha, outlineThickness, outlineRounded);
-            } else if (cg_pngScope.IntValue == 2) { // draw dot png scope
+            // draw target
+            if (cg_pngScope.IntValue == 2) { // draw dot png scope
                 Image@ dotSightImage = r.RegisterImage("Gfx/DotSight.tga");
                 Vector2 imgSize = Vector2(dotSightImage.Width, dotSightImage.Height);
                 r.ColorNP = color;
                 r.DrawImage(dotSightImage, center - (imgSize * 0.5F));
+            } else if (cg_pngScope.IntValue == 3) { // draw custom target scope
+                TargetParam param;
+                param.lineColor = color;
+                param.drawLines = cg_scopeLines.BoolValue;
+                param.useTStyle = cg_scopeTStyle.BoolValue;
+                param.lineGap = Clamp(cg_scopeGap.FloatValue, -10.0F, 10.0F);
+                param.lineLength.x = Clamp(cg_scopeSizeHorizontal.FloatValue, 0.0F, 10.0F);
+                param.lineLength.y = Clamp(cg_scopeSizeVertical.FloatValue, 0.0F, 10.0F);
+                param.lineThickness = Clamp(cg_scopeThickness.FloatValue, 1.0F, 4.0F);
+
+                param.drawDot = cg_scopeDot.BoolValue;
+                col.x = cg_scopeDotColorR.IntValue;
+                col.y = cg_scopeDotColorG.IntValue;
+                col.z = cg_scopeDotColorB.IntValue;
+                color = ConvertColorRGBA(col);
+                color.w = Clamp(cg_scopeDotAlpha.IntValue, 0, 255) / 255.0F;
+                param.dotColor = color;
+                param.dotThickness = Clamp(cg_scopeDotThickness.FloatValue, 1.0F, 4.0F);
+
+                param.drawOutline = cg_scopeOutline.BoolValue;
+                param.useRoundedStyle = cg_scopeOutlineRoundedStyle.BoolValue;
+                col.x = cg_scopeOutlineColorR.IntValue;
+                col.y = cg_scopeOutlineColorG.IntValue;
+                col.z = cg_scopeOutlineColorB.IntValue;
+                color = ConvertColorRGBA(col);
+                color.w = Clamp(cg_scopeOutlineAlpha.IntValue, 0, 255) / 255.0F;
+                param.outlineColor = color;
+                param.outlineThickness = Clamp(cg_scopeOutlineThickness.FloatValue, 1.0F, 4.0F);
+
+                DrawTarget(r, center, param);
             } else {
                 Font@ font = this.Font;
                 string text = _Tr("Preferences", "No Preview Available.");
                 Vector2 txtPos = pos + (size - font.Measure(text)) * 0.5F;
-                font.Draw(text, txtPos, 1.0F, Vector4(1.0F, 1.0F, 1.0F, 1.0F));
+                font.Draw(text, txtPos, 1.0F, Vector4(1.0F, 1.0F, 1.0F, 0.5F));
             }
         }
     }
@@ -859,6 +999,10 @@ namespace spades {
             }
         }
 
+        void AddRGBSlider(string caption, array<string> labels, bool enabled = true) {
+            AddSliderGroup(caption, labels, 0, 255, 1, 0, array<string> = { "R: ", "G: ", "B: "});
+        }
+
         void AddControl(string caption, string configName, bool enabled = true) {
             spades::ui::UIElement@ container = CreateItem();
 
@@ -911,12 +1055,24 @@ namespace spades {
                            array<int> = {1, -1, 0}, enabled);
         }
 
-        void AddCrosshairPreview() {
+        void AddTargetPreview() {
             spades::ui::UIElement@ container = CreateItem();
 
-            ConfigCrosshair field(Parent.Manager);
+            ConfigTarget field(Parent.Manager);
             field.Bounds = AABB2(10.0F, 0.0F, FieldX + FieldWidth - 10.0F, 64.0F);
             container.AddChild(field);
+
+            spades::ui::SimpleButton resetButton(Parent.Manager);
+            resetButton.Caption = _Tr("Preferences", "Reset");
+            resetButton.Bounds = AABB2(10.0F, 0.0F, 50.0F, 20.0F);
+            @resetButton.Activated = spades::ui::EventHandler(field.OnResetPressed);
+            container.AddChild(resetButton);
+
+            spades::ui::SimpleButton randomizeButton(Parent.Manager);
+            randomizeButton.Caption = _Tr("Preferences", "Randomize");
+            randomizeButton.Bounds = AABB2(FieldX + FieldWidth - 80.0F, 0.0F, 80.0F, 20.0F);
+            @randomizeButton.Activated = spades::ui::EventHandler(field.OnRandomizePressed);
+            container.AddChild(randomizeButton);
         }
 
         void AddScopePreview() {
@@ -925,6 +1081,18 @@ namespace spades {
             ConfigScope field(Parent.Manager);
             field.Bounds = AABB2(10.0F, 0.0F, FieldX + FieldWidth - 10.0F, 64.0F);
             container.AddChild(field);
+
+            spades::ui::SimpleButton resetButton(Parent.Manager);
+            resetButton.Caption = _Tr("Preferences", "Reset");
+            resetButton.Bounds = AABB2(10.0F, 0.0F, 50.0F, 20.0F);
+            @resetButton.Activated = spades::ui::EventHandler(field.OnResetPressed);
+            container.AddChild(resetButton);
+
+            spades::ui::SimpleButton randomizeButton(Parent.Manager);
+            randomizeButton.Caption = _Tr("Preferences", "Randomize");
+            randomizeButton.Bounds = AABB2(FieldX + FieldWidth - 80.0F, 0.0F, 80.0F, 20.0F);
+            @randomizeButton.Activated = spades::ui::EventHandler(field.OnRandomizePressed);
+            container.AddChild(randomizeButton);
         }
 
         void FinishLayout() {
@@ -982,17 +1150,17 @@ namespace spades {
             layouter.AddToggleField(_Tr("Preferences", "Ignore Chat Messages"), "cg_ignoreChatMessages");
             layouter.AddToggleField(_Tr("Preferences", "Ignore Private Messages"), "cg_ignorePrivateMessages");
             layouter.AddToggleField(_Tr("Preferences", "Hit Analyze Messages"), "cg_hitAnalyze");
-			layouter.AddSliderField(_Tr("Preferences",  "Master Volume"), "s_volume",
+            layouter.AddSliderField(_Tr("Preferences",  "Master Volume"), "s_volume",
             0, 100, 1, ConfigNumberFormatter(0, "%"));
-			layouter.AddToggleField(_Tr("Preferences", "Environmental Audio"), "cg_environmentalAudio");
+            layouter.AddToggleField(_Tr("Preferences", "Environmental Audio"), "cg_environmentalAudio");
             layouter.AddVolumeSlider(_Tr("Preferences", "Chat Notify Sounds"), "cg_chatBeep");
             layouter.AddToggleField(_Tr("Preferences", "Show Alerts"), "cg_alerts");
             layouter.AddVolumeSlider(_Tr("Preferences", "Alert Sounds"), "cg_alertSounds");
-			layouter.AddVolumeSlider(_Tr("Preferences", "Death Camera Sound"), "cg_deathSoundGain");
-			layouter.AddVolumeSlider(_Tr("Preferences", "Respawn Beep Sound"), "cg_respawnSoundGain");
+            layouter.AddVolumeSlider(_Tr("Preferences", "Death Camera Sound"), "cg_deathSoundGain");
+            layouter.AddVolumeSlider(_Tr("Preferences", "Respawn Beep Sound"), "cg_respawnSoundGain");
             layouter.AddVolumeSlider(_Tr("Preferences", "Hit Feedback Sound"), "cg_hitFeedbackSoundGain");
             layouter.AddVolumeSlider(_Tr("Preferences", "Headshot Feedback Sound"), "cg_headshotFeedbackSoundGain");
-			layouter.AddToggleField(_Tr("Preferences", "Hit Indicator"), "cg_hitIndicator");
+            layouter.AddToggleField(_Tr("Preferences", "Hit Indicator"), "cg_hitIndicator");
             layouter.AddToggleField(_Tr("Preferences", "Damage Indicator"), "cg_damageIndicators");
 
             layouter.AddHeading(_Tr("Preferences", "AoS 0.75/0.76 Compatibility"));
@@ -1030,9 +1198,8 @@ namespace spades {
             0.2, 1, 0.01, 2, array<string> = { "X: ", "Y: "});
             layouter.AddSliderField(_Tr("Preferences", "HUD Color"), "cg_hudColor",
             0, 10, 1, ConfigHUDColorFormatter());
-            layouter.AddSliderGroup(_Tr("Preferences", "Custom Color"),
-            array<string> = { "cg_hudColorR", "cg_hudColorG", "cg_hudColorB"},
-            0, 255, 1, 0, array<string> = { "R: ", "G: ", "B: "});
+            layouter.AddRGBSlider(_Tr("Preferences", "Custom Color"),
+            array<string> = { "cg_hudColorR", "cg_hudColorG", "cg_hudColorB"});
             layouter.AddSliderField(_Tr("Preferences", "Chat Height"), "cg_chatHeight",
             10, 100, 1, ConfigNumberFormatter(0, "px"));
             layouter.AddSliderField(_Tr("Preferneces", "Killfeed Height"), "cg_killfeedHeight",
@@ -1040,75 +1207,84 @@ namespace spades {
             layouter.AddToggleField(_Tr("Preferences", "Small Chat Font"),
                 "cg_smallFont", not options.GameActive);
 
-            layouter.AddHeading(_Tr("Preferences", "Crosshair"));
-            layouter.AddCrosshairPreview();
+            layouter.AddHeading(_Tr("Preferences", "Target"));
+            layouter.AddTargetPreview();
             layouter.AddHeading("");
-            layouter.AddChoiceField(_Tr("Preferences", "Target Type"), "cg_crosshair",
-                                    array<string> = {_Tr("Preferences", "Default"),
+            layouter.AddChoiceField(_Tr("Preferences", "Target Type"), "cg_target",
+                                    array<string> = {_Tr("Preferences", "OFF"),
+                                                     _Tr("Preferences", "Default"),
                                                      _Tr("Preferences", "Custom")},
-                                    array<int> = {0, 1});
-            layouter.AddSliderField(_Tr("Preferences", "Color"), "cg_crosshairColor",
-            0, 6, 1, ConfigCrosshairColorFormatter());
-            layouter.AddSliderGroup(_Tr("Preferences", "Custom Color"),
-            array<string> = { "cg_crosshairColorR", "cg_crosshairColorG", "cg_crosshairColorB"},
-            0, 255, 1, 0, array<string> = { "R: ", "G: ", "B: "});
-            layouter.AddSliderField(_Tr("Preferences", "Opacity"), "cg_crosshairAlpha",
+                                    array<int> = {0, 1, 2});
+            layouter.AddToggleField(_Tr("Preferences", "Lines"), "cg_targetLines");
+            layouter.AddSliderField(_Tr("Preferences", "Color"), "cg_targetColor",
+            0, 6, 1, ConfigTargetColorFormatter());
+            layouter.AddRGBSlider(_Tr("Preferences", "Custom Color"),
+            array<string> = { "cg_targetColorR", "cg_targetColorG", "cg_targetColorB"});
+            layouter.AddSliderField(_Tr("Preferences", "Opacity"), "cg_targetAlpha",
             0, 255, 1, ConfigNumberFormatter(0, ""));
-            layouter.AddToggleField(_Tr("Preferences", "Lines"), "cg_crosshairLines");
-            layouter.AddSliderField(_Tr("Preferences", "Length"), "cg_crosshairSize",
-            1, 10, 1, ConfigNumberFormatter(0, "px"));
-            layouter.AddSliderField(_Tr("Preferences", "Thickness"), "cg_crosshairThickness",
+            layouter.AddSliderGroup(_Tr("Preferences", "Length"),
+            array<string> = { "cg_targetSizeHorizontal", "cg_targetSizeVertical"},
+            1, 10, 1, 0, array<string> = { "", "" });
+            layouter.AddSliderField(_Tr("Preferences", "Thickness"), "cg_targetThickness",
             1, 4, 1, ConfigNumberFormatter(0, "px"));
-            layouter.AddSliderField(_Tr("Preferences", "Gap"), "cg_crosshairGap",
-            -5, 5, 1, ConfigNumberFormatter(0, "px"));
-            layouter.AddToggleField(_Tr("Preferences", "Dynamic"), "cg_crosshairDynamic");
-            layouter.AddSliderField(_Tr("Preferences", "Dynamic Split Dist"), "cg_crosshairDynamicSplitdist",
+            layouter.AddSliderField(_Tr("Preferences", "Gap"), "cg_targetGap",
+            -10, 10, 1, ConfigNumberFormatter(0, "px"));
+            layouter.AddToggleField(_Tr("Preferences", "Dynamic"), "cg_targetDynamic");
+            layouter.AddSliderField(_Tr("Preferences", "Dynamic Split Dist"), "cg_targetDynamicSplitdist",
             1, 20, 1, ConfigNumberFormatter(0, ""));
-            layouter.AddToggleField(_Tr("Preferences", "Outline"), "cg_crosshairOutline");
-            layouter.AddSliderField(_Tr("Preferences", "Outline Opacity"), "cg_crosshairOutlineAlpha",
+            layouter.AddToggleField(_Tr("Preferences", "Outline"), "cg_targetOutline");
+            layouter.AddRGBSlider(_Tr("Preferences", "Outline Color"),
+            array<string> = { "cg_targetOutlineColorR", "cg_targetOutlineColorG", "cg_targetOutlineColorB"});
+            layouter.AddSliderField(_Tr("Preferences", "Outline Opacity"), "cg_targetOutlineAlpha",
             0, 255, 1, ConfigNumberFormatter(0, ""));
-            layouter.AddSliderField(_Tr("Preferences", "Outline Thickness"), "cg_crosshairOutlineThickness",
+            layouter.AddSliderField(_Tr("Preferences", "Outline Thickness"), "cg_targetOutlineThickness",
             1, 4, 1, ConfigNumberFormatter(0, "px"));
-            layouter.AddToggleField(_Tr("Preferences", "Rounded Outline Corners"), "cg_crosshairOutlineRounded");
-            layouter.AddToggleField(_Tr("Preferences", "Center Dot"), "cg_crosshairDot");
-            layouter.AddSliderField(_Tr("Preferences", "Center Dot Opacity"), "cg_crosshairDotAlpha",
+            layouter.AddToggleField(_Tr("Preferences", "Rounded Corners Style"), "cg_targetOutlineRoundedStyle");
+            layouter.AddToggleField(_Tr("Preferences", "Center Dot"), "cg_targetDot");
+            layouter.AddRGBSlider(_Tr("Preferences", "Center Dot Color"),
+            array<string> = { "cg_targetDotColorR", "cg_targetDotColorG", "cg_targetDotColorB"});
+            layouter.AddSliderField(_Tr("Preferences", "Center Dot Opacity"), "cg_targetDotAlpha",
             0, 255, 1, ConfigNumberFormatter(0, ""));
-            layouter.AddSliderField(_Tr("Preferences", "Center Dot Thickness"), "cg_crosshairDotThickness",
+            layouter.AddSliderField(_Tr("Preferences", "Center Dot Thickness"), "cg_targetDotThickness",
             1, 4, 1, ConfigNumberFormatter(0, "px"));
-            layouter.AddToggleField(_Tr("Preferences", "T Style"), "cg_crosshairTStyle");
+            layouter.AddToggleField(_Tr("Preferences", "T Style"), "cg_targetTStyle");
 
             layouter.AddHeading(_Tr("Preferences", "Scope"));
             layouter.AddScopePreview();
             layouter.AddHeading("");
             layouter.AddSliderField(_Tr("Preferences", "Scope Type"), "cg_pngScope",
             0, 3, 1, ConfigScopeTypeFormatter());
-            layouter.AddSliderGroup(_Tr("Preferences", "Color"),
-            array<string> = { "cg_crosshairScopeColorR", "cg_crosshairScopeColorG", "cg_crosshairScopeColorB"},
-            0, 255, 1, 0, array<string> = { "R: ", "G: ", "B: "});
-            layouter.AddSliderField(_Tr("Preferences", "Opacity"), "cg_crosshairScopeAlpha",
+            layouter.AddToggleField(_Tr("Preferences", "Lines"), "cg_scopeLines");
+            layouter.AddRGBSlider(_Tr("Preferences", "Color"),
+            array<string> = { "cg_scopeColorR", "cg_scopeColorG", "cg_scopeColorB"});
+            layouter.AddSliderField(_Tr("Preferences", "Opacity"), "cg_scopeAlpha",
             0, 255, 1, ConfigNumberFormatter(0, ""));
-            layouter.AddToggleField(_Tr("Preferences", "Lines"), "cg_crosshairScopeLines");
-            layouter.AddSliderField(_Tr("Preferences", "Length"), "cg_crosshairScopeSize",
-            1, 10, 1, ConfigNumberFormatter(0, "px"));
-            layouter.AddSliderField(_Tr("Preferences", "Thickness"), "cg_crosshairScopeThickness",
+            layouter.AddSliderGroup(_Tr("Preferences", "Length"),
+            array<string> = { "cg_scopeSizeHorizontal", "cg_scopeSizeVertical"},
+            1, 10, 1, 0, array<string> = { "", "" });
+            layouter.AddSliderField(_Tr("Preferences", "Thickness"), "cg_scopeThickness",
             1, 4, 1, ConfigNumberFormatter(0, "px"));
-            layouter.AddSliderField(_Tr("Preferences", "Gap"), "cg_crosshairScopeGap",
-            -5, 5, 1, ConfigNumberFormatter(0, "px"));
-            layouter.AddToggleField(_Tr("Preferences", "Dynamic"), "cg_crosshairScopeDynamic");
-            layouter.AddSliderField(_Tr("Preferences", "Dynamic Split Dist"), "cg_crosshairScopeDynamicSplitdist",
+            layouter.AddSliderField(_Tr("Preferences", "Gap"), "cg_scopeGap",
+            -10, 10, 1, ConfigNumberFormatter(0, "px"));
+            layouter.AddToggleField(_Tr("Preferences", "Dynamic"), "cg_scopeDynamic");
+            layouter.AddSliderField(_Tr("Preferences", "Dynamic Split Dist"), "cg_scopeDynamicSplitdist",
             1, 20, 1, ConfigNumberFormatter(0, ""));
-            layouter.AddToggleField(_Tr("Preferences", "Outline"), "cg_crosshairScopeOutline");
-            layouter.AddSliderField(_Tr("Preferences", "Outline Opacity"), "cg_crosshairScopeOutlineAlpha",
+            layouter.AddToggleField(_Tr("Preferences", "Outline"), "cg_scopeOutline");
+            layouter.AddRGBSlider(_Tr("Preferences", "Outline Color"),
+            array<string> = { "cg_scopeOutlineColorR", "cg_scopeOutlineColorG", "cg_scopeOutlineColorB"});
+            layouter.AddSliderField(_Tr("Preferences", "Outline Opacity"), "cg_scopeOutlineAlpha",
             0, 255, 1, ConfigNumberFormatter(0, ""));
-            layouter.AddSliderField(_Tr("Preferences", "Outline Thickness"), "cg_crosshairScopeOutlineThickness",
+            layouter.AddSliderField(_Tr("Preferences", "Outline Thickness"), "cg_scopeOutlineThickness",
             1, 4, 1, ConfigNumberFormatter(0, "px"));
-            layouter.AddToggleField(_Tr("Preferences", "Rounded Outline Corners"), "cg_crosshairScopeOutlineRounded");
-            layouter.AddToggleField(_Tr("Preferences", "Center Dot"), "cg_crosshairScopeDot");
-            layouter.AddSliderField(_Tr("Preferences", "Center Dot Opacity"), "cg_crosshairScopeDotAlpha",
+            layouter.AddToggleField(_Tr("Preferences", "Rounded Corners Style"), "cg_scopeOutlineRoundedStyle");
+            layouter.AddToggleField(_Tr("Preferences", "Center Dot"), "cg_scopeDot");
+            layouter.AddRGBSlider(_Tr("Preferences", "Center Dot Color"),
+            array<string> = { "cg_scopeDotColorR", "cg_scopeDotColorG", "cg_scopeDotColorB"});
+            layouter.AddSliderField(_Tr("Preferences", "Center Dot Opacity"), "cg_scopeDotAlpha",
             0, 255, 1, ConfigNumberFormatter(0, ""));
-            layouter.AddSliderField(_Tr("Preferences", "Center Dot Thickness"), "cg_crosshairScopeDotThickness",
+            layouter.AddSliderField(_Tr("Preferences", "Center Dot Thickness"), "cg_scopeDotThickness",
             1, 4, 1, ConfigNumberFormatter(0, "px"));
-            layouter.AddToggleField(_Tr("Preferences", "T Style"), "cg_crosshairScopeTStyle");
+            layouter.AddToggleField(_Tr("Preferences", "T Style"), "cg_scopeTStyle");
 
             layouter.FinishLayout();
         }

@@ -193,47 +193,61 @@ namespace spades {
         protected Image@ scopeImage;
         protected Image@ dotSightImage;
 
-        protected ConfigItem cg_crosshair("cg_crosshair", "1");
-        protected ConfigItem cg_crosshairColor("cg_crosshairColor", "0");
-        protected ConfigItem cg_crosshairColorR("cg_crosshairColorR", "255");
-        protected ConfigItem cg_crosshairColorG("cg_crosshairColorG", "255");
-        protected ConfigItem cg_crosshairColorB("cg_crosshairColorB", "255");
-        protected ConfigItem cg_crosshairAlpha("cg_crosshairAlpha", "255");
-        protected ConfigItem cg_crosshairLines("cg_crosshairLines", "1");
-        protected ConfigItem cg_crosshairGap("cg_crosshairGap", "4");
-        protected ConfigItem cg_crosshairSize("cg_crosshairSize", "5");
-        protected ConfigItem cg_crosshairThickness("cg_crosshairThickness", "1");
-        protected ConfigItem cg_crosshairTStyle("cg_crosshairTStyle", "0");
-        protected ConfigItem cg_crosshairDot("cg_crosshairDot", "0");
-        protected ConfigItem cg_crosshairDotAlpha("cg_crosshairDotAlpha", "255");
-        protected ConfigItem cg_crosshairDotThickness("cg_crosshairDotThickness", "1");
-        protected ConfigItem cg_crosshairOutline("cg_crosshairOutline", "1");
-        protected ConfigItem cg_crosshairOutlineAlpha("cg_crosshairOutlineAlpha", "255");
-        protected ConfigItem cg_crosshairOutlineThickness("cg_crosshairOutlineThickness", "1");
-        protected ConfigItem cg_crosshairOutlineRounded("cg_crosshairOutlineRounded", "0");
-        protected ConfigItem cg_crosshairDynamic("cg_crosshairDynamic", "1");
-        protected ConfigItem cg_crosshairDynamicSplitDist("cg_crosshairDynamicSplitdist", "7");
+        protected ConfigItem cg_target("cg_target", "1");
+        protected ConfigItem cg_targetLines("cg_targetLines", "1");
+        protected ConfigItem cg_targetColor("cg_targetColor", "0");
+        protected ConfigItem cg_targetColorR("cg_targetColorR", "255");
+        protected ConfigItem cg_targetColorG("cg_targetColorG", "255");
+        protected ConfigItem cg_targetColorB("cg_targetColorB", "255");
+        protected ConfigItem cg_targetAlpha("cg_targetAlpha", "255");
+        protected ConfigItem cg_targetGap("cg_targetGap", "4");
+        protected ConfigItem cg_targetSizeHorizontal("cg_targetSizeHorizontal", "5");
+        protected ConfigItem cg_targetSizeVertical("cg_targetSizeVertical", "5");
+        protected ConfigItem cg_targetThickness("cg_targetThickness", "1");
+        protected ConfigItem cg_targetTStyle("cg_targetTStyle", "0");
+        protected ConfigItem cg_targetDot("cg_targetDot", "0");
+        protected ConfigItem cg_targetDotColorR("cg_targetDotColorR", "255");
+        protected ConfigItem cg_targetDotColorG("cg_targetDotColorG", "255");
+        protected ConfigItem cg_targetDotColorB("cg_targetDotColorB", "255");
+        protected ConfigItem cg_targetDotAlpha("cg_targetDotAlpha", "255");
+        protected ConfigItem cg_targetDotThickness("cg_targetDotThickness", "1");
+        protected ConfigItem cg_targetOutline("cg_targetOutline", "1");
+        protected ConfigItem cg_targetOutlineColorR("cg_targetOutlineColorR", "0");
+        protected ConfigItem cg_targetOutlineColorG("cg_targetOutlineColorG", "0");
+        protected ConfigItem cg_targetOutlineColorB("cg_targetOutlineColorB", "0");
+        protected ConfigItem cg_targetOutlineAlpha("cg_targetOutlineAlpha", "255");
+        protected ConfigItem cg_targetOutlineThickness("cg_targetOutlineThickness", "1");
+        protected ConfigItem cg_targetOutlineRoundedStyle("cg_targetOutlineRoundedStyle", "0");
+        protected ConfigItem cg_targetDynamic("cg_targetDynamic", "1");
+        protected ConfigItem cg_targetDynamicSplitDist("cg_targetDynamicSplitdist", "7");
 
         protected ConfigItem cg_pngScope("cg_pngScope", "0");
-        protected ConfigItem cg_crosshairScopeColor("cg_crosshairScopeColor", "0");
-        protected ConfigItem cg_crosshairScopeColorR("cg_crosshairScopeColorR", "255");
-        protected ConfigItem cg_crosshairScopeColorG("cg_crosshairScopeColorG", "255");
-        protected ConfigItem cg_crosshairScopeColorB("cg_crosshairScopeColorB", "255");
-        protected ConfigItem cg_crosshairScopeAlpha("cg_crosshairScopeAlpha", "255");
-        protected ConfigItem cg_crosshairScopeLines("cg_crosshairScopeLines", "1");
-        protected ConfigItem cg_crosshairScopeGap("cg_crosshairScopeGap", "4");
-        protected ConfigItem cg_crosshairScopeSize("cg_crosshairScopeSize", "5");
-        protected ConfigItem cg_crosshairScopeThickness("cg_crosshairScopeThickness", "1");
-        protected ConfigItem cg_crosshairScopeTStyle("cg_crosshairScopeTStyle", "0");
-        protected ConfigItem cg_crosshairScopeDot("cg_crosshairScopeDot", "0");
-        protected ConfigItem cg_crosshairScopeDotAlpha("cg_crosshairScopeDotAlpha", "255");
-        protected ConfigItem cg_crosshairScopeDotThickness("cg_crosshairScopeDotThickness", "1");
-        protected ConfigItem cg_crosshairScopeOutline("cg_crosshairScopeOutline", "1");
-        protected ConfigItem cg_crosshairScopeOutlineAlpha("cg_crosshairScopeOutlineAlpha", "255");
-        protected ConfigItem cg_crosshairScopeOutlineThickness("cg_crosshairScopeOutlineThickness", "1");
-        protected ConfigItem cg_crosshairScopeOutlineRounded("cg_crosshairScopeOutlineRounded", "0");
-        protected ConfigItem cg_crosshairScopeDynamic("cg_crosshairScopeDynamic", "1");
-        protected ConfigItem cg_crosshairScopeDynamicSplitDist("cg_crosshairScopeDynamicSplitdist", "7");
+        protected ConfigItem cg_scopeLines("cg_scopeLines", "1");
+        protected ConfigItem cg_scopeColor("cg_scopeColor", "0");
+        protected ConfigItem cg_scopeColorR("cg_scopeColorR", "255");
+        protected ConfigItem cg_scopeColorG("cg_scopeColorG", "0");
+        protected ConfigItem cg_scopeColorB("cg_scopeColorB", "255");
+        protected ConfigItem cg_scopeAlpha("cg_scopeAlpha", "255");
+        protected ConfigItem cg_scopeGap("cg_scopeGap", "4");
+        protected ConfigItem cg_scopeSizeHorizontal("cg_scopeSizeHorizontal", "5");
+        protected ConfigItem cg_scopeSizeVertical("cg_scopeSizeVertical", "5");
+        protected ConfigItem cg_scopeThickness("cg_scopeThickness", "1");
+        protected ConfigItem cg_scopeTStyle("cg_scopeTStyle", "0");
+        protected ConfigItem cg_scopeDot("cg_scopeDot", "0");
+        protected ConfigItem cg_scopeDotColorR("cg_scopeDotColorR", "0");
+        protected ConfigItem cg_scopeDotColorG("cg_scopeDotColorG", "0");
+        protected ConfigItem cg_scopeDotColorB("cg_scopeDotColorB", "0");
+        protected ConfigItem cg_scopeDotAlpha("cg_scopeDotAlpha", "255");
+        protected ConfigItem cg_scopeDotThickness("cg_scopeDotThickness", "1");
+        protected ConfigItem cg_scopeOutline("cg_scopeOutline", "1");
+        protected ConfigItem cg_scopeOutlineColorR("cg_scopeOutlineColorR", "0");
+        protected ConfigItem cg_scopeOutlineColorG("cg_scopeOutlineColorG", "0");
+        protected ConfigItem cg_scopeOutlineColorB("cg_scopeOutlineColorB", "0");
+        protected ConfigItem cg_scopeOutlineAlpha("cg_scopeOutlineAlpha", "255");
+        protected ConfigItem cg_scopeOutlineThickness("cg_scopeOutlineThickness", "1");
+        protected ConfigItem cg_scopeOutlineRoundedStyle("cg_scopeOutlineRoundedStyle", "0");
+        protected ConfigItem cg_scopeDynamic("cg_scopeDynamic", "1");
+        protected ConfigItem cg_scopeDynamicSplitDist("cg_scopeDynamicSplitdist", "7");
 
         BasicViewWeapon(Renderer@ renderer) {
             @this.renderer = renderer;
@@ -309,7 +323,7 @@ namespace spades {
 
         void Update(float dt) {
             if (localFireVibration > 0.0F) {
-				localFireVibration -= dt * 10.0F;
+                localFireVibration -= dt * 10.0F;
                 if (localFireVibration < 0.0F)
                     localFireVibration = 0.0F;
             }
@@ -335,15 +349,17 @@ namespace spades {
 
             Vector2 scrCenter = Vector2(sw, sh) * 0.5F;
 
-			// draw scope
+            TargetParam param;
+
+            // draw scope
             if (AimDownSightStateSmooth > 0.99F) {
                 IntVector3 col;
-                col.x = cg_crosshairScopeColorR.IntValue;
-                col.y = cg_crosshairScopeColorG.IntValue;
-                col.z = cg_crosshairScopeColorB.IntValue;
+                col.x = cg_scopeColorR.IntValue;
+                col.y = cg_scopeColorG.IntValue;
+                col.z = cg_scopeColorB.IntValue;
 
                 Vector4 color = ConvertColorRGBA(col);
-                color.w = Clamp(cg_crosshairScopeAlpha.IntValue, 0, 255) / 255.0F;
+                color.w = Clamp(cg_scopeAlpha.IntValue, 0, 255) / 255.0F;
 
                 if (cg_pngScope.IntValue == 1) { // draw classic png scope
                     Vector2 imgSize = Vector2(scopeImage.Width, scopeImage.Height);
@@ -356,40 +372,51 @@ namespace spades {
                     renderer.ColorNP = Vector4(1.0F, 1.0F, 1.0F, color.w);
                     renderer.DrawImage(scopeImage, AABB2(imgPos.x, imgPos.y, imgSize.x, imgSize.y));
                 } else if (cg_pngScope.IntValue == 2) { // draw dot png scope
-					Vector2 imgSize = Vector2(dotSightImage.Width, dotSightImage.Height);
-					Vector2 imgPos = scrCenter - (imgSize * 0.5F);
+                    Vector2 imgSize = Vector2(dotSightImage.Width, dotSightImage.Height);
+                    Vector2 imgPos = scrCenter - (imgSize * 0.5F);
                     renderer.ColorNP = color;
                     renderer.DrawImage(dotSightImage, imgPos);
                 } else if (cg_pngScope.IntValue == 3) { // draw custom crosshair scope
-					bool drawLines = cg_crosshairScopeLines.BoolValue;
-                    bool useTStyle = cg_crosshairScopeTStyle.BoolValue;
-                    float lineGap = cg_crosshairScopeGap.FloatValue;
-                    if (cg_crosshairScopeDynamic.BoolValue) {
-						float maxDist = cg_crosshairScopeDynamicSplitDist.FloatValue;
-						lineGap += localFireVibration * maxDist;
-					}
+                    param.lineColor = color;
+                    param.drawLines = cg_scopeLines.BoolValue;
+                    param.useTStyle = cg_scopeTStyle.BoolValue;
+                    param.lineGap = cg_scopeGap.FloatValue;
+                    param.lineLength.x = cg_scopeSizeHorizontal.FloatValue;
+                    param.lineLength.y = cg_scopeSizeVertical.FloatValue;
+                    param.lineThickness = Max(1.0F, cg_scopeThickness.FloatValue);
 
-                    float lineLength = cg_crosshairScopeSize.FloatValue;
-                    float lineThickness = Max(1.0F, cg_crosshairScopeThickness.FloatValue);
-                    bool drawDot = cg_crosshairScopeDot.BoolValue;
-                    float dotAlpha = Clamp(cg_crosshairScopeDotAlpha.IntValue, 0, 255) / 255.0F;
-                    float dotThickness = Max(1.0F, cg_crosshairScopeDotThickness.FloatValue);
-                    bool drawOutline = cg_crosshairScopeOutline.BoolValue;
-                    float outlineAlpha = Clamp(cg_crosshairScopeOutlineAlpha.IntValue, 0, 255) / 255.0F;
-                    float outlineThickness = Max(1.0F, cg_crosshairScopeOutlineThickness.FloatValue);
-                    bool outlineRounded = cg_crosshairScopeOutlineRounded.BoolValue;
+                    if (cg_scopeDynamic.BoolValue) {
+                        float maxDist = cg_scopeDynamicSplitDist.FloatValue;
+                        param.lineGap += localFireVibration * maxDist;
+                    }
 
-                    DrawCrosshair(renderer, scrCenter,
-						drawLines, useTStyle, lineGap, lineLength, lineThickness, color,
-                        drawDot, dotAlpha, dotThickness,
-                        drawOutline, outlineAlpha, outlineThickness, outlineRounded);
+                    param.drawDot = cg_scopeDot.BoolValue;
+                    col.x = cg_scopeDotColorR.IntValue;
+                    col.y = cg_scopeDotColorG.IntValue;
+                    col.z = cg_scopeDotColorB.IntValue;
+                    color = ConvertColorRGBA(col);
+                    color.w = Clamp(cg_scopeDotAlpha.IntValue, 0, 255) / 255.0F;
+                    param.dotColor = color;
+                    float dotThickness = Max(1.0F, cg_scopeDotThickness.FloatValue);
+
+                    param.drawOutline = cg_scopeOutline.BoolValue;
+                    param.useRoundedStyle = cg_scopeOutlineRoundedStyle.BoolValue;
+                    col.x = cg_scopeOutlineColorR.IntValue;
+                    col.y = cg_scopeOutlineColorG.IntValue;
+                    col.z = cg_scopeOutlineColorB.IntValue;
+                    color = ConvertColorRGBA(col);
+                    color.w = Clamp(cg_scopeOutlineAlpha.IntValue, 0, 255) / 255.0F;
+                    param.outlineColor = color;
+                    param.outlineThickness = Max(1.0F, cg_scopeOutlineThickness.FloatValue);
+
+                    DrawTarget(renderer, scrCenter, param);
                 }
 
                 return; // do not draw the target when aiming
             }
 
             IntVector3 col;
-            switch (cg_crosshairColor.IntValue) {
+            switch (cg_targetColor.IntValue) {
                 case 1: col = IntVector3(250, 50, 50); break; // red
                 case 2: col = IntVector3(50, 250, 50); break; // green
                 case 3: col = IntVector3(50, 50, 250); break; // blue
@@ -397,45 +424,57 @@ namespace spades {
                 case 5: col = IntVector3(50, 250, 250); break; // cyan
                 case 6: col = IntVector3(250, 50, 250); break; // pink
                 default: // custom
-                    col.x = cg_crosshairColorR.IntValue;
-                    col.y = cg_crosshairColorG.IntValue;
-                    col.z = cg_crosshairColorB.IntValue;
+                    col.x = cg_targetColorR.IntValue;
+                    col.y = cg_targetColorG.IntValue;
+                    col.z = cg_targetColorB.IntValue;
                     break;
             }
 
             Vector4 color = ConvertColorRGBA(col);
-            color.w = Clamp(cg_crosshairAlpha.IntValue, 0, 255) / 255.0F;
+            color.w = Clamp(cg_targetAlpha.IntValue, 0, 255) / 255.0F;
 
-            if (cg_crosshair.BoolValue) { // draw custom crosshair
-				bool drawLines = cg_crosshairLines.BoolValue;
-                bool useTStyle = cg_crosshairTStyle.BoolValue;
-                float lineGap = cg_crosshairGap.FloatValue;
-                 if (cg_crosshairDynamic.BoolValue) {
-					float maxDist = cg_crosshairDynamicSplitDist.FloatValue;
-					lineGap += sprintState * maxDist;
-					lineGap += localFireVibration * maxDist;
-					lineGap += (1.0F - raiseState) * maxDist;
-				}
-
-                float lineLength = cg_crosshairSize.FloatValue;
-                float lineThickness = Max(1.0F, cg_crosshairThickness.FloatValue);
-                bool drawDot = cg_crosshairDot.BoolValue;
-                float dotAlpha = Clamp(cg_crosshairDotAlpha.IntValue, 0, 255) / 255.0F;
-                float dotThickness = Max(1.0F, cg_crosshairDotThickness.FloatValue);
-                bool drawOutline = cg_crosshairOutline.BoolValue;
-                float outlineAlpha = Clamp(cg_crosshairOutlineAlpha.IntValue, 0, 255) / 255.0F;
-                float outlineThickness = Max(1.0F, cg_crosshairOutlineThickness.FloatValue);
-                bool outlineRounded = cg_crosshairOutlineRounded.BoolValue;
-
-                DrawCrosshair(renderer, scrCenter,
-					drawLines, useTStyle, lineGap, lineLength, lineThickness, color,
-					drawDot, dotAlpha, dotThickness,
-                    drawOutline, outlineAlpha, outlineThickness, outlineRounded);
-            } else { // draw default target
-				Vector2 imgSize = Vector2(sightImage.Width, sightImage.Height);
-				Vector2 imgPos = scrCenter - (imgSize * 0.5F);
+            // draw target
+            if (cg_target.IntValue == 1) { // draw default target
+                Vector2 imgSize = Vector2(sightImage.Width, sightImage.Height);
+                Vector2 imgPos = scrCenter - (imgSize * 0.5F);
                 renderer.ColorNP = color;
                 renderer.DrawImage(sightImage, imgPos);
+            } else if (cg_target.IntValue == 2) { // draw custom target
+                param.lineColor = color;
+                param.drawLines = cg_targetLines.BoolValue;
+                param.useTStyle = cg_targetTStyle.BoolValue;
+                param.lineGap = cg_targetGap.FloatValue;
+                param.lineLength.x = cg_targetSizeHorizontal.FloatValue;
+                param.lineLength.y = cg_targetSizeVertical.FloatValue;
+                param.lineThickness = Max(1.0F, cg_targetThickness.FloatValue);
+
+                if (cg_targetDynamic.BoolValue) {
+                    float maxDist = cg_targetDynamicSplitDist.FloatValue;
+                    param.lineGap += sprintState * maxDist;
+                    param.lineGap += localFireVibration * maxDist;
+                    param.lineGap += (1.0F - raiseState) * maxDist;
+                }
+
+                param.drawDot = cg_targetDot.BoolValue;
+                col.x = cg_targetDotColorR.IntValue;
+                col.y = cg_targetDotColorG.IntValue;
+                col.z = cg_targetDotColorB.IntValue;
+                color = ConvertColorRGBA(col);
+                color.w = Clamp(cg_targetDotAlpha.IntValue, 0, 255) / 255.0F;
+                param.dotColor = color;
+                param.dotThickness = Max(1.0F, cg_targetDotThickness.FloatValue);
+
+                param.drawOutline = cg_targetOutline.BoolValue;
+                param.useRoundedStyle = cg_targetOutlineRoundedStyle.BoolValue;
+                col.x = cg_targetOutlineColorR.IntValue;
+                col.y = cg_targetOutlineColorG.IntValue;
+                col.z = cg_targetOutlineColorB.IntValue;
+                color = ConvertColorRGBA(col);
+                color.w = Clamp(cg_targetOutlineAlpha.IntValue, 0, 255) / 255.0F;
+                param.outlineColor = color;
+                param.outlineThickness = Max(1.0F, cg_targetOutlineThickness.FloatValue);
+
+                DrawTarget(renderer, scrCenter, param);
             }
         }
     }

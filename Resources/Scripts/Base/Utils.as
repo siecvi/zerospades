@@ -30,74 +30,80 @@ namespace spades {
     int Clamp(int v, int lo, int hi) { return Min(Max(v, lo), hi); }
     float Clamp(float v, float lo, float hi) { return Min(Max(v, lo), hi); }
 
-    void DrawCrosshairRect(Renderer@ r, int x, int y, int w, int h, Vector4 color,
-        bool drawOutline, float outlineAlpha, float outlineThickness, bool outlineRounded) {
-        if (drawOutline) {
-            r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, outlineAlpha);
-            if (outlineRounded) {
-                r.DrawFilledRect(x, y-outlineThickness, w, y);
-                r.DrawFilledRect(x, h, w, h+outlineThickness);
+    class TargetParam {
+        bool drawLines;
+        bool useTStyle;
+        Vector4 lineColor;
+        float lineGap;
+        Vector2 lineLength;
+        float lineThickness;
+        bool drawOutline;
+        bool useRoundedStyle;
+        Vector4 outlineColor;
+        float outlineThickness;
+        bool drawDot;
+        Vector4 dotColor;
+        float dotThickness;
+    }
+
+    void DrawTargetRect(Renderer@ r, int x, int y, int w, int h, TargetParam param) {
+        if (param.drawOutline) {
+            r.ColorNP = param.outlineColor;
+            int thickness = int(param.outlineThickness);
+            if (param.useRoundedStyle) {
+                r.DrawFilledRect(x, y-thickness, w, y);
+                r.DrawFilledRect(x, h, w, h+thickness);
             } else {
-                r.DrawFilledRect(x-outlineThickness, y-outlineThickness, w+outlineThickness, y);
-                r.DrawFilledRect(x-outlineThickness, h, w+outlineThickness, h+outlineThickness);
+                r.DrawFilledRect(x-thickness, y-thickness, w+thickness, y);
+                r.DrawFilledRect(x-thickness, h, w+thickness, h+thickness);
             }
-            r.DrawFilledRect(x-outlineThickness, y, x, h);
-            r.DrawFilledRect(w, y, w+outlineThickness, h);
+            r.DrawFilledRect(x-thickness, y, x, h);
+            r.DrawFilledRect(w, y, w+thickness, h);
         }
 
-        r.ColorNP = color;
+        r.ColorNP = param.lineColor;
         r.DrawFilledRect(x, y, w, h);
     }
 
-    void DrawCrosshair(Renderer@ r, Vector2 pos,
-		bool drawLines, bool useTStyle, float gap, float size, float thickness, Vector4 color,
-        bool drawDot, float dotAlpha, float dotThickness,
-        bool drawOutline, float outlineAlpha, float outlineThickness, bool outlineRounded) {
-        int cx = int(pos.x);
-        int cy = int(pos.y);
+    void DrawTarget(Renderer@ r, Vector2 pos, TargetParam param) {
+        int thickness = int(param.lineThickness);
+        int x = int(pos.x) - thickness / 2;
+        int y = int(pos.y) - thickness / 2;
+        int w = x + thickness;
+        int h = y + thickness;
 
-        int barGap = int(gap);
-        int barSize = int(size);
-        int barThickness = int(thickness);
+        // draw target lines
+        if (param.drawLines) {
+            int lineGap = int(param.lineGap);
 
-        int x = cx - barThickness / 2;
-        int y = cy - barThickness / 2;
-        int w = x + barThickness;
-        int h = y + barThickness;
+            // horizontal lines
+            int lineLengthHorizontal = int(param.lineLength.x);
+            int innerLeft = x - lineGap;
+            int innerRight = w + lineGap;
+            int outerLeft = innerLeft - lineLengthHorizontal;
+            int outerRight = innerRight + lineLengthHorizontal;
+            DrawTargetRect(r, outerLeft, y, innerLeft, h, param); // left
+            DrawTargetRect(r, innerRight, y, outerRight, h, param); // right
 
-        if (drawLines) {
-            // draw horizontal crosshair lines
-            int innerLeft = x - barGap;
-            int innerRight = w + barGap;
-            int outerLeft = innerLeft - barSize;
-            int outerRight = innerRight + barSize;
-            DrawCrosshairRect(r, outerLeft, y, innerLeft, h, color,
-                drawOutline, outlineAlpha, outlineThickness, outlineRounded); // left
-            DrawCrosshairRect(r, innerRight, y, outerRight, h, color,
-                drawOutline, outlineAlpha, outlineThickness, outlineRounded); // right
-
-            // draw vertical crosshair lines
-            int innerTop = y - barGap;
-            int innerBottom = h + barGap;
-            int outerTop = innerTop - barSize;
-            int outerBottom = innerBottom + barSize;
-            if (not useTStyle)
-                DrawCrosshairRect(r, x, outerTop, w, innerTop, color,
-                    drawOutline, outlineAlpha, outlineThickness, outlineRounded); // top
-            DrawCrosshairRect(r, x, innerBottom, w, outerBottom, color,
-                drawOutline, outlineAlpha, outlineThickness, outlineRounded); // bottom
+            // vertical lines
+            int lineLengthVertical = int(param.lineLength.y);
+            int innerTop = y - lineGap;
+            int innerBottom = h + lineGap;
+            int outerTop = innerTop - lineLengthVertical;
+            int outerBottom = innerBottom + lineLengthVertical;
+            if (not param.useTStyle)
+                DrawTargetRect(r, x, outerTop, w, innerTop, param); // top
+            DrawTargetRect(r, x, innerBottom, w, outerBottom, param); // bottom
         }
 
         // draw center dot
-        if (drawDot) {
-            color.w = dotAlpha;
-            barThickness = int(dotThickness);
-            x = cx - barThickness / 2;
-            y = cy - barThickness / 2;
-            w = x + barThickness;
-            h = y + barThickness;
-            DrawCrosshairRect(r, x, y, w, h, color,
-                drawOutline, outlineAlpha, outlineThickness, outlineRounded);
+        if (param.drawDot) {
+            thickness = int(param.dotThickness);
+            x = int(pos.x) - thickness / 2;
+            y = int(pos.y) - thickness / 2;
+            w = x + thickness;
+            h = y + thickness;
+            DrawTargetRect(r, x, y, w, h, param);
         }
     }
 
