@@ -735,17 +735,12 @@ namespace spades {
 			col = map->GetColorJit(col); // jit the colour
 			EmitBlockFragments(shiftedHitPos, IntVectorFromColor(col));
 
-			bool isLocal = p.IsLocalPlayer();
-			if (isLocal)
+			if (p.IsLocalPlayer())
 				localFireVibrationTime = time;
 
 			if (!IsMuted()) {
 				Handle<IAudioChunk> c =
 				  audioDevice->RegisterSound("Sounds/Weapons/Spade/HitBlock.opus");
-				if (isLocal)
-					audioDevice->PlayLocal(c.GetPointerOrNull(),
-						MakeVector3(0.1F, -0.1F, 1.2F), AudioParam());
-				else
 					audioDevice->Play(c.GetPointerOrNull(), shiftedHitPos, AudioParam());
 			}
 		}
