@@ -73,9 +73,6 @@ namespace spades {
 
 			TCGameMode& tc = dynamic_cast<TCGameMode&>(mode.value());
 
-			float sw = renderer.ScreenWidth();
-			float sh = renderer.ScreenHeight();
-
 			stmp::optional<Player&> maybePlayer = w->GetLocalPlayer();
 			if (maybePlayer && !maybePlayer.value().IsSpectator() &&
 			    maybePlayer.value().IsAlive()) {
@@ -111,53 +108,65 @@ namespace spades {
 					float timeSinceLastCapture = wTime - lastCaptureTime;
 					const float fadeOutTime = 2.0F;
 					if (wTime >= lastCaptureTime && timeSinceLastCapture < fadeOutTime) {
-						fade = 1.0F - timeSinceLastCapture / fadeOutTime;
+						fade = 1.0F - (timeSinceLastCapture / fadeOutTime);
 						nearTerritory = &tc.GetTerritory(lastTerritoryId);
 					}
 				}
 
 				if (nearTerritory) {
 					TCProgressState state = StateForTerritory(*nearTerritory, myTeam);
-
 					int ownerTeam = nearTerritory->ownerTeamId;
+					float progress = 1.0F - state.progress;
 
-					float prgW = 440.0F;
-					float prgH = 8.0F;
-					float prgX = (sw - prgW) * 0.5F;
-					float prgY = sh - 64.0F;
+					if (progress < 1.0F) {
+						float sw = renderer.ScreenWidth();
+						float sh = renderer.ScreenHeight();
 
-					Vector4 col = MakeVector4(1, 1, 1, 1) * 0.5F;
+						float prgBarW = 240.0F;
+						float prgBarH = 8.0F;
+						float prgBarX = (sw - prgBarW) * 0.5F;
+						float prgBarY = sh - 100.0F;
 
-					// background bar
-					if (ownerTeam != NEUTRAL_TEAM)
-						col = ConvertColorRGBA(w->GetTeamColor(ownerTeam));
-					renderer.SetColorAlphaPremultiplied(col * fade);
-					renderer.DrawImage(nullptr, AABB2(prgX, prgY, prgW, prgH));
+						// draw background bar
+						Vector4 bgCol = MakeVector4(0.2F, 0.2F, 0.2F, 1);
+						if (ownerTeam != NEUTRAL_TEAM)
+							bgCol = ConvertColorRGBA(w->GetTeamColor(ownerTeam));
+						renderer.SetColorAlphaPremultiplied(bgCol * (fade * 0.5F));
+						renderer.DrawImage(
+						  nullptr, AABB2(prgBarX - 1, prgBarY - 1, prgBarW + 2, prgBarH + 2));
 
-					// progress bar
-					float prg = 1.0F - state.progress;
-					if (state.team1 != NEUTRAL_TEAM)
-						col = ConvertColorRGBA(w->GetTeamColor(state.team1));
-					else if (state.team2 != NEUTRAL_TEAM)
-						col = ConvertColorRGBA(w->GetTeamColor(state.team2));
-					renderer.SetColorAlphaPremultiplied(col * (fade * 0.8F));
-					renderer.DrawImage(nullptr, AABB2(prgX, prgY, prgW * prg, prgH));
+						// draw capturing team progress bar
+						if (state.team1 != NEUTRAL_TEAM) {
+							Vector4 prgCol = ConvertColorRGBA(w->GetTeamColor(state.team1));
+							renderer.SetColorAlphaPremultiplied(prgCol * (fade * 0.8F));
+							renderer.DrawImage(
+							  nullptr, AABB2(prgBarX, prgBarY, prgBarW * progress, prgBarH));
+						}
 
-					IFont& font = client.fontManager->GetGuiFont();
+						// draw owner team progress bar
+						if (state.team2 != NEUTRAL_TEAM) {
+							Vector4 prgCol = ConvertColorRGBA(w->GetTeamColor(state.team2));
+							renderer.SetColorAlphaPremultiplied(prgCol * (fade * 0.8F));
+							renderer.DrawImage(nullptr,
+							                   AABB2(prgBarX + prgBarW * progress, prgBarY,
+							                         prgBarW * (1.0F - progress), prgBarH));
+						}
 
-					std::string str;
-					if (ownerTeam == NEUTRAL_TEAM) {
-						str = _Tr("Client", "Neutral Territory");
-					} else {
-						str = w->GetTeam(ownerTeam).name;
-						str = _Tr("Client", "{0}'s Territory", str);
+						// draw text
+						std::string str;
+						if (ownerTeam == NEUTRAL_TEAM) {
+							str = _Tr("Client", "Neutral Territory");
+						} else {
+							str = w->GetTeam(ownerTeam).name;
+							str = _Tr("Client", "{0}'s Territory", str);
+						}
+
+						IFont& font = client.fontManager->GetGuiFont();
+						Vector2 size = font.Measure(str);
+						Vector2 pos = MakeVector2((sw - size.x) * 0.5F, prgBarY - 4.0F - size.y);
+						font.DrawShadow(str, pos, 1.0F, MakeVector4(1, 1, 1, fade),
+						                MakeVector4(0, 0, 0, 0.5F * fade));
 					}
-
-					Vector2 size = font.Measure(str);
-					Vector2 pos = Vector2((sw - size.x) * 0.5F, prgY - 8.0F - size.y);
-
-					font.DrawShadow(str, pos, 1.0F, MakeVector4(1, 1, 1, fade),
-					                MakeVector4(0, 0, 0, 0.5F * fade));
 				}
 			} else {
 				// unable to show nearby territory
