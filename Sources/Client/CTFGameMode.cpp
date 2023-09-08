@@ -44,9 +44,9 @@ namespace spades {
 			return team.hasIntel && int(team.carrierId) == player.GetId();
 		}
 
-		void CTFGameMode::ResetTeamScoreAndIntelHoldingStatus() {
+		void CTFGameMode::ResetIntelHoldingStatus() {
 			for (Team& team : teams) {
-				team.score = 0;
+				//team.score = 0;
 				team.hasIntel = false;
 			}
 		}

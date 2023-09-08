@@ -1289,7 +1289,7 @@ namespace spades {
 
 					bool winning = r.ReadByte() != 0;
 					if (winning) {
-						ctf.ResetTeamScoreAndIntelHoldingStatus();
+						ctf.ResetIntelHoldingStatus();
 						client->TeamWon(p.GetTeamId());
 					}
 				} break;
