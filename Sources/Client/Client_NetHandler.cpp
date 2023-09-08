@@ -111,7 +111,7 @@ namespace spades {
 			if (localplayer && !IsMuted()) {
 				Handle<IAudioChunk> c = (teamId == localplayer->GetTeamId())
 				    ? audioDevice->RegisterSound("Sounds/Feedback/TC/YourTeamCaptured.opus")
-				    : audioDevice->RegisterSound("Sounds/Feedback/TC/otherCaptured.opus");
+				    : audioDevice->RegisterSound("Sounds/Feedback/TC/EnemyCaptured.opus");
 				audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 			}
 		}
@@ -140,7 +140,7 @@ namespace spades {
 			if (localplayer && !IsMuted()) {
 				Handle<IAudioChunk> c = (teamId == localplayer->GetTeamId())
 				    ? audioDevice->RegisterSound("Sounds/Feedback/CTF/YourTeamCaptured.opus")
-				    : audioDevice->RegisterSound("Sounds/Feedback/CTF/otherCaptured.opus");
+				    : audioDevice->RegisterSound("Sounds/Feedback/CTF/EnemyCaptured.opus");
 				audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 			}
 		}
