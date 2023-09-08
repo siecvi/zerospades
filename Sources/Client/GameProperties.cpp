@@ -27,7 +27,7 @@ namespace spades {
 			if (!useHeuristics)
 				return;
 
-			if (msg == "Game mode: Arena by Yourself") {
+			if (msg == "Game mode: Arena by Yourself" || msg == "Game mode: arena") {
 				isGameModeArena = true;
 				SPLog("Current Game Mode : Arena, based on a server message heuristics");
 			}
