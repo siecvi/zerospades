@@ -58,6 +58,18 @@ namespace spades {
 			return numPlayers;
 		}
 
+		size_t World::GetNumPlayersAlive(int team) {
+			size_t numPlayers = 0;
+			for (const auto& p : players) {
+				if (!p || !p->IsAlive() || team >= 2)
+					continue;
+				if (p->GetTeamId() != team)
+					continue;
+				++numPlayers;
+			}
+			return numPlayers;
+		}
+
 		void World::Advance(float dt) {
 			SPADES_MARK_FUNCTION();
 

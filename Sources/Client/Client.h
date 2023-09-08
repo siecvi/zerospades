@@ -411,6 +411,9 @@ namespace spades {
 			void DrawHottrackedPlayerName();
 			void DrawPubOVL();
 
+			// currently only for arena gamemode
+			void DrawAlivePlayersCount();
+
 			void DrawPlayingTime();
 			void DrawHurtScreenEffect();
 			void DrawHurtSprites();
