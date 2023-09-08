@@ -52,7 +52,7 @@ namespace spades {
 			return l;
 		}
 
-		float CenterMessageView::GetLineHeight() { return cg_smallFont ? 24.0F : 32.0F; }
+		float CenterMessageView::GetLineHeight() { return cg_smallFont ? 24.0F : 34.0F; }
 
 		void CenterMessageView::AddMessage(const std::string& msg) {
 			SPADES_MARK_FUNCTION();

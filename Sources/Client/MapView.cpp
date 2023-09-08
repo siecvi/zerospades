@@ -240,10 +240,11 @@ namespace spades {
 			}
 
 			// The local player (this is important for access control)
-			if (!world->GetLocalPlayer())
+			stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
+			if (!maybePlayer)
 				return;
 
-			Player& localPlayer = world->GetLocalPlayer().value();
+			Player& localPlayer = maybePlayer.value();
 			Player& focusPlayer = focusPlayerPtr.value();
 
 			bool localPlayerIsSpectator = localPlayer.IsSpectator();
@@ -437,7 +438,7 @@ namespace spades {
 			// draw player's icon
 			Handle<IImage> playerIcon = renderer.RegisterImage("Gfx/Map/Player.png");
 			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
-				auto maybePlayer = world->GetPlayer(i);
+				auto maybePlayer = world->GetPlayer(static_cast<unsigned int>(i));
 				if (!maybePlayer)
 					continue; // player is non-existent
 
@@ -448,7 +449,7 @@ namespace spades {
 					continue; // don't draw other spectators
 				if (p.IsSpectator() && &p == &localPlayer && HasTargetPlayer(cameraMode))
 					continue; // don't draw white icon when spectating a player
-				if (!localPlayerIsSpectator && !localPlayer.IsTeamMate(&p))
+				if (!localPlayerIsSpectator && !localPlayer.IsTeammate(p))
 					continue; // don't draw enemies when not spectating a player
 
 				IntVector3 iconColor = p.GetColor();
@@ -496,11 +497,11 @@ namespace spades {
 			}
 
 			// draw map objects
+			Handle<IImage> baseIcon = renderer.RegisterImage("Gfx/Map/CommandPost.png");
+			Handle<IImage> intelIcon = renderer.RegisterImage("Gfx/Map/Intel.png");
 			stmp::optional<IGameMode&> mode = world->GetMode();
 			if (mode && mode->ModeType() == IGameMode::m_CTF) {
 				CTFGameMode& ctf = dynamic_cast<CTFGameMode&>(*mode);
-				Handle<IImage> intelIcon = renderer.RegisterImage("Gfx/Map/Intel.png");
-				Handle<IImage> baseIcon = renderer.RegisterImage("Gfx/Map/CommandPost.png");
 				for (int tId = 0; tId < 2; tId++) {
 					CTFGameMode::Team& team = ctf.GetTeam(tId);
 					Vector4 teamColorF = ModifyColor(world->GetTeamColor(tId)) * alpha;
@@ -509,7 +510,7 @@ namespace spades {
 					renderer.SetColorAlphaPremultiplied(teamColorF);
 					DrawIcon(team.basePos, *baseIcon);
 
-					// draw flag
+					// draw both flags
 					if (!ctf.GetTeam(1 - tId).hasIntel) {
 						renderer.SetColorAlphaPremultiplied(teamColorF);
 						DrawIcon(team.flagPos, *intelIcon);
@@ -518,9 +519,9 @@ namespace spades {
 						int pId = ctf.GetTeam(1 - tId).carrierId;
 
 						// in some game modes, carrier becomes invalid
-						if (pId < int(world->GetNumPlayerSlots())) {
+						if (pId < static_cast<int>(world->GetNumPlayerSlots())) {
 							auto carrier = world->GetPlayer(pId);
-							if (carrier && carrier->IsTeamMate(&localPlayer)) {
+							if (carrier && carrier->IsTeammate(localPlayer)) {
 								float pulse = std::max(0.5F, fabsf(sinf(world->GetTime() * 4.0F)));
 								renderer.SetColorAlphaPremultiplied(teamColorF * pulse);
 								DrawIcon(carrier->GetPosition(), *intelIcon);
@@ -530,12 +531,11 @@ namespace spades {
 				}
 			} else if (mode && mode->ModeType() == IGameMode::m_TC) {
 				TCGameMode& tc = dynamic_cast<TCGameMode&>(*mode);
-				Handle<IImage> baseIcon = renderer.RegisterImage("Gfx/Map/CommandPost.png");
 				for (int i = 0; i < tc.GetNumTerritories(); i++) {
 					TCGameMode::Territory& t = tc.GetTerritory(i);
-					IntVector3 teamColor = (t.ownerTeamId < 2)
-						? world->GetTeamColor(t.ownerTeamId)
-						: MakeIntVector3(128, 128, 128);
+					IntVector3 teamColor = (t.ownerTeamId >= NEUTRAL_TEAM)
+					                         ? MakeIntVector3(128, 128, 128)
+					                         : world->GetTeamColor(t.ownerTeamId);
 
 					Vector4 teamColorF = ModifyColor(teamColor) * alpha;
 					renderer.SetColorAlphaPremultiplied(teamColorF);

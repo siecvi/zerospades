@@ -1149,18 +1149,18 @@ namespace spades {
             0.75, 1, 0.01, ConfigNumberFormatter(2, ""));
             layouter.AddToggleField(_Tr("Preferences", "Ignore Chat Messages"), "cg_ignoreChatMessages");
             layouter.AddToggleField(_Tr("Preferences", "Ignore Private Messages"), "cg_ignorePrivateMessages");
-            layouter.AddToggleField(_Tr("Preferences", "Hit Analyze Messages"), "cg_hitAnalyze");
             layouter.AddSliderField(_Tr("Preferences",  "Master Volume"), "s_volume",
             0, 100, 1, ConfigNumberFormatter(0, "%"));
+			layouter.AddVolumeSlider(_Tr("Preferences", "Death Camera Volume"), "cg_deathSoundGain");
+            layouter.AddVolumeSlider(_Tr("Preferences", "Respawn Beep Volume"), "cg_respawnSoundGain");
+            layouter.AddVolumeSlider(_Tr("Preferences", "Hit Feedback Volume"), "cg_hitFeedbackSoundGain");
+            layouter.AddVolumeSlider(_Tr("Preferences", "Headshot Feedback Volume"), "cg_headshotFeedbackSoundGain");
             layouter.AddToggleField(_Tr("Preferences", "Environmental Audio"), "cg_environmentalAudio");
             layouter.AddVolumeSlider(_Tr("Preferences", "Chat Notify Sounds"), "cg_chatBeep");
             layouter.AddToggleField(_Tr("Preferences", "Show Alerts"), "cg_alerts");
             layouter.AddVolumeSlider(_Tr("Preferences", "Alert Sounds"), "cg_alertSounds");
-            layouter.AddVolumeSlider(_Tr("Preferences", "Death Camera Sound"), "cg_deathSoundGain");
-            layouter.AddVolumeSlider(_Tr("Preferences", "Respawn Beep Sound"), "cg_respawnSoundGain");
-            layouter.AddVolumeSlider(_Tr("Preferences", "Hit Feedback Sound"), "cg_hitFeedbackSoundGain");
-            layouter.AddVolumeSlider(_Tr("Preferences", "Headshot Feedback Sound"), "cg_headshotFeedbackSoundGain");
-            layouter.AddToggleField(_Tr("Preferences", "Hit Indicator"), "cg_hitIndicator");
+            layouter.AddToggleField(_Tr("Preferences", "Hit Analyzer"), "cg_hitAnalyze");
+			layouter.AddToggleField(_Tr("Preferences", "Hit Indicator"), "cg_hitIndicator");
             layouter.AddToggleField(_Tr("Preferences", "Damage Indicator"), "cg_damageIndicators");
 
             layouter.AddHeading(_Tr("Preferences", "AoS 0.75/0.76 Compatibility"));
@@ -1182,7 +1182,7 @@ namespace spades {
             64, 256, 8, ConfigNumberFormatter(0, "px"));
             layouter.AddControl(_Tr("Preferences", "Toggle Hit Test Zoom"), "cg_keyToggleHitTestZoom");
             layouter.AddToggleField(_Tr("Preferences", "Debug Weapon Spread"), "cg_debugAim");
-            layouter.AddToggleField(_Tr("Preferences", "Classic View Model"), "cg_classicViewWeapon");
+            layouter.AddToggleField(_Tr("Preferences", "Classic Viewmodel"), "cg_classicViewWeapon");
             layouter.AddToggleField(_Tr("Preferences", "Default Player Models"), "cg_defaultPlayerModels");
 
             layouter.AddHeading(_Tr("Preferences", "Minimap"));
@@ -1193,7 +1193,7 @@ namespace spades {
 
             layouter.AddHeading(_Tr("Preferences", "Heads-Up Display"));
             layouter.AddToggleField(_Tr("Preferences", "Hide HUD"), "cg_hideHud");
-            layouter.AddSliderGroup(_Tr("Preferences", "HUD Edge Position"),
+            layouter.AddSliderGroup(_Tr("Preferences", "HUD Edge Positions"),
             array<string> = { "cg_hudSafezoneX", "cg_hudSafezoneY"},
             0.2, 1, 0.01, 2, array<string> = { "X: ", "Y: "});
             layouter.AddSliderField(_Tr("Preferences", "HUD Color"), "cg_hudColor",
@@ -1204,7 +1204,7 @@ namespace spades {
             10, 100, 1, ConfigNumberFormatter(0, "px"));
             layouter.AddSliderField(_Tr("Preferneces", "Killfeed Height"), "cg_killfeedHeight",
             10, 100, 1, ConfigNumberFormatter(0, "px"));
-            layouter.AddToggleField(_Tr("Preferences", "Small Chat Font"),
+            layouter.AddToggleField(_Tr("Preferences", "Small HUD Font"),
                 "cg_smallFont", not options.GameActive);
 
             layouter.AddHeading(_Tr("Preferences", "Target"));

@@ -59,8 +59,8 @@ namespace spades {
 			};
 			struct PlayerPersistent {
 				std::string name;
-				int kills;
-				PlayerPersistent() : kills(0) { ; }
+				int score;
+				PlayerPersistent() : score(0) { ; }
 			};
 
 		private:
@@ -142,7 +142,7 @@ namespace spades {
 
 			PlayerPersistent& GetPlayerPersistent(int index);
 			std::string GetPlayerName(int index) { return GetPlayerPersistent(index).name; }
-			int GetPlayerScore(int index) { return GetPlayerPersistent(index).kills; }
+			int GetPlayerScore(int index) { return GetPlayerPersistent(index).score; }
 
 			void CreateBlock(IntVector3 pos, IntVector3 color);
 			void DestroyBlock(std::vector<IntVector3>& pos);

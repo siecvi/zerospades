@@ -43,8 +43,6 @@ namespace spades {
 			float reloadStartTime;
 			float reloadEndTime;
 
-			int slowReloadLeftCount;
-
 			bool lastDryFire;
 
 			int ammo;
@@ -78,10 +76,7 @@ namespace spades {
 			/** @return true when fired. */
 			bool FrameNext(float);
 
-			/**
-			 * @param initial `true` if the reload was initiated by the user.
-			 */
-			void Reload(bool initial = true);
+			void Reload();
 			void AbortReload();
 
 			bool IsShooting() const { return shooting; }
@@ -94,10 +89,13 @@ namespace spades {
 			void ReloadDone(int ammo, int stock);
 			void ForceReloadDone();
 
-			float GetReloadProgress();
-			float GetTimeToNextFire();
-
+			bool IsClipFull();
 			bool IsSelectable();
+
+			float GetTimeToNextFire();
+			float GetReloadProgress();
+
+			bool IsAwaitingReloadCompletion();
 			bool IsReadyToShoot();
 		};
 	} // namespace client

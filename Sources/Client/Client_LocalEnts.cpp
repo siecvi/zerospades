@@ -124,7 +124,7 @@ namespace spades {
 			Player& p = world->GetPlayer(res.playerId.value()).value();
 
 			// don't hot track enemies (non-spectator only)
-			if (!camTarget.IsTeamMate(&p) && !camTarget.IsSpectator())
+			if (!camTarget.IsTeammate(p) && !camTarget.IsSpectator())
 				return {};
 
 			return std::tuple<Player&, hitTag_t>{p, res.hitFlag};
@@ -602,7 +602,7 @@ namespace spades {
 
 		enum { AutoFocusPoints = 4 };
 		void Client::UpdateAutoFocus(float dt) {
-			if (autoFocusEnabled && world && (bool)cg_manualFocus) {
+			if (world && autoFocusEnabled && cg_manualFocus) {
 				// Compute focal length
 				float measureRange = tanf(lastSceneDef.fovY * 0.5F) * 0.2F;
 				const Vector3 camPos = lastSceneDef.viewOrigin;

@@ -427,7 +427,7 @@ namespace spades {
 			Player& player = GetCameraTargetPlayer();
 
 			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
-				auto maybePlayer = world->GetPlayer(i);
+				auto maybePlayer = world->GetPlayer(static_cast<unsigned int>(i));
 				if (maybePlayer == player || !maybePlayer)
 					continue;
 
@@ -600,6 +600,7 @@ namespace spades {
 					clipSize = weapon.GetClipSize();
 					clipSize = std::max(clipSize, clipNum);
 
+					// draw ammo icon
 					if (ammoStyle < 1) {
 						for (int i = 0; i < clipSize; i++) {
 							float ix = x - ((float)(i + 1) * (iw + spacing));
@@ -620,7 +621,7 @@ namespace spades {
 			// draw "press ... to reload"
 			if (tool == Player::ToolWeapon) {
 				std::string msg = "";
-				if (weapon.IsReloading() || p.IsAwaitingReloadCompletion())
+				if (weapon.IsAwaitingReloadCompletion())
 					msg = _Tr("Client", "Reloading");
 				else if (stockNum > 0 && clipNum < (clipSize / 4))
 					msg = _Tr("Client", "Press [{0}] to Reload", TrKey(cg_keyReloadWeapon));
@@ -653,15 +654,15 @@ namespace spades {
 
 			// draw player health
 			{
-				float hurtTime = time - lastHurtTime;
-				hurtTime = 1.0F - (hurtTime / 0.25F);
-				if (hurtTime < 0.0F)
-					hurtTime = 0.0F;
-
 				int hp = p.GetHealth(); // current player health
 				int maxHealth = 100; // server doesn't send this
 				float hpFrac = Clamp((float)hp / (float)maxHealth, 0.0F, 1.0F);
 				Vector4 col = color + (MakeVector4(1, 0, 0, 1) - color) * (1.0F - hpFrac);
+
+				float hurtTime = time - lastHurtTime;
+				hurtTime = 1.0F - (hurtTime / 0.25F);
+				if (hurtTime < 0.0F)
+					hurtTime = 0.0F;
 				col = col + (MakeVector4(1, 1, 1, 1) - col) * hurtTime;
 
 				auto healthStr = ToString(hp);
@@ -852,6 +853,9 @@ namespace spades {
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
+			Player& p = GetWorld()->GetLocalPlayer().value();
+			bool localPlayerIsSpectator = p.IsSpectator();
+
 			float x = sw - 8.0F;
 			float minY = sh * 0.5F;
 			minY -= 64.0F;
@@ -890,7 +894,7 @@ namespace spades {
 				addLine(_Tr("Client", "[{0}/{1}] Next/Prev player",
 					TrKey(cg_keyAttack), TrKey(cg_keyAltAttack)));
 
-				if (GetWorld()->GetLocalPlayer()->IsSpectator())
+				if (localPlayerIsSpectator)
 					addLine(_Tr("Client", "[{0}] Unfollow", TrKey(cg_keyReloadWeapon)));
 			} else {
 				addLine(_Tr("Client", "[{0}/{1}] Follow a player",
@@ -903,7 +907,7 @@ namespace spades {
 
 			y += 10.0F;
 
-			if (GetWorld()->GetLocalPlayer()->IsSpectator() && !inGameLimbo)
+			if (localPlayerIsSpectator && !inGameLimbo)
 				addLine(_Tr("Client", "[{0}] Select Team/Weapon", TrKey(cg_keyLimbo)));
 		}
 
@@ -1058,10 +1062,9 @@ namespace spades {
 					// large map view should come in front
 					if (largeMap)
 						largeMapView->Draw();
-				} else {
+				} else if (AcceptsTextInput() || chatWindow->IsExpanded()) {
 					// chat bypass cg_hideHud
-					if (AcceptsTextInput() || chatWindow->IsExpanded())
-						chatWindow->Draw();
+					chatWindow->Draw();
 				}
 
 				centerMessageView->Draw();
@@ -1101,41 +1104,43 @@ namespace spades {
 			float prgBarW = 440.0F;
 			float prgBarH = 8.0F;
 			float prgBarX = (sw - prgBarW) * 0.5F;
-			float prgBarY = sh - 48.0F;
+			float prgBarY = sh - 50.0F;
 
+			// draw background bar
+			renderer->SetColorAlphaPremultiplied(MakeVector4(0.2F, 0.2F, 0.2F, 1));
+			renderer->DrawImage(nullptr, AABB2(prgBarX, prgBarY, prgBarW, prgBarH));
+
+			// draw progress bar
+			if (net->GetStatus() == NetClientStatusReceivingMap) {
+				float progress = mapReceivingProgressSmoothed;
+				float progressBarMaxWidth = prgBarW * progress;
+
+				Vector4 color = MakeVector4(0, 0.5, 1, 1);
+				Vector4 darkCol = color * 0.5F;
+				darkCol.w = color.w;
+
+				for (float x = 0.0F; x < progressBarMaxWidth; x += 1.0F) {
+					float per = x / progressBarMaxWidth;
+					renderer->SetColorAlphaPremultiplied(darkCol + (color - darkCol) * per);
+					renderer->DrawImage(nullptr, AABB2(prgBarX + x, prgBarY, 1.0F, prgBarH));
+				}
+			} else { // draw indeterminate progress bar
+				const float progressPosition = fmodf(timeSinceInit * 0.7F, 1.0F);
+				const float centerX = progressPosition * (prgBarW + 400.0F) - 200.0F;
+				for (float x = 0.0F; x < prgBarW; x += 1.0F) {
+					float opacity = 1.0F - fabsf(x - centerX) / 200.0F;
+					opacity = std::max(opacity, 0.0F) * 0.5F + 0.05F;
+					renderer->SetColorAlphaPremultiplied(MakeVector4(0.5, 0.5, 0.5, 1) * opacity);
+					renderer->DrawImage(nullptr, AABB2(prgBarX + x, prgBarY, 1.0F, prgBarH));
+				}
+			}
+
+			// draw net status
 			auto statusStr = net->GetStatusString();
 			IFont& font = fontManager->GetGuiFont();
 			Vector2 size = font.Measure(statusStr);
 			Vector2 pos = MakeVector2((sw - size.x) * 0.5F, prgBarY - 10.0F - size.y);
-			Vector4 grayCol = MakeVector4(0.5, 0.5, 0.5, 1);
-			font.Draw(statusStr, pos, 1.0F, grayCol);
-
-			// Draw background bar
-			renderer->SetColorAlphaPremultiplied(grayCol * 0.5F);
-			renderer->DrawImage(nullptr, AABB2(prgBarX, prgBarY, prgBarW, prgBarH));
-
-			// Draw progress bar
-			if (net->GetStatus() == NetClientStatusReceivingMap) {
-				const Vector3 progressBarColor = MakeVector3(0, 0.5, 1);
-				const float progressBarMaxWidth = prgBarW * mapReceivingProgressSmoothed;
-
-				for (float x = 0; x < progressBarMaxWidth; x++) {
-					const float tempperc = x / progressBarMaxWidth;
-					const Vector3 color = Mix(progressBarColor * 0.25F, progressBarColor, tempperc);
-					renderer->SetColorAlphaPremultiplied(MakeVector4(color.x, color.y, color.z, 1));
-					renderer->DrawImage(nullptr, AABB2(prgBarX + x, prgBarY, 1.0F, prgBarH));
-				}
-			} else { // Indeterminate progress bar
-				const float progressPosition = fmodf(timeSinceInit * 0.7F, 1.0F);
-				const float centerX = progressPosition * (prgBarW + 400.0F) - 200.0F;
-
-				for (float x = 0; x < prgBarW; x++) {
-					float opacity = 1.0F - fabsf(x - centerX) / 200.0F;
-					opacity = std::max(opacity, 0.0F) * 0.5F + 0.05F;
-					renderer->SetColorAlphaPremultiplied(grayCol * opacity);
-					renderer->DrawImage(nullptr, AABB2(prgBarX + x, prgBarY, 1.0F, prgBarH));
-				}
-			}
+			font.Draw(statusStr, pos, 1.0F, MakeVector4(0.5, 0.5, 0.5, 1));
 		}
 
 		void Client::DrawStats() {
@@ -1193,18 +1198,18 @@ namespace spades {
 			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.5);
 
 			if (cg_statsBackground) {
-			float x = pos.x;
+				float x = pos.x;
 				float y = pos.y + (margin * 0.5F);
-			float w = pos.x + size.x;
+				float w = pos.x + size.x;
 				float h = pos.y + size.y - (margin * 0.5F);
 
-			// draw background
-			renderer->SetColorAlphaPremultiplied(shadowColor);
-			renderer->DrawFilledRect(x + 1, y + 1, w - 1, h - 1);
+				// draw background
+				renderer->SetColorAlphaPremultiplied(shadowColor);
+				renderer->DrawFilledRect(x + 1, y + 1, w - 1, h - 1);
 
 				// draw outline
 				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.8F));
-			renderer->DrawOutlinedRect(x, y, w, h);
+				renderer->DrawOutlinedRect(x, y, w, h);
 			}
 
 			// draw text

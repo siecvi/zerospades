@@ -339,7 +339,7 @@ namespace spades {
 			PlayerInput actualInput = player.GetInput();
 			WeaponInput actualWeapInput = player.GetWeaponInput();
 
-			if (actualInput.sprint && player.IsAlive()) {
+			if (actualInput.sprint) {
 				sprintState += dt * 4.0F;
 				if (sprintState > 1.0F)
 					sprintState = 1.0F;
@@ -349,7 +349,7 @@ namespace spades {
 					sprintState = 0.0F;
 			}
 
-			if ((player.IsToolWeapon() && actualWeapInput.secondary) && player.IsAlive()) {
+			if (player.IsToolWeapon() && actualWeapInput.secondary) {
 				if (cg_animations) {
 					aimDownState += dt * 8.0F;
 					if (aimDownState > 1.0F)
@@ -562,6 +562,16 @@ namespace spades {
 			}
 		}
 
+		asIScriptObject* ClientPlayer::GetCurrentSkin(bool viewSkin) {
+			switch (currentTool) {
+				case Player::ToolSpade: return viewSkin ? spadeViewSkin : spadeSkin; break;
+				case Player::ToolBlock: return viewSkin ? blockViewSkin : blockSkin; break;
+				case Player::ToolWeapon: return viewSkin ? weaponViewSkin : weaponSkin; break;
+				case Player::ToolGrenade: return viewSkin ? grenadeViewSkin : grenadeSkin; break;
+				default: SPInvalidEnum("currentTool", currentTool);
+			}
+		}
+
 		void ClientPlayer::SetCommonSkinParameter(asIScriptObject* skin) {
 			asIScriptObject* curSkin = GetCurrentSkin(!ShouldRenderInThirdPersonView());
 
@@ -575,16 +585,6 @@ namespace spades {
 				interface.SetRaiseState((skin == curSkin) ? (1.0F - putdown) : 0.0F);
 				interface.SetSprintState(sprint);
 				interface.SetMuted(client.IsMuted());
-			}
-		}
-
-		asIScriptObject* ClientPlayer::GetCurrentSkin(bool viewSkin) {
-			switch (currentTool) {
-				case Player::ToolSpade: return viewSkin ? spadeViewSkin : spadeSkin; break;
-				case Player::ToolBlock: return viewSkin ? blockViewSkin : blockSkin; break;
-				case Player::ToolWeapon: return viewSkin ? weaponViewSkin : weaponSkin; break;
-				case Player::ToolGrenade: return viewSkin ? grenadeViewSkin : grenadeSkin; break;
-				default: SPInvalidEnum("currentTool", currentTool);
 			}
 		}
 
@@ -613,7 +613,7 @@ namespace spades {
 			}
 
 			// no flashlight if spectating other players while dead
-			if (client.flashlightOn && world->GetLocalPlayer()->IsAlive()) {
+			if (client.flashlightOn && p.IsLocalPlayer()) {
 				float brightness = client.time - client.flashlightOnTime;
 				brightness = 1.0F - expf(-brightness * 5.0F);
 				brightness *= r_hdr ? 3.0F : 1.5F;
@@ -1043,7 +1043,7 @@ namespace spades {
 					armPitch += nextFireTime;
 			} else if (currentTool == Player::ToolGrenade) {
 				float fuse = p.GetGrenadeCookTime();
-				if (actualWeapInput.primary)
+				if (p.IsCookingGrenade() && fuse > 0.0F)
 					armPitch += fuse * DEG2RAD(30);
 			}
 
@@ -1127,8 +1127,8 @@ namespace spades {
 			// draw intel in ctf
 			auto& mode = *world->GetMode();
 			if (mode.ModeType() == IGameMode::m_CTF) {
-				auto& ctfMode = static_cast<CTFGameMode&>(mode);
-				if (ctfMode.PlayerHasIntel(p)) {
+				auto& ctf = static_cast<CTFGameMode&>(mode);
+				if (ctf.PlayerHasIntel(p)) {
 					model = renderer.RegisterModel("Models/MapObjects/Intel.kv6");
 					IntVector3 teamColor = world->GetTeamColor(1 - p.GetTeamId());
 					param.customColor = ConvertColorRGB(teamColor);

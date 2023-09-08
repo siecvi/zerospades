@@ -69,16 +69,14 @@ namespace spades {
 			nextBlockTime = 0.0F;
 			nextGrenadeTime = 0.0F;
 			firstDig = false;
-			lastReloadingTime = 0.0F;
-		
-			pendingPlaceBlock = false;
-			pendingRestockBlock = false;
+
+			cookingGrenade = false;
+			grenadeTime = 0.0F;
 
 			blockCursorActive = false;
 			blockCursorDragging = false;
-
-			holdingGrenade = false;
-			reloadingServerSide = false;
+			pendingPlaceBlock = false;
+			pendingRestockBlock = false;
 			canPending = false;
 		}
 
@@ -95,9 +93,9 @@ namespace spades {
 			if (newInput.crouch != input.crouch) {
 				if (newInput.crouch) {
 					if (!airborne || !IsLocalPlayer()) {
-					position.z += 0.9F;
+						position.z += 0.9F;
 						eye.z += 0.9F;
-					}	
+					}
 				} else {
 					// Refuse the standing-up request if there's no room
 					if (!TryUncrouch()) {
@@ -106,9 +104,9 @@ namespace spades {
 						} else { // ... unless the request is from the server.
 							position.z -= 0.9F;
 							eye.z -= 0.9F;
+						}
 					}
 				}
-			}
 			}
 
 			input = newInput;
@@ -144,12 +142,9 @@ namespace spades {
 
 				if (newInput.primary != weapInput.primary) {
 					if (!newInput.primary) {
-						if (holdingGrenade) {
-							nextGrenadeTime = world.GetTime() + GetToolPrimaryDelay();
-							ThrowGrenade();
-						}
+						ThrowGrenade();
 					} else {
-						holdingGrenade = true;
+						cookingGrenade = true;
 						grenadeTime = world.GetTime();
 
 						if (listener)
@@ -176,7 +171,8 @@ namespace spades {
 					} else {
 						if (blockCursorDragging) {
 							if (blockCursorActive) {
-								int blocks = world.CubeLine(blockCursorDragPos, blockCursorPos, 64).size();
+								int blocks = static_cast<int>(world.CubeLine(
+									blockCursorDragPos, blockCursorPos, 64).size());
 								if (blocks <= blockStocks) {
 									if (listener)
 										listener->LocalPlayerCreatedLineBlock(blockCursorDragPos, blockCursorPos);
@@ -215,9 +211,9 @@ namespace spades {
 						blockCursorDragging = false;
 					} else {
 						if (listener && !lastSingleBlockBuildSeqDone) // cannot build; invalid position.
-								listener->LocalPlayerBuildError(BuildFailureReason::InvalidPosition);
-						}
+							listener->LocalPlayerBuildError(BuildFailureReason::InvalidPosition);
 					}
+				}
 			} else if (tool == ToolBlock) {
 				if (newInput.secondary != weapInput.secondary && !newInput.secondary) {
 					if (world.GetTime() > nextBlockTime)
@@ -225,13 +221,6 @@ namespace spades {
 				}
 			} else if (tool == ToolWeapon) {
 				weapon->SetShooting(newInput.primary);
-
-				// Update the weapon state asap so it picks up the weapon fire event even
-				// if the player presses the mouse button and releases it really fast.
-				// We shouldn't do this for the local player because the client haven't sent
-				// a weapon update packet at this point and the hit will be rejected by the server.
-				if (!IsLocalPlayer() && weapon->FrameNext(0.0F))
-					FireWeapon();
 			} else {
 				SPAssert(false);
 			}
@@ -246,12 +235,9 @@ namespace spades {
 				return; // dead man cannot reload
 
 			weapon->Reload();
-			if (IsLocalPlayer() && weapon->IsReloading())
-				reloadingServerSide = true;
 		}
 
 		void Player::ReloadDone(int clip, int stock) {
-			reloadingServerSide = false;
 			weapon->ReloadDone(clip, stock);
 		}
 
@@ -281,16 +267,21 @@ namespace spades {
 			if (t == tool)
 				return;
 
+			ToolType oldTool = tool;
 			tool = t;
-			holdingGrenade = false;
-			blockCursorActive = false;
-			blockCursorDragging = false;
-			reloadingServerSide = false;
+			if (oldTool == ToolWeapon)
+				weapon->SetShooting(false);
+			if (tool == ToolWeapon)
+				weapon->SetShooting(weapInput.primary);
 
-			WeaponInput winp;
-			SetWeaponInput(winp);
+			cookingGrenade = false;
+			if (IsLocalPlayer()) {
+				blockCursorActive = false;
+				blockCursorDragging = false;
 
-			weapon->AbortReload();
+				WeaponInput winp;
+				SetWeaponInput(winp);
+			}
 
 			if (world.GetListener())
 				world.GetListener()->PlayerChangedTool(*this);
@@ -437,25 +428,12 @@ namespace spades {
 				if (weapInput.primary && world.GetTime() > nextBlockTime)
 					nextBlockTime = world.GetTime() + GetToolPrimaryDelay();
 			} else if (tool == ToolGrenade) {
-				if (holdingGrenade && GetGrenadeCookTime() >= 3.0F)
+				if (GetGrenadeCookTime() >= 3.0F)
 					ThrowGrenade();
 			}
 
-			if (tool != ToolWeapon)
-				weapon->SetShooting(false);
-
 			if (weapon->FrameNext(dt))
 				FireWeapon();
-
-			if (weapon->IsReloading()) {
-				lastReloadingTime = world.GetTime();
-			} else if (reloadingServerSide) {
-				// for some reason a server didn't return a WeaponReload packet.
-				if (world.GetTime() + lastReloadingTime + 0.8F) {
-					reloadingServerSide = false;
-					weapon->ForceReloadDone();
-				}
-			}
 
 			if (pendingRestockBlock) {
 				blockStocks = 50;
@@ -535,7 +513,7 @@ namespace spades {
 				for (size_t i = 0; i < world.GetNumPlayerSlots(); i++) {
 					// TODO: This is a repeated pattern, add something like
 					// `World::GetExistingPlayerRange()` returning a range
-					auto maybeOther = world.GetPlayer(i);
+					auto maybeOther = world.GetPlayer(static_cast<unsigned int>(i));
 					if (maybeOther == this || !maybeOther)
 						continue;
 
@@ -658,10 +636,10 @@ namespace spades {
 			} // one pellet done
 
 			if (this->IsLocalPlayer()) {
-			// do hit test debugging
-			auto* debugger = world.GetHitTestDebugger();
+				// do hit test debugging
+				auto* debugger = world.GetHitTestDebugger();
 				if (debugger && !playerHits.empty())
-				debugger->SaveImage(playerHits, bulletVectors);
+					debugger->SaveImage(playerHits, bulletVectors);
 
 				// Horizontal recoil is driven by a triangular wave generator.
 				Vector2 rec = weapon->GetRecoil();
@@ -680,14 +658,12 @@ namespace spades {
 
 				Turn(rec.x, rec.y);
 			}
-
-			reloadingServerSide = false;
 		}
 
 		void Player::ThrowGrenade() {
 			SPADES_MARK_FUNCTION();
 
-			if (!holdingGrenade)
+			if (!cookingGrenade)
 				return;
 
 			auto* listener = world.GetListener();
@@ -712,7 +688,8 @@ namespace spades {
 					listener->PlayerThrewGrenade(*this, {});
 			}
 
-			holdingGrenade = false;
+			cookingGrenade = false;
+			nextGrenadeTime = world.GetTime() + GetToolPrimaryDelay();
 		}
 
 		void Player::UseSpade(bool dig) {
@@ -731,7 +708,7 @@ namespace spades {
 
 			stmp::optional<Player&> hitPlayer;
 			for (size_t i = 0; i < world.GetNumPlayerSlots(); i++) {
-				auto maybeOther = world.GetPlayer(i);
+				auto maybeOther = world.GetPlayer(static_cast<unsigned int>(i));
 				if (maybeOther == this || !maybeOther)
 					continue;
 
@@ -743,9 +720,9 @@ namespace spades {
 				if (!other.RayCastApprox(muzzle, dir))
 					continue; // quickly reject players unlikely to be hit
 
-					hitPlayer = other;
-					break;
-				}
+				hitPlayer = other;
+				break;
+			}
 
 			IntVector3 outBlockPos = mapResult.hitBlock;
 			IntVector3 outBlockNormal = mapResult.normal;
@@ -896,6 +873,7 @@ namespace spades {
 			}
 
 			if (climb) {
+				// slow down when climbing
 				velocity.x *= 0.5F;
 				velocity.y *= 0.5F;
 				lastClimbTime = world.GetTime();
@@ -1035,12 +1013,13 @@ namespace spades {
 
 			// hit ground... check if hurt
 			if (!velocity.z && f2 > FALL_SLOW_DOWN) {
+				// slow down on landing
 				velocity.x *= 0.5F;
 				velocity.y *= 0.5F;
 
-				bool hurt = f2 > FALL_DAMAGE_VELOCITY;
+				bool hurtOnLanding = f2 > FALL_DAMAGE_VELOCITY;
 				if (world.GetListener())
-					world.GetListener()->PlayerLanded(*this, hurt);
+					world.GetListener()->PlayerLanded(*this, hurtOnLanding);
 			}
 
 			if (IsOnGroundOrWade()) {
@@ -1173,20 +1152,25 @@ namespace spades {
 			return 1.0F - (GetTimeToNextDig() / GetToolSecondaryDelay());
 		}
 
+		float Player::GetWalkAnimationProgress() {
+			return moveDistance * 0.5F + (float)(moveSteps)*0.5F;
+		}
+
 		void Player::KilledBy(KillType type, Player& killer, int respawnTime) {
 			SPADES_MARK_FUNCTION();
 
 			health = 0;
 			weapon->SetShooting(false);
 
+			if (IsLocalPlayer() && tool == ToolBlock)
+				blockCursorDragging = false; // do death cleanup
+
 			// if local player is killed while cooking grenade, drop the live grenade.
-			if (IsLocalPlayer() && IsCookingGrenade())
+			if (IsLocalPlayer() && tool == ToolGrenade)
 				ThrowGrenade();
 
 			if (world.GetListener())
 				world.GetListener()->PlayerKilledPlayer(killer, *this, type);
-
-			blockCursorDragging = false; // do death cleanup
 
 			input = PlayerInput();
 			weapInput = WeaponInput();

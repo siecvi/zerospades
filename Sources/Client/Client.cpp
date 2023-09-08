@@ -88,17 +88,17 @@ namespace spades {
 		      lastAliveTime(0.0F),
 		      lastHitTime(0.0F),
 		      lastScore(0),
-		      meleeKills(0),
-		      grenadeKills(0),
-		      placedBlocks(0),
 		      curKills(0),
 		      curDeaths(0),
 		      curStreak(0),
 		      bestStreak(0),
-		      hasDelayedReload(false),
+		      meleeKills(0),
+		      grenadeKills(0),
+		      placedBlocks(0),
 		      localFireVibrationTime(-1.0F),
 		      grenadeVibration(0.0F),
 		      grenadeVibrationSlow(0.0F),
+		      reloadKeyPressed(false),
 		      scoreboardVisible(false),
 		      flashlightOn(false),
 		      hitFeedbackIconState(0.0F),
@@ -159,6 +159,7 @@ namespace spades {
 			lastHurtTime = -100.0F;
 			hurtRingView->ClearAll();
 
+			reloadKeyPressed = false;
 			scoreboardVisible = false;
 			flashlightOn = false;
 			debugHitTestZoom = false;
@@ -473,9 +474,6 @@ namespace spades {
 			if (scriptedUI->WantsClientToBeClosed())
 				readyToClose = true;
 
-			// reset all "delayed actions" (in case we forget to reset these)
-			hasDelayedReload = false;
-
 			time += dt;
 		}
 
@@ -504,16 +502,16 @@ namespace spades {
 			if (team == 2)
 				team = 255;
 
-			if (!world->GetLocalPlayer() || world->GetLocalPlayer()->IsSpectator()) {
-				// join
+			stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
+			if (!maybePlayer || maybePlayer->IsSpectator()) { // join
 				if (team == 255) {
 					// weaponId doesn't matter for spectators, but
 					// NetClient doesn't like invalid weapon ID
 					weap = WeaponType::RIFLE_WEAPON;
 				}
 				net->SendJoin(team, weap, playerName, lastScore);
-			} else {
-				Player& p = world->GetLocalPlayer().value();
+			} else { // localplayer has joined
+				Player& p = maybePlayer.value();
 				if (p.GetTeamId() != team)
 					net->SendTeamChange(team);
 				if (team != 255 && p.GetWeapon().GetWeaponType() != weap)
@@ -527,7 +525,7 @@ namespace spades {
 			if (!cg_alerts) {
 				chatWindow->AddMessage(contents);
 				if (type != AlertType::Notice)
-				PlayAlertSound();
+					PlayAlertSound();
 				return;
 			}
 
@@ -639,10 +637,29 @@ namespace spades {
 #pragma mark - Chat Messages
 
 		void Client::PlayerSentChatMessage(Player& p, bool global, const std::string& msg) {
-			// filters player messages (but they can still be found in logs)
-			bool ignoreMessages = cg_ignoreChatMessages && !p.IsLocalPlayer();
+			{
+				std::string s = global
+					? _Tr("Client", "Global") : _Tr("Client", "Team");
+				std::string teamName = p.IsSpectator()
+					? _Tr("Client", "Spectator") : p.GetTeamName();
+				NetLog("[%s] %s (%s): %s", s.c_str(),
+					p.GetName().c_str(), teamName.c_str(), msg.c_str());
+			}
+			{
+				std::string s;
+				if (global)
+					s = _Tr("Client", "[Global] ");
+				s += p.GetName();
+				s += ": ";
+				s += msg;
+				scriptedUI->RecordChatLog(s, ConvertColorRGBA(p.GetColor()));
+			}
 
-			if (!ignoreMessages) {
+			// filters chat messages (but they can still be found in logs)
+			if (cg_ignoreChatMessages && !p.IsLocalPlayer())
+				return;
+
+			{
 				std::string s;
 				if (global) {
 					//! Prefix added to global chat messages.
@@ -661,25 +678,10 @@ namespace spades {
 				s += ChatWindow::TeamColorMessage(p.GetName(), p.GetTeamId());
 				s += ": ";
 				s += msg;
-
 				chatWindow->AddMessage(s);
 			}
-			{
-				std::string s;
-				if (global)
-					s = "[Global] ";
-				s += p.GetName();
-				s += ": ";
-				s += msg;
 
-				scriptedUI->RecordChatLog(s, ConvertColorRGBA(p.GetColor()));
-			}
-
-			std::string teamName = p.IsSpectator() ? "Spectator" : p.GetTeamName();
-			NetLog("[%s] %s (%s): %s", global ? "Global" : "Team",
-				p.GetName().c_str(), teamName.c_str(), msg.c_str());
-
-			if (!IsMuted() && !ignoreMessages) {
+			if (!IsMuted()) {
 				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Feedback/Chat.opus");
 				AudioParam params;
 				params.volume = (float)cg_chatBeep;
@@ -732,16 +734,15 @@ namespace spades {
 #pragma mark - Follow / Spectate
 
 		void Client::FollowNextPlayer(bool reverse) {
-			SPAssert(world->GetLocalPlayer());
+			stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
+			SPAssert(maybePlayer);
 
-			auto& localPlayer = *world->GetLocalPlayer();
-			int myTeam = localPlayer.GetTeamId();
-
+			Player& localPlayer = maybePlayer.value();
 			bool localPlayerIsSpectator = localPlayer.IsSpectator();
 
-			int nextId = FollowsNonLocalPlayer(GetCameraMode())
-			               ? followedPlayerId
-			               : world->GetLocalPlayerIndex().value();
+			int localPlayerId = localPlayer.GetId();
+			int nextId = FollowsNonLocalPlayer(GetCameraMode()) ? followedPlayerId : localPlayerId;
+
 			do {
 				reverse ? --nextId : ++nextId;
 
@@ -753,7 +754,7 @@ namespace spades {
 				stmp::optional<Player&> p = world->GetPlayer(nextId);
 				if (!p || p->IsSpectator())
 					continue; // Do not follow a non-existent player or spectator
-				if (!localPlayerIsSpectator && p->GetTeamId() != myTeam)
+				if (!localPlayerIsSpectator && !p->IsTeammate(localPlayer))
 					continue; // Skip enemies unless the local player is a spectator
 				if (!localPlayerIsSpectator && !p->IsAlive() && cg_skipDeadPlayersWhenDead)
 					continue; // Skip dead players unless the local player is not a spectator
@@ -766,7 +767,7 @@ namespace spades {
 			} while (nextId != followedPlayerId);
 
 			followedPlayerId = nextId;
-			followCameraState.enabled = (followedPlayerId != world->GetLocalPlayerIndex());
+			followCameraState.enabled = (followedPlayerId != localPlayerId);
 		}
 	} // namespace client
 } // namespace spades

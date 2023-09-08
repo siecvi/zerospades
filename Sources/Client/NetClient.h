@@ -178,7 +178,7 @@ namespace spades {
 
 			void DoEvents(int timeout = 0);
 
-			void SendJoin(int team, WeaponType, std::string name, int kills);
+			void SendJoin(int team, WeaponType, std::string name, int score);
 			void SendPosition(Vector3);
 			void SendOrientation(Vector3);
 			void SendPlayerInput(PlayerInput);

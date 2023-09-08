@@ -146,8 +146,8 @@ namespace spades {
 			KeypadInput keypadInput;
 			Player::ToolType lastTool;
 			bool hasLastTool;
-			Vector3 lastPos;
-			Vector3 lastFront;
+			Vector3 lastPosSent;
+			Vector3 lastFrontSent;
 			float lastPosSentTime;
 			float lastOriSentTime;
 			float lastHurtTime;
@@ -155,15 +155,16 @@ namespace spades {
 			float lastHitTime;
 			int lastHealth;
 			int lastScore;
-			int meleeKills;
-			int grenadeKills;
-			int placedBlocks;
 			int curKills;
 			int curDeaths;
 			int curStreak;
 			int bestStreak;
+			int meleeKills;
+			int grenadeKills;
+			int placedBlocks;
 			float worldSetTime;
-			bool hasDelayedReload;
+
+			bool reloadKeyPressed;
 
 			struct HurtSprite {
 				float angle;
@@ -181,7 +182,7 @@ namespace spades {
 				DamageIndicator() : damage(0) { ; }
 			};
 			std::list<DamageIndicator> damageIndicators;
-
+			
 			float GetSprintState();
 			float GetAimDownState();
 
@@ -202,6 +203,7 @@ namespace spades {
 			 */
 			bool CanLocalPlayerUseTool();
 			bool CanLocalPlayerUseWeapon();
+			bool CanLocalPlayerReloadWeapon();
 
 			/** Retrieves `ClientPlayer` for the local player, or `{}` if it does not exist. */
 			stmp::optional<ClientPlayer&> GetLocalClientPlayer();
@@ -388,10 +390,10 @@ namespace spades {
 			void Draw2DWithoutWorld();
 			void Draw2DWithWorld();
 
-			/** Called when the local plyaer is alive. */
+			/** Called when the local player is alive. */
 			void DrawJoinedAlivePlayerHUD();
 
-			/** Called when the local plyaer is dead. */
+			/** Called when the local player is dead. */
 			void DrawDeadPlayerHUD();
 
 			/**

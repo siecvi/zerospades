@@ -37,8 +37,6 @@ namespace spades {
 			int GetSelectedIndex();
 			int GetSelectedOrDefaultIndex();
 
-			void SetSelectedIndex(int);
-
 		public:
 			PaletteView(Client*);
 			~PaletteView();

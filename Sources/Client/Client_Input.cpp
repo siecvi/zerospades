@@ -141,25 +141,23 @@ namespace spades {
 					if (!cg_invertMouseY)
 						y = -y;
 
-					auto& state = followAndFreeCameraState;
-
-					state.yaw -= x * 0.003F;
-					state.pitch -= y * 0.003F;
-					if (state.pitch > DEG2RAD(89))
-						state.pitch = DEG2RAD(89);
-					if (state.pitch < -DEG2RAD(89))
-						state.pitch = -DEG2RAD(89);
-					state.yaw = fmodf(state.yaw, DEG2RAD(360));
+					auto& sharedState = followAndFreeCameraState;
+					sharedState.yaw -= x * 0.003F;
+					sharedState.pitch -= y * 0.003F;
+					if (sharedState.pitch > DEG2RAD(89))
+						sharedState.pitch = DEG2RAD(89);
+					if (sharedState.pitch < -DEG2RAD(89))
+						sharedState.pitch = -DEG2RAD(89);
+					sharedState.yaw = fmodf(sharedState.yaw, DEG2RAD(360));
 					break;
 				}
 				case ClientCameraMode::FirstPersonLocal: {
 					SPAssert(world);
-					SPAssert(world->GetLocalPlayer());
 
-					if (!x && !y)
-						break;
+					stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
+					SPAssert(maybePlayer);
 
-					Player& p = world->GetLocalPlayer().value();
+					Player& p = maybePlayer.value();
 					if (p.IsAlive()) {
 						float sensitivity = cg_mouseSensitivity;
 
@@ -193,7 +191,7 @@ namespace spades {
 								y *= rad;
 							}
 						}
-						
+
 						float aimDownState = GetAimDownState();
 						if (aimDownState > 0.0F) {
 							float scale = cg_zoomedMouseSensScale;
@@ -323,7 +321,7 @@ namespace spades {
 					if (inGameLimbo) {
 						inGameLimbo = false;
 					} else {
-						if (GetWorld() == nullptr) { 
+						if (GetWorld() == nullptr) {
 							// loading now, abort download, and quit the game immediately.
 							readyToClose = true;
 						} else {
@@ -332,6 +330,20 @@ namespace spades {
 					}
 				}
 			} else if (world) {
+				// volume control
+				if ((name == "-" || name == "+") && down) {
+					int volume = s_volume;
+
+					if (name == "-")
+						volume = std::max(volume - 10, 0);
+					else if (name == "+")
+						volume = std::min(volume + 10, 100);
+
+					s_volume = volume;
+					auto volStr = "Volume: " + ToString(volume);
+					chatWindow->AddMessage(ChatWindow::ColoredMessage(volStr, MsgColorRed));
+				}
+
 				if (IsLimboViewActive()) {
 					if (down)
 						limbo->KeyEvent(name);
@@ -340,25 +352,30 @@ namespace spades {
 
 				auto cameraMode = GetCameraMode();
 
+				stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
+				if (!maybePlayer)
+					return;
+
+				Player& p = maybePlayer.value();
+
 				switch (cameraMode) {
 					case ClientCameraMode::None:
 					case ClientCameraMode::NotJoined:
 					case ClientCameraMode::FirstPersonLocal: break;
 					case ClientCameraMode::ThirdPersonLocal:
-						if (world->GetLocalPlayer()->IsAlive())
+						if (p.IsAlive())
 							break;
 					case ClientCameraMode::FirstPersonFollow:
 					case ClientCameraMode::ThirdPersonFollow:
-					case ClientCameraMode::Free:
+					case ClientCameraMode::Free: {
 						if (CheckKey(cg_keyAttack, name)) {
 							if (down) {
 								if (cameraMode == ClientCameraMode::Free ||
 								    cameraMode == ClientCameraMode::ThirdPersonLocal) {
 									// Start with the local player
-									followedPlayerId = world->GetLocalPlayerIndex().value();
+									followedPlayerId = p.GetId();
 								}
-								if (world->GetLocalPlayer()->IsSpectator() ||
-								    time - lastAliveTime > 1.3F)
+								if (p.IsSpectator() || time - lastAliveTime > 1.3F)
 									FollowNextPlayer(false);
 							}
 							return;
@@ -367,10 +384,9 @@ namespace spades {
 								if (cameraMode == ClientCameraMode::Free ||
 								    cameraMode == ClientCameraMode::ThirdPersonLocal) {
 									// Start with the local player
-									followedPlayerId = world->GetLocalPlayerIndex().value();
+									followedPlayerId = p.GetId();
 								}
-								if (world->GetLocalPlayer()->IsSpectator() ||
-								    time - lastAliveTime > 1.3F)
+								if (p.IsSpectator() || time - lastAliveTime > 1.3F)
 									FollowNextPlayer(true);
 							}
 							return;
@@ -378,9 +394,8 @@ namespace spades {
 							if (down && GetCameraTargetPlayer().IsAlive())
 								followCameraState.firstPerson = !followCameraState.firstPerson;
 							return;
-						} else if (CheckKey(cg_keyReloadWeapon, name) &&
-						           world->GetLocalPlayer()->IsSpectator() &&
-						           followCameraState.enabled) {
+						} else if (CheckKey(cg_keyReloadWeapon, name)
+							&& p.IsSpectator() && followCameraState.enabled) {
 							if (down) {
 								// Unfollow
 								followCameraState.enabled = false;
@@ -388,32 +403,25 @@ namespace spades {
 							return;
 						}
 						break;
+					}
 				}
 
-				if (world->GetLocalPlayer()) {
-					Player& p = world->GetLocalPlayer().value();
-
-					if (name == "-" || name == "+") {
-						int volume = s_volume;
-
-						if (name == "-")
-							volume = std::max(volume - 10, 0);
-						if (name == "+")
-							volume = std::min(volume + 10, 100);
-
-						if (down) {
-							s_volume = volume;
-
-							auto volstr = "Volume: " + ToString(volume);
-							chatWindow->AddMessage(ChatWindow::ColoredMessage(volstr, MsgColorRed));
-						}
+				// player is not spectator
+				if (!p.IsSpectator()) {
+					// hit debugger zoom can be toggled when dead
+					if (CheckKey(cg_keyToggleHitTestZoom, name) &&
+					    debugHitTestImage && cg_debugHitTest) {
+						debugHitTestZoom = down;
+						Handle<IAudioChunk> c = debugHitTestZoom
+						    ? audioDevice->RegisterSound("Sounds/Misc/OpenMap.opus")
+						    : audioDevice->RegisterSound("Sounds/Misc/CloseMap.opus");
+						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 					}
 
-					if (!p.IsSpectator() && p.IsAlive()) {
-						if (p.IsToolBlock() && down) {
-							if (paletteView->KeyInput(name))
-								return;
-						}
+					// player is alive and not spectating
+					if (p.IsAlive()) {
+						if (paletteView->KeyInput(name) && p.IsToolBlock() && down)
+							return;
 
 						if (name == "P" && down && cg_debugCorpse) {
 							auto corp = stmp::make_unique<Corpse>(*renderer, *map, p);
@@ -426,218 +434,186 @@ namespace spades {
 								RemoveInvisibleCorpses();
 						}
 					}
+				}
 
-					if (CheckKey(cg_keyToggleHitTestZoom, name) && cg_debugHitTest) {
-						if (debugHitTestImage && !p.IsSpectator()) {
-							debugHitTestZoom = down;
-							Handle<IAudioChunk> c = debugHitTestZoom
-							    ? audioDevice->RegisterSound("Sounds/Misc/OpenMap.opus")
-							    : audioDevice->RegisterSound("Sounds/Misc/CloseMap.opus");
-							audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
-						}
+				if (CheckKey(cg_keyMoveLeft, name)) {
+					playerInput.moveLeft = down;
+					keypadInput.left = down;
+					playerInput.moveRight = down ? false : keypadInput.right;
+				} else if (CheckKey(cg_keyMoveRight, name)) {
+					playerInput.moveRight = down;
+					keypadInput.right = down;
+					playerInput.moveLeft = down ? false : keypadInput.left;
+				} else if (CheckKey(cg_keyMoveForward, name)) {
+					playerInput.moveForward = down;
+					keypadInput.forward = down;
+					playerInput.moveBackward = down ? false : keypadInput.backward;
+				} else if (CheckKey(cg_keyMoveBackward, name)) {
+					playerInput.moveBackward = down;
+					keypadInput.backward = down;
+					playerInput.moveForward = down ? false : keypadInput.forward;
+				} else if (CheckKey(cg_keyCrouch, name)) {
+					playerInput.crouch = down;
+				} else if (CheckKey(cg_keySprint, name)) {
+					playerInput.sprint = down;
+				} else if (CheckKey(cg_keySneak, name)) {
+					playerInput.sneak = down;
+				} else if (CheckKey(cg_keyJump, name)) {
+					playerInput.jump = down;
+				} else if (CheckKey(cg_keyAttack, name)) {
+					weapInput.primary = down;
+
+					if (p.IsToolWeapon() && weapInput.primary && !CanLocalPlayerUseWeapon())
+						PlayerDryFiredWeapon(p);
+				} else if (CheckKey(cg_keyAltAttack, name)) {
+					bool lastVal = weapInput.secondary;
+					if (p.IsToolWeapon() && !cg_holdAimDownSight) {
+						if (down && !p.GetWeapon().IsReloading())
+							weapInput.secondary = !weapInput.secondary;
+					} else {
+						weapInput.secondary = down;
 					}
 
-					if (CheckKey(cg_keyMoveLeft, name)) {
-						playerInput.moveLeft = down;
-						keypadInput.left = down;
-						playerInput.moveRight = down ? false : keypadInput.right;
-					} else if (CheckKey(cg_keyMoveRight, name)) {
-						playerInput.moveRight = down;
-						keypadInput.right = down;
-						playerInput.moveLeft = down ? false : keypadInput.left;
-					} else if (CheckKey(cg_keyMoveForward, name)) {
-						playerInput.moveForward = down;
-						keypadInput.forward = down;
-						playerInput.moveBackward = down ? false : keypadInput.backward;
-					} else if (CheckKey(cg_keyMoveBackward, name)) {
-						playerInput.moveBackward = down;
-						keypadInput.backward = down;
-						playerInput.moveForward = down ? false : keypadInput.forward;
-					} else if (CheckKey(cg_keyCrouch, name)) {
-						playerInput.crouch = down;
-					} else if (CheckKey(cg_keySprint, name)) {
-						playerInput.sprint = down;
-					} else if (CheckKey(cg_keySneak, name)) {
-						playerInput.sneak = down;
-					} else if (CheckKey(cg_keyJump, name)) {
-						playerInput.jump = down;
-					} else if (CheckKey(cg_keyAttack, name)) {
-						weapInput.primary = down;
-
-						if (p.IsToolWeapon() && weapInput.primary && !CanLocalPlayerUseWeapon())
-							PlayerDryFiredWeapon(p);
-					} else if (CheckKey(cg_keyAltAttack, name)) {
-						bool lastVal = weapInput.secondary;
-						if (p.IsToolWeapon() && !cg_holdAimDownSight) {
-							if (down && !p.GetWeapon().IsReloading())
-								weapInput.secondary = !weapInput.secondary;
-						} else {
-							weapInput.secondary = down;
+					if (p.IsToolWeapon() && weapInput.secondary
+						&& !lastVal && CanLocalPlayerUseWeapon()) {
+						AudioParam param;
+						param.volume = 0.08F;
+						Handle<IAudioChunk> c =
+						  audioDevice->RegisterSound("Sounds/Weapons/AimDownSightLocal.opus");
+						audioDevice->PlayLocal(c.GetPointerOrNull(),
+							MakeVector3(0.4F, -0.3F, 0.5F), param);
+					}
+				} else if (CheckKey(cg_keyReloadWeapon, name)) {
+					reloadKeyPressed = down;
+				} else if (CheckKey(cg_keyToolSpade, name) && down) {
+					if (!p.IsSpectator() && p.IsAlive())
+						SetSelectedTool(Player::ToolSpade);
+				} else if (CheckKey(cg_keyToolBlock, name) && down) {
+					if (!p.IsSpectator() && p.IsAlive()) {
+						if (p.IsToolSelectable(Player::ToolBlock))
+							SetSelectedTool(Player::ToolBlock);
+						else
+							ShowAlert(_Tr("Client", "Out of Blocks"), AlertType::Error);
+					}
+				} else if (CheckKey(cg_keyToolWeapon, name) && down) {
+					if (!p.IsSpectator() && p.IsAlive()) {
+						if (p.IsToolSelectable(Player::ToolWeapon))
+							SetSelectedTool(Player::ToolWeapon);
+						else
+							ShowAlert(_Tr("Client", "Out of Ammo"), AlertType::Error);
+					}
+				} else if (CheckKey(cg_keyToolGrenade, name) && down) {
+					if (!p.IsSpectator() && p.IsAlive()) {
+						if (p.IsToolSelectable(Player::ToolGrenade))
+							SetSelectedTool(Player::ToolGrenade);
+						else
+							ShowAlert(_Tr("Client", "Out of Grenades"), AlertType::Error);
+					}
+				} else if (CheckKey(cg_keyLastTool, name) && down) {
+					if (!p.IsSpectator() && p.IsAlive()) {
+						if (hasLastTool && p.IsToolSelectable(lastTool)) {
+							hasLastTool = false;
+							SetSelectedTool(lastTool);
 						}
-
-						if (p.IsToolWeapon() && weapInput.secondary &&
-						    !lastVal && CanLocalPlayerUseWeapon()) {
-							AudioParam params;
-							params.volume = 0.08F;
-							Handle<IAudioChunk> c =
-							  audioDevice->RegisterSound("Sounds/Weapons/AimDownSightLocal.opus");
-							audioDevice->PlayLocal(c.GetPointerOrNull(), MakeVector3(0.4F, -0.3F, 0.5F), params);
-						}
-					} else if (CheckKey(cg_keyReloadWeapon, name)) {
-						if (p.GetTool() == Player::ToolWeapon) {
-							Weapon& w = p.GetWeapon();
-							if (w.GetAmmo() < w.GetClipSize() && w.GetStock() > 0 &&
-							    !(w.IsReloading() || p.IsAwaitingReloadCompletion()) &&
-							    !(w.IsShooting() && w.GetAmmo() > 0)) {
-								if (weapInput.secondary && !w.IsReloadSlow()) {
-									// if we send WeaponInput after sending Reload,
-									// server might cancel the reload.
-									// https://github.com/infogulch/pyspades/blob/protocol075/pyspades/server.py
-									hasDelayedReload = true;
-									weapInput.secondary = false;
-									return;
-								}
-
-								p.Reload();
-								net->SendReload();
-							}
-						}
-					} else if (CheckKey(cg_keyToolSpade, name) && down) {
-						if (!p.IsSpectator() && p.IsAlive())
-							SetSelectedTool(Player::ToolSpade);
-					} else if (CheckKey(cg_keyToolBlock, name) && down) {
-						if (!p.IsSpectator() && p.IsAlive()) {
-							if (p.IsToolSelectable(Player::ToolBlock))
-								SetSelectedTool(Player::ToolBlock);
-							else
-								ShowAlert(_Tr("Client", "Out of Blocks"), AlertType::Error);
-						}
-					} else if (CheckKey(cg_keyToolWeapon, name) && down) {
-						if (!p.IsSpectator() && p.IsAlive()) {
-							if (p.IsToolSelectable(Player::ToolWeapon))
-								SetSelectedTool(Player::ToolWeapon);
-							else
-								ShowAlert(_Tr("Client", "Out of Ammo"), AlertType::Error);
-						}
-					} else if (CheckKey(cg_keyToolGrenade, name) && down) {
-						if (!p.IsSpectator() && p.IsAlive()) {
-							if (p.IsToolSelectable(Player::ToolGrenade))
-								SetSelectedTool(Player::ToolGrenade);
-							else
-								ShowAlert(_Tr("Client", "Out of Grenades"), AlertType::Error);
-						}
-					} else if (CheckKey(cg_keyLastTool, name) && down) {
-						if (!p.IsSpectator() && p.IsAlive()) {
-							if (hasLastTool && p.IsToolSelectable(lastTool)) {
-								hasLastTool = false;
-								SetSelectedTool(lastTool);
-							}
-						}
-					} else if (CheckKey(cg_keyGlobalChat, name) && down) {
-						// global chat
-						scriptedUI->EnterGlobalChatWindow();
-						scriptedUI->SetIgnored(name);
-					} else if (CheckKey(cg_keyTeamChat, name) && down) {
-						// team chat
-						scriptedUI->EnterTeamChatWindow();
-						scriptedUI->SetIgnored(name);
-					} else if (CheckKey(cg_keyZoomChatLog, name)) {
-						chatWindow->SetExpanded(down);
-					} else if (CheckKey(cg_keyCaptureColor, name) && down) {
-						if (!p.IsSpectator() && p.IsAlive() && p.IsToolBlock())
-							CaptureColor();
-					} else if (CheckKey(cg_keyChangeMapScale, name) && down) {
-						if (!largeMapView->IsZoomed()) {
-							renderer->UpdateFlatGameMap();
+					}
+				} else if (CheckKey(cg_keyGlobalChat, name) && down) {
+					scriptedUI->EnterGlobalChatWindow();
+					scriptedUI->SetIgnored(name);
+				} else if (CheckKey(cg_keyTeamChat, name) && down) {
+					scriptedUI->EnterTeamChatWindow();
+					scriptedUI->SetIgnored(name);
+				} else if (CheckKey(cg_keyZoomChatLog, name)) {
+					chatWindow->SetExpanded(down);
+				} else if (CheckKey(cg_keyCaptureColor, name) && down) {
+					if (!p.IsSpectator() && p.IsAlive() && p.IsToolBlock())
+						CaptureColor();
+				} else if (CheckKey(cg_keyChangeMapScale, name) && down) {
+					if (!largeMapView->IsZoomed()) {
+						renderer->UpdateFlatGameMap();
 						mapView->SwitchScale();
 						Handle<IAudioChunk> c =
 						  audioDevice->RegisterSound("Sounds/Misc/SwitchMapZoom.opus");
 						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
-						}
-					} else if (CheckKey(cg_keyToggleMapZoom, name)) {
-						if (down || cg_holdMapZoom) {
-							bool zoomed = largeMapView->IsZoomed();
-							zoomed = !zoomed;
-							if (cg_holdMapZoom)
-								zoomed = down;
+					}
+				} else if (CheckKey(cg_keyToggleMapZoom, name)) {
+					if (down || cg_holdMapZoom) {
+						bool zoomed = largeMapView->IsZoomed();
+						zoomed = !zoomed;
+						if (cg_holdMapZoom)
+							zoomed = down;
 
 						renderer->UpdateFlatGameMap();
-							largeMapView->SetZoom(zoomed);
-							Handle<IAudioChunk> c = zoomed
-						    ? audioDevice->RegisterSound("Sounds/Misc/OpenMap.opus")
-						    : audioDevice->RegisterSound("Sounds/Misc/CloseMap.opus");
+						largeMapView->SetZoom(zoomed);
+						Handle<IAudioChunk> c = zoomed
+							? audioDevice->RegisterSound("Sounds/Misc/OpenMap.opus")
+							: audioDevice->RegisterSound("Sounds/Misc/CloseMap.opus");
 						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+					}
+				} else if (CheckKey(cg_keyScoreboard, name)) {
+					scoreboardVisible = down;
+				} else if (CheckKey(cg_keyLimbo, name) && down) {
+					inGameLimbo = true;
+					limbo->SetSelectedTeam(p.GetTeamId());
+					limbo->SetSelectedWeapon(p.GetWeapon().GetWeaponType());
+				} else if (CheckKey(cg_keySceneshot, name) && down) {
+					TakeScreenShot(true);
+				} else if (CheckKey(cg_keyScreenshot, name) && down) {
+					TakeScreenShot(false);
+				} else if (CheckKey(cg_keySaveMap, name) && down) {
+					TakeMapShot();
+				} else if (CheckKey(cg_keyFlashlight, name) && down) {
+					// spectators and dead players shouldn't be able to toggle the flashlight
+					if (!p.IsSpectator() && p.IsAlive()) {
+						flashlightOn = !flashlightOn;
+						flashlightOnTime = time;
+						Handle<IAudioChunk> c =
+						  audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
+						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+					}
+				} else if (CheckKey(cg_keyAutoFocus, name) && down && cg_manualFocus) {
+					autoFocusEnabled = true;
+				} else if ((name == "WheelUp" || name == "WheelDown") && down) {
+					// When DoF control is enabled,
+					// tool switch is overrided by focal length control.
+					bool rev = (int)cg_switchToolByWheel > 0;
+					if (name == (rev ? "WheelDown" : "WheelUp")) {
+						if (cg_manualFocus) {
+							float dist = 1.0F / targetFocalLength;
+							dist = std::min(dist + 0.01F, 1.0F);
+							targetFocalLength = 1.0F / dist;
+							autoFocusEnabled = false;
+						} else if (!p.IsSpectator() && p.IsAlive() && cg_switchToolByWheel) {
+							Player::ToolType t = p.GetTool();
+							do {
+								switch (t) {
+									case Player::ToolSpade: t = Player::ToolGrenade; break;
+									case Player::ToolBlock: t = Player::ToolSpade; break;
+									case Player::ToolWeapon: t = Player::ToolBlock; break;
+									case Player::ToolGrenade: t = Player::ToolWeapon; break;
+								}
+							} while (!p.IsToolSelectable(t));
+							SetSelectedTool(t);
 						}
-					} else if (CheckKey(cg_keyScoreboard, name)) {
-						scoreboardVisible = down;
-					} else if (CheckKey(cg_keyLimbo, name) && down) {
-						limbo->SetSelectedTeam(p.GetTeamId());
-						limbo->SetSelectedWeapon(p.GetWeapon().GetWeaponType());
-						inGameLimbo = true;
-					} else if (CheckKey(cg_keySceneshot, name) && down) {
-						TakeScreenShot(true);
-					} else if (CheckKey(cg_keyScreenshot, name) && down) {
-						TakeScreenShot(false);
-					} else if (CheckKey(cg_keySaveMap, name) && down) {
-						TakeMapShot();
-					} else if (CheckKey(cg_keyFlashlight, name) && down) {
-						// spectators and dead players should not be able to toggle the flashlight
-						if (!p.IsSpectator() && p.IsAlive()) {
-							flashlightOn = !flashlightOn;
-							flashlightOnTime = time;
-							Handle<IAudioChunk> c =
-							  audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
-							audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
-						}
-					} else if (CheckKey(cg_keyAutoFocus, name) && down && (bool)cg_manualFocus) {
-						autoFocusEnabled = true;
-					} else if (down) {
-						bool rev = (int)cg_switchToolByWheel > 0;
-						if (name == (rev ? "WheelDown" : "WheelUp")) {
-							if ((bool)cg_manualFocus) {
-								// When DoF control is enabled,
-								// tool switch is overrided by focal length control.
-								float dist = 1.0F / targetFocalLength;
-								dist = std::min(dist + 0.01F, 1.0F);
-								targetFocalLength = 1.0F / dist;
-								autoFocusEnabled = false;
-							} else if (cg_switchToolByWheel && !p.IsSpectator() && p.IsAlive()) {
-								Player::ToolType t = p.GetTool();
-								do {
-									switch (t) {
-										case Player::ToolSpade: t = Player::ToolGrenade; break;
-										case Player::ToolBlock: t = Player::ToolSpade; break;
-										case Player::ToolWeapon: t = Player::ToolBlock; break;
-										case Player::ToolGrenade: t = Player::ToolWeapon; break;
-									}
-								} while (!p.IsToolSelectable(t));
-								SetSelectedTool(t);
-							}
-						} else if (name == (rev ? "WheelUp" : "WheelDown")) {
-							if ((bool)cg_manualFocus) {
-								// When DoF control is enabled,
-								// tool switch is overrided by focal length control.
-								float dist = 1.0F / targetFocalLength;
-								// limit to fog max distance
-								dist = std::max(dist - 0.01F, 1.0F / 128.0F);
-								targetFocalLength = 1.0F / dist;
-								autoFocusEnabled = false;
-							} else if (cg_switchToolByWheel && !p.IsSpectator() && p.IsAlive()) {
-								Player::ToolType t = p.GetTool();
-								do {
-									switch (t) {
-										case Player::ToolSpade: t = Player::ToolBlock; break;
-										case Player::ToolBlock: t = Player::ToolWeapon; break;
-										case Player::ToolWeapon: t = Player::ToolGrenade; break;
-										case Player::ToolGrenade: t = Player::ToolSpade; break;
-									}
-								} while (!p.IsToolSelectable(t));
-								SetSelectedTool(t);
-							}
+					} else if (name == (rev ? "WheelUp" : "WheelDown")) {
+						if (cg_manualFocus) {
+							float dist = 1.0F / targetFocalLength;
+							// limit to fog max distance
+							dist = std::max(dist - 0.01F, 1.0F / 128.0F);
+							targetFocalLength = 1.0F / dist;
+							autoFocusEnabled = false;
+						} else if (!p.IsSpectator() && p.IsAlive() && cg_switchToolByWheel) {
+							Player::ToolType t = p.GetTool();
+							do {
+								switch (t) {
+									case Player::ToolSpade: t = Player::ToolBlock; break;
+									case Player::ToolBlock: t = Player::ToolWeapon; break;
+									case Player::ToolWeapon: t = Player::ToolGrenade; break;
+									case Player::ToolGrenade: t = Player::ToolSpade; break;
+								}
+							} while (!p.IsToolSelectable(t));
+							SetSelectedTool(t);
 						}
 					}
-				} else {
-					// limbo
 				}
 			}
 		}

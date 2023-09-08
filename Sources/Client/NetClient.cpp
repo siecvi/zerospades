@@ -635,38 +635,37 @@ namespace spades {
 
 		stmp::optional<World&> NetClient::GetWorld() { return client->GetWorld(); }
 
-		Player& NetClient::GetPlayer(int pId) {
-			SPADES_MARK_FUNCTION();
-			if (!GetWorld())
-				SPRaise("Invalid Player ID %d: No world", pId);
-			if (pId < 0 || pId >= int(GetWorld()->GetNumPlayerSlots()))
-				SPRaise("Invalid Player ID %d: Out of range", pId);
-			if (!GetWorld()->GetPlayer(pId))
-				SPRaise("Invalid Player ID %d: Doesn't exist", pId);
-			return GetWorld()->GetPlayer(pId).value();
-		}
 		stmp::optional<Player&> NetClient::GetPlayerOrNull(int pId) {
 			SPADES_MARK_FUNCTION();
 			if (!GetWorld())
-				SPRaise("Invalid Player ID %d: No world", pId);
-			if (pId < 0 || pId >= int(GetWorld()->GetNumPlayerSlots()))
+				SPRaise("Invalid player ID %d: no world", pId);
+			if (pId < 0 || pId >= static_cast<int>(GetWorld()->GetNumPlayerSlots()))
 				return NULL;
 			return GetWorld()->GetPlayer(pId);
 		}
-
-		Player& NetClient::GetLocalPlayer() {
+		Player& NetClient::GetPlayer(int pId) {
 			SPADES_MARK_FUNCTION();
 			if (!GetWorld())
-				SPRaise("Failed to get local player: no world");
-			if (!GetWorld()->GetLocalPlayer())
-				SPRaise("Failed to get local player: no local player");
-			return GetWorld()->GetLocalPlayer().value();
+				SPRaise("Invalid player ID %d: no world", pId);
+			if (pId < 0 || pId >= static_cast<int>(GetWorld()->GetNumPlayerSlots()))
+				SPRaise("Invalid player ID %d: out of range", pId);
+			if (!GetWorld()->GetPlayer(pId))
+				SPRaise("Invalid player ID %d: doesn't exist", pId);
+			return GetWorld()->GetPlayer(pId).value();
 		}
+
 		stmp::optional<Player&> NetClient::GetLocalPlayerOrNull() {
 			SPADES_MARK_FUNCTION();
 			if (!GetWorld())
 				SPRaise("Failed to get local player: no world");
 			return GetWorld()->GetLocalPlayer();
+		}
+		Player& NetClient::GetLocalPlayer() {
+			SPADES_MARK_FUNCTION();
+			stmp::optional<Player&> maybePlayer = GetLocalPlayerOrNull();
+			if (!maybePlayer)
+				SPRaise("Failed to get local player: doesn't exist");
+			return maybePlayer.value();
 		}
 
 		PlayerInput ParsePlayerInput(uint8_t bits) {
@@ -871,7 +870,7 @@ namespace spades {
 						int team = r.ReadByte();
 						int weapon = r.ReadByte();
 						int tool = r.ReadByte();
-						int kills = r.ReadInt();
+						int score = r.ReadInt();
 						IntVector3 color = r.ReadIntColor();
 						std::string name = r.ReadRemainingString();
 						// TODO: decode name?
@@ -900,7 +899,7 @@ namespace spades {
 
 						auto& pers = GetWorld()->GetPlayerPersistent(pId);
 						pers.name = name;
-						pers.kills = kills;
+						pers.score = score;
 
 						savedPlayerTeam[pId] = team;
 					}
@@ -926,9 +925,11 @@ namespace spades {
 						}
 					} else if (mode && mode->ModeType() == IGameMode::m_TC) {
 						auto& tc = dynamic_cast<TCGameMode&>(mode.value());
-						if (type >= tc.GetNumTerritories()) {
-								SPRaise("Invalid territory id specified: %d (max = %d)",
-									(int)type, tc.GetNumTerritories() - 1);
+
+						int numTerritories = tc.GetNumTerritories();
+						if (type >= numTerritories) {
+							SPRaise("Invalid territory id specified: %d (max = %d)",
+								(int)type, numTerritories - 1);
 						}
 
 						if (state > 2)
@@ -970,10 +971,9 @@ namespace spades {
 					GetWorld()->SetPlayer(pId, std::move(p));
 
 					Player& pRef = GetWorld()->GetPlayer(pId).value();
-					auto& pers = GetWorld()->GetPlayerPersistent(pId);
 
 					if (!name.empty()) // sometimes becomes empty
-						pers.name = name;
+						GetWorld()->GetPlayerPersistent(pId).name = name;
 
 					if (pId == GetWorld()->GetLocalPlayerIndex()) {
 						client->LocalPlayerCreated();
@@ -1003,7 +1003,7 @@ namespace spades {
 								p->UseBlocks(1);
 								if (p->IsLocalPlayer())
 									client->RegisterPlacedBlocks(1);
-						}
+							}
 							client->PlayerCreatedBlock(*p);
 						}
 					} else if (action == BlockActionTool) {
@@ -1130,7 +1130,7 @@ namespace spades {
 					}
 					break;
 				case PacketTypeKillAction: {
-					Player& p = GetPlayer(r.ReadByte());
+					Player& victim = GetPlayer(r.ReadByte());
 					Player* killer = &GetPlayer(r.ReadByte());
 					int kt = r.ReadByte();
 					int respawnTime = r.ReadByte();
@@ -1149,13 +1149,12 @@ namespace spades {
 					switch (type) {
 						case KillTypeFall:
 						case KillTypeTeamChange:
-						case KillTypeClassChange: killer = &p; break;
+						case KillTypeClassChange: killer = &victim; break;
 						default: break;
 					}
-					p.KilledBy(type, *killer, respawnTime);
-
-					if (&p != killer)
-						GetWorld()->GetPlayerPersistent(killer->GetId()).kills++;
+					victim.KilledBy(type, *killer, respawnTime);
+					if (killer != &victim)
+						GetWorld()->GetPlayerPersistent(killer->GetId()).score++;
 				} break;
 				case PacketTypeChatMessage: {
 					// might be wrong player id for server message
@@ -1193,13 +1192,14 @@ namespace spades {
 				} break;
 				case PacketTypeMapChunk: SPRaise("Unexpected: received Map Chunk while game");
 				case PacketTypePlayerLeft: {
-					Player& p = GetPlayer(r.ReadByte());
+					int pId = r.ReadByte();
+					Player& p = GetPlayer(pId);
 
 					client->PlayerLeaving(p);
-					GetWorld()->GetPlayerPersistent(p.GetId()).kills = 0;
+					GetWorld()->GetPlayerPersistent(pId).score = 0;
 
-					savedPlayerTeam[p.GetId()] = -1;
-					GetWorld()->SetPlayer(p.GetId(), NULL);
+					savedPlayerTeam[pId] = -1;
+					GetWorld()->SetPlayer(pId, NULL);
 				} break;
 				case PacketTypeTerritoryCapture: {
 					int territoryId = r.ReadByte();
@@ -1213,15 +1213,15 @@ namespace spades {
 						      "because game mode isn't specified yet");
 						break;
 					}
-
 					if (mode->ModeType() != IGameMode::m_TC)
 						SPRaise("Received PacketTypeTerritoryCapture in non-TC gamemode");
 
-					TCGameMode& tc = dynamic_cast<TCGameMode&>(*mode);
+					auto& tc = dynamic_cast<TCGameMode&>(*mode);
 
-					if (territoryId >= tc.GetNumTerritories()) {
+					int numTerritories = tc.GetNumTerritories();
+					if (territoryId >= numTerritories) {
 						SPRaise("Invalid territory id %d specified (max = %d)",
-							territoryId, tc.GetNumTerritories() - 1);
+							territoryId, numTerritories - 1);
 					}
 
 					client->TeamCapturedTerritory(state, territoryId);
@@ -1249,13 +1249,14 @@ namespace spades {
 						break;
 					}
 					if (mode->ModeType() != IGameMode::m_TC)
-						SPRaise("Received packet in non-TC gamemode");
+						SPRaise("Received PacketTypeProgressBar in non-TC gamemode");
 
-					TCGameMode& tc = dynamic_cast<TCGameMode&>(*mode);
+					auto& tc = dynamic_cast<TCGameMode&>(*mode);
 
-					if (territoryId >= tc.GetNumTerritories()) {
+					int numTerritories = tc.GetNumTerritories();
+					if (territoryId >= numTerritories) {
 						SPRaise("Invalid territory id %d specified (max = %d)",
-							territoryId, tc.GetNumTerritories() - 1);
+							territoryId, numTerritories - 1);
 					}
 
 					if (progress < -0.1F || progress > 1.1F)
@@ -1278,23 +1279,27 @@ namespace spades {
 						break;
 					}
 					if (mode->ModeType() != IGameMode::m_CTF)
-						SPRaise("Received PacketTypeIntelCapture in non-TC gamemode");
-					CTFGameMode& ctf = dynamic_cast<CTFGameMode&>(mode.value());
+						SPRaise("Received PacketTypeIntelCapture in non-CTF gamemode");
 
-					Player& p = GetPlayer(r.ReadByte());
+					int pId = r.ReadByte();
+					Player& p = GetPlayer(pId);
+					int teamId = p.GetTeamId();
+
+					auto& ctf = dynamic_cast<CTFGameMode&>(mode.value());
+					CTFGameMode::Team& team = ctf.GetTeam(teamId);
+					team.score++;
+					team.hasIntel = false;
+
 					client->PlayerCapturedIntel(p);
-					GetWorld()->GetPlayerPersistent(p.GetId()).kills += 10;
-					ctf.GetTeam(p.GetTeamId()).hasIntel = false;
-					ctf.GetTeam(p.GetTeamId()).score++;
+					GetWorld()->GetPlayerPersistent(pId).score += 10;
 
 					bool winning = r.ReadByte() != 0;
 					if (winning) {
 						ctf.ResetIntelHoldingStatus();
-						client->TeamWon(p.GetTeamId());
+						client->TeamWon(teamId);
 					}
 				} break;
 				case PacketTypeIntelPickup: {
-					Player& p = GetPlayer(r.ReadByte());
 					stmp::optional<IGameMode&> mode = GetWorld()->GetMode();
 					if (!mode) {
 						SPLog("Ignoring PacketTypeIntelPickup"
@@ -1302,16 +1307,18 @@ namespace spades {
 						break;
 					}
 					if (mode->ModeType() != IGameMode::m_CTF)
-						SPRaise("Received packet in non-TC gamemode");
+						SPRaise("Received PacketTypeIntelPickup in non-CTF gamemode");
 
-					CTFGameMode& ctf = dynamic_cast<CTFGameMode&>(mode.value());
+					int pId = r.ReadByte();
+					Player& p = GetPlayer(pId);
+
+					auto& ctf = dynamic_cast<CTFGameMode&>(mode.value());
 					CTFGameMode::Team& team = ctf.GetTeam(p.GetTeamId());
 					team.hasIntel = true;
-					team.carrierId = p.GetId();
+					team.carrierId = pId;
 					client->PlayerPickedIntel(p);
 				} break;
 				case PacketTypeIntelDrop: {
-					Player& p = GetPlayer(r.ReadByte());
 					stmp::optional<IGameMode&> mode = GetWorld()->GetMode();
 					if (!mode) {
 						SPLog("Ignoring PacketTypeIntelDrop"
@@ -1319,13 +1326,14 @@ namespace spades {
 						break;
 					}
 					if (mode->ModeType() != IGameMode::m_CTF)
-						SPRaise("Received packet in non-TC gamemode");
+						SPRaise("Received PacketTypeIntelDrop in non-CTF gamemode");
 
-					CTFGameMode& ctf = dynamic_cast<CTFGameMode&>(mode.value());
-					CTFGameMode::Team& team = ctf.GetTeam(p.GetTeamId());
-					team.hasIntel = false;
+					Player& p = GetPlayer(r.ReadByte());
+					int teamId = p.GetTeamId();
 
-					ctf.GetTeam(1 - p.GetTeamId()).flagPos = r.ReadVector3();
+					auto& ctf = dynamic_cast<CTFGameMode&>(mode.value());
+					ctf.GetTeam(teamId).hasIntel = false;
+					ctf.GetTeam(1 - teamId).flagPos = r.ReadVector3();
 					client->PlayerDropIntel(p);
 				} break;
 				case PacketTypeRestock: {
@@ -1400,10 +1408,8 @@ namespace spades {
 						break;
 					case VersionInfoPropertyId::ClientFeatureFlags1: {
 						auto flags = ClientFeatureFlags1::None;
-
 						if (cg_unicode)
 							flags |= ClientFeatureFlags1::SupportsUnicode;
-
 						w.WriteInt(static_cast<uint32_t>(flags));
 					} break;
 					default:
@@ -1416,7 +1422,7 @@ namespace spades {
 			}
 		}
 
-		void NetClient::SendJoin(int team, WeaponType weapType, std::string name, int kills) {
+		void NetClient::SendJoin(int team, WeaponType weapType, std::string name, int score) {
 			SPADES_MARK_FUNCTION();
 
 			int weapId;
@@ -1432,7 +1438,7 @@ namespace spades {
 			w.WriteByte((uint8_t)team);
 			w.WriteByte((uint8_t)weapId);
 			w.WriteByte((uint8_t)2); // TODO: change tool
-			w.WriteInt((uint32_t)kills);
+			w.WriteInt((uint32_t)score);
 			w.WriteColor(GetWorld()->GetTeamColor(team));
 			w.WriteString(name, 16);
 			enet_peer_send(peer, 0, w.CreatePacket());

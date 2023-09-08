@@ -33,34 +33,13 @@ namespace spades {
 			std::regex const g_fontNameRe(".*\\.(?:otf|ttf|ttc)", std::regex::icase);
 
 			struct GlobalFontInfo {
-				std::shared_ptr<ngclient::FTFontSet> squareDesignFont, guiFontSet, sysFontSet;
+				std::shared_ptr<ngclient::FTFontSet> squareFontSet, guiFontSet, sysFontSet;
 
 				GlobalFontInfo() {
 					SPLog("Loading built-in fonts");
-
-					squareDesignFont = std::make_shared<ngclient::FTFontSet>();
-					if (FileManager::FileExists("Gfx/Fonts/SquareFont.ttf")) {
-						squareDesignFont->AddFace("Gfx/Fonts/SquareFont.ttf");
-						SPLog("Font 'SquareFont' loaded");
-					} else {
-						SPLog("Font 'SquareFont' was not found");
-					}
-
-					guiFontSet = std::make_shared<ngclient::FTFontSet>();
-					if (FileManager::FileExists("Gfx/Fonts/AlteDIN1451.ttf")) {
-						guiFontSet->AddFace("Gfx/Fonts/AlteDIN1451.ttf");
-						SPLog("Font 'Alte DIN 1451' loaded");
-					} else {
-						SPLog("Font 'Alte DIN 1451' was not found");
-					}
-
-					sysFontSet = std::make_shared<ngclient::FTFontSet>();
-					if (FileManager::FileExists("Gfx/Fonts/smallfnt68.ttf")) {
-						sysFontSet->AddFace("Gfx/Fonts/smallfnt68.ttf");
-						SPLog("Font 'smallfnt68' loaded");
-					} else {
-						SPLog("Font 'smallfnt68' was not found");
-					}
+					LoadFontSet(squareFontSet, "Gfx/Fonts/SquareFont.ttf", "SquareFont");
+					LoadFontSet(guiFontSet, "Gfx/Fonts/AlteDIN1451.ttf", "Alte DIN 1451");
+					LoadFontSet(sysFontSet, "Gfx/Fonts/smallfnt68.ttf", "SmallFont");
 
 					// Preliminary custom font support
 					auto files = FileManager::EnumFiles("Fonts");
@@ -75,6 +54,17 @@ namespace spades {
 					}
 				}
 
+				void LoadFontSet(std::shared_ptr<ngclient::FTFontSet>& fontSet,
+					const std::string& path, const std::string& name) {
+					fontSet = std::make_shared<ngclient::FTFontSet>();
+					if (FileManager::FileExists(path.c_str())) {
+						fontSet->AddFace(path);
+						SPLog("Font '%s' loaded", name.c_str());
+					} else {
+						SPLog("Font '%s' was not found", name.c_str());
+					}
+				}
+
 				static GlobalFontInfo& GetInstance() {
 					static GlobalFontInfo instance;
 					return instance;
@@ -85,7 +75,7 @@ namespace spades {
 		FontManager::FontManager(IRenderer* renderer) {
 			auto& instance = GlobalFontInfo::GetInstance();
 
-			squareDesignFont = Handle<ngclient::FTFont>::New(renderer, instance.squareDesignFont, 36.0F, 48.0F).Cast<IFont>();
+			squareDesignFont = Handle<ngclient::FTFont>::New(renderer, instance.squareFontSet, 36.0F, 48.0F).Cast<IFont>();
 			largeFont = Handle<ngclient::FTFont>::New(renderer, instance.guiFontSet, 34.0F, 48.0F).Cast<IFont>();
 			mediumFont = Handle<ngclient::FTFont>::New(renderer, instance.guiFontSet, 24.0F, 32.0F).Cast<IFont>();
 			headingFont = Handle<ngclient::FTFont>::New(renderer, instance.guiFontSet, 20.0F, 26.0F).Cast<IFont>();

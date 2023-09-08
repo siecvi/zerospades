@@ -989,11 +989,6 @@ msgctxt "StartupScreen"
 msgid "Advanced"
 msgstr ""
 
-#: Resources/Scripts/Gui/StartupScreen.as:288
-msgctxt "StartupScreen"
-msgid "An unknown error has occurred while opening the update info website."
-msgstr ""
-
 #: Resources/Scripts/Gui/StartupScreen.as:853
 msgctxt "StartupScreen"
 msgid "Custom"
@@ -1596,7 +1591,7 @@ msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:629
 msgctxt "Preferences"
-msgid "Hit Analyze Messages"
+msgid "Hit Analyzer"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:630
@@ -1637,16 +1632,6 @@ msgstr ""
 #: Resources/Scripts/Gui/Preferences.as:651
 msgctxt "Preferences"
 msgid "Master Volume"
-msgstr ""
-
-#: Resources/Scripts/Gui/Preferences.as:653
-msgctxt "Preferences"
-msgid "Hitmarker Volume"
-msgstr ""
-
-#: Resources/Scripts/Gui/Preferences.as:654
-msgctxt "Preferences"
-msgid "Hit Feedback Volume"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:655
@@ -1712,16 +1697,6 @@ msgstr ""
 #: Resources/Scripts/Gui/Preferences.as:672
 msgctxt "Preferences"
 msgid "Hide HUD"
-msgstr ""
-
-#: Resources/Scripts/Gui/Preferences.as:673
-msgctxt "Preferences"
-msgid "Hud Horizontal Border"
-msgstr ""
-
-#: Resources/Scripts/Gui/Preferences.as:675
-msgctxt "Preferences"
-msgid "Hud Vertical Border"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:677
@@ -1984,4 +1959,304 @@ msgctxt "StartupScreen"
 msgid ""
 "Other advanced settings only accessible through '{0}' tab and in-game "
 "commands."
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:281
+msgctxt "Preferences"
+msgid "Team Color"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:283
+msgctxt "Preferences"
+msgid "Light Blue"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:285
+#: Resources/Scripts/Gui/Preferences.as:316
+msgctxt "Preferences"
+msgid "Blue"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:287
+msgctxt "Preferences"
+msgid "Purple"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:289
+#: Resources/Scripts/Gui/Preferences.as:312
+msgctxt "Preferences"
+msgid "Red"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:291
+msgctxt "Preferences"
+msgid "Orange"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:293
+#: Resources/Scripts/Gui/Preferences.as:318
+msgctxt "Preferences"
+msgid "Yellow"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:295
+#: Resources/Scripts/Gui/Preferences.as:314
+msgctxt "Preferences"
+msgid "Green"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:297
+msgctxt "Preferences"
+msgid "Aqua"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:299
+#: Resources/Scripts/Gui/Preferences.as:322
+msgctxt "Preferences"
+msgid "Pink"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:301
+#: Resources/Scripts/Gui/Preferences.as:324
+#: Resources/Scripts/Gui/Preferences.as:339
+#: Resources/Scripts/Gui/Preferences.as:1216
+msgctxt "Preferences"
+msgid "Custom"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:320
+msgctxt "Preferences"
+msgid "Cyan"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:335
+msgctxt "Preferences"
+msgid "Classic"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:337
+msgctxt "Preferences"
+msgid "Dot Sight"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:341
+msgctxt "Preferences"
+msgid "Iron Sight"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:866
+msgctxt "Preferences"
+msgid "No Preview Available."
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1066
+#: Resources/Scripts/Gui/Preferences.as:1086
+msgctxt "Preferences"
+msgid "Reset"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1072
+#: Resources/Scripts/Gui/Preferences.as:1092
+msgctxt "Preferences"
+msgid "Randomize"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1151
+msgctxt "Preferences"
+msgid "Ignore Private Messages"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1159
+msgctxt "Preferences"
+msgid "Death Camera Volume"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1160
+msgctxt "Preferences"
+msgid "Respawn Beep Volume"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1161
+msgctxt "Preferences"
+msgid "Hit Feedback Volume"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1162
+msgctxt "Preferences"
+msgid "Headshot Feedback Volume"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1177
+msgctxt "Preferences"
+msgid "Show Placed Blocks"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1178
+msgctxt "Preferences"
+msgid "Player Statistics Height"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1186
+msgctxt "Preferences"
+msgid "Default Player Models"
+msgstr ""
+
+msgctxt "Preferences"
+msgid "HUD Edge Positions"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1199
+msgctxt "Preferences"
+msgid "HUD Color"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1201
+#: Resources/Scripts/Gui/Preferences.as:1221
+msgctxt "Preferences"
+msgid "Custom Color"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1207
+msgctxt "Preferences"
+msgid "Small HUD Font"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1210
+msgctxt "Preferences"
+msgid "Target"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1213
+msgctxt "Preferences"
+msgid "Target Type"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1218
+#: Resources/Scripts/Gui/Preferences.as:1257
+msgctxt "Preferences"
+msgid "Lines"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1219
+#: Resources/Scripts/Gui/Preferences.as:1258
+msgctxt "Preferences"
+msgid "Color"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1223
+#: Resources/Scripts/Gui/Preferences.as:1260
+msgctxt "Preferences"
+msgid "Opacity"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1225
+#: Resources/Scripts/Gui/Preferences.as:1262
+msgctxt "Preferences"
+msgid "Length"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1228
+#: Resources/Scripts/Gui/Preferences.as:1265
+msgctxt "Preferences"
+msgid "Thickness"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1230
+#: Resources/Scripts/Gui/Preferences.as:1267
+msgctxt "Preferences"
+msgid "Gap"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1232
+#: Resources/Scripts/Gui/Preferences.as:1269
+msgctxt "Preferences"
+msgid "Dynamic"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1233
+#: Resources/Scripts/Gui/Preferences.as:1270
+msgctxt "Preferences"
+msgid "Dynamic Split Dist"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1235
+#: Resources/Scripts/Gui/Preferences.as:1272
+msgctxt "Preferences"
+msgid "Outline"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1236
+#: Resources/Scripts/Gui/Preferences.as:1273
+msgctxt "Preferences"
+msgid "Outline Color"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1238
+#: Resources/Scripts/Gui/Preferences.as:1275
+msgctxt "Preferences"
+msgid "Outline Opacity"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1240
+#: Resources/Scripts/Gui/Preferences.as:1277
+msgctxt "Preferences"
+msgid "Outline Thickness"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1242
+#: Resources/Scripts/Gui/Preferences.as:1279
+msgctxt "Preferences"
+msgid "Rounded Corners Style"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1243
+#: Resources/Scripts/Gui/Preferences.as:1280
+msgctxt "Preferences"
+msgid "Center Dot"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1244
+#: Resources/Scripts/Gui/Preferences.as:1281
+msgctxt "Preferences"
+msgid "Center Dot Color"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1246
+#: Resources/Scripts/Gui/Preferences.as:1283
+msgctxt "Preferences"
+msgid "Center Dot Opacity"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1248
+#: Resources/Scripts/Gui/Preferences.as:1285
+msgctxt "Preferences"
+msgid "Center Dot Thickness"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1250
+#: Resources/Scripts/Gui/Preferences.as:1287
+msgctxt "Preferences"
+msgid "T Style"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1252
+msgctxt "Preferences"
+msgid "Scope"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1255
+msgctxt "Preferences"
+msgid "Scope Type"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1377
+msgctxt "Preferences"
+msgid "Hold Large Map"
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:145
+msgctxt "StartupScreen"
+msgid ""
+"Vertical Sync:Synchronizes screen updates to a monitor's refresh rate.|Off|"
+"On|Adaptive"
 msgstr ""

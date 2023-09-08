@@ -74,10 +74,11 @@ namespace spades {
 			TCGameMode& tc = dynamic_cast<TCGameMode&>(mode.value());
 
 			stmp::optional<Player&> maybePlayer = w->GetLocalPlayer();
-			if (maybePlayer && !maybePlayer.value().IsSpectator() &&
-			    maybePlayer.value().IsAlive()) {
-				Player& p = maybePlayer.value();
+			if (!maybePlayer)
+				return;
 
+			Player& p = maybePlayer.value();
+			if (!p.IsSpectator() && p.IsAlive()) {
 				// show approaching territory
 				stmp::optional<TCGameMode::Territory&> nearTerritory;
 				int nearTerritoryId = 0;
@@ -129,14 +130,14 @@ namespace spades {
 
 						// draw background bar
 						Vector4 bgCol = MakeVector4(0.2F, 0.2F, 0.2F, 1);
-						if (ownerTeam != NEUTRAL_TEAM)
+						if (ownerTeam < NEUTRAL_TEAM)
 							bgCol = ConvertColorRGBA(w->GetTeamColor(ownerTeam));
 						renderer.SetColorAlphaPremultiplied(bgCol * (fade * 0.5F));
 						renderer.DrawImage(
 						  nullptr, AABB2(prgBarX - 1, prgBarY - 1, prgBarW + 2, prgBarH + 2));
 
 						// draw capturing team progress bar
-						if (state.team1 != NEUTRAL_TEAM) {
+						if (state.team1 < NEUTRAL_TEAM) {
 							Vector4 prgCol = ConvertColorRGBA(w->GetTeamColor(state.team1));
 							renderer.SetColorAlphaPremultiplied(prgCol * (fade * 0.8F));
 							renderer.DrawImage(
@@ -144,7 +145,7 @@ namespace spades {
 						}
 
 						// draw owner team progress bar
-						if (state.team2 != NEUTRAL_TEAM) {
+						if (state.team2 < NEUTRAL_TEAM) {
 							Vector4 prgCol = ConvertColorRGBA(w->GetTeamColor(state.team2));
 							renderer.SetColorAlphaPremultiplied(prgCol * (fade * 0.8F));
 							renderer.DrawImage(nullptr,
@@ -154,10 +155,10 @@ namespace spades {
 
 						// draw text
 						std::string str;
-						if (ownerTeam == NEUTRAL_TEAM) {
+						if (ownerTeam >= NEUTRAL_TEAM) {
 							str = _Tr("Client", "Neutral Territory");
 						} else {
-							str = w->GetTeam(ownerTeam).name;
+							str = w->GetTeamName(ownerTeam);
 							str = _Tr("Client", "{0}'s Territory", str);
 						}
 

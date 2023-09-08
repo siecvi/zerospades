@@ -195,7 +195,7 @@ namespace spades {
 
 			// draw players
 			DrawPlayers(0, contentsLeft, playersTop, (contentsRight - contentsLeft) * 0.5F, playersHeight);
-			DrawPlayers(1, sw * 0.5F, playersTop, (contentsRight - contentsLeft) * 0.5F, playersHeight);
+			DrawPlayers(1, (sw - 8.0F) * 0.5F, playersTop, (contentsRight - contentsLeft) * 0.5F, playersHeight);
 			if (areSpectatorsPr)
 				DrawSpectators(playersBottom, sw * 0.5F);
 		}
@@ -219,7 +219,7 @@ namespace spades {
 			int numPlayers = 0;
 			std::vector<ScoreboardEntry> entries;
 			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
-				auto maybePlayer = world->GetPlayer(i);
+				auto maybePlayer = world->GetPlayer(static_cast<unsigned int>(i));
 				if (!maybePlayer)
 					continue;
 				Player& player = maybePlayer.value();
@@ -230,7 +230,7 @@ namespace spades {
 				ent.name = player.GetName();
 				ent.score = player.GetScore();
 				ent.alive = player.IsAlive();
-				ent.id = i;
+				ent.id = static_cast<int>(i);
 				entries.push_back(ent);
 				numPlayers++;
 			}
@@ -246,7 +246,7 @@ namespace spades {
 
 			for (const auto& ent : entries) {
 				float rowY = top + 6.0F + row * rowHeight;
-				float colX = left + colWidth * (float)col;
+				float colX = left + col * colWidth;
 
 				// draw player id
 				sprintf(buf, "#%d", ent.id); // FIXME: 1-base?
@@ -301,7 +301,7 @@ namespace spades {
 			int numSpectators = 0;
 			std::vector<ScoreboardEntry> entries;
 			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
-				auto maybePlayer = world->GetPlayer(i);
+				auto maybePlayer = world->GetPlayer(static_cast<unsigned int>(i));
 				if (!maybePlayer)
 					continue;
 				Player& player = maybePlayer.value();
@@ -310,7 +310,7 @@ namespace spades {
 
 				ScoreboardEntry ent;
 				ent.name = player.GetName();
-				ent.id = i;
+				ent.id = static_cast<int>(i);
 				entries.push_back(ent);
 				numSpectators++;
 
@@ -348,7 +348,7 @@ namespace spades {
 
 		bool ScoreboardView::AreSpectatorsPresent() const {
 			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
-				auto p = world->GetPlayer(i);
+				auto p = world->GetPlayer(static_cast<unsigned int>(i));
 				if (p && p.value().GetTeamId() == spectatorTeamId)
 					return true;
 			}

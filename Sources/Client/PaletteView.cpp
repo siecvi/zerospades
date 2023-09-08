@@ -45,7 +45,7 @@ namespace spades {
 		}
 
 		PaletteView::PaletteView(Client* client) : client(client), renderer(client->GetRenderer()) {
-			IntVector3 cols[] = { // Extended palette to 256 colors
+			IntVector3 cols[PALETTE_SIZE] = { // Extended palette to 256 colors
 			  {128, 128, 128}, {256, 0, 0},     {256, 128, 0},   {256, 256, 0},
 			  {256, 256, 128}, {128, 256, 0},   {0, 256, 0},     {0, 256, 128},
 			  {0, 256, 256},   {128, 256, 256}, {0, 128, 256},   {0, 0, 256},
@@ -53,13 +53,11 @@ namespace spades {
 			};
 
 			auto def = MakeIntVector3(256, 256, 256);
-			for (int i = 0; i < PALETTE_SIZE; i++) {
+			for (const auto& col : cols) {
 				for (int j = 1; j < PALETTE_SIZE; j += 2)
-					colors.push_back(SanitizeCol(((cols[i] * j) / PALETTE_SIZE) - 1));
-
-				auto rem = def - cols[i];
+					colors.push_back(SanitizeCol((col * j) / PALETTE_SIZE - 1));
 				for (int j = 1; j < PALETTE_SIZE; j += 2)
-					colors.push_back((cols[i] + ((rem * j) / PALETTE_SIZE) - 1));
+					colors.push_back(col + (((def - col) * j) / PALETTE_SIZE - 1));
 			}
 
 			defaultColor = 3;
@@ -71,7 +69,6 @@ namespace spades {
 			World* w = client->GetWorld();
 			if (!w)
 				return -1;
-
 			stmp::optional<Player&> p = w->GetLocalPlayer();
 			if (!p)
 				return -1;
@@ -92,19 +89,6 @@ namespace spades {
 				return c;
 		}
 
-		void PaletteView::SetSelectedIndex(int idx) {
-			World* w = client->GetWorld();
-			if (!w)
-				return;
-
-			stmp::optional<Player&> p = w->GetLocalPlayer();
-			if (!p)
-				return;
-
-			p->SetHeldBlockColor(colors[idx]);
-			client->net->SendHeldBlockColor();
-		}
-
 		bool PaletteView::KeyInput(const std::string name) {
 			if (EqualsIgnoringCase(name, cg_keyPaletteLeft)) {
 				int c = GetSelectedOrDefaultIndex();
@@ -112,7 +96,7 @@ namespace spades {
 					c = (int)colors.size() - 1;
 				else
 					c--;
-				SetSelectedIndex(c);
+				client->SetBlockColor(colors[c]);
 				return true;
 			} else if (EqualsIgnoringCase(name, cg_keyPaletteRight)) {
 				int c = GetSelectedOrDefaultIndex();
@@ -120,7 +104,7 @@ namespace spades {
 					c = 0;
 				else
 					c++;
-				SetSelectedIndex(c);
+				client->SetBlockColor(colors[c]);
 				return true;
 			} else if (EqualsIgnoringCase(name, cg_keyPaletteUp)) {
 				int c = GetSelectedOrDefaultIndex();
@@ -128,7 +112,7 @@ namespace spades {
 					c += (int)colors.size() - PALETTE_SIZE;
 				else
 					c -= PALETTE_SIZE;
-				SetSelectedIndex(c);
+				client->SetBlockColor(colors[c]);
 				return true;
 			} else if (EqualsIgnoringCase(name, cg_keyPaletteDown)) {
 				int c = GetSelectedOrDefaultIndex();
@@ -136,7 +120,7 @@ namespace spades {
 					c -= (int)colors.size() - PALETTE_SIZE;
 				else
 					c += PALETTE_SIZE;
-				SetSelectedIndex(c);
+				client->SetBlockColor(colors[c]);
 				return true;
 			} else {
 				return false;

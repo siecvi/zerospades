@@ -80,36 +80,38 @@ namespace spades {
 
 		void Client::TeamCapturedTerritory(int teamId, int terId) {
 			auto& tr = dynamic_cast<TCGameMode&>(*world->GetMode()).GetTerritory(terId);
+			int old = tr.ownerTeamId;
 
 			std::string msg;
 			std::string teamName = world->GetTeamName(teamId);
-			std::string coloredMsg = chatWindow->TeamColorMessage(teamName, teamId);
+			std::string oldTeamName = world->GetTeamName(old);
 
-			int old = tr.ownerTeamId;
-			if (old < 2) {
-				std::string oldTeamName = chatWindow->TeamColorMessage(world->GetTeamName(old), old);
-				msg = _Tr("Client", "{0} captured {1}'s territory", coloredMsg, oldTeamName);
-			} else {
-				msg = _Tr("Client", "{0} captured an neutral territory", coloredMsg);
-			}
-			chatWindow->AddMessage(msg);
-
-			if (cg_centerMessage != 0) {
-				if (old < 2) {
-					std::string oldTeamName = world->GetTeamName(old);
-					msg = _Tr("Client", "{0} captured {1}'s Territory", teamName, oldTeamName);
-				} else {
+			{
+				if (old >= NEUTRAL_TEAM) {
 					msg = _Tr("Client", "{0} captured an Neutral Territory", teamName);
+				} else {
+					msg = _Tr("Client", "{0} captured {1}'s Territory", teamName, oldTeamName);
 				}
 				NetLog("%s", msg.c_str());
-				centerMessageView->AddMessage(msg);
+				if (cg_centerMessage)
+					centerMessageView->AddMessage(msg);
+			}
+			{
+				teamName = chatWindow->TeamColorMessage(teamName, teamId);
+				if (old >= NEUTRAL_TEAM) {
+					msg = _Tr("Client", "{0} captured an neutral territory", teamName);
+				} else {
+					oldTeamName = chatWindow->TeamColorMessage(oldTeamName, old);
+					msg = _Tr("Client", "{0} captured {1}'s territory", teamName, oldTeamName);
+				}
+				chatWindow->AddMessage(msg);
 			}
 
-			if (world->GetLocalPlayer() && !IsMuted()) {
-				Handle<IAudioChunk> c =
-				  (teamId == world->GetLocalPlayer()->GetTeamId())
+			stmp::optional<Player&> localplayer = world->GetLocalPlayer();
+			if (localplayer && !IsMuted()) {
+				Handle<IAudioChunk> c = (teamId == localplayer->GetTeamId())
 				    ? audioDevice->RegisterSound("Sounds/Feedback/TC/YourTeamCaptured.opus")
-				    : audioDevice->RegisterSound("Sounds/Feedback/TC/EnemyCaptured.opus");
+				    : audioDevice->RegisterSound("Sounds/Feedback/TC/otherCaptured.opus");
 				audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 			}
 		}
@@ -122,23 +124,23 @@ namespace spades {
 			std::string teamName = world->GetTeamName(otherTeamId);
 
 			{
+				msg = _Tr("Client", "{0} captured {1}'s Intel.", p.GetName(), teamName);
+				NetLog("%s", msg.c_str());
+				if (cg_centerMessage)
+					centerMessageView->AddMessage(msg);
+			}
+			{
 				msg = _Tr("Client", "{0} captured {1}'s intel",
 				          chatWindow->TeamColorMessage(p.GetName(), teamId),
 				          chatWindow->TeamColorMessage(teamName, otherTeamId));
 				chatWindow->AddMessage(msg);
 			}
 
-			if (cg_centerMessage != 0) {
-				msg = _Tr("Client", "{0} captured {1}'s Intel.", p.GetName(), teamName);
-				NetLog("%s", msg.c_str());
-				centerMessageView->AddMessage(msg);
-			}
-
-			if (world->GetLocalPlayer() && !IsMuted()) {
-				Handle<IAudioChunk> c =
-				  (p.GetTeamId() == world->GetLocalPlayer()->GetTeamId())
+			stmp::optional<Player&> localplayer = world->GetLocalPlayer();
+			if (localplayer && !IsMuted()) {
+				Handle<IAudioChunk> c = (teamId == localplayer->GetTeamId())
 				    ? audioDevice->RegisterSound("Sounds/Feedback/CTF/YourTeamCaptured.opus")
-				    : audioDevice->RegisterSound("Sounds/Feedback/CTF/EnemyCaptured.opus");
+				    : audioDevice->RegisterSound("Sounds/Feedback/CTF/otherCaptured.opus");
 				audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 			}
 		}
@@ -151,16 +153,16 @@ namespace spades {
 			std::string teamName = world->GetTeamName(otherTeamId);
 
 			{
+				msg = _Tr("Client", "{0} picked up {1}'s Intel.", p.GetName(), teamName);
+				NetLog("%s", msg.c_str());
+				if (cg_centerMessage)
+					centerMessageView->AddMessage(msg);
+			}
+			{
 				msg = _Tr("Client", "{0} picked up {1}'s intel",
 				          chatWindow->TeamColorMessage(p.GetName(), teamId),
 				          chatWindow->TeamColorMessage(teamName, otherTeamId));
 				chatWindow->AddMessage(msg);
-			}
-
-			if (cg_centerMessage != 0) {
-				msg = _Tr("Client", "{0} picked up {1}'s Intel.", p.GetName(), teamName);
-				NetLog("%s", msg.c_str());
-				centerMessageView->AddMessage(msg);
 			}
 
 			if (!IsMuted()) {
@@ -178,16 +180,16 @@ namespace spades {
 			std::string teamName = world->GetTeamName(otherTeamId);
 
 			{
+				msg = _Tr("Client", "{0} dropped {1}'s Intel", p.GetName(), teamName);
+				NetLog("%s", msg.c_str());
+				if (cg_centerMessage)
+					centerMessageView->AddMessage(msg);
+			}
+			{
 				msg = _Tr("Client", "{0} dropped {1}'s intel",
 				          chatWindow->TeamColorMessage(p.GetName(), teamId),
 				          chatWindow->TeamColorMessage(teamName, otherTeamId));
 				chatWindow->AddMessage(msg);
-			}
-
-			if (cg_centerMessage != 0) {
-				msg = _Tr("Client", "{0} dropped {1}'s Intel", p.GetName(), teamName);
-				NetLog("%s", msg.c_str());
-				centerMessageView->AddMessage(msg);
 			}
 		}
 
@@ -260,17 +262,15 @@ namespace spades {
 			}
 
 			std::string msg;
-
+			{
+				msg = _Tr("Client", "Player {0} has left", p.GetName());
+				NetLog("%s", msg.c_str());
+				scriptedUI->RecordChatLog(msg, ConvertColorRGBA(p.GetColor()));
+			}
 			{
 				msg = chatWindow->TeamColorMessage(p.GetName(), p.GetTeamId());
 				msg = _Tr("Client", "Player {0} has left", msg);
 				chatWindow->AddMessage(msg);
-			}
-			{
-				msg = _Tr("Client", "Player {0} has left", p.GetName());
-
-				NetLog("%s", msg.c_str());
-				scriptedUI->RecordChatLog(msg, ConvertColorRGBA(p.GetColor()));
 			}
 
 			RemoveCorpseForPlayer(p.GetId());
@@ -278,18 +278,18 @@ namespace spades {
 
 		void Client::PlayerJoinedTeam(Player& p) {
 			std::string msg;
-			std::string teamName = p.IsSpectator() ? _Tr("Client", "Spectator") : p.GetTeamName();
+			std::string teamName = p.IsSpectator()
+				? _Tr("Client", "Spectator") : p.GetTeamName();
 
+			{
+				msg = _Tr("Client", "{0} joined {1} team", p.GetName(), teamName);
+				NetLog("%s", msg.c_str());
+				scriptedUI->RecordChatLog(msg, ConvertColorRGBA(p.GetColor()));
+			}
 			{
 				msg = chatWindow->TeamColorMessage(teamName, p.GetTeamId());
 				msg = _Tr("Client", "{0} joined {1} team", p.GetName(), msg);
 				chatWindow->AddMessage(msg);
-			}
-			{
-				msg = _Tr("Client", "{0} joined {1} team", p.GetName(), teamName);
-
-				NetLog("%s", msg.c_str());
-				scriptedUI->RecordChatLog(msg, ConvertColorRGBA(p.GetColor()));
 			}
 		}
 
@@ -303,19 +303,20 @@ namespace spades {
 			std::string teamName = world->GetTeamName(teamId);
 
 			{
-				msg = chatWindow->TeamColorMessage(teamName, teamId);
-				msg = _Tr("Client", "{0} wins!", msg);
-				chatWindow->AddMessage(msg);
-			}
-			{
 				msg = _Tr("Client", "{0} Wins!", teamName);
 				NetLog("%s", msg.c_str());
 				scriptedUI->RecordChatLog(msg);
 				centerMessageView->AddMessage(msg);
 			}
+			{
+				msg = chatWindow->TeamColorMessage(teamName, teamId);
+				msg = _Tr("Client", "{0} wins!", msg);
+				chatWindow->AddMessage(msg);
+			}
 
-			if (world->GetLocalPlayer()) {
-				Handle<IAudioChunk> c = (teamId == world->GetLocalPlayer()->GetTeamId())
+			stmp::optional<Player&> localplayer = world->GetLocalPlayer();
+			if (localplayer) {
+				Handle<IAudioChunk> c = (teamId == localplayer->GetTeamId())
 				                          ? audioDevice->RegisterSound("Sounds/Feedback/Win.opus")
 				                          : audioDevice->RegisterSound("Sounds/Feedback/Lose.opus");
 				audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());

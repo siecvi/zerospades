@@ -60,19 +60,26 @@ namespace spades {
 		void Weapon::SetShooting(bool b) { shooting = b; }
 		void Weapon::SetUnejectedBrass(bool b) { unejectedBrass = b; }
 
+		bool Weapon::IsClipFull() { return ammo >= GetClipSize(); }
 		bool Weapon::IsSelectable() { return ammo > 0 || stock > 0; }
 
-		bool Weapon::IsReadyToShoot() {
-			return (ammo > 0 || !owner.IsLocalPlayer())
-				&& time >= nextShotTime
-				&& (!reloading || IsReloadSlow());
+		float Weapon::GetTimeToNextFire() {
+			return nextShotTime - time;
 		}
 
 		float Weapon::GetReloadProgress() {
 			return (time - reloadStartTime) / (reloadEndTime - reloadStartTime);
 		}
 
-		float Weapon::GetTimeToNextFire() { return nextShotTime - time; }
+		bool Weapon::IsAwaitingReloadCompletion() {
+			return reloading || GetReloadProgress() < 1.0F;
+		}
+
+		bool Weapon::IsReadyToShoot() {
+			return time >= nextShotTime
+				&& (ammo > 0 || !owner.IsLocalPlayer())
+				&& (!reloading || IsReloadSlow());
+		}
 
 		bool Weapon::FrameNext(float dt) {
 			SPADES_MARK_FUNCTION();
@@ -89,22 +96,20 @@ namespace spades {
 					nextShotTime = std::max(nextShotTime, time);
 
 				// Automatic operation of weapon.
-				if (time >= nextShotTime) {
-					if (ammo > 0 || !ownerIsLocalPlayer) {
-						fired = true;
-						unejectedBrass = true;
+				if (time >= nextShotTime && (ammo > 0 || !ownerIsLocalPlayer)) {
+					fired = true;
+					unejectedBrass = true;
 
-						// Consume an ammo.
-						if (ammo > 0)
-							ammo--;
+					// Consume an ammo.
+					if (ammo > 0)
+						ammo--;
 
-						if (world.GetListener())
-							world.GetListener()->PlayerFiredWeapon(owner);
-						nextShotTime += GetDelay();
-						ejectBrassTime = time + GetEjectBrassTime();
-					} else {
-						dryFire = true;
-					}
+					if (world.GetListener())
+						world.GetListener()->PlayerFiredWeapon(owner);
+					nextShotTime += GetDelay();
+					ejectBrassTime = time + GetEjectBrassTime();
+				} else if (time >= nextShotTime) {
+					dryFire = true;
 				}
 
 				shootingPreviously = true;
@@ -113,14 +118,8 @@ namespace spades {
 			}
 
 			if (reloading) {
-				if (time >= reloadEndTime) {
-					// A reload was completed (non-slow-loading weapon), or a single shell was
-					// loaded (slow-loading weapon).
-					//
-					// For local players, the number of bullets/shells loaded onto the magazine is
-					// sent by the server. However, we still calculate it by ourselves for slow
-					// -loading weapons so the reloading animation and the number displayed on the
-					// screen is synchronized. (This is especially important on a slow connection.)
+				if (time >= reloadEndTime && !ownerIsLocalPlayer) {
+					// A reload was completed.
 					//
 					// For remote players, the server does not send any information regarding the
 					// number of bullets/shells loaded or held as stock. This is problematic for
@@ -128,22 +127,9 @@ namespace spades {
 					// animation has to be repeated. For now, we just assume a remote player has
 					// an infinite supply of ammo, but a limited number of bullets in a clip.
 					reloading = false;
-					if (IsReloadSlow()) {
-						if (ammo < GetClipSize() && (stock > 0 || !ownerIsLocalPlayer)) {
-							ammo++;
-							stock--;
-						}
-						slowReloadLeftCount--;
-						if (slowReloadLeftCount > 0)
-							Reload(false);
-						else if (world.GetListener())
-							world.GetListener()->PlayerReloadedWeapon(owner);
-					} else {
-						if (!ownerIsLocalPlayer)
-							ammo = GetClipSize();
-						if (world.GetListener())
-							world.GetListener()->PlayerReloadedWeapon(owner);
-					}
+					ammo = GetClipSize();
+					if (world.GetListener())
+						world.GetListener()->PlayerReloadedWeapon(owner);
 				}
 			} else if (unejectedBrass && time >= ejectBrassTime) {
 				unejectedBrass = false;
@@ -162,41 +148,53 @@ namespace spades {
 
 		void Weapon::ReloadDone(int ammo, int stock) {
 			SPADES_MARK_FUNCTION_DEBUG();
+
 			this->ammo = ammo;
 			this->stock = stock;
-		}
 
-		void Weapon::AbortReload() {
-			SPADES_MARK_FUNCTION_DEBUG();
+			// reload completion received from the server.
 			reloading = false;
+			if (IsReloadSlow() && !IsClipFull()) {
+				reloadStartTime = time;
+				reloadEndTime = time + GetReloadTime();
+				if (world.GetListener())
+					world.GetListener()->PlayerReloadingWeapon(owner);
+			} else {
+				if (world.GetListener())
+					world.GetListener()->PlayerReloadedWeapon(owner);
+			}
 		}
 
-		void Weapon::Reload(bool initial) {
+		void Weapon::Reload() {
 			SPADES_MARK_FUNCTION();
 
 			if (reloading)
 				return;
 
-			// Is the clip already full?
-			if (ammo >= GetClipSize())
-				return;
-
-			if (owner.IsLocalPlayer()) {
+			bool ownerIsLocalPlayer = owner.IsLocalPlayer();
+			if (ownerIsLocalPlayer) {
+				if (IsClipFull())
+					return;
 				if (stock == 0)
 					return;
 				if (IsReloadSlow() && shooting && ammo > 0)
 					return;
 			}
 
-			if (initial)
-				slowReloadLeftCount = stock - std::max(0, stock - GetClipSize() + ammo);
-
 			reloading = true;
+			shooting = false;
 			reloadStartTime = time;
 			reloadEndTime = time + GetReloadTime();
 
-			if (world.GetListener())
+			if (world.GetListener() && !(ownerIsLocalPlayer && IsReloadSlow()))
 				world.GetListener()->PlayerReloadingWeapon(owner);
+		}
+
+		void Weapon::AbortReload() {
+			SPADES_MARK_FUNCTION_DEBUG();
+
+			reloading = false;
+			//reloadEndTime = time;
 		}
 
 		void Weapon::ForceReloadDone() {

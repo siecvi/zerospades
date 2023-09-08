@@ -65,7 +65,7 @@ namespace spades {
 				w ? w->GetTeamName(1) : "Team 2"));
 			items.push_back(MenuItem(MenuTeamSpectator,
 				AABB2(teamX, firstY + rowHeight * 2.0F, menuWidth, menuHeight),
-				w ? w->GetTeamName(2) : "Spectator"));
+				_Tr("Client", "Spectator")));
 
 			float weapX = left + 260.0F;
 
@@ -115,21 +115,21 @@ namespace spades {
 					}
 				}
 			} else if (key == "1") {
-				if (selectedTeam == 2) {
+				if (selectedTeam >= 2) {
 					selectedTeam = 0;
 				} else {
 					selectedWeapon = RIFLE_WEAPON;
 					client->SpawnPressed();
 				}
 			} else if (key == "2") {
-				if (selectedTeam == 2) {
+				if (selectedTeam >= 2) {
 					selectedTeam = 1;
 				} else {
 					selectedWeapon = SMG_WEAPON;
 					client->SpawnPressed();
 				}
 			} else if (key == "3") {
-				if (selectedTeam != 2)
+				if (selectedTeam < 2)
 					selectedWeapon = SHOTGUN_WEAPON;
 				client->SpawnPressed(); // if we have 3 and are already spec someone wants to spec..
 			}
@@ -147,7 +147,7 @@ namespace spades {
 					case MenuWeaponRifle:
 					case MenuWeaponShotgun:
 					case MenuWeaponSMG:
-						if (selectedTeam == 2)
+						if (selectedTeam >= 2)
 							item.visible = false;
 					default:;
 				}
@@ -165,6 +165,8 @@ namespace spades {
 		}
 
 		void LimboView::Draw() {
+			World* w = client->GetWorld();
+
 			IFont& font = client->fontManager->GetGuiFont();
 
 			float sw = renderer.ScreenWidth();
@@ -188,7 +190,7 @@ namespace spades {
 				font.DrawShadow(msg, pos, 1.0F, color, shadowColor);
 			}
 
-			if (selectedTeam != 2) {
+			if (selectedTeam < 2) {
 				auto msg = _Tr("Client", "Select Weapon:");
 				Vector2 pos = {left + 260.0F, top + 10.0F};
 				font.DrawShadow(msg, pos, 1.0F, color, shadowColor);
@@ -205,13 +207,13 @@ namespace spades {
 					case MenuTeam2:
 					case MenuTeamSpectator:
 						selected = (selectedTeam == item.type);
-						index = (selectedTeam == 2) ? (1 + item.type) : 0;
+						index = (selectedTeam >= 2) ? (1 + item.type) : 0;
 						break;
 					case MenuWeaponRifle:
 					case MenuWeaponSMG:
 					case MenuWeaponShotgun:
 						selected = (selectedWeapon == (item.type - 3));
-						index = (selectedTeam != 2) ? (1 + (item.type - 3)) : 0;
+						index = (selectedTeam < 2) ? (1 + (item.type - 3)) : 0;
 						break;
 					default: selected = false;
 				}
@@ -235,9 +237,9 @@ namespace spades {
 				} else {
 					auto msg = item.text;
 					if (item.type == MenuTeam1)
-						msg = client->GetWorld()->GetTeamName(0);
+						msg = w->GetTeamName(0);
 					if (item.type == MenuTeam2)
-						msg = client->GetWorld()->GetTeamName(1);
+						msg = w->GetTeamName(1);
 
 					Vector2 size = font.Measure(msg);
 					Vector2 pos = item.rect.min;
@@ -246,7 +248,7 @@ namespace spades {
 					font.DrawShadow(msg, pos, 1.0F, color, shadowColor);
 
 					if (index > 0) {
-						msg = "[" + ToString(index) + "]";
+						msg = Format("[{0}]", index);
 						pos.x = (item.rect.GetMaxX() - 5.0F) - font.Measure(msg).x;
 						font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 0.6F), shadowColor);
 					}

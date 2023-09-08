@@ -105,22 +105,18 @@ namespace spades {
 			bool firstDig;
 			float nextBlockTime;
 			float nextGrenadeTime;
-			bool holdingGrenade;
+			bool cookingGrenade;
 			float grenadeTime;
 			bool blockCursorActive;
 			bool blockCursorDragging;
 			IntVector3 blockCursorPos;
 			IntVector3 blockCursorDragPos;
 			bool lastSingleBlockBuildSeqDone;
-			float lastReloadingTime;
 
 			bool pendingPlaceBlock;
 			bool pendingRestockBlock;
 			bool canPending;
 			IntVector3 pendingPlaceBlockPos;
-
-			// for local players, completion of reload is notified to client
-			bool reloadingServerSide;
 
 			float respawnTime;
 
@@ -145,7 +141,7 @@ namespace spades {
 			Weapon& GetWeapon();
 			WeaponType GetWeaponType() { return weaponType; }
 			int GetTeamId() { return teamId; }
-			bool IsTeamMate(Player* p) { return teamId == p->teamId; }
+			bool IsTeammate(Player& p) { return teamId == p.teamId; }
 			bool IsSpectator() { return teamId >= 2; }
 			std::string GetTeamName();
 			std::string GetName();
@@ -184,8 +180,6 @@ namespace spades {
 
 			bool IsZoomed() { return tool == ToolWeapon && weapInput.secondary; }
 			bool IsWalking() { return input.moveForward || input.moveBackward || input.moveLeft || input.moveRight; }
-
-			bool IsAwaitingReloadCompletion() { return reloadingServerSide; }
 
 			void RepositionPlayer(const Vector3&);
 			void SetPosition(const Vector3&);
@@ -232,7 +226,7 @@ namespace spades {
 			float GetTimeToNextGrenade();
 
 			float GetGrenadeCookTime();
-			bool IsCookingGrenade() { return tool == ToolGrenade && holdingGrenade; }
+			bool IsCookingGrenade() { return tool == ToolGrenade && cookingGrenade; }
 
 			float GetToolPrimaryDelay();
 			float GetToolSecondaryDelay();
@@ -240,10 +234,7 @@ namespace spades {
 			float GetDigAnimationProgress();
 			bool IsFirstDig() const { return firstDig; }
 
-			int GetMoveSteps() { return moveSteps; }
-			float GetWalkAnimationProgress() {
-				return moveDistance * 0.5F + (float)(moveSteps)*0.5F;
-			}
+			float GetWalkAnimationProgress();
 
 			// hit tests
 			HitBoxes GetHitBoxes();

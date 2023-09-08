@@ -122,7 +122,8 @@ namespace spades {
 		}
 
 		float Client::GetAimDownZoomScale() {
-			Player& p = GetCameraTargetPlayer();
+			int playerId = GetCameraTargetPlayerId();
+			Player& p = world->GetPlayer(playerId).value();
 			if (!p.IsAlive() || !p.IsToolWeapon())
 				return 1.0F;
 
@@ -137,7 +138,7 @@ namespace spades {
 			if (cg_classicZoom)
 				delta = 1.0F;
 
-			float ads = clientPlayers[p.GetId()]->GetAimDownState();
+			float ads = clientPlayers[playerId]->GetAimDownState();
 
 			return 1.0F + (3.0F - 2.0F * powf(ads, 1.5F)) * powf(ads, 3.0F) * delta;
 		}
@@ -200,10 +201,10 @@ namespace spades {
 					}
 					case ClientCameraMode::FirstPersonLocal:
 					case ClientCameraMode::FirstPersonFollow: {
-						Player& p = GetCameraTargetPlayer();
+						int playerId = GetCameraTargetPlayerId();
+						Player& p = world->GetPlayer(playerId).value();
 
-						Matrix4 eyeMatrix = clientPlayers[p.GetId()]->GetEyeMatrix();
-
+						Matrix4 eyeMatrix = clientPlayers[playerId]->GetEyeMatrix();
 						def.viewOrigin = eyeMatrix.GetOrigin();
 						def.viewAxis[0] = -eyeMatrix.GetAxis(0);
 						def.viewAxis[1] = -eyeMatrix.GetAxis(2);
@@ -286,20 +287,19 @@ namespace spades {
 						freeCameraState.position = def.viewOrigin;
 						freeCameraState.velocity = MakeVector3(0, 0, 0);
 
-						// Update initial floating camera view
-						Vector3 o = def.viewAxis[2];
-						followAndFreeCameraState.yaw = atan2f(o.y, o.x) + DEG2RAD(180);
+						// Update initial floating camera angle
+						Vector3 o = -def.viewAxis[2];
+						followAndFreeCameraState.yaw = atan2f(o.y, o.x);
 						followAndFreeCameraState.pitch = atan2f(o.z, o.GetLength2D());
 						break;
 					}
 					case ClientCameraMode::ThirdPersonLocal:
 					case ClientCameraMode::ThirdPersonFollow: {
-						auto localplayer = world->GetLocalPlayer();
 						Player& player = GetCameraTargetPlayer();
-						Vector3 center = player.GetEye();
 
+						Vector3 center = player.GetEye();
 						if (!player.IsAlive()) {
-							if (cg_ragdoll && lastLocalCorpse && &player == localplayer)
+							if (player.IsLocalPlayer() && lastLocalCorpse && cg_ragdoll)
 								center = lastLocalCorpse->GetCenter();
 
 							center.z -= 2.25F;
@@ -319,9 +319,9 @@ namespace spades {
 						}
 
 						float distance = 5.0F;
-						if (&player == localplayer
-							&& !localplayer->IsSpectator()
-							&& !localplayer->IsAlive()) { // deathcam.
+						if (player.IsLocalPlayer()
+							&& !player.IsSpectator()
+							&& !player.IsAlive()) { // deathcam.
 							float timeSinceDeath = time - lastAliveTime;
 							distance -= 3.0F * expf(-timeSinceDeath * 1.0F);
 						}
@@ -480,8 +480,7 @@ namespace spades {
 				def.viewAxis[1] = MakeVector3(0, 0, -1);
 				def.viewAxis[2] = MakeVector3(0, 0, 1);
 
-				def.fovY = fov;
-				def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
+				def.fovY = def.fovX = 0.0F;
 
 				def.zNear = 0.05F;
 				def.skipWorld = true;
@@ -546,12 +545,12 @@ namespace spades {
 		void Client::DrawCTFObjects() {
 			SPADES_MARK_FUNCTION();
 
-			CTFGameMode& mode = dynamic_cast<CTFGameMode&>(world->GetMode().value());
+			CTFGameMode& ctf = dynamic_cast<CTFGameMode&>(world->GetMode().value());
 			Handle<IModel> base = renderer->RegisterModel("Models/MapObjects/CheckPoint.kv6");
 			Handle<IModel> intel = renderer->RegisterModel("Models/MapObjects/Intel.kv6");
 
 			for (int tId = 0; tId < 2; tId++) {
-				CTFGameMode::Team& team = mode.GetTeam(tId);
+				CTFGameMode::Team& team = ctf.GetTeam(tId);
 				IntVector3 col = world->GetTeamColor(tId);
 
 				ModelRenderParam param;
@@ -563,7 +562,7 @@ namespace spades {
 				renderer->RenderModel(*base, param);
 
 				// draw flag
-				if (!mode.GetTeam(1 - tId).hasIntel) {
+				if (!ctf.GetTeam(1 - tId).hasIntel) {
 					param.matrix = Matrix4::Translate(team.flagPos);
 					param.matrix = param.matrix * Matrix4::Rotate(MakeVector3(0, 0, 1), time);
 					param.matrix = param.matrix * Matrix4::Scale(0.1F);
@@ -575,14 +574,14 @@ namespace spades {
 		void Client::DrawTCObjects() {
 			SPADES_MARK_FUNCTION();
 
-			TCGameMode& mode = dynamic_cast<TCGameMode&>(world->GetMode().value());
+			TCGameMode& tc = dynamic_cast<TCGameMode&>(world->GetMode().value());
 			Handle<IModel> base = renderer->RegisterModel("Models/MapObjects/CheckPoint.kv6");
 
-			for (int tId = 0; tId < mode.GetNumTerritories(); tId++) {
-				TCGameMode::Territory& t = mode.GetTerritory(tId);
-				IntVector3 col = (t.ownerTeamId == 2)
-					? MakeIntVector3(255, 255, 255)
-					: world->GetTeamColor(t.ownerTeamId);
+			for (int i = 0; i < tc.GetNumTerritories(); i++) {
+				TCGameMode::Territory& t = tc.GetTerritory(i);
+				IntVector3 col = (t.ownerTeamId >= NEUTRAL_TEAM)
+				                   ? MakeIntVector3(255, 255, 255)
+				                   : world->GetTeamColor(t.ownerTeamId);
 
 				ModelRenderParam param;
 				param.customColor = ConvertColorRGB(col);
@@ -637,22 +636,21 @@ namespace spades {
 						bool blockCursorDragging = p->IsBlockCursorDragging();
 
 						if (blockCursorActive || blockCursorDragging) {
-							std::vector<IntVector3> blocks;
+							std::vector<IntVector3> cells;
 							IntVector3 curPos = p->GetBlockCursorPos();
 							IntVector3 dragPos = p->GetBlockCursorDragPos();
 							if (blockCursorDragging)
-								blocks = world->CubeLine(dragPos, curPos, 64);
+								cells = world->CubeLine(dragPos, curPos, 64);
 							else
-								blocks.push_back(curPos);
+								cells.push_back(curPos);
 
-							int curBlocks = (int)blocks.size();
-
-							bool valid = curBlocks <= p->GetNumBlocks();
+							int blocks = static_cast<int>(cells.size());
+							bool valid = blocks <= p->GetNumBlocks();
 							bool active = blockCursorActive && valid;
 
 							Handle<IModel> curLine = renderer->RegisterModel("Models/MapObjects/BlockCursorLine.kv6");
 
-							for (const auto& v : blocks) {
+							for (const auto& v : cells) {
 								Vector3 const color(
 								  /* R (X) */ 1.0F,
 								  /* G (Y) */ valid ? 1.0F : 0.0F,
@@ -660,7 +658,7 @@ namespace spades {
 								);
 
 								// Hide cursor if needed to stop z-fighting
-								if ((curBlocks > 2) && map->IsSolid(v.x, v.y, v.z))
+								if (blocks > 2 && map->IsSolid(v.x, v.y, v.z))
 									continue;
 
 								ModelRenderParam param;
