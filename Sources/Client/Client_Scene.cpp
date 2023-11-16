@@ -49,6 +49,7 @@ DEFINE_SPADES_SETTING(cg_thirdperson, "0");
 DEFINE_SPADES_SETTING(cg_manualFocus, "0");
 DEFINE_SPADES_SETTING(cg_depthOfFieldAmount, "1");
 DEFINE_SPADES_SETTING(cg_shake, "1");
+DEFINE_SPADES_SETTING(cg_playerHitboxes, "1");
 
 SPADES_SETTING(cg_ragdoll);
 SPADES_SETTING(cg_hurtScreenEffects);
@@ -680,20 +681,22 @@ namespace spades {
 
 			// draw player hottrack
 			// FIXME: don't use debug line
+			if (cg_playerHitboxes) {
 			auto hottracked = HotTrackedPlayer();
 			if (hottracked) {
 				Player& player = std::get<0>(*hottracked);
 				hitTag_t tag = std::get<1>(*hottracked);
 
-				Vector4 color = ConvertColorRGBA(player.GetColor());
-				Vector4 color2 = MakeVector4(1, 1, 1, 1);
+					Vector4 col = MakeVector4(1, 1, 1, 1);
+					Vector4 col2 = ConvertColorRGBA(player.GetColor());
 
 				Player::HitBoxes hb = player.GetHitBoxes();
-				AddDebugObjectToScene(hb.head, (tag & hit_Head) ? color2 : color);
-				AddDebugObjectToScene(hb.torso, (tag & hit_Torso) ? color2 : color);
-				AddDebugObjectToScene(hb.limbs[0], (tag & hit_Legs) ? color2 : color);
-				AddDebugObjectToScene(hb.limbs[1], (tag & hit_Legs) ? color2 : color);
-				AddDebugObjectToScene(hb.limbs[2], (tag & hit_Arms) ? color2 : color);
+					AddDebugObjectToScene(hb.head, (tag & hit_Head) ? col : col2);
+					AddDebugObjectToScene(hb.torso, (tag & hit_Torso) ? col : col2);
+					AddDebugObjectToScene(hb.limbs[0], (tag & hit_Legs) ? col : col2);
+					AddDebugObjectToScene(hb.limbs[1], (tag & hit_Legs) ? col : col2);
+					AddDebugObjectToScene(hb.limbs[2], (tag & hit_Arms) ? col : col2);
+				}
 			}
 
 			renderer->EndScene();
