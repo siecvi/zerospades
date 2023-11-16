@@ -61,21 +61,24 @@ namespace spades {
 		void Client::JoinedGame() {
 			// Note: A localplayer doesn't exist yet
 
-			// Welcome players
-			auto msg = std::string(cg_playerName);
-			msg = _Tr("Client", "Welcome to the server, {0}!", msg);
-			centerMessageView->AddMessage(msg);
+			// reset input
+			playerInput = PlayerInput();
+			weapInput = WeaponInput();
 
-			// Play intro sound
-			Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Feedback/Intro.opus");
-			audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
-
-			// Prepare the spectator view
+			// prepare the spectator view
 			followCameraState.enabled = false;
 			freeCameraState.position = lastSceneDef.viewOrigin;
 			freeCameraState.velocity = MakeVector3(0, 0, 0);
 			followAndFreeCameraState.yaw = -DEG2RAD(90);
 			followAndFreeCameraState.pitch = DEG2RAD(89);
+
+			// welcome players
+			centerMessageView->AddMessage(
+			  _Tr("Client", "Welcome to the server, {0}!", cg_playerName.CString()));
+
+			// play intro sound
+			Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Feedback/Intro.opus");
+			audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 		}
 
 		void Client::TeamCapturedTerritory(int teamId, int terId) {
