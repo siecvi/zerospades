@@ -31,6 +31,9 @@
 #include "World.h"
 #include <Core/Debug.h>
 #include <Core/Exception.h>
+#include <Core/Settings.h>
+
+DEFINE_SPADES_SETTING(cg_orientationSmoothing, "1");
 
 namespace spades {
 	namespace client {
@@ -48,6 +51,7 @@ namespace spades {
 			position = pos;
 			velocity = MakeVector3(0, 0, 0);
 			orientation = MakeVector3(tId ? -1.0F : 1, 0, 0);
+			orientationSmoothed = orientation;
 			eye = MakeVector3(0, 0, 0);
 			moveDistance = 0.0F;
 			moveSteps = 0;
@@ -333,6 +337,17 @@ namespace spades {
 			health = hp;
 			if (world.GetListener())
 				world.GetListener()->LocalPlayerHurt(type, p);
+		}
+
+		void Player::UpdateSmooth(float dt) {
+			SPADES_MARK_FUNCTION();
+
+			// Smooth the player orientation
+			if (!IsLocalPlayer()) {
+				orientationSmoothed = orientationSmoothed * powf(0.9F, dt * 60.0F) +
+				                      orientation * powf(0.1F, dt * 60.0F);
+				orientationSmoothed = orientationSmoothed.Normalize();
+			}
 		}
 
 		void Player::Update(float dt) {
@@ -774,8 +789,12 @@ namespace spades {
 				listener->PlayerMissedSpade(*this);
 		}
 
-		Vector3 Player::GetFront() {
+		Vector3 Player::GetFront(bool interpolate) {
 			SPADES_MARK_FUNCTION_DEBUG();
+
+			if (!IsLocalPlayer() && interpolate)
+				return orientationSmoothed;
+
 			return orientation;
 		}
 
@@ -1190,7 +1209,7 @@ namespace spades {
 
 			Player::HitBoxes hb;
 
-			Vector3 o = GetFront();
+			Vector3 o = GetFront(cg_orientationSmoothing); // interpolated
 
 			float yaw = atan2f(o.y, o.x) + M_PI_F * 0.5F;
 			float pitch = -atan2f(o.z, o.GetLength2D());

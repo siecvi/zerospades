@@ -108,6 +108,7 @@ namespace spades {
 			IntVector3 GetFogColor() { return fogColor; }
 			void SetFogColor(IntVector3 v) { fogColor = v; }
 
+			void UpdatePlayer(float dt, bool locked);
 			void Advance(float dt);
 
 			void AddGrenade(std::unique_ptr<Grenade>);

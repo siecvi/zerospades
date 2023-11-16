@@ -80,6 +80,7 @@ namespace spades {
 		      readyToClose(false),
 
 		      worldSubFrame(0.0F),
+		      worldSubFrameFast(0.0F),
 		      frameToRendererInit(5),
 		      timeSinceInit(0.0F),
 		      hasLastTool(false),
@@ -201,6 +202,7 @@ namespace spades {
 			limbo->SetSelectedWeapon(RIFLE_WEAPON);
 
 			worldSubFrame = 0.0F;
+			worldSubFrameFast = 0.0F;
 			worldSetTime = time;
 			inGameLimbo = false;
 		}

@@ -224,13 +224,23 @@ namespace spades {
 #else
 			// accurately resembles server's physics
 			// but not smooth
-			if (dt > 0.0F)
+			if (dt > 0.0F) {
 				worldSubFrame += dt;
+				worldSubFrameFast += dt;
+			}
 
+			// these run at exactly ~60fps
 			float frameStep = 1.0F / 60.0F;
 			while (worldSubFrame >= frameStep) {
-				world->Advance(frameStep);
+				world->Advance(frameStep); // physics update
 				worldSubFrame -= frameStep;
+			}
+
+			// these run at min. ~60fps but as fast as possible
+			float step = std::min(dt, frameStep);
+			while (worldSubFrameFast >= step) {
+				world->UpdatePlayer(step, false); // smooth orientation update
+				worldSubFrameFast -= step;
 			}
 #endif
 

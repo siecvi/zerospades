@@ -73,6 +73,7 @@ namespace spades {
 			Vector3 position;
 			Vector3 velocity;
 			Vector3 orientation;
+			Vector3 orientationSmoothed;
 			Vector3 eye;
 			PlayerInput input;
 			WeaponInput weapInput;
@@ -203,7 +204,7 @@ namespace spades {
 			int GetHealth() { return health; }
 
 			Vector3 GetPosition() { return position; }
-			Vector3 GetFront();
+			Vector3 GetFront(bool interpolate = false);
 			Vector3 GetFront2D();
 			Vector3 GetRight();
 			Vector3 GetUp();
@@ -218,6 +219,7 @@ namespace spades {
 				return (velocity.z >= 0.0F && velocity.z < 0.017F) && !airborne;
 			}
 
+			void UpdateSmooth(float dt);
 			void Update(float dt);
 
 			float GetTimeToNextSpade();

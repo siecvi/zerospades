@@ -64,6 +64,8 @@ DEFINE_SPADES_SETTING(cg_debugToolSkinAnchors, "0");
 DEFINE_SPADES_SETTING(cg_trueAimDownSight, "1");
 DEFINE_SPADES_SETTING(cg_defaultPlayerModels, "0");
 
+SPADES_SETTING(cg_orientationSmoothing);
+
 namespace spades {
 	namespace client {
 
@@ -951,13 +953,17 @@ namespace spades {
 				return renderer.RegisterModel((fullPath + fn + ".kv6").c_str());
 			};
 
+			Vector3 o = p.GetFront(cg_orientationSmoothing); // interpolated
+			Vector3 front2D = MakeVector3(o.x, o.y, 0).Normalize();
+			Vector3 right = -Vector3::Cross(MakeVector3(0, 0, -1), front2D).Normalize();
+
 			if (!p.IsAlive()) {
 				if (!cg_ragdoll) {
 					Handle<IModel> model = getModel("Dead");
 					ModelRenderParam param;
 					param.customColor = ConvertColorRGB(p.GetColor());
-					param.matrix = Matrix4::FromAxis(-p.GetRight(),
-						p.GetFront2D(), MakeVector3(0, 0, 1), p.GetEye());
+					param.matrix = Matrix4::FromAxis(-right, front2D,
+						MakeVector3(0, 0, 1), p.GetEye());
 					param.matrix = param.matrix * Matrix4::Scale(0.1F);
 					renderer.RenderModel(*model, param);
 				}
@@ -989,8 +995,6 @@ namespace spades {
 			Handle<IModel> model;
 			ModelRenderParam param;
 			param.customColor = ConvertColorRGB(p.GetColor());
-
-			Vector3 o = p.GetFront();
 
 			float yaw = atan2f(o.y, o.x) + M_PI_F * 0.5F;
 			float pitch = -atan2f(o.z, o.GetLength2D());
