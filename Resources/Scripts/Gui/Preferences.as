@@ -658,11 +658,16 @@ namespace spades {
             color.w = Clamp(cg_targetAlpha.IntValue, 0, 255) / 255.0F;
 
             // draw preview background
+            if (cg_target.BoolValue) {
             float luminosity = color.x + color.y + color.z;
             float opacity = 1.0F - luminosity;
-            r.ColorNP = cg_targetOutline.BoolValue
-                    ? Vector4(0.6F, 0.6F, 0.6F, 0.9F)
-                    : Vector4(opacity, opacity, opacity, 0.6F);
+                if (cg_targetOutline.BoolValue and cg_target.IntValue == 2)
+                    r.ColorNP = Vector4(0.6F, 0.6F, 0.6F, 0.9F);
+                else
+                    r.ColorNP = Vector4(opacity, opacity, opacity, 0.6F);
+            } else {
+                r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 0.6F);
+            }
             r.DrawImage(null, AABB2(pos.x, pos.y, size.x, size.y));
 
             // draw preview border
@@ -705,6 +710,11 @@ namespace spades {
                 param.outlineThickness = Clamp(cg_targetOutlineThickness.FloatValue, 1.0F, 4.0F);
 
                 DrawTarget(r, center, param);
+            } else {
+                Font@ font = this.Font;
+                string text = _Tr("Preferences", "No Preview Available.");
+                Vector2 txtPos = pos + (size - font.Measure(text)) * 0.5F;
+                font.Draw(text, txtPos, 1.0F, Vector4(1.0F, 1.0F, 1.0F, 0.5F));
             }
         }
     }
