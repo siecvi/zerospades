@@ -261,10 +261,14 @@ namespace spades {
 
         string Format(float value) {
             if (value == 1)
-                return "Quake/Source";
+                return "Voxlap";
             else if (value == 2)
-                return "Overwatch";
+                return "BetterSpades";
             else if (value == 3)
+                return "Quake/Source";
+            else if (value == 4)
+                return "Overwatch";
+            else if (value == 5)
                 return "Valorant";
             else
                 return _Tr("Preferences", "Default");

@@ -207,16 +207,24 @@ namespace spades {
 
 						float sensScale;
 						switch ((int)cg_mouseSensScale) {
-							case 1: // quake/source
+							case 1: // voxlap
+								sensScale = 1.0F / 10.0F * 0.005F;
+								break;
+							case 2: // betterspades
+								sensScale = 1.0F / 5.0F * 0.002F;
+								break;
+							case 3: // quake/source
 								sensScale = DEG2RAD(0.022F);
 								break;
-							case 2: // overwatch
+							case 4: // overwatch
 								sensScale = DEG2RAD(0.0066F);
 								break;
-							case 3: // valorant
+							case 5: // valorant
 								sensScale = DEG2RAD(0.07F);
 								break;
-							default: sensScale = 0.003F; break;
+							default: // openspades
+								sensScale = 0.003F;
+								break;
 						}
 
 						x *= sensScale;
