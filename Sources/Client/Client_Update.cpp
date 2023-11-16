@@ -1169,8 +1169,9 @@ namespace spades {
 				return;
 
 			// distance cull
+			float tracerCullDist = FOG_DISTANCE + 10.0F;
 			float distSqr = (muzzlePos - lastSceneDef.viewOrigin).GetSquaredLength2D();
-			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
+			if (distSqr > tracerCullDist * tracerCullDist)
 				return;
 
 			// If disabled, do not display tracers for bullets fired by the local player
