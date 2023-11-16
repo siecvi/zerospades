@@ -490,8 +490,8 @@ namespace spades {
 					}
 				}
 
-				if (player.IsLocalPlayer()) {
-					// Smooth the flashlight's movement
+				// Smooth the flashlight's movement
+				if (client.flashlightOn && player.IsLocalPlayer()) {
 					Vector3 diff = front - flashlightOrientation;
 					float dist = diff.GetLength();
 					if (dist > 0.1F)
