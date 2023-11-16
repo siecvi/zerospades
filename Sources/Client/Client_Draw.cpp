@@ -394,7 +394,10 @@ namespace spades {
 						sprintf(buf, "%s [%.1f]", nameStr.c_str(), dist);
 				}
 
-				IFont& font = fontManager->GetGuiFont();
+				IFont& font = cg_smallFont
+					? fontManager->GetSmallFont()
+					: fontManager->GetGuiFont();
+
 				Vector2 size = font.Measure(buf);
 				scrPos.x -= size.x * 0.5F;
 				scrPos.y -= size.y;
@@ -735,6 +738,7 @@ namespace spades {
 			float y = sh * 0.5F;
 			y -= (float)cg_playerStatsHeight;
 
+			float lh = cg_smallFont ? 12.0F : 20.0F;
 			auto addLine = [&](const char* format, ...) {
 				char buf[256];
 				va_list va;
@@ -743,8 +747,8 @@ namespace spades {
 				va_end(va);
 
 				Vector2 pos = MakeVector2(x, y);
-				y += cg_smallFont ? 12.0F : 20.0F;
-				font.DrawShadow(buf, pos, 1.0F, MakeVector4(1, 1, 1, 0.8F),
+				y += lh;
+				font.DrawShadow(buf, pos, 1.0F, MakeVector4(1, 1, 1, 1),
 				                MakeVector4(0, 0, 0, 0.8F));
 			};
 
@@ -843,7 +847,9 @@ namespace spades {
 		void Client::DrawSpectateHUD() {
 			SPADES_MARK_FUNCTION();
 
-			IFont& font = fontManager->GetGuiFont();
+			IFont& font = cg_smallFont
+				? fontManager->GetSmallFont()
+				: fontManager->GetGuiFont();
 
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
@@ -862,10 +868,11 @@ namespace spades {
 				y = 256.0F;
 			y += 32.0F;
 
+			float lh = cg_smallFont ? 12.0F : 20.0F;
 			auto addLine = [&](const std::string& text) {
 				Vector2 pos = MakeVector2(x, y);
 				pos.x -= font.Measure(text).x;
-				y += 20.0F;
+				y += lh;
 				font.DrawShadow(text, pos, 1.0F, MakeVector4(1, 1, 1, 1),
 				                MakeVector4(0, 0, 0, 0.5));
 			};
@@ -879,7 +886,7 @@ namespace spades {
 					  world->GetPlayerName(playerId), playerId));
 			}
 
-			y += 10.0F;
+			y += lh * 0.5F;
 
 			// Help messages (make sure to synchronize these with the keyboard input handler)
 			if (FollowsNonLocalPlayer(cameraMode)) {
@@ -900,7 +907,7 @@ namespace spades {
 				addLine(_Tr("Client", "[{0}/{1}] Go up/down",
 					TrKey(cg_keyJump), TrKey(cg_keyCrouch)));
 
-			y += 10.0F;
+			y += lh * 0.5F;
 
 			if (localPlayerIsSpectator && !inGameLimbo)
 				addLine(_Tr("Client", "[{0}] Select Team/Weapon", TrKey(cg_keyLimbo)));
@@ -1208,9 +1215,7 @@ namespace spades {
 			}
 
 			// draw text
-			Vector2 textPos = pos + MakeVector2(margin,
-				cg_smallFont ? -(margin * 0.5F) : margin);
-			font.DrawShadow(str, textPos, 1.0F, color, shadowColor);
+			font.DrawShadow(str, pos + margin, 1.0F, color, shadowColor);
 		}
 
 		void Client::Draw2D() {

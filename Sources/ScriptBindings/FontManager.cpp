@@ -25,6 +25,9 @@ namespace spades {
 	namespace client {
 
 		class FontManagerRegistrar : public ScriptObjectRegistrar {
+			static IFont* GetSmallFont(FontManager* self) {
+				return Handle<IFont>{self->GetSmallFont()}.Unmanage();
+			}
 			static IFont* GetGuiFont(FontManager* self) {
 				return Handle<IFont>{self->GetGuiFont()}.Unmanage();
 			}
@@ -55,6 +58,10 @@ namespace spades {
 						r = eng->RegisterObjectBehaviour("FontManager", asBEHAVE_RELEASE,
 						                                 "void f()", asMETHOD(FontManager, Release),
 						                                 asCALL_THISCALL);
+						manager->CheckError(r);
+						r =
+						  eng->RegisterObjectMethod("FontManager", "Font@ get_SmallFont()",
+						                            asFUNCTION(GetSmallFont), asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);
 						r = eng->RegisterObjectMethod("FontManager", "Font@ get_GuiFont()",
 						                              asFUNCTION(GetGuiFont), asCALL_CDECL_OBJLAST);
