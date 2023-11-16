@@ -959,7 +959,7 @@ namespace spades {
 				default: color = MakeVector4(0, 0, 0, 1); break;
 			}
 
-			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.5F * fade);
+			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.5F);
 
 			float x = pos.x - margin;
 			float y = pos.y;
@@ -967,7 +967,7 @@ namespace spades {
 			float h = pos.y + contentsSize.y;
 
 			// draw background
-			renderer->SetColorAlphaPremultiplied(shadowColor);
+			renderer->SetColorAlphaPremultiplied(shadowColor * fade);
 			renderer->DrawFilledRect(x + 1, y + 1, w - 1, h - 1);
 
 			// draw border
@@ -992,9 +992,11 @@ namespace spades {
 			// draw text
 			Vector2 textPos = pos;
 			textPos.x += (contentsSize.x - textSize.x) - margin;
-			textPos.y += ((contentsSize.y - textSize.y) * 0.5F) - 1.0F;
+			textPos.y += (contentsSize.y - textSize.y) * 0.5F;
 
-			color = MakeVector4(1, 1, 1, 1) * fade;
+			color = MakeVector4(1, 1, 1, fade);
+			shadowColor.w = 0.5F * fade;
+
 			font.DrawShadow(alertContents, textPos, 1.0F, color, shadowColor);
 		}
 
