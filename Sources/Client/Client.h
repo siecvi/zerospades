@@ -365,7 +365,7 @@ namespace spades {
 			int nextMapShotIndex;
 
 			/** Project the specified world-space position to a screen space. */
-			bool Project(const Vector3&, Vector3&);
+			bool Project(const Vector3&, Vector2&);
 
 			/** Recalculate `lastViewProjectionScreenMatrix` based on the current value of
 			 * `lastSceneDef`. */

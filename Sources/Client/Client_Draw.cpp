@@ -379,11 +379,10 @@ namespace spades {
 			Vector3 origin = player.GetEye();
 			origin.z -= 0.45F; // above player head
 
-			Vector3 posxyz;
-			if (Project(origin, posxyz)) {
-				Vector2 pos = {posxyz.x, posxyz.y};
-				pos.x += (int)cg_playerNameX;
-				pos.y += (int)cg_playerNameY;
+			Vector2 scrPos;
+			if (Project(origin, scrPos)) {
+				scrPos.x += (int)cg_playerNameX;
+				scrPos.y += (int)cg_playerNameY;
 
 				char buf[64];
 				auto nameStr = player.GetName();
@@ -397,15 +396,15 @@ namespace spades {
 
 				IFont& font = fontManager->GetGuiFont();
 				Vector2 size = font.Measure(buf);
-				pos.x -= size.x * 0.5F;
-				pos.y -= size.y;
+				scrPos.x -= size.x * 0.5F;
+				scrPos.y -= size.y;
 
 				float luminosity = color.x + color.y + color.z;
 				Vector4 shadowColor = (luminosity > 0.9F)
 					? MakeVector4(0, 0, 0, 0.8F)
 					: MakeVector4(1, 1, 1, 0.8F);
 
-				font.DrawShadow(buf, pos, 1.0F, color, shadowColor);
+				font.DrawShadow(buf, scrPos, 1.0F, color, shadowColor);
 			}
 		}
 
@@ -786,20 +785,18 @@ namespace spades {
 				if (fade > 1.0F)
 					fade = 1.0F;
 
-				Vector3 posxyz;
-				if (Project(damages.position, posxyz)) {
-					Vector2 pos = {posxyz.x, posxyz.y};
-
+				Vector2 scrPos;
+				if (Project(damages.position, scrPos)) {
 					int damage = damages.damage;
 
 					auto damageStr = "-" + ToString(damage);
 					IFont& font = fontManager->GetGuiFont();
 					Vector2 size = font.Measure(damageStr);
-					pos.x -= size.x * 0.5F;
-					pos.y -= size.y;
+					scrPos.x -= size.x * 0.5F;
+					scrPos.y -= size.y;
 
 					float per = 1.0F - (damage / 100.0F);
-					font.DrawShadow(damageStr, pos, 1.0F, MakeVector4(1, per, per, fade),
+					font.DrawShadow(damageStr, scrPos, 1.0F, MakeVector4(1, per, per, fade),
 					                MakeVector4(0, 0, 0, 0.25F * fade));
 				}
 			}

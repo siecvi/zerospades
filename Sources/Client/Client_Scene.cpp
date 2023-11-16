@@ -682,15 +682,15 @@ namespace spades {
 			// draw player hottrack
 			// FIXME: don't use debug line
 			if (cg_playerHitboxes) {
-			auto hottracked = HotTrackedPlayer();
-			if (hottracked) {
-				Player& player = std::get<0>(*hottracked);
-				hitTag_t tag = std::get<1>(*hottracked);
+				auto hottracked = HotTrackedPlayer();
+				if (hottracked) {
+					Player& player = std::get<0>(*hottracked);
+					hitTag_t tag = std::get<1>(*hottracked);
 
 					Vector4 col = MakeVector4(1, 1, 1, 1);
 					Vector4 col2 = ConvertColorRGBA(player.GetColor());
 
-				Player::HitBoxes hb = player.GetHitBoxes();
+					Player::HitBoxes hb = player.GetHitBoxes();
 					AddDebugObjectToScene(hb.head, (tag & hit_Head) ? col : col2);
 					AddDebugObjectToScene(hb.torso, (tag & hit_Torso) ? col : col2);
 					AddDebugObjectToScene(hb.limbs[0], (tag & hit_Legs) ? col : col2);
@@ -710,13 +710,13 @@ namespace spades {
 				* lastSceneDef.ToViewMatrix();
 		}
 
-		bool Client::Project(const spades::Vector3& v, spades::Vector3& out) {
-			Vector4 screenHomV = lastViewProjectionScreenMatrix * v;
-			if (screenHomV.z <= 0.0F) {
-				screenHomV.w = 0.001F;
+		bool Client::Project(const spades::Vector3& worldPos, spades::Vector2& scrPos) {
+			Vector4 scrHomV = lastViewProjectionScreenMatrix * worldPos;
+			if (scrHomV.z <= 0.0F) {
+				scrHomV.w = 0.001F;
 				return false;
 			}
-			out = screenHomV.GetXYZ() / screenHomV.w;
+			scrPos = MakeVector2(scrHomV.x, scrHomV.y) / scrHomV.w;
 			return true;
 		}
 	} // namespace client
