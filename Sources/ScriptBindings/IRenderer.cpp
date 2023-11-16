@@ -286,6 +286,12 @@ namespace spades {
 						r = eng->RegisterObjectProperty("ModelRenderParam", "bool castShadow",
 						                                asOFFSET(ModelRenderParam, castShadow));
 						manager->CheckError(r);
+						r = eng->RegisterObjectProperty("ModelRenderParam", "bool ghost",
+						                                asOFFSET(ModelRenderParam, ghost));
+						manager->CheckError(r);
+						r = eng->RegisterObjectProperty("ModelRenderParam", "float opacity",
+						                                asOFFSET(ModelRenderParam, opacity));
+						manager->CheckError(r);
 
 						r = eng->RegisterObjectBehaviour(
 						  "DynamicLightParam", asBEHAVE_CONSTRUCT, "void f()",
