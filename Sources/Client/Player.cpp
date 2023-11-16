@@ -656,16 +656,19 @@ namespace spades {
 				if (debugger && !playerHits.empty())
 					debugger->SaveImage(playerHits, bulletVectors);
 
-				// Horizontal recoil is driven by a triangular wave generator.
 				Vector2 rec = weapon->GetRecoil();
+
+				// vanilla's horizontial recoil is driven by a triangular wave generator.
 				int timer = world.GetTimeMS();
-				rec.x *= (timer % 1024 < 512)
+				rec.x *= ((timer % 1024) < 512)
 					? (timer % 512) - 255.5F
 					: 255.5F - (timer % 512);
 
+				// double recoil if walking and not aiming
 				if (IsWalking() && !weapInput.secondary)
 					rec *= 2;
 
+				// double recoil if airborne, halve if crouching and not midair
 				if (airborne)
 					rec *= 2;
 				else if (input.crouch)
