@@ -432,8 +432,10 @@ namespace spades {
 
 					// player is alive and not spectating
 					if (p.IsAlive()) {
-						if (paletteView->KeyInput(name) && p.IsToolBlock() && down)
-							return;
+						if (p.IsToolBlock() && down) {
+							if (paletteView->KeyInput(name))
+								return;
+						}
 
 						if (name == "P" && down && cg_debugCorpse) {
 							auto corp = stmp::make_unique<Corpse>(*renderer, *map, p);
