@@ -174,10 +174,11 @@ namespace spades {
 						if (cg_mouseAccel) {
 							float rad = x * x + y * y;
 							if (rad > 0.0F) {
-								if ((float)cg_mouseExpPower < 0.001F ||
-								    isnan((float)cg_mouseExpPower)) {
-									SPLog("Invalid cg_mouseExpPower value, resetting to 1.0");
-									cg_mouseExpPower = 1.0F;
+								if ((float)cg_mouseExpPower < 0.001F || isnan((float)cg_mouseExpPower)) {
+									const auto& defaultValue = cg_mouseExpPower.GetDescriptor().defaultValue;
+									SPLog("Invalid cg_mouseExpPower value: \"%s\", resetting to \"%s\"",
+										cg_mouseExpPower.CString(), defaultValue.c_str());
+									cg_mouseExpPower = defaultValue;
 								}
 
 								float const fExp = powf(renderer->ScreenWidth() * 0.1F, 2);
