@@ -252,6 +252,7 @@ namespace spades {
 			renderer->Init();
 			SmokeSpriteEntity::Preload(renderer.GetPointerOrNull());
 
+			// load images
 			renderer->RegisterImage("Gfx/Bullet/7.62mm.png");
 			renderer->RegisterImage("Gfx/Bullet/9mm.png");
 			renderer->RegisterImage("Gfx/Bullet/12gauge.png");
@@ -262,6 +263,8 @@ namespace spades {
 			renderer->RegisterImage("Gfx/White.tga");
 			renderer->RegisterImage("Textures/Fluid.png");
 			renderer->RegisterImage("Textures/WaterExpl.png");
+
+			// load sounds
 			audioDevice->RegisterSound("Sounds/Feedback/Chat.opus");
 			audioDevice->RegisterSound("Sounds/Misc/SwitchMapZoom.opus");
 			audioDevice->RegisterSound("Sounds/Misc/OpenMap.opus");
@@ -290,6 +293,16 @@ namespace spades {
 			audioDevice->RegisterSound("Sounds/Weapons/Restock.opus");
 			audioDevice->RegisterSound("Sounds/Weapons/RestockLocal.opus");
 			audioDevice->RegisterSound("Sounds/Weapons/AimDownSightLocal.opus");
+			audioDevice->RegisterSound("Sounds/Weapons/Grenade/WaterExplode.opus");
+			audioDevice->RegisterSound("Sounds/Weapons/Grenade/WaterExplodeFar.opus");
+			audioDevice->RegisterSound("Sounds/Weapons/Grenade/Explode1.opus");
+			audioDevice->RegisterSound("Sounds/Weapons/Grenade/ExplodeStereo1.opus");
+			audioDevice->RegisterSound("Sounds/Weapons/Grenade/Explode2.opus");
+			audioDevice->RegisterSound("Sounds/Weapons/Grenade/ExplodeStereo2.opus");
+			audioDevice->RegisterSound("Sounds/Weapons/Grenade/ExplodeFar.opus");
+			audioDevice->RegisterSound("Sounds/Weapons/Grenade/Debris.opus");
+
+			// load models
 			renderer->RegisterModel("Models/MapObjects/Intel.kv6");
 			renderer->RegisterModel("Models/MapObjects/CheckPoint.kv6");
 			renderer->RegisterModel("Models/MapObjects/BlockCursorLine.kv6");
@@ -514,11 +527,11 @@ namespace spades {
 				net->SendJoin(team, weap, playerName, lastScore);
 			} else { // localplayer has joined
 				Player& p = maybePlayer.value();
-				if (p.GetTeamId() != team)
-					net->SendTeamChange(team);
+					if (p.GetTeamId() != team)
+						net->SendTeamChange(team);
 				if (team != 255 && p.GetWeapon().GetWeaponType() != weap)
-					net->SendWeaponChange(weap);
-			}
+						net->SendWeaponChange(weap);
+				}
 
 			inGameLimbo = false;
 		}
