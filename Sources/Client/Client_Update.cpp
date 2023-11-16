@@ -192,26 +192,30 @@ namespace spades {
 		void Client::UpdateWorld(float dt) {
 			SPADES_MARK_FUNCTION();
 
-			stmp::optional<Player&> p = world->GetLocalPlayer();
+			stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
 
-			if (p) {
+			if (maybePlayer) {
+				Player& player = maybePlayer.value();
+
 				// disable input when UI is open
 				if (NeedsAbsoluteMouseCoordinate()) {
 					weapInput.primary = false;
-					weapInput.secondary = false;
 
 					// don't reset player input if chat is open
-					if (!AcceptsTextInput())
+					if (!AcceptsTextInput()) {
+						weapInput.secondary = false;
 						playerInput = PlayerInput();
+						largeMapView->SetZoom(false);
+						chatWindow->SetExpanded(false);
+					}
 
 					// reset all "delayed actions"
 					reloadKeyPressed = false;
 					scoreboardVisible = false;
 					debugHitTestZoom = false;
-					largeMapView->SetZoom(false);
 				}
 
-				if (p->IsSpectator())
+				if (player.IsSpectator())
 					UpdateLocalSpectator(dt);
 				else
 					UpdateLocalPlayer(dt);
