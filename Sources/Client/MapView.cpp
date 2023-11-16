@@ -36,9 +36,10 @@
 #include <Core/TMPUtils.h>
 
 DEFINE_SPADES_SETTING(cg_minimapSize, "128");
-DEFINE_SPADES_SETTING(cg_minimapPlayerColor, "1");
-DEFINE_SPADES_SETTING(cg_minimapPlayerIcon, "1");
 DEFINE_SPADES_SETTING(cg_minimapCoords, "1");
+DEFINE_SPADES_SETTING(cg_minimapPlayerIcon, "1");
+DEFINE_SPADES_SETTING(cg_minimapPlayerColor, "1");
+DEFINE_SPADES_SETTING(cg_minimapPlayerNames, "0");
 
 using std::pair;
 using stmp::optional;
@@ -136,8 +137,8 @@ namespace spades {
 			return scrPos;
 		}
 
-		void MapView::DrawIcon(spades::Vector3 pos, IImage& img, float rotation) {
-			if ((int)cg_minimapPlayerIcon == 2 && rotation == 0.0F) {
+		void MapView::DrawIcon(spades::Vector3 pos, IImage& img, Vector4 col, float rotation) {
+			if ((int)cg_minimapPlayerIcon >= 2 && rotation == 0.0F) {
 				pos.x = Clamp(pos.x, inRect.GetMinX(), inRect.GetMaxX());
 				pos.y = Clamp(pos.y, inRect.GetMinY(), inRect.GetMaxY());
 			} else {
@@ -162,7 +163,22 @@ namespace spades {
 				vt[i].y = scrPos.y + ss.x * s + ss.y * c;
 			}
 
+			renderer.SetColorAlphaPremultiplied(col);
 			renderer.DrawImage(img, vt[0], vt[1], vt[2], inRect);
+		}
+
+		void MapView::DrawText(std::string s, Vector3 pos, Vector4 col) {
+			if (pos.x < inRect.GetMinX() || pos.x > inRect.GetMaxX() ||
+				pos.y < inRect.GetMinY() || pos.y > inRect.GetMaxY())
+				return;
+
+			Vector2 scrPos = Project(Vector2{pos.x, pos.y});
+			IFont& font = client->fontManager->GetSmallFont();
+			Vector2 size = font.Measure(s);
+			scrPos.x -= size.x * 0.5F;
+			scrPos.y -= size.y;
+
+			font.DrawShadow(s, scrPos, 1.0F, col, MakeVector4(0, 0, 0, col.w));
 		}
 
 		void MapView::SwitchScale() {
@@ -470,7 +486,6 @@ namespace spades {
 						case SHOTGUN_WEAPON:
 							playerIcon = renderer.RegisterImage("Gfx/Map/Shotgun.png");
 							break;
-						default: playerIcon = renderer.RegisterImage("Gfx/Map/Player.png"); break;
 					}
 				}
 
@@ -480,20 +495,19 @@ namespace spades {
 						? renderer.RegisterImage("Gfx/Map/ViewADS.png")
 						: renderer.RegisterImage("Gfx/Map/View.png");
 
-					renderer.SetColorAlphaPremultiplied(iconColorF * 0.9F);
-					DrawIcon(focusPlayerPos, *viewIcon, focusPlayerAngle);
-
-					renderer.SetColorAlphaPremultiplied(iconColorF);
-					DrawIcon(focusPlayerPos, *playerIcon, focusPlayerAngle);
-
+					DrawIcon(focusPlayerPos, *viewIcon, iconColorF * 0.9F, focusPlayerAngle);
+					DrawIcon(focusPlayerPos, *playerIcon, iconColorF, focusPlayerAngle);
 					continue;
 				}
 
+				Vector3 pos = p.GetPosition();
 				Vector3 o = p.GetFront2D();
 				float playerAngle = atan2f(o.y, o.x) + M_PI_F * 0.5F;
+				DrawIcon(pos, *playerIcon, iconColorF, playerAngle);
 
-				renderer.SetColorAlphaPremultiplied(iconColorF);
-				DrawIcon(p.GetPosition(), *playerIcon, playerAngle);
+				// draw player names
+				if (cg_minimapPlayerNames)
+					DrawText(p.GetName(), pos, MakeVector4(1, 1, 1, 0.75F * alpha));
 			}
 
 			// draw map objects
@@ -504,16 +518,14 @@ namespace spades {
 				CTFGameMode& ctf = dynamic_cast<CTFGameMode&>(*mode);
 				for (int tId = 0; tId < 2; tId++) {
 					CTFGameMode::Team& team = ctf.GetTeam(tId);
-					Vector4 teamColorF = ModifyColor(world->GetTeamColor(tId)) * alpha;
 
 					// draw base
-					renderer.SetColorAlphaPremultiplied(teamColorF);
-					DrawIcon(team.basePos, *baseIcon);
+					Vector4 teamColorF = ModifyColor(world->GetTeamColor(tId)) * alpha;
+					DrawIcon(team.basePos, *baseIcon, teamColorF);
 
 					// draw both flags
 					if (!ctf.GetTeam(1 - tId).hasIntel) {
-						renderer.SetColorAlphaPremultiplied(teamColorF);
-						DrawIcon(team.flagPos, *intelIcon);
+						DrawIcon(team.flagPos, *intelIcon, teamColorF);
 					} else if (localPlayer.GetTeamId() == (1 - tId)) {
 						// local player's team is carrying
 						int pId = ctf.GetTeam(1 - tId).carrierId;
@@ -523,8 +535,7 @@ namespace spades {
 							auto carrier = world->GetPlayer(pId);
 							if (carrier && carrier->IsTeammate(localPlayer)) {
 								float pulse = std::max(0.5F, fabsf(sinf(world->GetTime() * 4.0F)));
-								renderer.SetColorAlphaPremultiplied(teamColorF * pulse);
-								DrawIcon(carrier->GetPosition(), *intelIcon);
+								DrawIcon(carrier->GetPosition(), *intelIcon, teamColorF * pulse);
 							}
 						}
 					}
@@ -538,8 +549,7 @@ namespace spades {
 					                         : world->GetTeamColor(t.ownerTeamId);
 
 					Vector4 teamColorF = ModifyColor(teamColor) * alpha;
-					renderer.SetColorAlphaPremultiplied(teamColorF);
-					DrawIcon(t.pos, *baseIcon);
+					DrawIcon(t.pos, *baseIcon, teamColorF);
 				}
 			}
 
