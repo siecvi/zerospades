@@ -96,14 +96,19 @@ namespace spades {
 
 		namespace {
 			ScreenshotFormat GetScreenshotFormat(const std::string& format) {
-				if (EqualsIgnoringCase(format, "jpeg"))
+				if (EqualsIgnoringCase(format, "jpeg")) {
 					return ScreenshotFormat::JPG;
-				else if (EqualsIgnoringCase(format, "tga"))
+				} else if (EqualsIgnoringCase(format, "tga")) {
 					return ScreenshotFormat::TGA;
-				else if (EqualsIgnoringCase(format, "png"))
+				} else if (EqualsIgnoringCase(format, "png")) {
 					return ScreenshotFormat::PNG;
-				else
-					SPRaise("Invalid screenshot format: %s", format.c_str());
+				} else {
+					const auto& defaultValue = cg_screenshotFormat.GetDescriptor().defaultValue;
+					SPLog("Invalid screenshot format: \"%s\", resetting to \"%s\"",
+						format.c_str(), defaultValue.c_str());
+					cg_screenshotFormat = defaultValue;
+					return GetScreenshotFormat(defaultValue);
+			}
 			}
 
 			std::string TrKey(const std::string& name) {
