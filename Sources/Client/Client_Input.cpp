@@ -408,6 +408,9 @@ namespace spades {
 							if (down) {
 								// Unfollow
 								followCameraState.enabled = false;
+
+								// reset jump
+								playerInput.jump = PlayerInput().jump;
 							}
 							return;
 						}
