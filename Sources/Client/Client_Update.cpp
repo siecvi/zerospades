@@ -956,7 +956,7 @@ namespace spades {
 			SPAssert(type != HitTypeBlock);
 
 			// spatter blood
-			{
+			if ((int)cg_blood >= 2) {
 				bool const byLocalPlayer = by.IsLocalPlayer();
 
 				Vector3 dir = by.GetEye() - hitPos;
