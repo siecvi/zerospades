@@ -186,20 +186,23 @@ namespace spades {
 		ViewShotgunSkin(Renderer@ r, AudioDevice@ dev) {
 			super(r);
 			@audioDevice = dev;
+			
+			// load models
 			@gunModel = renderer.RegisterModel("Models/Weapons/Shotgun/WeaponNoPump.kv6");
 			@pumpModel = renderer.RegisterModel("Models/Weapons/Shotgun/Pump.kv6");
 			@sightModel1 = renderer.RegisterModel("Models/Weapons/Shotgun/Sight1.kv6");
 			@sightModel2 = renderer.RegisterModel("Models/Weapons/Shotgun/Sight2.kv6");
 
+			// load sounds
 			@fireSound = dev.RegisterSound("Sounds/Weapons/Shotgun/FireLocal.opus");
-			@fireFarSound = dev.RegisterSound("Sounds/Weapons/Shotgun/FireFar.opus");
+			@fireFarSound = dev.RegisterSound("Sounds/Weapons/SMG/FireFar.opus");
 			@fireStereoSound = dev.RegisterSound("Sounds/Weapons/Shotgun/FireStereo.opus");
-			@reloadSound = dev.RegisterSound("Sounds/Weapons/Shotgun/ReloadLocal.opus");
-			@cockSound = dev.RegisterSound("Sounds/Weapons/Shotgun/CockLocal.opus");
-
 			@fireSmallReverbSound = dev.RegisterSound("Sounds/Weapons/Shotgun/V2AmbienceSmall.opus");
 			@fireLargeReverbSound = dev.RegisterSound("Sounds/Weapons/Shotgun/V2AmbienceLarge.opus");
-
+			@reloadSound = dev.RegisterSound("Sounds/Weapons/Shotgun/ReloadLocal.opus");
+			@cockSound = dev.RegisterSound("Sounds/Weapons/Shotgun/CockLocal.opus");
+			
+			// load images
 			@scopeImage = renderer.RegisterImage("Gfx/Shotgun.png");
 
 			raiseSpring.position = 1;
@@ -272,8 +275,8 @@ namespace spades {
 					origin, param);
 
 				param.volume = 2.0F;
-				audioDevice.PlayLocal(fireFarSound, origin, param);
-				audioDevice.PlayLocal(fireStereoSound, origin, param);
+                audioDevice.PlayLocal(fireFarSound, origin, param);
+                audioDevice.PlayLocal(fireStereoSound, origin, param);
 			}
 
 			recoilVerticalSpring.velocity += 2.5;

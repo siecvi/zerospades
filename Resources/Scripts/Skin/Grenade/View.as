@@ -29,7 +29,6 @@
         private Vector3 rightHand;
         private float cookTime;
         private float readyState;
-
         private float sprintStateSmooth;
 
         float SprintState { set { sprintState = value; } }

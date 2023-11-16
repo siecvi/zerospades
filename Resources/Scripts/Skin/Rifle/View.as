@@ -181,19 +181,22 @@ namespace spades {
 		ViewRifleSkin(Renderer@ r, AudioDevice@ dev) {
 			super(r);
 			@audioDevice = dev;
+			
+			// load models
 			@gunModel = renderer.RegisterModel("Models/Weapons/Rifle/WeaponNoMagazine.kv6");
 			@magazineModel = renderer.RegisterModel("Models/Weapons/Rifle/Magazine.kv6");
 			@sightModel1 = renderer.RegisterModel("Models/Weapons/Rifle/Sight1.kv6");
 			@sightModel2 = renderer.RegisterModel("Models/Weapons/Rifle/Sight2.kv6");
-
+			
+			// load sounds
 			@fireSound = dev.RegisterSound("Sounds/Weapons/Rifle/FireLocal.opus");
 			@fireFarSound = dev.RegisterSound("Sounds/Weapons/Rifle/FireFar.opus");
 			@fireStereoSound = dev.RegisterSound("Sounds/Weapons/Rifle/FireStereo.opus");
-			@reloadSound = dev.RegisterSound("Sounds/Weapons/Rifle/ReloadLocal.opus");
-
 			@fireSmallReverbSound = dev.RegisterSound("Sounds/Weapons/Rifle/V2AmbienceSmall.opus");
 			@fireLargeReverbSound = dev.RegisterSound("Sounds/Weapons/Rifle/V2AmbienceLarge.opus");
-
+			@reloadSound = dev.RegisterSound("Sounds/Weapons/Rifle/ReloadLocal.opus");
+			
+			// load images
 			@scopeImage = renderer.RegisterImage("Gfx/Rifle.png");
 
 			raiseSpring.position = 1;
@@ -257,16 +260,19 @@ namespace spades {
 			if (!IsMuted) {
 				Vector3 origin = Vector3(0.4F, -0.3F, 0.5F);
 				AudioParam param;
-				param.referenceDistance = 4.0F;
-				param.volume = 1.0F;
-				audioDevice.PlayLocal(fireFarSound, origin, param);
-				param.referenceDistance = 1.0F;
-				audioDevice.PlayLocal(fireStereoSound, origin, param);
-
+				param.volume = 8.0F;
+				audioDevice.PlayLocal(fireSound, origin, param);
+				
 				param.volume = 8.0F * environmentRoom;
 				audioDevice.PlayLocal((environmentSize < 0.5F)
 					? fireSmallReverbSound : fireLargeReverbSound,
 					origin, param);
+					
+				param.referenceDistance = 4.0F;
+                param.volume = 1.0F;
+                audioDevice.PlayLocal(fireFarSound, origin, param);
+                param.referenceDistance = 1.0F;
+                audioDevice.PlayLocal(fireStereoSound, origin, param);
 			}
 
 			recoilVerticalSpring.velocity += 1.5;
@@ -359,7 +365,7 @@ namespace spades {
 
 			ModelRenderParam param;
 			param.depthHack = true;
-
+			
 			Matrix4 weapMatrix = eyeMatrix * mat;
 
 			// draw weapon

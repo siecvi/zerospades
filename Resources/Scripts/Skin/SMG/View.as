@@ -176,30 +176,32 @@ namespace spades {
 		ViewSMGSkin(Renderer@ r, AudioDevice@ dev) {
 			super(r);
 			@audioDevice = dev;
+			
+			// load models
 			@gunModel = renderer.RegisterModel("Models/Weapons/SMG/WeaponNoMagazine.kv6");
 			@magazineModel = renderer.RegisterModel("Models/Weapons/SMG/Magazine.kv6");
 			@sightModel1 = renderer.RegisterModel("Models/Weapons/SMG/Sight1.kv6");
 			@sightModel2 = renderer.RegisterModel("Models/Weapons/SMG/Sight2.kv6");
 			@sightModel3 = renderer.RegisterModel("Models/Weapons/SMG/Sight3.kv6");
-
-			@fireSmallReverbSounds[0] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceSmall1.opus");
-			@fireSmallReverbSounds[1] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceSmall2.opus");
-			@fireSmallReverbSounds[2] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceSmall3.opus");
-			@fireSmallReverbSounds[3] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceSmall4.opus");
-
-			@fireLargeReverbSounds[0] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceLarge1.opus");
-			@fireLargeReverbSounds[1] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceLarge2.opus");
-			@fireLargeReverbSounds[2] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceLarge3.opus");
-			@fireLargeReverbSounds[3] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceLarge4.opus");
-
+			
+			// load sounds
 			@fireSounds[0] = dev.RegisterSound("Sounds/Weapons/SMG/V2Local1.opus");
 			@fireSounds[1] = dev.RegisterSound("Sounds/Weapons/SMG/V2Local2.opus");
 			@fireSounds[2] = dev.RegisterSound("Sounds/Weapons/SMG/V2Local3.opus");
 			@fireSounds[3] = dev.RegisterSound("Sounds/Weapons/SMG/V2Local4.opus");
 			@fireFarSound = dev.RegisterSound("Sounds/Weapons/SMG/FireFar.opus");
 			@fireStereoSound = dev.RegisterSound("Sounds/Weapons/SMG/FireStereo.opus");
+			@fireSmallReverbSounds[0] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceSmall1.opus");
+			@fireSmallReverbSounds[1] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceSmall2.opus");
+			@fireSmallReverbSounds[2] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceSmall3.opus");
+			@fireSmallReverbSounds[3] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceSmall4.opus");
+			@fireLargeReverbSounds[0] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceLarge1.opus");
+			@fireLargeReverbSounds[1] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceLarge2.opus");
+			@fireLargeReverbSounds[2] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceLarge3.opus");
+			@fireLargeReverbSounds[3] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceLarge4.opus");
 			@reloadSound = dev.RegisterSound("Sounds/Weapons/SMG/ReloadLocal.opus");
-
+			
+			// load images
 			@scopeImage = renderer.RegisterImage("Gfx/SMG.png");
 
 			raiseSpring.position = 1;
@@ -271,6 +273,12 @@ namespace spades {
 					? fireSmallReverbSounds[GetRandom(fireSmallReverbSounds.length)]
 					: fireLargeReverbSounds[GetRandom(fireLargeReverbSounds.length)],
 					origin, param);
+					
+				param.referenceDistance = 4.0F;
+                param.volume = 1.0F;
+                audioDevice.PlayLocal(fireFarSound, origin, param);
+                param.referenceDistance = 1.0F;
+                audioDevice.PlayLocal(fireStereoSound, origin, param);
 			}
 
 			recoilVerticalSpring.velocity += 0.75;

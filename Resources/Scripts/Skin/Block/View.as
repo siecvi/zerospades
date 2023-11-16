@@ -51,7 +51,7 @@
 			@renderer = r;
 			@audioDevice = dev;
 			@model = renderer.RegisterModel("Models/Weapons/Block/Block.kv6");
-			@sightImage = renderer.RegisterImage ("Gfx/Sight.tga");
+			@sightImage = renderer.RegisterImage("Gfx/Sight.tga");
 		}
 
 		void Update(float dt) {
