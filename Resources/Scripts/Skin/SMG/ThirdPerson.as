@@ -76,24 +76,20 @@ namespace spades {
             @renderer = r;
             @audioDevice = dev;
             @model = renderer.RegisterModel("Models/Weapons/SMG/Weapon.kv6");
-
             @fireMediumSounds[0] = dev.RegisterSound("Sounds/Weapons/SMG/V2Third1.opus");
             @fireMediumSounds[1] = dev.RegisterSound("Sounds/Weapons/SMG/V2Third2.opus");
             @fireMediumSounds[2] = dev.RegisterSound("Sounds/Weapons/SMG/V2Third3.opus");
             @fireMediumSounds[3] = dev.RegisterSound("Sounds/Weapons/SMG/V2Third4.opus");
-
+			@fireFarSound = dev.RegisterSound("Sounds/Weapons/SMG/FireFar.opus");
+            @fireStereoSound = dev.RegisterSound("Sounds/Weapons/SMG/FireStereo.opus");
             @fireSmallReverbSounds[0] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceSmall1.opus");
             @fireSmallReverbSounds[1] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceSmall2.opus");
             @fireSmallReverbSounds[2] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceSmall3.opus");
             @fireSmallReverbSounds[3] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceSmall4.opus");
-
             @fireLargeReverbSounds[0] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceLarge1.opus");
             @fireLargeReverbSounds[1] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceLarge2.opus");
             @fireLargeReverbSounds[2] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceLarge3.opus");
             @fireLargeReverbSounds[3] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceLarge4.opus");
-
-            @fireFarSound = dev.RegisterSound("Sounds/Weapons/SMG/FireFar.opus");
-            @fireStereoSound = dev.RegisterSound("Sounds/Weapons/SMG/FireStereo.opus");
             @reloadSound = dev.RegisterSound("Sounds/Weapons/SMG/Reload.opus");
         }
 
@@ -119,6 +115,7 @@ namespace spades {
                 audioDevice.Play(fireStereoSound, origin, param);
             }
         }
+		
         void ReloadingWeapon() {
             if (!muted) {
                 Vector3 origin = soundOrigin;
@@ -140,6 +137,7 @@ namespace spades {
 
             ModelRenderParam param;
             param.matrix = originMatrix * mat;
+			param.customColor = teamColor;
             renderer.AddModel(model, param);
         }
     }

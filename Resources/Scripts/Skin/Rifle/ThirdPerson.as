@@ -23,7 +23,7 @@ namespace spades {
         private float sprintState;
         private float raiseState;
         private Vector3 teamColor;
-        private bool muted = true;
+        private bool muted;
         private Matrix4 originMatrix;
         private float aimDownSightState;
 		private float readyState;
@@ -65,7 +65,7 @@ namespace spades {
         private Renderer@ renderer;
         private AudioDevice@ audioDevice;
         private Model@ model;
-        private AudioChunk@[]  fireSounds(3);
+        private AudioChunk@[] fireSounds(3);
         private AudioChunk@ fireFarSound;
         private AudioChunk@ fireStereoSound;
         private AudioChunk@ fireSmallReverbSound;
@@ -76,16 +76,14 @@ namespace spades {
             @renderer = r;
             @audioDevice = dev;
             @model = renderer.RegisterModel("Models/Weapons/Rifle/Weapon.kv6");
-
             @fireSounds[0] = dev.RegisterSound("Sounds/Weapons/Rifle/Fire1.opus");
             @fireSounds[1] = dev.RegisterSound("Sounds/Weapons/Rifle/Fire2.opus");
             @fireSounds[2] = dev.RegisterSound("Sounds/Weapons/Rifle/Fire3.opus");
             @fireFarSound = dev.RegisterSound("Sounds/Weapons/Rifle/FireFar.opus");
             @fireStereoSound = dev.RegisterSound("Sounds/Weapons/Rifle/FireStereo.opus");
-            @reloadSound = dev.RegisterSound("Sounds/Weapons/Rifle/Reload.opus");
-
             @fireSmallReverbSound = dev.RegisterSound("Sounds/Weapons/Rifle/V2AmbienceSmall.opus");
             @fireLargeReverbSound = dev.RegisterSound("Sounds/Weapons/Rifle/V2AmbienceLarge.opus");
+			@reloadSound = dev.RegisterSound("Sounds/Weapons/Rifle/Reload.opus");
         }
 
         void Update(float dt) {}
@@ -105,7 +103,6 @@ namespace spades {
                 param.referenceDistance = 26.0F;
                 audioDevice.Play(fireFarSound, origin, param);
                 param.referenceDistance = 4.0F;
-                param.volume = 1.0F;
                 audioDevice.Play(fireStereoSound, origin, param);
             }
         }
@@ -131,6 +128,7 @@ namespace spades {
 
             ModelRenderParam param;
             param.matrix = originMatrix * mat;
+			param.customColor = teamColor;
             renderer.AddModel(model, param);
         }
     }

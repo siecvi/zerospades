@@ -68,6 +68,7 @@
 
 			ModelRenderParam param;
 			param.matrix = originMatrix * mat;
+			param.customColor = teamColor;
 			renderer.AddModel(model, param);
 		}
 	}
