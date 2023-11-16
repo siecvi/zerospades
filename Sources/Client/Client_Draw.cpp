@@ -77,7 +77,7 @@ DEFINE_SPADES_SETTING(cg_hudColorB, "255");
 DEFINE_SPADES_SETTING(cg_hudAmmoStyle, "0");
 DEFINE_SPADES_SETTING(cg_hudSafezoneX, "1");
 DEFINE_SPADES_SETTING(cg_hudSafezoneY, "1");
-DEFINE_SPADES_SETTING(cg_hudPlayerCount, "1");
+DEFINE_SPADES_SETTING(cg_hudPlayerCount, "0");
 DEFINE_SPADES_SETTING(cg_playerNames, "2");
 DEFINE_SPADES_SETTING(cg_playerNameX, "0");
 DEFINE_SPADES_SETTING(cg_playerNameY, "0");
@@ -108,7 +108,7 @@ namespace spades {
 						format.c_str(), defaultValue.c_str());
 					cg_screenshotFormat = defaultValue;
 					return GetScreenshotFormat(defaultValue);
-			}
+				}
 			}
 
 			std::string TrKey(const std::string& name) {
@@ -235,28 +235,44 @@ namespace spades {
 
 		void Client::DrawPlayingTime() {
 			float sw = renderer->ScreenWidth();
+			float sh = renderer->ScreenHeight();
 
-			int now = (int)(time - worldSetTime);
+			float spacing = cg_smallFont ? 40.0F : 50.0F;
+			float y = ((int)cg_stats >= 2) ? spacing : 30.0F;
+
+			int now = (int)time;
 			int mins = now / 60;
 			int secs = now - mins * 60;
 			char buf[64];
-			sprintf(buf, "%d:%.02d", mins, secs);
-			IFont& font = fontManager->GetMediumFont();
+			sprintf(buf, "%d:%.2d", mins, secs);
+			IFont& font = fontManager->GetHeadingFont();
 			Vector2 size = font.Measure(buf);
-			Vector2 pos = MakeVector2((sw - size.x) * 0.5F, 60.0F - size.y);
+			Vector2 pos = MakeVector2((sw - size.x) * 0.5F, y - size.y);
 			font.DrawShadow(buf, pos, 1.0F, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.5));
 		}
 
 		void Client::DrawAlivePlayersCount() {
+			if (world->GetNumPlayers() <= 1)
+				return;
+
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
-			float contentsHeight = sh - 56.0F;
-			float teamBarTop = (sh - contentsHeight) * 0.5F;
 			float teamBarWidth = 30.0F;
 			float teamBarHeight = 30.0F;
 
-			Handle<IImage> img;
+			float spacing = cg_smallFont ? 40.0F : 50.0F;
+
+			float y = 8.0F;
+			if (((int)cg_hudPlayerCount >= 2 && (int)cg_stats < 2 && cg_stats) ||
+			    ((int)cg_hudPlayerCount < 2 && (int)cg_stats >= 2 && (int)cg_stats < 3))
+				y = cg_smallFont ? 20.0F : 30.0F;
+			if ((int)cg_hudPlayerCount < 2 && scoreboardVisible)
+				y = ((int)cg_stats >= 2) ? spacing : 30.0F;
+
+			float teamBarTop = ((int)cg_hudPlayerCount < 2)
+				? y : ((sh - y) - teamBarHeight);
+
 			IFont& font = fontManager->GetMediumFont();
 			Vector2 pos, size;
 			std::string str;
@@ -270,20 +286,19 @@ namespace spades {
 			// draw outline
 			renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.2F));
 			renderer->DrawOutlinedRect((sw * 0.5F) - teamBarWidth, teamBarTop,
-			                           (sw * 0.5F) + teamBarWidth,
-			                           teamBarHeight + 28.0F);
+			                           (sw * 0.5F) + teamBarWidth, teamBarTop + teamBarHeight);
 
 			// draw player count
 			str = ToString(world->GetNumPlayersAlive(0));
 			size = font.Measure(str);
-			pos.x = (sw * 0.5F) - (teamBarWidth * 0.5F) - size.x * 0.5F;
+			pos.x = ((sw - teamBarWidth) * 0.5F) - size.x * 0.5F;
 			pos.y = teamBarTop;
 			font.Draw(str, pos + MakeVector2(0, 2), 1.0F, MakeVector4(0, 0, 0, 0.5));
 			font.Draw(str, pos, 1.0F, MakeVector4(1, 1, 1, 1));
 
 			str = ToString(world->GetNumPlayersAlive(1));
 			size = font.Measure(str);
-			pos.x = (sw * 0.5F) + (teamBarWidth * 0.5F) - size.x * 0.5F;
+			pos.x = ((sw + teamBarWidth) * 0.5F) - size.x * 0.5F;
 			pos.y = teamBarTop;
 			font.Draw(str, pos + MakeVector2(0, 2), 1.0F, MakeVector4(0, 0, 0, 0.5));
 			font.Draw(str, pos, 1.0F, MakeVector4(1, 1, 1, 1));
@@ -372,7 +387,7 @@ namespace spades {
 			if (dist > FOG_DISTANCE_SQ) {
 				playerColor = MakeVector4(1, 0.75, 0, 1);
 			} else if (mapResult.hit && (mapResult.hitPos - eye).GetSquaredLength2D() < dist) {
-					playerColor = ConvertColorRGBA(player.GetColor());
+				playerColor = ConvertColorRGBA(player.GetColor());
 			}
 
 			return playerColor;
@@ -1037,6 +1052,8 @@ namespace spades {
 				if (!cg_hideHud) {
 					tcView->Draw();
 
+					if (cg_hudPlayerCount)
+						DrawAlivePlayersCount();
 					if (IsFirstPerson(GetCameraMode()))
 						DrawFirstPersonHUD();
 
@@ -1080,9 +1097,6 @@ namespace spades {
 				if (scoreboardVisible) {
 					scoreboard->Draw();
 					DrawPlayingTime();
-				} else {
-					if (net->GetGameProperties()->isGameModeArena && cg_hudPlayerCount)
-						DrawAlivePlayersCount();
 				}
 
 				// --- end "player is there" render
@@ -1156,7 +1170,7 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			// only draw stats when scoreboard is visible
-			if (!scoreboardVisible && (int)cg_stats == 3)
+			if (!scoreboardVisible && (int)cg_stats >= 3)
 				return;
 
 			float sw = renderer->ScreenWidth();

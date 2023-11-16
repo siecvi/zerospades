@@ -183,7 +183,7 @@ namespace spades {
 				DamageIndicator() : damage(0) { ; }
 			};
 			std::list<DamageIndicator> damageIndicators;
-			
+
 			float GetSprintState();
 			float GetAimDownState();
 
@@ -414,9 +414,7 @@ namespace spades {
 			void DrawHottrackedPlayerName();
 			void DrawPubOVL();
 
-			// currently only for arena gamemode
 			void DrawAlivePlayersCount();
-
 			void DrawPlayingTime();
 			void DrawHurtScreenEffect();
 			void DrawHurtSprites();
