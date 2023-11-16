@@ -357,18 +357,16 @@ namespace spades {
 			Vector3 eye = lastSceneDef.viewOrigin;
 			Vector3 dir = player.GetEye() - eye;
 
-			float dist = dir.GetLength2D();
+			float dist = dir.GetSquaredLength2D();
 			dir = dir.Normalize();
 
 			// do map raycast
 			GameMap::RayCastResult mapResult;
 			mapResult = map->CastRay2(eye, dir, 256);
 
-			if (dist > FOG_DISTANCE) {
+			if (dist > FOG_DISTANCE_SQ) {
 				playerColor = MakeVector4(1, 0.75, 0, 1);
-			} else if (mapResult.hit) {
-				float hitDist = (mapResult.hitPos - eye).GetLength2D();
-				if (hitDist < FOG_DISTANCE && hitDist < dist)
+			} else if (mapResult.hit && (mapResult.hitPos - eye).GetSquaredLength2D() < dist) {
 					playerColor = ConvertColorRGBA(player.GetColor());
 			}
 

@@ -146,7 +146,7 @@ namespace spades {
 			
 			// distance cull
 			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
-			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
+			if (distSqr > FOG_DISTANCE_SQ)
 				return;
 
 			Vector3 velBias = {0, 0, -0.5F};
@@ -203,7 +203,7 @@ namespace spades {
 
 			// distance cull
 			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
-			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
+			if (distSqr > FOG_DISTANCE_SQ)
 				return;
 
 			// determines free space around for SetTrajectory
@@ -278,7 +278,7 @@ namespace spades {
 
 			// distance cull
 			float distSqr = (origin - lastSceneDef.viewOrigin).GetSquaredLength2D();
-			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
+			if (distSqr > FOG_DISTANCE_SQ)
 				return;
 
 			// fragments
@@ -305,7 +305,7 @@ namespace spades {
 
 			// distance cull
 			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
-			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
+			if (distSqr > FOG_DISTANCE_SQ)
 				return;
 
 			DynamicLightParam l;
@@ -355,7 +355,7 @@ namespace spades {
 		void Client::GrenadeExplosion(spades::Vector3 pos) {
 			// distance cull
 			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
-			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
+			if (distSqr > FOG_DISTANCE_SQ)
 				return;
 
 			KickCamera(2.0F / (distSqr + 5.0F));
@@ -458,7 +458,7 @@ namespace spades {
 		void Client::GrenadeExplosionUnderwater(spades::Vector3 pos) {
 			// distance cull
 			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
-			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
+			if (distSqr > FOG_DISTANCE_SQ)
 				return;
 
 			KickCamera(1.5F / (distSqr + 5.0F));
@@ -541,7 +541,7 @@ namespace spades {
 
 			// distance cull
 			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
-			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
+			if (distSqr > FOG_DISTANCE_SQ)
 				return;
 
 			Vector3 velBias = {0, 0, -1.0F};

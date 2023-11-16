@@ -631,7 +631,7 @@ namespace spades {
 
 		bool Corpse::IsVisibleFrom(spades::Vector3 eye) {
 			// distance culled?
-			if ((GetCenter() - eye).GetSquaredLength2D() > FOG_DISTANCE * FOG_DISTANCE)
+			if ((GetCenter() - eye).GetSquaredLength2D() > FOG_DISTANCE_SQ)
 				return false;
 
 			for (int i = 0; i < NodeCount; i++) {

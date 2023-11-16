@@ -37,10 +37,11 @@ namespace spades {
 		}
 
 		bool CTFGameMode::PlayerHasIntel(Player& player) {
-			if (player.IsSpectator())
+			int teamId = player.GetTeamId();
+			if (teamId >= 2) // spectator
 				return false;
 
-			auto& team = teams[player.GetTeamId()];
+			auto& team = teams[teamId];
 			return team.hasIntel && static_cast<int>(team.carrierId) == player.GetId();
 		}
 

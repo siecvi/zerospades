@@ -460,7 +460,8 @@ namespace spades {
 			Vector3 diff = position - start;
 
 			// Skip if out of range.
-			if (diff.GetSquaredLength2D() > FOG_DISTANCE * FOG_DISTANCE)
+			float sqDist2D = diff.GetSquaredLength2D();
+			if (sqDist2D > FOG_DISTANCE_SQ)
 				return false;
 
 			// |P-A| * cos(theta)
@@ -471,7 +472,7 @@ namespace spades {
 				return false;
 
 			// |P-A|^2
-			float sq = diff.GetSquaredLength();
+			float sq = sqDist2D + diff.z * diff.z;
 
 			// |P-A| * sin(theta)
 			float dist = sqrtf(sq - c * c);
@@ -578,9 +579,10 @@ namespace spades {
 				}
 
 				Vector3 finalHitPos = muzzle + dir * 128.0F;
+				float hitBlockDist2D = (mapResult.hitPos - muzzle).GetLength2D();
 
-				if (mapResult.hit && (mapResult.hitPos - muzzle).GetLength2D() < FOG_DISTANCE &&
-				    (!hitPlayer || (mapResult.hitPos - muzzle).GetLength2D() < hitPlayerDist2D)) {
+				if (mapResult.hit && hitBlockDist2D <= FOG_DISTANCE &&
+				    (!hitPlayer || hitBlockDist2D < hitPlayerDist2D)) {
 					finalHitPos = mapResult.hitPos;
 
 					IntVector3 outBlockPos = mapResult.hitBlock;
@@ -609,41 +611,39 @@ namespace spades {
 							listener->BulletHitBlock(finalHitPos, outBlockPos, mapResult.normal);
 					}
 				} else if (hitPlayer) {
-					if (hitPlayerDist2D < FOG_DISTANCE) {
-						finalHitPos = muzzle + dir * hitPlayerDist3D;
+					finalHitPos = muzzle + dir * hitPlayerDist3D;
 
-						if (this->IsLocalPlayer())
-							bulletVectors.push_back(finalHitPos);
+					if (this->IsLocalPlayer())
+						bulletVectors.push_back(finalHitPos);
 
-						HitType hitType;
-						switch (hitPart) {
-							case HitBodyPart::Head:
-								playerHits[hitPlayer->playerId].numHeadHits++;
-								hitType = HitTypeHead;
-								break;
-							case HitBodyPart::Torso:
-								playerHits[hitPlayer->playerId].numTorsoHits++;
-								hitType = HitTypeTorso;
-								break;
-							case HitBodyPart::Limb1:
-								playerHits[hitPlayer->playerId].numLimbHits[0]++;
-								hitType = HitTypeLegs;
-								break;
-							case HitBodyPart::Limb2:
-								playerHits[hitPlayer->playerId].numLimbHits[1]++;
-								hitType = HitTypeLegs;
-								break;
-							case HitBodyPart::Arms:
-								playerHits[hitPlayer->playerId].numLimbHits[2]++;
-								hitType = HitTypeArms;
-								break;
-							case HitBodyPart::None: SPAssert(false); break;
-						}
-
-						if (listener)
-							listener->BulletHitPlayer(*hitPlayer,
-								hitType, finalHitPos, *this, stateCell);
+					HitType hitType;
+					switch (hitPart) {
+						case HitBodyPart::Head:
+							playerHits[hitPlayer->playerId].numHeadHits++;
+							hitType = HitTypeHead;
+							break;
+						case HitBodyPart::Torso:
+							playerHits[hitPlayer->playerId].numTorsoHits++;
+							hitType = HitTypeTorso;
+							break;
+						case HitBodyPart::Limb1:
+							playerHits[hitPlayer->playerId].numLimbHits[0]++;
+							hitType = HitTypeLegs;
+							break;
+						case HitBodyPart::Limb2:
+							playerHits[hitPlayer->playerId].numLimbHits[1]++;
+							hitType = HitTypeLegs;
+							break;
+						case HitBodyPart::Arms:
+							playerHits[hitPlayer->playerId].numLimbHits[2]++;
+							hitType = HitTypeArms;
+							break;
+						case HitBodyPart::None: SPAssert(false); break;
 					}
+
+					if (listener)
+						listener->BulletHitPlayer(*hitPlayer,
+							hitType, finalHitPos, *this, stateCell);
 				}
 
 				if (listener)
@@ -661,8 +661,8 @@ namespace spades {
 				// vanilla's horizontial recoil is driven by a triangular wave generator.
 				int timer = world.GetTimeMS();
 				rec.x *= ((timer % 1024) < 512)
-					? (timer % 512) - 255.5F
-					: 255.5F - (timer % 512);
+						? (timer % 512) - 255.5F
+						: 255.5F - (timer % 512);
 
 				// double recoil if walking and not aiming
 				if (IsWalking() && !weapInput.secondary)
@@ -733,7 +733,8 @@ namespace spades {
 				Player& other = maybeOther.value();
 				if (!other.IsAlive() || other.IsSpectator())
 					continue; // filter deads/spectators
-				if ((other.GetEye() - muzzle).GetLength() > MELEE_DISTANCE)
+				if ((other.GetEye() - muzzle).GetSquaredLength() >
+				    (MELEE_DISTANCE * MELEE_DISTANCE))
 					continue; // skip players outside attack range
 				if (!other.RayCastApprox(muzzle, dir))
 					continue; // quickly reject players unlikely to be hit

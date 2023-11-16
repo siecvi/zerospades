@@ -1165,7 +1165,7 @@ namespace spades {
 			// distance cull
 			const auto& viewOrigin = client.GetLastSceneDef().viewOrigin;
 			float distSqr = (p.GetOrigin() - viewOrigin).GetSquaredLength2D();
-			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
+			if (distSqr > FOG_DISTANCE_SQ)
 				return;
 
 			bool isThirdPerson = ShouldRenderInThirdPersonView();
@@ -1266,19 +1266,18 @@ namespace spades {
 
 		ClientPlayer::AmbienceInfo ClientPlayer::ComputeAmbience() {
 			const auto& viewOrigin = client.GetLastSceneDef().viewOrigin;
+			const auto& rayFrom = player.GetEye();
 
 			if (!cg_environmentalAudio) {
 				AmbienceInfo result;
 				result.room = 0.0F;
-				result.distance = (viewOrigin - player.GetEye()).GetLength();
+				result.distance = (viewOrigin - rayFrom).GetLength();
 				result.size = 0.0F;
 				return result;
 			}
 
 			float maxDistance = 40.0F;
 			GameMap& map = *client.map;
-
-			Vector3 rayFrom = player.GetEye();
 
 			// uniformly distributed random unit vectors
 			const Vector3 directions[24] = {
@@ -1357,7 +1356,7 @@ namespace spades {
 
 			AmbienceInfo result;
 			result.room = reflections * feedbackness;
-			result.distance = (viewOrigin - player.GetEye()).GetLength();
+			result.distance = (viewOrigin - rayFrom).GetLength();
 			result.size = std::max(std::min(roomSize / 15.0F, 1.0F), 0.0F);
 			result.room *= std::max(0.0F, std::min((result.size - 0.1F) * 4.0F, 1.0F));
 			result.room *= 1.0F - result.size * 0.3F;
@@ -1409,7 +1408,7 @@ namespace spades {
 			// distance cull
 			const auto& viewOrigin = client.GetLastSceneDef().viewOrigin;
 			float distSqr = (p.GetOrigin() - viewOrigin).GetSquaredLength2D();
-			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
+			if (distSqr > FOG_DISTANCE_SQ)
 				return;
 
 			Handle<IModel> model;

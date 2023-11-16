@@ -315,12 +315,12 @@ namespace spades {
 			 * The camera mode must be first-person.
 			 */
 			float GetAimDownZoomScale();
-
-			bool inGameLimbo;
-
 			float GetLocalFireVibration();
+
 			void SetBlockColor(IntVector3 color);
 			void CaptureColor();
+
+			bool inGameLimbo;
 			bool IsLimboViewActive();
 			void SpawnPressed();
 

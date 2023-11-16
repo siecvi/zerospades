@@ -65,7 +65,7 @@ namespace spades {
 			if (!p)
 				return ClientCameraMode::NotJoined;
 
-			if (p->IsAlive() && !p->IsSpectator()) {
+			if (!p->IsSpectator() && p->IsAlive()) {
 				// There exists an alive (non-spectator) local player
 				if (cg_thirdperson && world->GetNumPlayers() <= 1)
 					return ClientCameraMode::ThirdPersonLocal;
@@ -612,8 +612,7 @@ namespace spades {
 					AddGrenadeToScene(*nade);
 
 				for (const auto& c : corpses) {
-					if ((c->GetCenter() - lastSceneDef.viewOrigin).GetSquaredLength2D() >
-					    FOG_DISTANCE * FOG_DISTANCE)
+					if ((c->GetCenter() - lastSceneDef.viewOrigin).GetSquaredLength2D() > FOG_DISTANCE_SQ)
 						continue;
 					c->AddToScene();
 				}

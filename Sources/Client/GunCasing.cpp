@@ -79,7 +79,7 @@ namespace spades {
 
 			const auto& viewOrigin = client->GetLastSceneDef().viewOrigin;
 			float distSqr = (viewOrigin - matrix.GetOrigin()).GetSquaredLength2D();
-			if (distSqr > FOG_DISTANCE * FOG_DISTANCE)
+			if (distSqr > FOG_DISTANCE_SQ)
 				return false;
 
 			if (lp.z >= 63) { // dropped into water
