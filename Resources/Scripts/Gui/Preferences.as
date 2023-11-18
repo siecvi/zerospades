@@ -663,8 +663,8 @@ namespace spades {
 
             // draw preview background
             if (cg_target.BoolValue) {
-            float luminosity = color.x + color.y + color.z;
-            float opacity = 1.0F - luminosity;
+                float luminosity = color.x + color.y + color.z;
+                float opacity = 1.0F - luminosity;
                 if (cg_targetOutline.BoolValue and cg_target.IntValue == 2)
                     r.ColorNP = Vector4(0.6F, 0.6F, 0.6F, 0.9F);
                 else
@@ -1165,7 +1165,7 @@ namespace spades {
             layouter.AddToggleField(_Tr("Preferences", "Ignore Private Messages"), "cg_ignorePrivateMessages");
             layouter.AddSliderField(_Tr("Preferences",  "Master Volume"), "s_volume",
             0, 100, 1, ConfigNumberFormatter(0, "%"));
-			layouter.AddVolumeSlider(_Tr("Preferences", "Death Camera Volume"), "cg_deathSoundGain");
+            layouter.AddVolumeSlider(_Tr("Preferences", "Death Camera Volume"), "cg_deathSoundGain");
             layouter.AddVolumeSlider(_Tr("Preferences", "Respawn Beep Volume"), "cg_respawnSoundGain");
             layouter.AddVolumeSlider(_Tr("Preferences", "Hit Feedback Volume"), "cg_hitFeedbackSoundGain");
             layouter.AddVolumeSlider(_Tr("Preferences", "Headshot Feedback Volume"), "cg_headshotFeedbackSoundGain");
@@ -1174,7 +1174,7 @@ namespace spades {
             layouter.AddToggleField(_Tr("Preferences", "Show Alerts"), "cg_alerts");
             layouter.AddVolumeSlider(_Tr("Preferences", "Alert Sounds"), "cg_alertSounds");
             layouter.AddToggleField(_Tr("Preferences", "Hit Analyzer"), "cg_hitAnalyze");
-			layouter.AddToggleField(_Tr("Preferences", "Hit Indicator"), "cg_hitIndicator");
+            layouter.AddToggleField(_Tr("Preferences", "Hit Indicator"), "cg_hitIndicator");
             layouter.AddToggleField(_Tr("Preferences", "Damage Indicator"), "cg_damageIndicators");
 
             layouter.AddHeading(_Tr("Preferences", "AoS 0.75/0.76 Compatibility"));
@@ -1186,7 +1186,16 @@ namespace spades {
             45, 90, 1, ConfigNumberFormatter(0, "°"));
             layouter.AddToggleField(_Tr("Preferences", "Horizontal FOV"), "cg_horizontalFov");
             layouter.AddToggleField(_Tr("Preferences", "Classic Zoom"), "cg_classicZoom");
-            layouter.AddToggleField(_Tr("Preferences", "Show Statistics"), "cg_stats");
+            layouter.AddChoiceField(_Tr("Preferences", "Show Alive Player Count"), "cg_hudPlayerCount",
+                                    array<string> = {_Tr("Preferences", "OFF"),
+                                                     _Tr("Preferences", "Top"),
+                                                     _Tr("Preferences", "Bottom")},
+                                    array<int> = {0, 1, 2});
+            layouter.AddChoiceField(_Tr("Preferences", "Show Statistics"), "cg_stats",
+                                    array<string> = {_Tr("Preferences", "OFF"),
+                                                     _Tr("Preferences", "Top"),
+                                                     _Tr("Preferences", "Bottom")},
+                                    array<int> = {0, 2, 1});
             layouter.AddToggleField(_Tr("Preferences", "Show Player Statistics"), "cg_playerStats");
             layouter.AddToggleField(_Tr("Preferences", "Show Placed Blocks"), "cg_playerStatsShowPlacedBlocks");
             layouter.AddSliderField(_Tr("Preferences", "Player Statistics Height"), "cg_playerStatsHeight",
@@ -1204,6 +1213,12 @@ namespace spades {
             128, 256, 8, ConfigNumberFormatter(0, "px"));
             layouter.AddToggleField(_Tr("Preferences", "Use Weapon Icons"),  "cg_minimapPlayerIcon");
             layouter.AddToggleField(_Tr("Preferences", "Use Random Colors"), "cg_minimapPlayerColor");
+            layouter.AddChoiceField(_Tr("Preferences", "Show Map Location"), "cg_minimapCoords",
+                                    array<string> = {_Tr("Preferences", "OFF"),
+                                                     _Tr("Preferences", "Bottom"),
+                                                     _Tr("Preferences", "Side")},
+                                    array<int> = {0, 1, 2});
+            layouter.AddToggleField(_Tr("Preferences", "Show Player Names"), "cg_minimapPlayerNames");
 
             layouter.AddHeading(_Tr("Preferences", "Heads-Up Display"));
             layouter.AddToggleField(_Tr("Preferences", "Hide HUD"), "cg_hideHud");
@@ -1359,7 +1374,7 @@ namespace spades {
             layouter.AddControl(_Tr("Preferences", "Alt. Attack"), "cg_keyAltAttack");
             layouter.AddToggleField(_Tr("Preferences", "Hold Aim Down Sight"), "cg_holdAimDownSight");
             layouter.AddSliderField(_Tr("Preferences", "Mouse Sensitivity Type"), "cg_mouseSensScale",
-            0, 3, 1, ConfigSensScaleFormatter());
+            0, 5, 1, ConfigSensScaleFormatter());
             layouter.AddSliderField(_Tr("Preferences", "Mouse Sensitivity"), "cg_mouseSensitivity",
             0.1, 10, 0.1, ConfigNumberFormatter(1, ""));
             layouter.AddSliderField(_Tr("Preferences", "ADS Mouse Sens. Scale"), "cg_zoomedMouseSensScale",
