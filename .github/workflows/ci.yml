@@ -41,9 +41,7 @@ jobs:
           name: Release
           path: |
             ${{ runner.workspace }}\openspades.mk\bin\Release
-            !${{ runner.workspace }}/**/*.lib
-            !${{ runner.workspace }}/**/*.exp
-            !${{ runner.workspace }}/**/*.pdb
+            !${{ runner.workspace }}/**/*.{lib,exp,pdb}
           if-no-files-found: warn
 
   build-macos:
