@@ -23,7 +23,7 @@ endif()
 if(USE_VCPKG)
     find_package(Ogg CONFIG REQUIRED)
     find_package(Opus CONFIG REQUIRED)
-    find_package(sdl2-image CONFIG REQUIRED)
+    find_package(SDL2_image CONFIG REQUIRED)
     find_package(SDL2 CONFIG REQUIRED)
     find_package(freetype CONFIG REQUIRED)
 
@@ -36,7 +36,7 @@ if(USE_VCPKG)
  	endif()
 
     set(SDL2_LIBRARY SDL2::SDL2main SDL2::SDL2-static)
-    set(SDL2_IMAGE_LIBRARY SDL2::SDL2_image)
+    set(SDL2_IMAGE_LIBRARY SDL2_image::SDL2_image-static)
     set(FREETYPE_LIBRARIES freetype)
 
     if(APPLE)
