@@ -164,6 +164,7 @@ namespace spades {
 			scoreboardVisible = false;
 			flashlightOn = false;
 			debugHitTestZoom = false;
+			largeMapView->SetZoom(false);
 
 			clientPlayers.clear();
 
