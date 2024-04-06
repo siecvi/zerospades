@@ -349,8 +349,7 @@ namespace spades {
 						volume = std::min(volume + 10, 100);
 
 					s_volume = volume;
-					auto volStr = "Volume: " + ToString(volume);
-					chatWindow->AddMessage(ChatWindow::ColoredMessage(volStr, MsgColorRed));
+					ShowAlert(_Tr("Client", "Volume: {0}%", volume), AlertType::Notice);
 				}
 
 				if (IsLimboViewActive()) {

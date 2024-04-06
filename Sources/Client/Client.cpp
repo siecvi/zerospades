@@ -539,7 +539,7 @@ namespace spades {
 
 		void Client::ShowAlert(const std::string& contents, AlertType type) {
 			if (!cg_alerts) {
-				chatWindow->AddMessage(contents);
+				chatWindow->AddMessage(ChatWindow::ColoredMessage(contents, MsgColorRed));
 				if (type != AlertType::Notice)
 					PlayAlertSound();
 				return;
