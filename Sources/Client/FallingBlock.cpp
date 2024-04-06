@@ -169,8 +169,8 @@ namespace spades {
 								for (int i = 0; i < 4; i++) {
 									auto ent = stmp::make_unique<ParticleSpriteEntity>(
 									  *client, img.GetPointerOrNull(), color);
-									ent->SetTrajectory(p3, RandomAxis() * 13.0F, 1.0F, 0.6F);
-									ent->SetRadius(0.35F + getRandom() * getRandom() * 0.1F);
+									ent->SetTrajectory(p3, RandomAxis() * 4.0F, 1.0F, 0.6F);
+									ent->SetRadius(0.4F + getRandom() * getRandom() * 0.1F);
 									ent->SetLifeTime(2.0F, 0.0F, 1.0F);
 									if (usePrecisePhysics)
 										ent->SetBlockHitAction(BlockHitAction::BounceWeak);
