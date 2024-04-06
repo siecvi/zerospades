@@ -91,6 +91,8 @@ DEFINE_SPADES_SETTING(cg_debugCorpse, "0");
 SPADES_SETTING(cg_manualFocus);
 DEFINE_SPADES_SETTING(cg_keyAutoFocus, "MiddleMouseButton");
 
+DEFINE_SPADES_SETTING(cg_keyToggleSpectatorNames, "z");
+
 SPADES_SETTING(s_volume);
 SPADES_SETTING(cg_debugHitTest);
 
@@ -446,6 +448,13 @@ namespace spades {
 							else if (corpses.size() > corpseSoftLimit)
 								RemoveInvisibleCorpses();
 						}
+					}
+				} else {
+					if (CheckKey(cg_keyToggleSpectatorNames, name) && down) {
+						spectatorPlayerNames = !spectatorPlayerNames;
+						Handle<IAudioChunk> c =
+						  audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
+						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 					}
 				}
 

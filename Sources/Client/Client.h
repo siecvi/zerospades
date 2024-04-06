@@ -408,6 +408,7 @@ namespace spades {
 			 */
 			void DrawSpectateHUD();
 
+			bool spectatorPlayerNames;
 			Vector4 GetPlayerColor(Player&);
 
 			void DrawPlayerName(Player& p, Vector4 col);

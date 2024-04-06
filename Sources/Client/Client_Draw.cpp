@@ -63,6 +63,7 @@ SPADES_SETTING(cg_keyAttack);
 SPADES_SETTING(cg_keyAltAttack);
 SPADES_SETTING(cg_keyCrouch);
 SPADES_SETTING(cg_keyLimbo);
+SPADES_SETTING(cg_keyToggleSpectatorNames);
 DEFINE_SPADES_SETTING(cg_screenshotFormat, "jpeg");
 DEFINE_SPADES_SETTING(cg_stats, "0");
 DEFINE_SPADES_SETTING(cg_statsBackground, "1");
@@ -927,6 +928,10 @@ namespace spades {
 				addLine(_Tr("Client", "[{0}/{1}] Go up/down",
 					TrKey(cg_keyJump), TrKey(cg_keyCrouch)));
 
+			if (localPlayerIsSpectator)
+				addLine(_Tr("Client", "[{0}] Toggle player names",
+					TrKey(cg_keyToggleSpectatorNames)));
+
 			y += lh * 0.5F;
 
 			if (localPlayerIsSpectator && !inGameLimbo)
@@ -1046,6 +1051,7 @@ namespace spades {
 					if (cg_damageIndicators)
 						DrawDamageIndicators();
 				} else {
+					if (spectatorPlayerNames)
 					DrawPubOVL();
 				}
 

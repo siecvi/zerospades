@@ -106,6 +106,7 @@ namespace spades {
 		      hitFeedbackFriendly(false),
 		      debugHitTestZoomState(0.0F),
 		      debugHitTestZoom(false),
+		      spectatorPlayerNames(true),
 		      focalLength(20.0F),
 		      targetFocalLength(20.0F),
 		      autoFocusEnabled(true),
