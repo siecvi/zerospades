@@ -155,6 +155,7 @@ namespace spades {
 			// reload completion received from the server.
 			reloading = false;
 			if (IsReloadSlow() && !IsClipFull()) {
+				reloading = true;
 				reloadStartTime = time;
 				reloadEndTime = time + GetReloadTime();
 				if (world.GetListener())
