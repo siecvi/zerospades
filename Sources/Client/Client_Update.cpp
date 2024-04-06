@@ -1067,31 +1067,40 @@ namespace spades {
 
 				if ((bool)cg_hitAnalyze) {
 					char buf[256];
+					std::string s;
 
 					float dist = (by.GetEye() - hurtPlayer.GetEye()).GetLength();
-					float dt = (world->GetTime() - lastHitTime) * 1000;
+					sprintf(buf, "%.1f", dist);
+					s += buf;
 
-					std::string hitType;
-					switch (type) {
-						case HitTypeTorso: hitType = "Body"; break;
-						case HitTypeHead: hitType = "Head"; break;
-						case HitTypeArms:
-						case HitTypeLegs: hitType = "Limb"; break;
-						default: hitType = "Head"; break;
+					s = _Tr("Client", "You hit {0} from: {1} blocks ",
+						hurtPlayer.GetName(), s);
+
+					if ((int)cg_hitAnalyze >= 2) {
+						float dt = world->GetTime() - lastHitTime;
+						if (dt <= 0.0F) {
+							s += "dT: NA ";
+						} else {
+							if (dt > 1.0F)
+								sprintf(buf, "dT: %.0fs ", dt);
+							else
+								sprintf(buf, "dT: %dms ", (int)(dt * 1000));
+							s += buf;
+						}
 					}
 
-					std::string weapoName = by.IsToolSpade()
-						? "Melee" : by.GetWeapon().GetName();
+					s += "[";
+					switch (type) {
+						case HitTypeTorso: s += _Tr("Client", "TORSO"); break;
+						case HitTypeArms:
+						case HitTypeLegs: s += _Tr("Client", "LIMB"); break;
+						case HitTypeMelee: s += _Tr("Client", "MELEE"); break;
+						default: s += _Tr("Client", "HEAD"); break;
+					}
+					s += "]";
 
-					if (dt > 0.0F && lastHitTime > 0.0F)
-						sprintf(buf, "%s hit %s dist: %.1f blocks dT: %.0fms",
-							weapoName.c_str(), hitType.c_str(), dist, dt);
-					else
-						sprintf(buf, "%s hit %s dist: %.1f blocks dT: NA",
-							weapoName.c_str(), hitType.c_str(), dist);
-
-					scriptedUI->RecordChatLog(buf);
-					chatWindow->AddMessage(buf);
+					scriptedUI->RecordChatLog(s);
+					chatWindow->AddMessage(s);
 				}
 
 				if (type == HitTypeHead && !hitScanState.hasPlayedHeadshotSound) {
