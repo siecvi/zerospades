@@ -543,54 +543,53 @@ namespace spades {
 			renderer->AddDebugLine(v[1][1][0], v[1][1][1], color);
 		}
 
-		void Client::DrawCTFObjects() {
+		void Client::AddMapObjectsToScene() {
 			SPADES_MARK_FUNCTION();
 
-			CTFGameMode& ctf = dynamic_cast<CTFGameMode&>(world->GetMode().value());
+			stmp::optional<IGameMode&> mode = world->GetMode();
+			if (!mode)
+				return;
+
 			Handle<IModel> base = renderer->RegisterModel("Models/MapObjects/CheckPoint.kv6");
 			Handle<IModel> intel = renderer->RegisterModel("Models/MapObjects/Intel.kv6");
 
-			for (int tId = 0; tId < 2; tId++) {
-				CTFGameMode::Team& team = ctf.GetTeam(tId);
-				IntVector3 col = world->GetTeamColor(tId);
+			if (mode->ModeType() == IGameMode::m_CTF) {
+				auto& ctf = dynamic_cast<CTFGameMode&>(mode.value());
+				for (int tId = 0; tId < 2; tId++) {
+					CTFGameMode::Team& team = ctf.GetTeam(tId);
 
-				ModelRenderParam param;
-				param.customColor = ConvertColorRGB(col);
+					ModelRenderParam param;
+					param.customColor = ConvertColorRGB(world->GetTeamColor(tId));
 
-				// draw base
-				param.matrix = Matrix4::Translate(team.basePos);
-				param.matrix = param.matrix * Matrix4::Scale(0.3F);
-				renderer->RenderModel(*base, param);
+					// draw base
+					param.matrix = Matrix4::Translate(team.basePos);
+					param.matrix = param.matrix * Matrix4::Scale(0.3F);
+					renderer->RenderModel(*base, param);
 
-				// draw flag
-				if (!ctf.GetTeam(1 - tId).hasIntel) {
-					param.matrix = Matrix4::Translate(team.flagPos);
-					param.matrix = param.matrix * Matrix4::Rotate(MakeVector3(0, 0, 1), time);
-					param.matrix = param.matrix * Matrix4::Scale(0.1F);
-					renderer->RenderModel(*intel, param);
+					// draw both flags
+					if (!ctf.GetTeam(1 - tId).hasIntel) {
+						param.matrix = Matrix4::Translate(team.flagPos);
+						param.matrix = param.matrix * Matrix4::Rotate(MakeVector3(0, 0, 1), time);
+						param.matrix = param.matrix * Matrix4::Scale(0.1F);
+						renderer->RenderModel(*intel, param);
+					}
 				}
-			}
-		}
+			} else if (mode->ModeType() == IGameMode::m_TC) {
+				auto& tc = dynamic_cast<TCGameMode&>(mode.value());
+				for (int i = 0; i < tc.GetNumTerritories(); i++) {
+					TCGameMode::Territory& t = tc.GetTerritory(i);
+					IntVector3 col = (t.ownerTeamId >= NEUTRAL_TEAM)
+					                   ? MakeIntVector3(255, 255, 255)
+					                   : world->GetTeamColor(t.ownerTeamId);
 
-		void Client::DrawTCObjects() {
-			SPADES_MARK_FUNCTION();
+					ModelRenderParam param;
+					param.customColor = ConvertColorRGB(col);
 
-			TCGameMode& tc = dynamic_cast<TCGameMode&>(world->GetMode().value());
-			Handle<IModel> base = renderer->RegisterModel("Models/MapObjects/CheckPoint.kv6");
-
-			for (int i = 0; i < tc.GetNumTerritories(); i++) {
-				TCGameMode::Territory& t = tc.GetTerritory(i);
-				IntVector3 col = (t.ownerTeamId >= NEUTRAL_TEAM)
-				                   ? MakeIntVector3(255, 255, 255)
-				                   : world->GetTeamColor(t.ownerTeamId);
-
-				ModelRenderParam param;
-				param.customColor = ConvertColorRGB(col);
-
-				// draw base
-				param.matrix = Matrix4::Translate(t.pos);
-				param.matrix = param.matrix * Matrix4::Scale(0.3F);
-				renderer->RenderModel(*base, param);
+					// draw base
+					param.matrix = Matrix4::Translate(t.pos);
+					param.matrix = param.matrix * Matrix4::Scale(0.3F);
+					renderer->RenderModel(*base, param);
+				}
 			}
 		}
 
@@ -618,11 +617,8 @@ namespace spades {
 					c->AddToScene();
 				}
 
-				auto& mode = *world->GetMode();
-				if (mode.ModeType() == IGameMode::m_CTF)
-					DrawCTFObjects();
-				else if (mode.ModeType() == IGameMode::m_TC)
-					DrawTCObjects();
+				// draw map objects
+				AddMapObjectsToScene();
 
 				for (const auto& ent : localEntities)
 					ent->Render3D();
