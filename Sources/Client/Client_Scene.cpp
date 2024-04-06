@@ -291,7 +291,7 @@ namespace spades {
 						// Update initial floating camera angle
 						Vector3 o = -def.viewAxis[2];
 						followAndFreeCameraState.yaw = atan2f(o.y, o.x);
-						followAndFreeCameraState.pitch = atan2f(o.z, o.GetLength2D());
+						followAndFreeCameraState.pitch = -atan2f(o.z, o.GetLength2D());
 						break;
 					}
 					case ClientCameraMode::ThirdPersonLocal:
