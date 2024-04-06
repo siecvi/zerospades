@@ -472,7 +472,9 @@ namespace spades {
 			Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
 
 			IntVector3 p = pos.Floor();
-			uint32_t col = map->GetColor(p.x, p.y, p.z);
+			uint32_t col = IntVectorToColor(MakeIntVector3(70, 70, 70));
+			if (map->IsSolid(p.x, p.y, p.z))
+				col = map->GetColor(p.x, p.y, p.z);
 			col = map->GetColorJit(col); // jit the colour
 			Vector4 color = ConvertColorRGBA(IntVectorFromColor(col));
 
