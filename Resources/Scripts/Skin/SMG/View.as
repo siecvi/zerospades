@@ -324,7 +324,7 @@ namespace spades {
 			recoilRot.y = 0.3F * recoilRotationSpring.position;
 			recoilRot.z = 0.3F * recoilRotationSpring.position;
 			Vector3 recoilOffset = Vector3(0, 0, -0.1) * recoilVerticalSpring.position * sp;
-			recoilOffset -= Vector3(0, 0.5, 0) * recoilBackSpring.position;
+			recoilOffset -= Vector3(0, 0.5, 0) * recoilBackSpring.position * (1.0F - readyState);
 			mat = CreateEulerAnglesMatrix(recoilRot * sp) * mat;
 			mat = mat * CreateTranslateMatrix(recoilOffset);
 
