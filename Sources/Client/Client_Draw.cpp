@@ -852,7 +852,7 @@ namespace spades {
 					lastCount = secs;
 				}
 
-				msg = _Tr("Client", "Respawning in: {0}", secs);
+				msg = _Tr("Client", "You will respawn in: {0}", secs);
 			} else {
 				msg = _Tr("Client", "Waiting for respawn");
 			}
@@ -860,7 +860,7 @@ namespace spades {
 			if (!msg.empty()) {
 				IFont& font = fontManager->GetGuiFont();
 				Vector2 size = font.Measure(msg);
-				Vector2 pos = MakeVector2((sw - size.x) * 0.5F, sh / 3.0F);
+				Vector2 pos = MakeVector2((sw - size.x) * 0.5F, sh / 2.5F);
 				font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.5));
 			}
 		}
@@ -900,18 +900,23 @@ namespace spades {
 
 			auto cameraMode = GetCameraMode();
 
-			if (HasTargetPlayer(cameraMode)) {
 				int playerId = GetCameraTargetPlayerId();
+			auto& camTarget = world->GetPlayer(playerId).value();
 
+			// Help messages (make sure to synchronize these with the keyboard input handler)
+			if (FollowsNonLocalPlayer(cameraMode)) {
+				if (HasTargetPlayer(cameraMode)) {
 				addLine(_Tr("Client", "Following {0} [#{1}]",
 					  world->GetPlayerName(playerId), playerId));
+
+					int secs = (int)camTarget.GetTimeToRespawn();
+					if (secs > 0)
+						addLine(_Tr("Client", "Respawning in: {0}", secs));
 			}
 
 			y += lh * 0.5F;
 
-			// Help messages (make sure to synchronize these with the keyboard input handler)
-			if (FollowsNonLocalPlayer(cameraMode)) {
-				if (GetCameraTargetPlayer().IsAlive())
+				if (camTarget.IsAlive())
 					addLine(_Tr("Client", "[{0}] Cycle camera mode", TrKey(cg_keyJump)));
 
 				addLine(_Tr("Client", "[{0}/{1}] Next/Prev player",
