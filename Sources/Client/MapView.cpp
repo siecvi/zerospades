@@ -515,33 +515,28 @@ namespace spades {
 			Handle<IImage> intelIcon = renderer.RegisterImage("Gfx/Map/Intel.png");
 			stmp::optional<IGameMode&> mode = world->GetMode();
 			if (mode && mode->ModeType() == IGameMode::m_CTF) {
-				CTFGameMode& ctf = dynamic_cast<CTFGameMode&>(*mode);
+				auto& ctf = dynamic_cast<CTFGameMode&>(mode.value());
 				for (int tId = 0; tId < 2; tId++) {
-					CTFGameMode::Team& team = ctf.GetTeam(tId);
+					CTFGameMode::Team& team1 = ctf.GetTeam(tId);
+					CTFGameMode::Team& team2 = ctf.GetTeam(1 - tId);
 
 					// draw base
 					Vector4 teamColorF = ModifyColor(world->GetTeamColor(tId)) * alpha;
-					DrawIcon(team.basePos, *baseIcon, teamColorF);
+					DrawIcon(team1.basePos, *baseIcon, teamColorF);
 
 					// draw both flags
-					if (!ctf.GetTeam(1 - tId).hasIntel) {
-						DrawIcon(team.flagPos, *intelIcon, teamColorF);
-					} else if (localPlayer.GetTeamId() == (1 - tId)) {
-						// local player's team is carrying
-						int pId = ctf.GetTeam(1 - tId).carrierId;
-
-						// in some game modes, carrier becomes invalid
-						if (pId < static_cast<int>(world->GetNumPlayerSlots())) {
-							auto carrier = world->GetPlayer(pId);
-							if (carrier && carrier->IsTeammate(localPlayer)) {
-								float pulse = std::max(0.5F, fabsf(sinf(world->GetTime() * 4.0F)));
-								DrawIcon(carrier->GetPosition(), *intelIcon, teamColorF * pulse);
-							}
+					if (team2.hasIntel) {
+						stmp::optional<Player&> carrier = world->GetPlayer(team2.carrierId);
+						if (carrier && (localPlayerIsSpectator || carrier->IsTeammate(localPlayer))) {
+							float pulse = std::max(0.5F, fabsf(sinf(world->GetTime() * 4.0F)));
+							DrawIcon(carrier->GetPosition(), *intelIcon, teamColorF * pulse);
 						}
+					} else {
+						DrawIcon(team1.flagPos, *intelIcon, teamColorF);
 					}
 				}
 			} else if (mode && mode->ModeType() == IGameMode::m_TC) {
-				TCGameMode& tc = dynamic_cast<TCGameMode&>(*mode);
+				auto& tc = dynamic_cast<TCGameMode&>(mode.value());
 				for (int i = 0; i < tc.GetNumTerritories(); i++) {
 					TCGameMode::Territory& t = tc.GetTerritory(i);
 					IntVector3 teamColor = (t.ownerTeamId >= NEUTRAL_TEAM)
