@@ -1076,43 +1076,43 @@ namespace spades {
 
 						int mode = r.ReadByte();
 						if (mode == CTFGameMode::m_CTF) { // CTF
-							auto mode = stmp::make_unique<CTFGameMode>();
+							auto ctf = stmp::make_unique<CTFGameMode>();
 
-							CTFGameMode::Team& mt1 = mode->GetTeam(0);
-							CTFGameMode::Team& mt2 = mode->GetTeam(1);
+							CTFGameMode::Team& team1 = ctf->GetTeam(0);
+							CTFGameMode::Team& team2 = ctf->GetTeam(1);
 
-							mt1.score = r.ReadByte();
-							mt2.score = r.ReadByte();
-							mode->SetCaptureLimit(r.ReadByte());
+							team1.score = r.ReadByte();
+							team2.score = r.ReadByte();
+							ctf->SetCaptureLimit(r.ReadByte());
 
 							int intelFlags = r.ReadByte();
-							mt1.hasIntel = (intelFlags & 1) != 0;
-							mt2.hasIntel = (intelFlags & 2) != 0;
+							team1.hasIntel = (intelFlags & 1) != 0;
+							team2.hasIntel = (intelFlags & 2) != 0;
 
-							if (mt2.hasIntel) {
-								mt1.carrierId = r.ReadByte();
+							if (team2.hasIntel) {
+								team2.carrierId = r.ReadByte();
 								r.ReadData(11);
 							} else {
-								mt1.flagPos = r.ReadVector3();
+								team1.flagPos = r.ReadVector3();
 							}
 
-							if (mt1.hasIntel) {
-								mt2.carrierId = r.ReadByte();
+							if (team1.hasIntel) {
+								team1.carrierId = r.ReadByte();
 								r.ReadData(11);
 							} else {
-								mt2.flagPos = r.ReadVector3();
+								team2.flagPos = r.ReadVector3();
 							}
 
-							mt1.basePos = r.ReadVector3();
-							mt2.basePos = r.ReadVector3();
+							team1.basePos = r.ReadVector3();
+							team2.basePos = r.ReadVector3();
 
-							GetWorld()->SetMode(std::move(mode));
+							GetWorld()->SetMode(std::move(ctf));
 						} else { // TC
-							auto mode = stmp::make_unique<TCGameMode>(*GetWorld());
+							auto tc = stmp::make_unique<TCGameMode>(*GetWorld());
 
 							int trNum = r.ReadByte();
 							for (int i = 0; i < trNum; i++) {
-								TCGameMode::Territory t{*mode};
+								TCGameMode::Territory t{*tc};
 								t.pos = r.ReadVector3();
 
 								int state = r.ReadByte();
@@ -1121,10 +1121,10 @@ namespace spades {
 								t.progressStartTime = 0.0F;
 								t.progressRate = 0.0F;
 								t.capturingTeamId = -1;
-								mode->AddTerritory(t);
+								tc->AddTerritory(t);
 							}
 
-							GetWorld()->SetMode(std::move(mode));
+							GetWorld()->SetMode(std::move(tc));
 						}
 						client->JoinedGame();
 					}
