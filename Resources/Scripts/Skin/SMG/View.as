@@ -23,9 +23,10 @@ namespace spades {
 		private AudioDevice@ audioDevice;
 		private Model@ gunModel;
 		private Model@ magazineModel;
-		private Model@ sightModel1;
-		private Model@ sightModel2;
-		private Model@ sightModel3;
+		private Model@ rearSightModel;
+		private Model@ frontSightModel;
+		private Model@ frontPinSightModel;
+		private Model@ dotSightModel;
 
 		private AudioChunk@[] fireSounds(4);
 		private AudioChunk@ fireFarSound;
@@ -176,14 +177,15 @@ namespace spades {
 		ViewSMGSkin(Renderer@ r, AudioDevice@ dev) {
 			super(r);
 			@audioDevice = dev;
-			
+
 			// load models
 			@gunModel = renderer.RegisterModel("Models/Weapons/SMG/WeaponNoMagazine.kv6");
 			@magazineModel = renderer.RegisterModel("Models/Weapons/SMG/Magazine.kv6");
-			@sightModel1 = renderer.RegisterModel("Models/Weapons/SMG/Sight1.kv6");
-			@sightModel2 = renderer.RegisterModel("Models/Weapons/SMG/Sight2.kv6");
-			@sightModel3 = renderer.RegisterModel("Models/Weapons/SMG/Sight3.kv6");
-			
+			@rearSightModel = renderer.RegisterModel("Models/Weapons/SMG/RearSight.kv6");
+			@frontSightModel = renderer.RegisterModel("Models/Weapons/SMG/FrontSight.kv6");
+			@frontPinSightModel = renderer.RegisterModel("Models/Weapons/SMG/FrontPinSight.kv6");
+			@dotSightModel = renderer.RegisterModel("Models/Weapons/SMG/DotSight.kv6");
+
 			// load sounds
 			@fireSounds[0] = dev.RegisterSound("Sounds/Weapons/SMG/V2Local1.opus");
 			@fireSounds[1] = dev.RegisterSound("Sounds/Weapons/SMG/V2Local2.opus");
@@ -200,7 +202,7 @@ namespace spades {
 			@fireLargeReverbSounds[2] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceLarge3.opus");
 			@fireLargeReverbSounds[3] = dev.RegisterSound("Sounds/Weapons/SMG/V2AmbienceLarge4.opus");
 			@reloadSound = dev.RegisterSound("Sounds/Weapons/SMG/ReloadLocal.opus");
-			
+
 			// load images
 			@scopeImage = renderer.RegisterImage("Gfx/SMG.png");
 
@@ -273,12 +275,12 @@ namespace spades {
 					? fireSmallReverbSounds[GetRandom(fireSmallReverbSounds.length)]
 					: fireLargeReverbSounds[GetRandom(fireLargeReverbSounds.length)],
 					origin, param);
-					
+
 				param.referenceDistance = 4.0F;
-                param.volume = 1.0F;
-                audioDevice.PlayLocal(fireFarSound, origin, param);
-                param.referenceDistance = 1.0F;
-                audioDevice.PlayLocal(fireStereoSound, origin, param);
+				param.volume = 1.0F;
+				audioDevice.PlayLocal(fireFarSound, origin, param);
+				param.referenceDistance = 1.0F;
+				audioDevice.PlayLocal(fireStereoSound, origin, param);
 			}
 
 			recoilVerticalSpring.velocity += 0.75;
@@ -319,8 +321,8 @@ namespace spades {
 			mat = CreateTranslateMatrix(Vector3(0.1F, -0.3F, 0.1F) * raiseSpring.position * sp) * mat;
 
 			// recoil animation
-            Vector3 recoilRot(0, 0, 0);
-            recoilRot.x = -1.0F * recoilVerticalSpring.position;
+			Vector3 recoilRot(0, 0, 0);
+			recoilRot.x = -1.0F * recoilVerticalSpring.position;
 			recoilRot.y = 0.3F * recoilRotationSpring.position;
 			recoilRot.z = 0.3F * recoilRotationSpring.position;
 			Vector3 recoilOffset = Vector3(0, 0, -0.1) * recoilVerticalSpring.position * sp;
@@ -340,7 +342,7 @@ namespace spades {
 			mat = mat * CreateEulerAnglesMatrix(swingRot * sp);
 
 			Vector3 pivot = Vector3(0.05F, 0.0F, 0.05F);
-			Vector3 sightPos = (frontSightAttachment - pivot) * globalScale;	
+			Vector3 sightPos = (frontSightAttachment - pivot) * globalScale;
 			mat = AdjustToAlignSight(mat, sightPos, AimDownSightStateSmooth);
 			mat = AdjustToReload(mat);
 
@@ -378,26 +380,27 @@ namespace spades {
 			param.matrix = weapMatrix;
 			renderer.AddModel(gunModel, param);
 
-			// draw sights
-			param.matrix = weapMatrix
-				* CreateTranslateMatrix(frontSightAttachment)
-				* CreateScaleMatrix(frontSightScale);
-			renderer.AddModel(sightModel1, param); // front
-
-			param.matrix = weapMatrix
-				* CreateTranslateMatrix(frontPinSightAttachment)
-				* CreateScaleMatrix(frontPinSightScale);
-			renderer.AddModel(sightModel3, param); // front pin
-
-			param.matrix = weapMatrix
-				* CreateTranslateMatrix(rearSightAttachment)
-				* CreateScaleMatrix(rearSightScale);
-			renderer.AddModel(sightModel2, param); // rear
-
 			// draw magazine
 			param.matrix = weapMatrix
 				* CreateTranslateMatrix(GetMagazineOffset());
 			renderer.AddModel(magazineModel, param);
+
+			// draw sights
+			param.matrix = weapMatrix
+				* CreateTranslateMatrix(rearSightAttachment)
+				* CreateScaleMatrix(rearSightScale);
+			renderer.AddModel(rearSightModel, param); // rear
+
+			param.matrix = weapMatrix
+				* CreateTranslateMatrix(frontSightAttachment)
+				* CreateScaleMatrix(frontSightScale);
+			renderer.AddModel(frontSightModel, param); // front
+
+			param.matrix = weapMatrix
+				* CreateTranslateMatrix(frontPinSightAttachment)
+				* CreateScaleMatrix(frontPinSightScale);
+			renderer.AddModel(frontPinSightModel, param); // front pin
+			renderer.AddModel(dotSightModel, param); // front pin (emissive)
 
 			LeftHandPosition = leftHand;
 			RightHandPosition = rightHand;

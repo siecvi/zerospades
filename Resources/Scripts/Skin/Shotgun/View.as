@@ -23,8 +23,9 @@ namespace spades {
 		private AudioDevice@ audioDevice;
 		private Model@ gunModel;
 		private Model@ pumpModel;
-		private Model@ sightModel1;
-		private Model@ sightModel2;
+		private Model@ rearSightModel;
+		private Model@ frontSightModel;
+		private Model@ dotSightModel;
 
 		private AudioChunk@ fireSound;
 		private AudioChunk@ fireFarSound;
@@ -186,12 +187,13 @@ namespace spades {
 		ViewShotgunSkin(Renderer@ r, AudioDevice@ dev) {
 			super(r);
 			@audioDevice = dev;
-			
+
 			// load models
 			@gunModel = renderer.RegisterModel("Models/Weapons/Shotgun/WeaponNoPump.kv6");
 			@pumpModel = renderer.RegisterModel("Models/Weapons/Shotgun/Pump.kv6");
-			@sightModel1 = renderer.RegisterModel("Models/Weapons/Shotgun/Sight1.kv6");
-			@sightModel2 = renderer.RegisterModel("Models/Weapons/Shotgun/Sight2.kv6");
+			@frontSightModel = renderer.RegisterModel("Models/Weapons/Shotgun/FrontSight.kv6");
+			@rearSightModel = renderer.RegisterModel("Models/Weapons/Shotgun/RearSight.kv6");
+			@dotSightModel = renderer.RegisterModel("Models/Weapons/Shotgun/DotSight.kv6");
 
 			// load sounds
 			@fireSound = dev.RegisterSound("Sounds/Weapons/Shotgun/FireLocal.opus");
@@ -201,7 +203,7 @@ namespace spades {
 			@fireLargeReverbSound = dev.RegisterSound("Sounds/Weapons/Shotgun/V2AmbienceLarge.opus");
 			@reloadSound = dev.RegisterSound("Sounds/Weapons/Shotgun/ReloadLocal.opus");
 			@cockSound = dev.RegisterSound("Sounds/Weapons/Shotgun/CockLocal.opus");
-			
+
 			// load images
 			@scopeImage = renderer.RegisterImage("Gfx/Shotgun.png");
 
@@ -275,8 +277,8 @@ namespace spades {
 					origin, param);
 
 				param.volume = 2.0F;
-                audioDevice.PlayLocal(fireFarSound, origin, param);
-                audioDevice.PlayLocal(fireStereoSound, origin, param);
+				audioDevice.PlayLocal(fireFarSound, origin, param);
+				audioDevice.PlayLocal(fireStereoSound, origin, param);
 			}
 
 			recoilVerticalSpring.velocity += 2.5;
@@ -325,8 +327,8 @@ namespace spades {
 			mat = CreateTranslateMatrix(Vector3(0.1F, -0.3F, 0.1F) * raiseSpring.position * sp) * mat;
 
 			// recoil animation
-            Vector3 recoilRot(0, 0, 0);
-            recoilRot.x = -1.0F * recoilVerticalSpring.position;
+			Vector3 recoilRot(0, 0, 0);
+			recoilRot.x = -1.0F * recoilVerticalSpring.position;
 			recoilRot.y = 0.3F * recoilRotationSpring.position;
 			recoilRot.z = 0.3F * recoilRotationSpring.position;
 			Vector3 recoilOffset = Vector3(0, 0, -0.1) * recoilVerticalSpring.position * sp;
@@ -384,21 +386,22 @@ namespace spades {
 			param.matrix = weapMatrix;
 			renderer.AddModel(gunModel, param);
 
-			// draw sights
-			param.matrix = weapMatrix
-				* CreateTranslateMatrix(rearSightAttachment)
-				* CreateScaleMatrix(rearSightScale);
-			renderer.AddModel(sightModel2, param); // rear
-
-			param.matrix = weapMatrix
-				* CreateTranslateMatrix(frontSightAttachment)
-				* CreateScaleMatrix(frontSightScale);
-			renderer.AddModel(sightModel1, param); // front pin
-
 			// draw pump
 			param.matrix = weapMatrix
 				* CreateTranslateMatrix(GetPumpOffset());
 			renderer.AddModel(pumpModel, param);
+
+			// draw sights
+			param.matrix = weapMatrix
+				* CreateTranslateMatrix(rearSightAttachment)
+				* CreateScaleMatrix(rearSightScale);
+			renderer.AddModel(rearSightModel, param); // rear
+
+			param.matrix = weapMatrix
+				* CreateTranslateMatrix(frontSightAttachment)
+				* CreateScaleMatrix(frontSightScale);
+			renderer.AddModel(frontSightModel, param); // front pin
+			renderer.AddModel(dotSightModel, param); // front pin (emissive)
 
 			LeftHandPosition = leftHand;
 			RightHandPosition = rightHand;
