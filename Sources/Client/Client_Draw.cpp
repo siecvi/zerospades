@@ -806,7 +806,7 @@ namespace spades {
 			addLine(_Tr("Client", "Melee Kills: {0}", meleeKills));
 			addLine(_Tr("Client", "Grenade Kills: {0}", grenadeKills));
 
-			if (cg_playerStatsShowPlacedBlocks)
+			if (cg_playerStatsShowPlacedBlocks && !net->GetGameProperties()->isGameModeArena)
 				addLine(_Tr("Client", "Blocks Placed: {0}", placedBlocks).c_str());
 		}
 
