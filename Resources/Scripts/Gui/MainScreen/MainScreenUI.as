@@ -38,7 +38,7 @@ namespace spades {
 		private float time = -1.0F;
 
 		private ConfigItem cg_playerName("cg_playerName");
-		private ConfigItem cg_playerNameIsSet("cg_playerNameIsSet", "0");
+		private ConfigItem cg_playerNameIsSet("cg_playerNameIsSet");
 
 		MainScreenUI(Renderer@ renderer, AudioDevice@ audioDevice, FontManager@ fontManager, MainScreenHelper@ helper) {
 			@this.renderer = renderer;
@@ -56,7 +56,8 @@ namespace spades {
 			manager.RootElement.AddChild(mainMenu);
 
 			// Let the new player choose their IGN
-			if (cg_playerName.StringValue != "" and cg_playerName.StringValue != "Deuce")
+			string nameStr = cg_playerName.StringValue;
+			if (nameStr != "" and nameStr != "Deuce")
 				cg_playerNameIsSet.IntValue = 1;
 			if (not cg_playerNameIsSet.BoolValue) {
 				CreateProfileScreen al(mainMenu, fontManager);

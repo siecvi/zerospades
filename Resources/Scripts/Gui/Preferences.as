@@ -553,33 +553,33 @@ namespace spades {
     }
 
     class ConfigTarget : spades::ui::UIElement {
-        private ConfigItem cg_target("cg_target", "1");
-        private ConfigItem cg_targetLines("cg_targetLines", "1");
-        private ConfigItem cg_targetColor("cg_targetColor", "0");
-        private ConfigItem cg_targetColorR("cg_targetColorR", "255");
-        private ConfigItem cg_targetColorG("cg_targetColorG", "255");
-        private ConfigItem cg_targetColorB("cg_targetColorB", "255");
-        private ConfigItem cg_targetAlpha("cg_targetAlpha", "255");
-        private ConfigItem cg_targetGap("cg_targetGap", "4");
-        private ConfigItem cg_targetSizeHorizontal("cg_targetSizeHorizontal", "5");
-        private ConfigItem cg_targetSizeVertical("cg_targetSizeVertical", "5");
-        private ConfigItem cg_targetThickness("cg_targetThickness", "1");
-        private ConfigItem cg_targetTStyle("cg_targetTStyle", "0");
-        private ConfigItem cg_targetDot("cg_targetDot", "0");
-        private ConfigItem cg_targetDotColorR("cg_targetDotColorR", "255");
-        private ConfigItem cg_targetDotColorG("cg_targetDotColorG", "255");
-        private ConfigItem cg_targetDotColorB("cg_targetDotColorB", "255");
-        private ConfigItem cg_targetDotAlpha("cg_targetDotAlpha", "255");
-        private ConfigItem cg_targetDotThickness("cg_targetDotThickness", "1");
-        private ConfigItem cg_targetOutline("cg_targetOutline", "1");
-        private ConfigItem cg_targetOutlineColorR("cg_targetOutlineColorR", "0");
-        private ConfigItem cg_targetOutlineColorG("cg_targetOutlineColorG", "0");
-        private ConfigItem cg_targetOutlineColorB("cg_targetOutlineColorB", "0");
-        private ConfigItem cg_targetOutlineAlpha("cg_targetOutlineAlpha", "255");
-        private ConfigItem cg_targetOutlineThickness("cg_targetOutlineThickness", "1");
-        private ConfigItem cg_targetOutlineRoundedStyle("cg_targetOutlineRoundedStyle", "0");
-        private ConfigItem cg_targetDynamic("cg_targetDynamic", "1");
-        private ConfigItem cg_targetDynamicSplitDist("cg_targetDynamicSplitdist", "7");
+        private ConfigItem cg_target("cg_target");
+        private ConfigItem cg_targetLines("cg_targetLines");
+        private ConfigItem cg_targetColor("cg_targetColor");
+        private ConfigItem cg_targetColorR("cg_targetColorR");
+        private ConfigItem cg_targetColorG("cg_targetColorG");
+        private ConfigItem cg_targetColorB("cg_targetColorB");
+        private ConfigItem cg_targetAlpha("cg_targetAlpha");
+        private ConfigItem cg_targetGap("cg_targetGap");
+        private ConfigItem cg_targetSizeHorizontal("cg_targetSizeHorizontal");
+        private ConfigItem cg_targetSizeVertical("cg_targetSizeVertical");
+        private ConfigItem cg_targetThickness("cg_targetThickness");
+        private ConfigItem cg_targetTStyle("cg_targetTStyle");
+        private ConfigItem cg_targetDot("cg_targetDot");
+        private ConfigItem cg_targetDotColorR("cg_targetDotColorR");
+        private ConfigItem cg_targetDotColorG("cg_targetDotColorG");
+        private ConfigItem cg_targetDotColorB("cg_targetDotColorB");
+        private ConfigItem cg_targetDotAlpha("cg_targetDotAlpha");
+        private ConfigItem cg_targetDotThickness("cg_targetDotThickness");
+        private ConfigItem cg_targetOutline("cg_targetOutline");
+        private ConfigItem cg_targetOutlineColorR("cg_targetOutlineColorR");
+        private ConfigItem cg_targetOutlineColorG("cg_targetOutlineColorG");
+        private ConfigItem cg_targetOutlineColorB("cg_targetOutlineColorB");
+        private ConfigItem cg_targetOutlineAlpha("cg_targetOutlineAlpha");
+        private ConfigItem cg_targetOutlineThickness("cg_targetOutlineThickness");
+        private ConfigItem cg_targetOutlineRoundedStyle("cg_targetOutlineRoundedStyle");
+        private ConfigItem cg_targetDynamic("cg_targetDynamic");
+        private ConfigItem cg_targetDynamicSplitDist("cg_targetDynamicSplitdist");
 
         ConfigTarget(spades::ui::UIManager@ manager) {
             super(manager);
@@ -643,6 +643,9 @@ namespace spades {
             Vector2 size = Size;
             Vector2 center = pos + size * 0.5F;
 
+			TargetParam param;
+			int targetType = cg_target.IntValue;
+
             IntVector3 col;
             switch (cg_targetColor.IntValue) {
                 case 1: col = IntVector3(250, 50, 50); break; // red
@@ -665,7 +668,7 @@ namespace spades {
             if (cg_target.BoolValue) {
                 float luminosity = color.x + color.y + color.z;
                 float opacity = 1.0F - luminosity;
-                if (cg_targetOutline.BoolValue and cg_target.IntValue == 2)
+                if (cg_targetOutline.BoolValue and targetType == 2)
                     r.ColorNP = Vector4(0.6F, 0.6F, 0.6F, 0.9F);
                 else
                     r.ColorNP = Vector4(opacity, opacity, opacity, 0.6F);
@@ -679,13 +682,12 @@ namespace spades {
             r.DrawOutlinedRect(pos.x, pos.y, pos.x + size.x, pos.y + size.y);
 
             // draw target
-            if (cg_target.IntValue == 1) { // draw default target
+            if (targetType == 1) { // draw default target
                 Image@ sightImage = r.RegisterImage("Gfx/Target.png");
                 Vector2 imgSize = Vector2(sightImage.Width, sightImage.Height);
                 r.ColorNP = color;
                 r.DrawImage(sightImage, center - (imgSize * 0.5F));
-            } else if (cg_target.IntValue == 2) { // draw custom target
-                TargetParam param;
+            } else if (targetType == 2) { // draw custom target
                 param.lineColor = color;
                 param.drawLines = cg_targetLines.BoolValue;
                 param.useTStyle = cg_targetTStyle.BoolValue;
@@ -724,33 +726,33 @@ namespace spades {
     }
 
     class ConfigScope : spades::ui::UIElement {
-        private ConfigItem cg_pngScope("cg_pngScope", "0");
-        private ConfigItem cg_scopeLines("cg_scopeLines", "1");
-        private ConfigItem cg_scopeColor("cg_scopeColor", "0");
-        private ConfigItem cg_scopeColorR("cg_scopeColorR", "255");
-        private ConfigItem cg_scopeColorG("cg_scopeColorG", "0");
-        private ConfigItem cg_scopeColorB("cg_scopeColorB", "255");
-        private ConfigItem cg_scopeAlpha("cg_scopeAlpha", "255");
-        private ConfigItem cg_scopeGap("cg_scopeGap", "4");
-        private ConfigItem cg_scopeSizeHorizontal("cg_scopeSizeHorizontal", "5");
-        private ConfigItem cg_scopeSizeVertical("cg_scopeSizeVertical", "5");
-        private ConfigItem cg_scopeThickness("cg_scopeThickness", "1");
-        private ConfigItem cg_scopeTStyle("cg_scopeTStyle", "0");
-        private ConfigItem cg_scopeDot("cg_scopeDot", "0");
-        private ConfigItem cg_scopeDotColorR("cg_scopeDotColorR", "0");
-        private ConfigItem cg_scopeDotColorG("cg_scopeDotColorG", "0");
-        private ConfigItem cg_scopeDotColorB("cg_scopeDotColorB", "0");
-        private ConfigItem cg_scopeDotAlpha("cg_scopeDotAlpha", "255");
-        private ConfigItem cg_scopeDotThickness("cg_scopeDotThickness", "1");
-        private ConfigItem cg_scopeOutline("cg_scopeOutline", "1");
-        private ConfigItem cg_scopeOutlineColorR("cg_scopeOutlineColorR", "0");
-        private ConfigItem cg_scopeOutlineColorG("cg_scopeOutlineColorG", "0");
-        private ConfigItem cg_scopeOutlineColorB("cg_scopeOutlineColorB", "0");
-        private ConfigItem cg_scopeOutlineAlpha("cg_scopeOutlineAlpha", "255");
-        private ConfigItem cg_scopeOutlineThickness("cg_scopeOutlineThickness", "1");
-        private ConfigItem cg_scopeOutlineRoundedStyle("cg_scopeOutlineRoundedStyle", "0");
-        private ConfigItem cg_scopeDynamic("cg_scopeDynamic", "1");
-        private ConfigItem cg_scopeDynamicSplitDist("cg_scopeDynamicSplitdist", "7");
+        private ConfigItem cg_pngScope("cg_pngScope");
+        private ConfigItem cg_scopeLines("cg_scopeLines");
+        private ConfigItem cg_scopeColor("cg_scopeColor");
+        private ConfigItem cg_scopeColorR("cg_scopeColorR");
+        private ConfigItem cg_scopeColorG("cg_scopeColorG");
+        private ConfigItem cg_scopeColorB("cg_scopeColorB");
+        private ConfigItem cg_scopeAlpha("cg_scopeAlpha");
+        private ConfigItem cg_scopeGap("cg_scopeGap");
+        private ConfigItem cg_scopeSizeHorizontal("cg_scopeSizeHorizontal");
+        private ConfigItem cg_scopeSizeVertical("cg_scopeSizeVertical");
+        private ConfigItem cg_scopeThickness("cg_scopeThickness");
+        private ConfigItem cg_scopeTStyle("cg_scopeTStyle");
+        private ConfigItem cg_scopeDot("cg_scopeDot");
+        private ConfigItem cg_scopeDotColorR("cg_scopeDotColorR");
+        private ConfigItem cg_scopeDotColorG("cg_scopeDotColorG");
+        private ConfigItem cg_scopeDotColorB("cg_scopeDotColorB");
+        private ConfigItem cg_scopeDotAlpha("cg_scopeDotAlpha");
+        private ConfigItem cg_scopeDotThickness("cg_scopeDotThickness");
+        private ConfigItem cg_scopeOutline("cg_scopeOutline");
+        private ConfigItem cg_scopeOutlineColorR("cg_scopeOutlineColorR");
+        private ConfigItem cg_scopeOutlineColorG("cg_scopeOutlineColorG");
+        private ConfigItem cg_scopeOutlineColorB("cg_scopeOutlineColorB");
+        private ConfigItem cg_scopeOutlineAlpha("cg_scopeOutlineAlpha");
+        private ConfigItem cg_scopeOutlineThickness("cg_scopeOutlineThickness");
+        private ConfigItem cg_scopeOutlineRoundedStyle("cg_scopeOutlineRoundedStyle");
+        private ConfigItem cg_scopeDynamic("cg_scopeDynamic");
+        private ConfigItem cg_scopeDynamicSplitDist("cg_scopeDynamicSplitdist");
 
         ConfigScope(spades::ui::UIManager@ manager) {
             super(manager);
@@ -814,6 +816,9 @@ namespace spades {
             Vector2 size = Size;
             Vector2 center = pos + size * 0.5F;
 
+			TargetParam param;
+			int scopeType = cg_pngScope.IntValue;
+
             IntVector3 col;
             col.x = cg_scopeColorR.IntValue;
             col.y = cg_scopeColorG.IntValue;
@@ -823,14 +828,14 @@ namespace spades {
             color.w = Clamp(cg_scopeAlpha.IntValue, 0, 255) / 255.0F;
 
             // draw preview background
-            if (cg_pngScope.IntValue >= 2) {
+            if (scopeType >= 2) {
                 float luminosity = color.x + color.y + color.z;
                 float opacity = 1.0F - luminosity;
-                if (cg_scopeOutline.BoolValue and cg_pngScope.IntValue == 3)
+                if (cg_scopeOutline.BoolValue and scopeType == 3)
                     r.ColorNP = Vector4(0.6F, 0.6F, 0.6F, 0.9F);
                 else
                     r.ColorNP = Vector4(opacity, opacity, opacity, 0.6F);
-            } else if (cg_pngScope.IntValue < 2) {
+            } else if (scopeType < 2) {
                 r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 0.6F);
             }
             r.DrawImage(null, AABB2(pos.x, pos.y, size.x, size.y));
@@ -840,13 +845,12 @@ namespace spades {
             r.DrawOutlinedRect(pos.x, pos.y, pos.x + size.x, pos.y + size.y);
 
             // draw target
-            if (cg_pngScope.IntValue == 2) { // draw dot png scope
+            if (scopeType == 2) { // draw dot png scope
                 Image@ dotSightImage = r.RegisterImage("Gfx/DotSight.tga");
                 Vector2 imgSize = Vector2(dotSightImage.Width, dotSightImage.Height);
                 r.ColorNP = color;
                 r.DrawImage(dotSightImage, center - (imgSize * 0.5F));
-            } else if (cg_pngScope.IntValue == 3) { // draw custom target scope
-                TargetParam param;
+            } else if (scopeType == 3) { // draw custom target scope
                 param.lineColor = color;
                 param.drawLines = cg_scopeLines.BoolValue;
                 param.useTStyle = cg_scopeTStyle.BoolValue;
@@ -1186,7 +1190,21 @@ namespace spades {
             45, 90, 1, ConfigNumberFormatter(0, "°"));
             layouter.AddToggleField(_Tr("Preferences", "Horizontal FOV"), "cg_horizontalFov");
             layouter.AddToggleField(_Tr("Preferences", "Classic Zoom"), "cg_classicZoom");
-            layouter.AddChoiceField(_Tr("Preferences", "Show Alive Player Count"), "cg_hudPlayerCount",
+            layouter.AddToggleField(_Tr("Preferences", "Debug Hit Detection"), "cg_debugHitTest");
+            layouter.AddSliderField(_Tr("Preferences", "Hit Test Debugger Size"), "cg_dbgHitTestSize",
+            64, 256, 8, ConfigNumberFormatter(0, "px"));
+            layouter.AddControl(_Tr("Preferences", "Toggle Hit Test Zoom"), "cg_keyToggleHitTestZoom");
+            layouter.AddToggleField(_Tr("Preferences", "Debug Weapon Spread"), "cg_debugAim");
+            layouter.AddToggleField(_Tr("Preferences", "Classic Viewmodel"), "cg_classicViewWeapon");
+            layouter.AddToggleField(_Tr("Preferences", "Default Player Models"), "cg_defaultPlayerModels");
+
+			layouter.AddHeading(_Tr("Preferences", "Heads-Up Display"));
+            layouter.AddToggleField(_Tr("Preferences", "Hide HUD"), "cg_hideHud");
+			layouter.AddChoiceField(_Tr("Preferences", "HUD Ammo Style"), "cg_hudAmmoStyle",
+                                    array<string> = {_Tr("Preferences", "NORMAL"),
+                                                     _Tr("Preferences", "SIMPLE")},
+                                    array<int> = {0, 1});
+			layouter.AddChoiceField(_Tr("Preferences", "Show Alive Player Count"), "cg_hudPlayerCount",
                                     array<string> = {_Tr("Preferences", "OFF"),
                                                      _Tr("Preferences", "Top"),
                                                      _Tr("Preferences", "Bottom")},
@@ -1197,16 +1215,22 @@ namespace spades {
                                                      _Tr("Preferences", "Bottom")},
                                     array<int> = {0, 2, 1});
             layouter.AddToggleField(_Tr("Preferences", "Show Player Statistics"), "cg_playerStats");
-            layouter.AddToggleField(_Tr("Preferences", "Show Placed Blocks"), "cg_playerStatsShowPlacedBlocks");
-            layouter.AddSliderField(_Tr("Preferences", "Player Statistics Height"), "cg_playerStatsHeight",
+			layouter.AddToggleField(_Tr("Preferences", "Show Placed Blocks"), "cg_playerStatsShowPlacedBlocks");
+            layouter.AddSliderGroup(_Tr("Preferences", "HUD Edge Positions"),
+            array<string> = { "cg_hudSafezoneX", "cg_hudSafezoneY"},
+            0.2, 1, 0.01, 2, array<string> = { "X: ", "Y: "});
+            layouter.AddSliderField(_Tr("Preferences", "HUD Color"), "cg_hudColor",
+            0, 10, 1, ConfigHUDColorFormatter());
+            layouter.AddRGBSlider(_Tr("Preferences", "Custom Color"),
+            array<string> = { "cg_hudColorR", "cg_hudColorG", "cg_hudColorB"});
+            layouter.AddSliderField(_Tr("Preferences", "Chat Height"), "cg_chatHeight",
+            10, 100, 1, ConfigNumberFormatter(0, "px"));
+            layouter.AddSliderField(_Tr("Preferneces", "Killfeed Height"), "cg_killfeedHeight",
+            10, 100, 1, ConfigNumberFormatter(0, "px"));
+			layouter.AddSliderField(_Tr("Preferences", "Player Statistics Height"), "cg_playerStatsHeight",
             0, 100, 1, ConfigNumberFormatter(0, "px"));
-            layouter.AddToggleField(_Tr("Preferences", "Debug Hit Detection"), "cg_debugHitTest");
-            layouter.AddSliderField(_Tr("Preferences", "Hit Test Debugger Size"), "cg_dbgHitTestSize",
-            64, 256, 8, ConfigNumberFormatter(0, "px"));
-            layouter.AddControl(_Tr("Preferences", "Toggle Hit Test Zoom"), "cg_keyToggleHitTestZoom");
-            layouter.AddToggleField(_Tr("Preferences", "Debug Weapon Spread"), "cg_debugAim");
-            layouter.AddToggleField(_Tr("Preferences", "Classic Viewmodel"), "cg_classicViewWeapon");
-            layouter.AddToggleField(_Tr("Preferences", "Default Player Models"), "cg_defaultPlayerModels");
+            layouter.AddToggleField(_Tr("Preferences", "Small HUD Font"),
+                "cg_smallFont", not options.GameActive);
 
             layouter.AddHeading(_Tr("Preferences", "Minimap"));
             layouter.AddSliderField(_Tr("Preferences", "Minimap Size"), "cg_minimapSize",
@@ -1219,22 +1243,6 @@ namespace spades {
                                                      _Tr("Preferences", "Side")},
                                     array<int> = {0, 1, 2});
             layouter.AddToggleField(_Tr("Preferences", "Show Player Names"), "cg_minimapPlayerNames");
-
-            layouter.AddHeading(_Tr("Preferences", "Heads-Up Display"));
-            layouter.AddToggleField(_Tr("Preferences", "Hide HUD"), "cg_hideHud");
-            layouter.AddSliderGroup(_Tr("Preferences", "HUD Edge Positions"),
-            array<string> = { "cg_hudSafezoneX", "cg_hudSafezoneY"},
-            0.2, 1, 0.01, 2, array<string> = { "X: ", "Y: "});
-            layouter.AddSliderField(_Tr("Preferences", "HUD Color"), "cg_hudColor",
-            0, 10, 1, ConfigHUDColorFormatter());
-            layouter.AddRGBSlider(_Tr("Preferences", "Custom Color"),
-            array<string> = { "cg_hudColorR", "cg_hudColorG", "cg_hudColorB"});
-            layouter.AddSliderField(_Tr("Preferences", "Chat Height"), "cg_chatHeight",
-            10, 100, 1, ConfigNumberFormatter(0, "px"));
-            layouter.AddSliderField(_Tr("Preferneces", "Killfeed Height"), "cg_killfeedHeight",
-            10, 100, 1, ConfigNumberFormatter(0, "px"));
-            layouter.AddToggleField(_Tr("Preferences", "Small HUD Font"),
-                "cg_smallFont", not options.GameActive);
 
             layouter.AddHeading(_Tr("Preferences", "Target"));
             layouter.AddTargetPreview();

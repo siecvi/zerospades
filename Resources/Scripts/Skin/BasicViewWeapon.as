@@ -350,6 +350,8 @@ namespace spades {
             Vector2 scrCenter = Vector2(sw, sh) * 0.5F;
 
             TargetParam param;
+			int targetType = cg_target.IntValue;
+			int scopeType = cg_pngScope.IntValue;
 
             // draw scope
             if (AimDownSightStateSmooth > 0.99F) {
@@ -361,7 +363,7 @@ namespace spades {
                 Vector4 color = ConvertColorRGBA(col);
                 color.w = Clamp(cg_scopeAlpha.IntValue, 0, 255) / 255.0F;
 
-                if (cg_pngScope.IntValue == 1) { // draw classic png scope
+                if (scopeType == 1) { // draw classic png scope
                     Vector2 imgSize = Vector2(scopeImage.Width, scopeImage.Height);
                     imgSize *= Max(1.0F, sw / 800.0F);
                     imgSize *= Min(1.0F, sh / 600.0F);
@@ -371,12 +373,12 @@ namespace spades {
 
                     renderer.ColorNP = Vector4(1.0F, 1.0F, 1.0F, color.w);
                     renderer.DrawImage(scopeImage, AABB2(imgPos.x, imgPos.y, imgSize.x, imgSize.y));
-                } else if (cg_pngScope.IntValue == 2) { // draw dot png scope
+                } else if (scopeType == 2) { // draw dot png scope
                     Vector2 imgSize = Vector2(dotSightImage.Width, dotSightImage.Height);
                     Vector2 imgPos = scrCenter - (imgSize * 0.5F);
                     renderer.ColorNP = color;
                     renderer.DrawImage(dotSightImage, imgPos);
-                } else if (cg_pngScope.IntValue == 3) { // draw custom crosshair scope
+                } else if (scopeType == 3) { // draw custom crosshair scope
                     param.lineColor = color;
                     param.drawLines = cg_scopeLines.BoolValue;
                     param.useTStyle = cg_scopeTStyle.BoolValue;
@@ -434,12 +436,12 @@ namespace spades {
             color.w = Clamp(cg_targetAlpha.IntValue, 0, 255) / 255.0F;
 
             // draw target
-            if (cg_target.IntValue == 1) { // draw default target
+            if (targetType == 1) { // draw default target
                 Vector2 imgSize = Vector2(sightImage.Width, sightImage.Height);
                 Vector2 imgPos = scrCenter - (imgSize * 0.5F);
                 renderer.ColorNP = color;
                 renderer.DrawImage(sightImage, imgPos);
-            } else if (cg_target.IntValue == 2) { // draw custom target
+            } else if (targetType == 2) { // draw custom target
                 param.lineColor = color;
                 param.drawLines = cg_targetLines.BoolValue;
                 param.useTStyle = cg_targetTStyle.BoolValue;
