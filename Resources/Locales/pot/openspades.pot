@@ -391,7 +391,7 @@ msgstr ""
 
 #: Resources/Scripts/Gui/ClientUI.as:484
 msgctxt "Client"
-msgid "Say"
+msgid "Send"
 msgstr ""
 
 #: Resources/Scripts/Gui/ClientUI.as:492
@@ -1129,6 +1129,11 @@ msgctxt "StartupScreen"
 msgid "Enables lens flare for light sources other than the Sun."
 msgstr ""
 
+#: Resources/Scripts/Gui/StartupScreen.as:1180
+msgctxt "StartupScreen"
+msgid "Color Correction"
+msgstr ""
+
 #: Resources/Scripts/Gui/StartupScreen.as:1181
 msgctxt "StartupScreen"
 msgid "Applies cinematic color correction to make the image look better."
@@ -1496,7 +1501,7 @@ msgstr ""
 
 #: Sources/Client/Client_Draw.cpp:729
 msgctxt "Client"
-msgid "Respawning in: {0}"
+msgid "You will respawn in: {0}"
 msgstr ""
 
 #: Sources/Client/Client_Draw.cpp:774
@@ -1521,7 +1526,7 @@ msgstr ""
 
 #: Sources/Client/Client_Update.cpp:906
 msgctxt "Client"
-msgid "You've killed {0}"
+msgid "You have killed {0}"
 msgstr ""
 
 #: Sources/Client/NetClient.cpp:694
@@ -1943,12 +1948,6 @@ msgctxt "StartupScreen"
 msgid "Volume"
 msgstr ""
 
-#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:530
-#: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:567
-msgctxt "StartupScreen"
-msgid ""
-msgstr ""
-
 #: Resources/Scripts/Gui/StartupScreen/ConfigViewTabs.as:638
 msgctxt "StartupScreen"
 msgid "Output Device"
@@ -2259,4 +2258,127 @@ msgctxt "StartupScreen"
 msgid ""
 "Vertical Sync:Synchronizes screen updates to a monitor's refresh rate.|Off|"
 "On|Adaptive"
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:771
+msgctxt "Client"
+msgid "K/D Ratio: {0}"
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:772
+msgctxt "Client"
+msgid "Kill Streak: {0}"
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:773
+msgctxt "Client"
+msgid "Best Streak: {0}"
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:774
+msgctxt "Client"
+msgid "Melee Kills: {0}"
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:775
+msgctxt "Client"
+msgid "Grenade Kills: {0}"
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:778
+msgctxt "Client"
+msgid "Blocks Placed: {0}"
+msgstr ""
+
+#: Sources/Client/Client_Update.cpp:1078
+msgctxt "Client"
+msgid "You hit {0} from: {1} blocks "
+msgstr ""
+
+#: Sources/Client/Client_Update.cpp:1093
+msgctxt "Client"
+msgid "TORSO"
+msgstr ""
+
+#: Sources/Client/Client_Update.cpp:1095
+msgctxt "Client"
+msgid "LIMB"
+msgstr ""
+
+#: Sources/Client/Client_Update.cpp:1096
+msgctxt "Client"
+msgid "MELEE"
+msgstr ""
+
+#: Sources/Client/Client_Update.cpp:1097
+msgctxt "Client"
+msgid "HEAD"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1189
+msgctxt "Preferences"
+msgid "Show Alive Player Count"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1191
+#: Resources/Scripts/Gui/Preferences.as:1196
+msgctxt "Preferences"
+msgid "Top"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1192
+#: Resources/Scripts/Gui/Preferences.as:1197
+#: Resources/Scripts/Gui/Preferences.as:1218
+msgctxt "Preferences"
+msgid "Bottom"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1216
+msgctxt "Preferences"
+msgid "Show Map Location"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1219
+msgctxt "Preferences"
+msgid "Side"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1221
+msgctxt "Preferences"
+msgid "Show Player Names"
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/MainMenu.as:65
+msgctxt "StartupScreen"
+msgid "GitHub Repository"
+msgstr ""
+
+#: Resources/Scripts/Gui/StartupScreen/MainMenu.as:127
+msgctxt "StartupScreen"
+msgid "An unknown error has occurred while opening this url."
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:965
+msgctxt "Client"
+msgid "[{0}] Toggle player names"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1211
+msgctxt "Preferences"
+msgid "HUD Ammo Style"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1213
+msgctxt "Preferences"
+msgid "SIMPLE"
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:958
+msgctxt "Client"
+msgid "Respawning in: {0}"
+msgstr ""
+
+#: Sources/Client/Client_Input.cpp:354
+msgctxt "Client"
+msgid "Volume: {0}%"
 msgstr ""

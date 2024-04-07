@@ -168,7 +168,7 @@ namespace spades {
 			}
 			{
 				spades::ui::Button button(Manager);
-				button.Caption = _Tr("Client", "Say");
+				button.Caption = _Tr("Client", "Send");
 				button.HotKeyText = "[Enter]";
 				button.Bounds = AABB2(winX + winW - 244.0F, winY + 36.0F, 120.0F, 30.0F);
 				@button.Activated = spades::ui::EventHandler(this.OnSay);

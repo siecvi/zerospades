@@ -526,7 +526,7 @@ namespace spades {
 
 				cfg.AddRow(StartupScreenConfigSliderItemEditor(
 					ui, StartupScreenConfig(ui, "s_volume"), 0, 100, 1,
-					_Tr("StartupScreen", "Volume"), _Tr("StartupScreen", ""),
+					_Tr("StartupScreen", "Volume"), "",
 					ConfigNumberFormatter(0, "%")));
 
 				cfg.AddRow(StartupScreenConfigSliderItemEditor(
@@ -555,7 +555,7 @@ namespace spades {
 
 				cfg.AddRow(StartupScreenConfigSliderItemEditor(
 					ui, StartupScreenConfig(ui, "s_volume"), 0, 100, 1,
-					_Tr("StartupScreen", "Volume"), _Tr("StartupScreen", ""),
+					_Tr("StartupScreen", "Volume"), "",
 					ConfigNumberFormatter(0, "%")));
 
 				cfg.AddRow(StartupScreenConfigSliderItemEditor(
