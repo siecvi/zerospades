@@ -145,24 +145,24 @@ namespace spades {
 					break;
 				case SDL_KEYDOWN:
 					if (!event.key.repeat) {
-							// Toggle fullscreen mode
+						// Toggle fullscreen mode
 						if (event.key.keysym.mod & KMOD_ALT &&
 						    event.key.keysym.sym == SDLK_RETURN) {
-								SDL_Window* window = SDL_GetWindowFromID(event.key.windowID);
+							SDL_Window* window = SDL_GetWindowFromID(event.key.windowID);
 
-								if (r_fullscreen) {
-									if (!SDL_SetWindowFullscreen(window, 0))
-										r_fullscreen = 0;
-									else
-										SPLog("Couldn't exit fullscreen mode: %s", SDL_GetError());
-								} else {
-									if (!SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN))
-										r_fullscreen = 1;
-									else
-										SPLog("Couldn't enter fullscreen mode: %s", SDL_GetError());
-								}
-								return;
+							if (r_fullscreen) {
+								if (!SDL_SetWindowFullscreen(window, 0))
+									r_fullscreen = 0;
+								else
+									SPLog("Couldn't exit fullscreen mode: %s", SDL_GetError());
+							} else {
+								if (!SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN))
+									r_fullscreen = 1;
+								else
+									SPLog("Couldn't enter fullscreen mode: %s", SDL_GetError());
 							}
+							return;
+						}
 
 						view.KeyEvent(TranslateKey(event.key.keysym), true);
 					}
@@ -469,8 +469,14 @@ namespace spades {
 					case RendererType::SW: sdlFlags = 0; break;
 				}
 
-				if (!m_hasSystemMenu)
-					sdlFlags |= r_fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
+				if (!m_hasSystemMenu) {
+					if (r_fullscreen)
+						sdlFlags |= SDL_WINDOW_FULLSCREEN;
+#ifdef __MACOSX__
+					if (!r_fullscreen)
+						sdlFlags |= SDL_WINDOW_BORDERLESS;
+#endif
+				}
 
 				SDL_Window* window = SDL_CreateWindow(caption.c_str(),
 					SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
