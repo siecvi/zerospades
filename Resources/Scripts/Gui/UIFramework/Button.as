@@ -165,6 +165,8 @@ namespace spades {
         }
 
         class SimpleButton : spades::ui::Button {
+			Vector4 TextColor = Vector4(1, 1, 1, 1);
+
             SimpleButton(spades::ui::UIManager@ manager) { super(manager); }
             void Render() {
                 Renderer@ r = Manager.Renderer;
@@ -186,15 +188,15 @@ namespace spades {
                 else
                     r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.03F);
                 r.DrawOutlinedRect(pos.x, pos.y, pos.x + size.x, pos.y + size.y);
-				
+
 				pos += Vector2(4.0F, 4.0F);
                 size -= Vector2(8.0F, 8.0F);
-				
+
 				Vector2 txtSize = Font.Measure(Caption);
 				Vector2 txtPos = pos + (size - txtSize) * Alignment;
-				
+
                 Font.DrawShadow(Caption, txtPos, 1.0F,
-					Vector4(1, 1, 1, 1), Vector4(0, 0, 0, 0.4F));
+					TextColor, Vector4(0, 0, 0, 0.4F));
             }
         }
 
@@ -288,7 +290,7 @@ namespace spades {
                 Font.DrawShadow(Caption, pos + (size - txtSize) * 0.5F + Vector2(8.0F, 0.0F), 1.0F,
                     Vector4(1, 1, 1, (Toggled and this.Enable) ? 1.0F : 0.4F),
 					Vector4(0, 0, 0, 0.4F));
-					
+
 				if (Toggled) {
 					r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, (Toggled and this.Enable) ? 0.6F : 0.3F);
 					r.DrawImage(null, AABB2(pos.x + 4.0F, pos.y + (size.y - 8.0F) * 0.5F, 8.0F, 8.0F));
@@ -312,40 +314,42 @@ namespace spades {
                 Vector2 size = Size;
 
 				Vector4 color = Vector4(0.2F, 0.2F, 0.2F, 0.5F);
-                if (Toggled or (Pressed and Hover))
-                    color = Vector4(0.7F, 0.7F, 0.7F, 0.9F);
-                else if (Hover)
-                    color = Vector4(0.4F, 0.4F, 0.4F, 0.7F);
 
-                if (not IsEnabled)
-                    color.w *= 0.5F;
+				if (IsEnabled) {
+					if (Toggled or (Pressed and Hover))
+						color = Vector4(0.7F, 0.7F, 0.7F, 0.9F);
+					else if (Hover)
+						color = Vector4(0.4F, 0.4F, 0.4F, 0.7F);
+				} else {
+					color.w *= 0.5F;
+				}
 
                 r.ColorNP = color;
                 r.DrawFilledRect(pos.x + 1, pos.y + 1, pos.x + size.x - 1, pos.y + size.y - 1);
 
-                r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 1.0F);
+                r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, color.w);
                 r.DrawOutlinedRect(pos.x + 1, pos.y + 1, pos.x + size.x - 1, pos.y + size.y - 1);
 
                 Font@ font = this.Font;
                 string text = this.Caption;
-                
+
                 pos += Vector2(8.0F, 8.0F);
                 size -= Vector2(16.0F, 16.0F);
-				
-				if (HotKeyText != "")
+
+				if (HotKeyText.length > 0)
 					Alignment = Vector2(0.0F, 0.5F);
-				
+
 				Vector2 txtSize = font.Measure(text);
-				Vector2 txtPos = pos + (size - txtSize) * Alignment;			
-				font.DrawShadow(text, txtPos, 1.0F, 
-					Vector4(1.0F, 1.0F, 1.0F, IsEnabled ? 1.0F : 0.5F), 
+				Vector2 txtPos = pos + (size - txtSize) * Alignment;
+				font.DrawShadow(text, txtPos, 1.0F,
+					Vector4(1.0F, 1.0F, 1.0F, IsEnabled ? 1.0F : 0.5F),
 					Vector4(0.0F, 0.0F, 0.0F, IsEnabled ? 0.4F : 0.1F));
-					
+
 				// TODO: use "FontManager::SmallFont" for this
                 txtSize = font.Measure(HotKeyText);
 				txtPos = pos + (size - txtSize) * HotKeyTextAlignment;
                 font.DrawShadow(HotKeyText, txtPos, 1.0F,
-					Vector4(1.0F, 1.0F, 1.0F, IsEnabled ? 0.6F : 0.3F), 
+					Vector4(1.0F, 1.0F, 1.0F, IsEnabled ? 0.6F : 0.3F),
 					Vector4(0.0F, 0.0F, 0.0F, IsEnabled ? 0.1F : 0.05F));
             }
         }

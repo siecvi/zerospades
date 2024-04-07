@@ -61,9 +61,20 @@ namespace spades {
 				AddChild(button);
 			}
 			{
+				spades::ui::SimpleButton button(Manager);
+				button.Caption = _Tr("StartupScreen", "GitHub Repository");
+				Vector2 size = Font.Measure(button.Caption);
+				button.Bounds = AABB2(sw - (size.x + 16.0F) - 22.0F, 55.0F, size.x + 16.0F, size.y);
+				button.TextColor = Vector4(0.1F, 0.7F, 1, 1);
+				@button.Activated = spades::ui::EventHandler(this.OnGithubRepositoryPressed);
+				AddChild(button);
+			}
+			
+			{
 				spades::ui::CheckBox button(Manager);
 				button.Caption = _Tr("StartupScreen", "Skip this screen next time");
-				button.Bounds = AABB2(360.0F, 50.0F, sw - 380.0F, 20.0F); // note: this is updated later soon
+				Vector2 size = Font.Measure(button.Caption);
+				button.Bounds = AABB2(8.0F, 45.0F, size.x + 16.0F, size.y);
 				AddChild(button);
 				@bypassStartupWindowCheck = button;
 				@button.Activated = spades::ui::EventHandler(this.OnBypassStartupWindowCheckChanged);
@@ -106,15 +117,19 @@ namespace spades {
 				tabStrip.AddItem(_Tr("StartupScreen", "System Info"), profileTab);
 				tabStrip.AddItem(_Tr("StartupScreen", "Advanced"), advancedTab);
 				@tabStrip.Changed = spades::ui::EventHandler(this.OnTabChanged);
-				
-				// Reposition the "Skip this screen next time" check box
-                spades::ui::UIElement @[] @tabStripItems = tabStrip.GetChildren();
-				float items = tabStripItems[tabStripItems.length - 1].Bounds.max.x;
-                float right = items + tabStrip.Bounds.min.x;
-                bypassStartupWindowCheck.Bounds = AABB2(right - 20.0F, 50.0F, sw - items, 20.0F);
 			}
 
 			LoadConfig();
+		}
+
+		private void OnGithubRepositoryPressed(spades::ui::UIElement@) {
+			if (helper.OpenLinkInBrowser("https://github.com/siecvi/zerospades"))
+				return;
+
+			string msg = _Tr("StartupScreen",
+							 "An unknown error has occurred while opening this url.");
+			AlertScreen al(Parent, msg, 100.0F);
+			al.Run();
 		}
 
 		private void OnTabChanged(spades::ui::UIElement@) {

@@ -90,7 +90,7 @@ namespace spades {
 			// draw title logo
 			Image@ img = renderer.RegisterImage("Gfx/Title/LogoSmall.png");
 			renderer.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 1.0F * fade);
-			renderer.DrawImage(img, AABB2(10.0F - img.Width * (1.0F - fade), 10.0F, img.Width, img.Height));
+			renderer.DrawImage(img, AABB2(10.0F - img.Width * (1.0F - fade), 2.0F, img.Width, img.Height));
 
 			manager.RunFrame(dt);
 			manager.Render();
