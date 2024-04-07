@@ -70,56 +70,7 @@ namespace spades {
 		void ChatWindow::AddMessage(const std::string& msg) {
 			SPADES_MARK_FUNCTION();
 
-			// get visible message string
-			std::string str;
-			float x = 0.0F, maxW = GetWidth();
-			float lh = GetLineHeight(), h = lh;
-			size_t wordStart = std::string::npos;
-			size_t wordStartOutPos = 0;
-
-			for (size_t i = 0; i < msg.size(); i++) {
-				if (msg[i] > MsgColorMax && msg[i] != 13 && msg[i] != 10) {
-					if (isWordChar(msg[i])) {
-						if (wordStart == std::string::npos) {
-							wordStart = msg.size();
-							wordStartOutPos = str.size();
-						}
-					} else {
-						wordStart = std::string::npos;
-					}
-
-					float w = font->Measure(std::string(&msg[i], 1)).x;
-					if (x + w > maxW) {
-						if (wordStart != std::string::npos && wordStart != str.size()) {
-							// adding a part of word.
-							// do word wrapping
-							std::string s = msg.substr(wordStart, i - wordStart + 1);
-							float nw = font->Measure(s).x;
-							if (nw <= maxW) { // word wrap succeeds
-								w = nw;
-								x = w;
-								h += lh;
-								str.insert(wordStartOutPos, "\n");
-
-								goto didWordWrap;
-							}
-						}
-						x = 0.0F;
-						h += lh;
-						str += 13;
-					}
-					x += w;
-					str += msg[i];
-				didWordWrap:;
-				} else if (msg[i] == 13 || msg[i] == 10) {
-					x = 0.0F;
-					h += lh;
-					str += 13;
-				} else {
-					str += msg[i];
-				}
-			}
-
+			float lh = GetLineHeight();
 			entries.push_front(ChatEntry(msg, lh, 15.0F));
 
 			firstY -= lh;
@@ -148,14 +99,14 @@ namespace spades {
 			World* w = client ? client->GetWorld() : NULL;
 			switch (c) {
 				case MsgColorTeam1:
-					return w ? ConvertColorRGBA(w->GetTeam(0).color) : MakeVector4(0, 1, 0, 1);
+					return w ? ConvertColorRGBA(w->GetTeamColor(0)) : MakeVector4(0, 1, 0, 1);
 				case MsgColorTeam2:
-					return w ? ConvertColorRGBA(w->GetTeam(1).color) : MakeVector4(0, 0, 1, 1);
+					return w ? ConvertColorRGBA(w->GetTeamColor(1)) : MakeVector4(0, 0, 1, 1);
 				case MsgColorTeam3:
-					return w ? ConvertColorRGBA(w->GetTeam(2).color) : MakeVector4(1, 1, 0, 1);
+					return w ? ConvertColorRGBA(w->GetTeamColor(2)) : MakeVector4(1, 1, 0, 1);
 				case MsgColorRed: return MakeVector4(1, 0, 0, 1);
 				case MsgColorGreen: return MakeVector4(0, 1, 0, 1);
-				case MsgColorGray: return MakeVector4(0.5, 0.5, 0.5, 1);
+				case MsgColorGray: return MakeVector4(0.8F, 0.8F, 0.8F, 1);
 				case MsgColorSysInfo: return MakeVector4(1, 1, 0.5, 1);
 				default: return MakeVector4(1, 1, 1, 1);
 			}
@@ -249,11 +200,11 @@ namespace spades {
 				if (fade < 0.01F)
 					goto endDrawLine; // Skip rendering invisible messages
 
-				brightShadowColor.w = shadowColor.w = 0.8F * fade;
+				brightShadowColor.w = shadowColor.w = (killfeed ? 0.4F : 0.8F) * fade;
 				color.w = fade;
 
 				for (size_t i = 0; i < msg.size(); i++) {
-					if (msg[i] == 13 || msg[i] == 10) {
+					if (msg[i] == '\r' || msg[i] == '\n') {
 						tx = 0.0F;
 						ty += lh;
 					} else if (msg[i] <= MsgColorMax && msg[i] >= 1) {
@@ -267,9 +218,17 @@ namespace spades {
 							ch[k] = msg[i + k];
 						i += ln - 1;
 
+						Vector2 pos = MakeVector2(tx + winX, ty + winY);
 						float luminosity = color.x + color.y + color.z;
-						font->DrawShadow(ch, MakeVector2(tx + winX, ty + winY), 1.0F,
-							color, (luminosity > 0.9F) ? shadowColor : brightShadowColor);
+						Vector4 shadow = (luminosity > 0.9F) ? shadowColor : brightShadowColor;
+
+						if (killfeed) {
+							font->DrawShadow(ch, pos + MakeVector2(1, 1), 1.0F, shadow, shadow);
+							font->Draw(ch, pos, 1.0F, color);
+						} else {
+							font->DrawShadow(ch, pos, 1.0F, color, shadow);
+						}
+
 						tx += font->Measure(ch).x;
 					}
 				}

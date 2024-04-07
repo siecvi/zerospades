@@ -145,9 +145,9 @@ namespace spades {
 					break;
 				case SDL_KEYDOWN:
 					if (!event.key.repeat) {
-						if (event.key.keysym.mod & KMOD_ALT) {
 							// Toggle fullscreen mode
-							if (event.key.keysym.sym == SDLK_RETURN) {
+						if (event.key.keysym.mod & KMOD_ALT &&
+						    event.key.keysym.sym == SDLK_RETURN) {
 								SDL_Window* window = SDL_GetWindowFromID(event.key.windowID);
 
 								if (r_fullscreen) {
@@ -163,7 +163,6 @@ namespace spades {
 								}
 								return;
 							}
-						}
 
 						view.KeyEvent(TranslateKey(event.key.keysym), true);
 					}

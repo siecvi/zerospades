@@ -338,8 +338,28 @@ namespace spades {
 		void ClientPlayer::Update(float dt) {
 			time += dt;
 
+			bool isLocalPlayer = player.IsLocalPlayer();
+
 			PlayerInput actualInput = player.GetInput();
 			WeaponInput actualWeapInput = player.GetWeaponInput();
+
+			if (player.IsToolWeapon() && actualWeapInput.secondary) {
+				if (cg_animations && isLocalPlayer) {
+					aimDownState += dt * 8.0F;
+					if (aimDownState > 1.0F)
+						aimDownState = 1.0F;
+				} else {
+					aimDownState = 1.0F;
+				}
+			} else {
+				if (cg_animations && isLocalPlayer) {
+					aimDownState -= dt * 3.0F;
+					if (aimDownState < 0.0F)
+						aimDownState = 0.0F;
+				} else {
+					aimDownState = 0.0F;
+				}
+			}
 
 			if (actualInput.sprint) {
 				sprintState += dt * 4.0F;
@@ -351,36 +371,16 @@ namespace spades {
 					sprintState = 0.0F;
 			}
 
-			if (player.IsToolWeapon() && actualWeapInput.secondary) {
-				if (cg_animations) {
-					aimDownState += dt * 8.0F;
-					if (aimDownState > 1.0F)
-						aimDownState = 1.0F;
-				} else {
-					aimDownState = 1.0F;
-				}
-			} else {
-				if (cg_animations) {
-					aimDownState -= dt * 3.0F;
-					if (aimDownState < 0.0F)
-						aimDownState = 0.0F;
-				} else {
-					aimDownState = 0.0F;
-				}
-			}
-
 			if (currentTool == player.GetTool()) {
-				if (player.IsLocalPlayer()) {
+				if (isLocalPlayer) {
 					toolRaiseState += dt * 4.0F;
-					if (toolRaiseState < 0.0F)
-						toolRaiseState = 0.0F;
 					if (toolRaiseState > 1.0F)
 						toolRaiseState = 1.0F;
 				} else {
 					toolRaiseState = 1.0F;
 				}
 			} else {
-				if (player.IsLocalPlayer()) {
+				if (isLocalPlayer) {
 					toolRaiseState -= dt * 4.0F;
 					if (toolRaiseState < 0.0F) {
 						toolRaiseState = 0.0F;
@@ -419,8 +419,6 @@ namespace spades {
 						}
 						audioDevice.PlayLocal(c.GetPointerOrNull(),
 							MakeVector3(0.4F, -0.3F, 0.5F), AudioParam());
-					} else if (toolRaiseState > 1.0F) {
-						toolRaiseState = 1.0F;
 					}
 				} else {
 					toolRaiseState = 0.0F;
@@ -491,7 +489,7 @@ namespace spades {
 				}
 
 				// Smooth the flashlight's movement
-				if (client.flashlightOn && player.IsLocalPlayer()) {
+				if (client.flashlightOn && isLocalPlayer) {
 					Vector3 diff = front - flashlightOrientation;
 					float dist = diff.GetLength();
 					if (dist > 0.1F)
@@ -1129,13 +1127,12 @@ namespace spades {
 			hasValidOriginMatrix = true;
 
 			// draw intel in ctf
-			auto& mode = *world->GetMode();
-			if (mode.ModeType() == IGameMode::m_CTF) {
-				auto& ctf = static_cast<CTFGameMode&>(mode);
+			stmp::optional<IGameMode&> mode = world->GetMode();
+			if (mode && mode->ModeType() == IGameMode::m_CTF) {
+				auto& ctf = static_cast<CTFGameMode&>(mode.value());
 				if (ctf.PlayerHasIntel(p)) {
 					model = renderer.RegisterModel("Models/MapObjects/Intel.kv6");
-					IntVector3 teamColor = world->GetTeamColor(1 - p.GetTeamId());
-					param.customColor = ConvertColorRGB(teamColor);
+					param.customColor = ConvertColorRGB(world->GetTeamColor(1 - p.GetTeamId()));
 					Matrix4 const briefcase = torso
 						* (inp.crouch ? Matrix4::Translate(0, 0.8F, 0.4F)
 							* Matrix4::Rotate(MakeVector3(1, 0, 0), -0.5F)

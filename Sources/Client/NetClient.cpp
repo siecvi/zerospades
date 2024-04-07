@@ -917,11 +917,15 @@ namespace spades {
 					stmp::optional<IGameMode&> mode = GetWorld()->GetMode();
 					if (mode && mode->ModeType() == IGameMode::m_CTF) {
 						auto& ctf = dynamic_cast<CTFGameMode&>(mode.value());
+
+						CTFGameMode::Team& team1 = ctf.GetTeam(0);
+						CTFGameMode::Team& team2 = ctf.GetTeam(1);
+
 						switch (type) {
-							case BLUE_BASE: ctf.GetTeam(0).basePos = pos; break;
-							case BLUE_FLAG: ctf.GetTeam(0).flagPos = pos; break;
-							case GREEN_BASE: ctf.GetTeam(1).basePos = pos; break;
-							case GREEN_FLAG: ctf.GetTeam(1).flagPos = pos; break;
+							case BLUE_FLAG: team1.flagPos = pos; break;
+							case BLUE_BASE: team1.basePos = pos; break;
+							case GREEN_FLAG: team2.flagPos = pos; break;
+							case GREEN_BASE: team2.basePos = pos; break;
 						}
 					} else if (mode && mode->ModeType() == IGameMode::m_TC) {
 						auto& tc = dynamic_cast<TCGameMode&>(mode.value());
@@ -1130,8 +1134,8 @@ namespace spades {
 					}
 					break;
 				case PacketTypeKillAction: {
-					Player& victim = GetPlayer(r.ReadByte());
-					Player* killer = &GetPlayer(r.ReadByte());
+					int victimId = r.ReadByte();
+					int killerId = r.ReadByte();
 					int kt = r.ReadByte();
 					int respawnTime = r.ReadByte();
 
@@ -1149,12 +1153,15 @@ namespace spades {
 					switch (type) {
 						case KillTypeFall:
 						case KillTypeTeamChange:
-						case KillTypeClassChange: killer = &victim; break;
+						case KillTypeClassChange: killerId = victimId; break;
 						default: break;
 					}
-					victim.KilledBy(type, *killer, respawnTime);
-					if (killer != &victim)
-						GetWorld()->GetPlayerPersistent(killer->GetId()).score++;
+
+					Player& victim = GetPlayer(victimId);
+					Player& killer = GetPlayer(killerId);
+					victim.KilledBy(type, killer, respawnTime);
+					if (killerId != victimId)
+						GetWorld()->GetPlayerPersistent(killerId).score++;
 				} break;
 				case PacketTypeChatMessage: {
 					// might be wrong player id for server message

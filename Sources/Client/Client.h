@@ -387,7 +387,6 @@ namespace spades {
 			float RayCastForAutoFocus(const Vector3& origin, const Vector3& direction);
 
 			void Draw2D();
-
 			void Draw2DWithoutWorld();
 			void Draw2DWithWorld();
 
@@ -410,8 +409,7 @@ namespace spades {
 
 			bool spectatorPlayerNames;
 			Vector4 GetPlayerColor(Player&);
-
-			void DrawPlayerName(Player& p, Vector4 col);
+			void DrawPlayerName(Player&, const Vector4&);
 			void DrawHottrackedPlayerName();
 			void DrawPubOVL();
 
@@ -420,7 +418,7 @@ namespace spades {
 			void DrawHurtScreenEffect();
 			void DrawHurtSprites();
 			void DrawAlert();
-			void DrawDebugAim();
+			void DrawDebugAim(Player&);
 			void DrawStats();
 			void DrawHitTestDebugger();
 			void DrawPlayerStats();

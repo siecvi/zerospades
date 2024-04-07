@@ -98,11 +98,11 @@ namespace spades {
 
 			// TODO: `ctf` and `tc` are only valid throughout the
 			// method call's duration. Move them to a new context type
-			auto mode = world->GetMode();
-			ctf = mode->ModeType() == IGameMode::m_CTF
+			stmp::optional<IGameMode&> mode = world->GetMode();
+			ctf = (mode->ModeType() == IGameMode::m_CTF)
 				? dynamic_cast<CTFGameMode*>(mode.get_pointer())
 				: NULL;
-			tc = mode->ModeType() == IGameMode::m_TC
+			tc = (mode->ModeType() == IGameMode::m_TC)
 				? dynamic_cast<TCGameMode*>(mode.get_pointer())
 				: NULL;
 
@@ -143,10 +143,11 @@ namespace spades {
 			renderer.DrawImage(img, AABB2(0, playersBottom + spectatorsHeight + size.y, sw, -size.y));
 
 			// draw team bar
+			img = renderer.RegisterImage("Gfx/White.tga");
 			renderer.SetColorAlphaPremultiplied(AdjustColor(GetTeamColor(0), 0.8F, 0.3F));
-			renderer.DrawImage(nullptr, AABB2(0, teamBarTop, sw * 0.5F, teamBarHeight));
+			renderer.DrawImage(img, AABB2(0, teamBarTop, sw * 0.5F, teamBarHeight));
 			renderer.SetColorAlphaPremultiplied(AdjustColor(GetTeamColor(1), 0.8F, 0.3F));
-			renderer.DrawImage(nullptr, AABB2(sw * 0.5F, teamBarTop, sw * 0.5F, teamBarHeight));
+			renderer.DrawImage(img, AABB2(sw * 0.5F, teamBarTop, sw * 0.5F, teamBarHeight));
 
 			img = renderer.RegisterImage("Gfx/Scoreboard/Grunt.png");
 			size.x = 120.0F;
@@ -157,14 +158,13 @@ namespace spades {
 			str = world->GetTeamName(0);
 			pos.x = contentsLeft + 120.0F;
 			pos.y = teamBarTop + 5.0F;
-			font.Draw(str, pos + MakeVector2(0, 2), 1.0F, MakeVector4(0, 0, 0, 0.5));
+			font.Draw(str, pos + MakeVector2(1, 2), 1.0F, MakeVector4(0, 0, 0, 0.5));
 			font.Draw(str, pos, 1.0F, white);
 
 			str = world->GetTeamName(1);
-			size = font.Measure(str);
-			pos.x = contentsRight - 120.0F - size.x;
+			pos.x = contentsRight - 120.0F - font.Measure(str).x;
 			pos.y = teamBarTop + 5.0F;
-			font.Draw(str, pos + MakeVector2(0, 2), 1.0F, MakeVector4(0, 0, 0, 0.5));
+			font.Draw(str, pos + MakeVector2(1, 2), 1.0F, MakeVector4(0, 0, 0, 0.5));
 			font.Draw(str, pos, 1.0F, white);
 
 			// draw scores
@@ -270,17 +270,13 @@ namespace spades {
 				size = font.Measure(buf);
 				font.Draw(buf, MakeVector2(colX + colWidth - 10.0F - size.x, rowY), 1.0F, white);
 
-				// display intel
-				auto& mode = *world->GetMode();
-				if (mode.ModeType() == IGameMode::m_CTF) {
-					auto& ctfMode = static_cast<CTFGameMode&>(mode);
-					if (ctfMode.PlayerHasIntel(*world->GetPlayer(ent.id))) {
-						Handle<IImage> img = renderer.RegisterImage("Gfx/Map/Intel.png");
-						float pulse = std::max(0.5F, fabsf(sinf(world->GetTime() * 4.0F)));
-						renderer.SetColorAlphaPremultiplied(white * pulse);
-						renderer.DrawImage(img, AABB2(colX + colWidth - 30.0F - size.x,
-						                              rowY + 2.0F, 16.0F, 16.0F));
-					}
+				// draw intel icon
+				if (ctf && ctf->PlayerHasIntel(world->GetPlayer(ent.id).value())) {
+					Handle<IImage> img = renderer.RegisterImage("Gfx/Map/Intel.png");
+					float pulse = std::max(0.5F, fabsf(sinf(world->GetTime() * 4.0F)));
+					renderer.SetColorAlphaPremultiplied(white * pulse);
+					renderer.DrawImage(
+					  img, AABB2(colX + colWidth - 30.0F - size.x, rowY + 2.0F, 16.0F, 16.0F));
 				}
 
 				row++;
@@ -326,9 +322,10 @@ namespace spades {
 
 			auto isSquareFont = spectatorFont == &client->fontManager->GetSquareDesignFont();
 			auto sizeSpecString = spectatorFont->Measure(buf);
-			spectatorFont->Draw(
-			  buf, MakeVector2(centerX - sizeSpecString.x / 2, top + (isSquareFont ? 0 : 10)), 1.0F,
-			  spectatorTextColor);
+
+			Vector2 pos = MakeVector2(centerX - sizeSpecString.x / 2, top + (isSquareFont ? 0 : 10));
+			spectatorFont->Draw(buf, pos + MakeVector2(1, 2), 1.0F, MakeVector4(0, 0, 0, 0.5));
+			spectatorFont->Draw(buf, pos, 1.0F, spectatorTextColor);
 
 			float yOffset = top + sizeSpecString.y;
 			float halfTotalX = totalPixelWidth / 2;

@@ -59,6 +59,7 @@ DEFINE_SPADES_SETTING(cg_hitAnalyze, "0");
 
 SPADES_SETTING(cg_centerMessage);
 SPADES_SETTING(cg_holdAimDownSight);
+SPADES_SETTING(cg_damageIndicators);
 
 namespace spades {
 	namespace client {
@@ -940,11 +941,11 @@ namespace spades {
 
 			// show big message if player is involved
 			if (&killer != &victim && (killer.IsLocalPlayer() || victim.IsLocalPlayer())) {
-				std::string msg;
+				std::string msg = "";
 				if (victim.IsLocalPlayer()) {
 					msg = _Tr("Client", "You were killed by {0}", killer.GetName());
 				} else if (cg_centerMessage == 2) {
-					msg = _Tr("Client", "You've killed {0}", victim.GetName());
+					msg = _Tr("Client", "You have killed {0}", victim.GetName());
 				}
 
 				if (!msg.empty())
@@ -959,10 +960,10 @@ namespace spades {
 
 			SPAssert(type != HitTypeBlock);
 
+			bool const byLocalPlayer = by.IsLocalPlayer();
+
 			// spatter blood
 			if ((int)cg_blood >= 2) {
-				bool const byLocalPlayer = by.IsLocalPlayer();
-
 				Vector3 dir = by.GetEye() - hitPos;
 				float dist = dir.GetLength();
 				dir = dir.Normalize();
@@ -1044,7 +1045,7 @@ namespace spades {
 					audioDevice->Play(c.GetPointerOrNull(), hitPos, param);
 				}
 
-				if (by.IsLocalPlayer() && type != HitTypeHead) {
+				if (byLocalPlayer && type != HitTypeHead) {
 					c = audioDevice->RegisterSound("Sounds/Feedback/HitFeedback.opus");
 					param.volume = cg_hitFeedbackSoundGain;
 					audioDevice->PlayLocal(c.GetPointerOrNull(), param);
@@ -1053,15 +1054,16 @@ namespace spades {
 				hitScanState.hasPlayedNormalHitSound = true;
 			}
 
-			if (by.IsLocalPlayer()) {
+			if (byLocalPlayer) {
 				net->SendHit(hurtPlayer.GetId(), type);
 
-				if (type != HitTypeMelee) {
+				if ((bool)cg_damageIndicators && type != HitTypeMelee) {
 					DamageIndicator damages;
 					damages.damage = by.GetWeapon().GetDamage(type);
 					damages.fade = 2.0F;
 					damages.position = hitPos;
 					damages.velocity = RandomAxis() * 4.0F;
+					damages.velocity.z = -2.0F;
 					damageIndicators.push_back(damages);
 				}
 
