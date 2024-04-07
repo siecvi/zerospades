@@ -358,7 +358,7 @@ namespace spades {
 			void DrawBeam(Renderer@ r, float x, float y, float h) {
 				float pulse = float((int(Manager.Time * 2.0F)) & 1);
 				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, pulse);
-				r.DrawImage(null, AABB2(x - 1.0F, y, 2.0F, h));
+				r.DrawImage(null, AABB2(x, y, 1.0F, h));
 			}
 
 			void DrawEditingLine(Renderer@ r, float x, float y, float w, float h) {
