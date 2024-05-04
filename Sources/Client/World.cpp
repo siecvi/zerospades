@@ -298,6 +298,10 @@ namespace spades {
 			return playerPersistents.at(index);
 		}
 
+		int World::CubeLineCount(IntVector3 v1, IntVector3 v2) {
+			return (v2 - v1).GetManhattanLength() + 1;
+		}
+
 		std::vector<IntVector3> World::CubeLine(spades::IntVector3 v1,
 			spades::IntVector3 v2, int maxLength) {
 			SPADES_MARK_FUNCTION_DEBUG();

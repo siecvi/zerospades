@@ -117,6 +117,7 @@ namespace spades {
 			void MarkBlockForRegeneration(const IntVector3& blockLocation);
 			void UnmarkBlockForRegeneration(const IntVector3& blockLocation);
 
+			int CubeLineCount(IntVector3 v1, IntVector3 v2);
 			std::vector<IntVector3> CubeLine(IntVector3 v1, IntVector3 v2, int maxLength);
 
 			stmp::optional<Player&> GetPlayer(unsigned int i) {

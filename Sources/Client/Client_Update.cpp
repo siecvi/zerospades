@@ -534,8 +534,8 @@ namespace spades {
 			// show block count when building block lines.
 			if (player.IsAlive() && player.IsToolBlock() && player.IsBlockCursorDragging()) {
 				if (player.IsBlockCursorActive()) {
-					int blocks = static_cast<int>(world->CubeLine(
-						player.GetBlockCursorDragPos(), player.GetBlockCursorPos(), 64).size());
+					int blocks = world->CubeLineCount(player.GetBlockCursorDragPos(),
+					                                  player.GetBlockCursorPos());
 					auto msg = _TrN("Client", "{0} block", "{0} blocks", blocks);
 					auto type = (blocks > player.GetNumBlocks())
 						? AlertType::Warning : AlertType::Notice;

@@ -175,8 +175,7 @@ namespace spades {
 					} else {
 						if (blockCursorDragging) {
 							if (blockCursorActive) {
-								int blocks = static_cast<int>(world.CubeLine(
-									blockCursorDragPos, blockCursorPos, 64).size());
+								int blocks = world.CubeLineCount(blockCursorDragPos, blockCursorPos);
 								if (blocks <= blockStocks) {
 									if (listener)
 										listener->LocalPlayerCreatedLineBlock(blockCursorDragPos, blockCursorPos);
