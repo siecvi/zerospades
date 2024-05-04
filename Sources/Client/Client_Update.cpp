@@ -208,11 +208,11 @@ namespace spades {
 						playerInput = PlayerInput();
 						largeMapView->SetZoom(false);
 						chatWindow->SetExpanded(false);
+						scoreboardVisible = false;
 					}
 
 					// reset all "delayed actions"
 					reloadKeyPressed = false;
-					scoreboardVisible = false;
 					debugHitTestZoom = false;
 				}
 
