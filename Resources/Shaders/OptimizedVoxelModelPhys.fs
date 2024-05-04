@@ -77,13 +77,13 @@ void main() {
 	// FIXME: use split-sum approximation from UE4
 	float fresnel2 = 1.0 - dotNV;
 	float fresnel = 0.03 + 0.1 * fresnel2 * fresnel2;
-	
+
 	// Specular shading (blurred reflections, assuming roughness is high)
 	vec3 reflectWS = normalize(reflectionDir);
 	vec3 specularShading = EvaluateDirectionalAmbientLight(ao, reflectWS);
 
 	// Diffuse/specular shading for sunlight
-	if (shadowing > 0.0 && flatShading > 0.0) {
+	if (!isEmissive && shadowing > 0.0 && flatShading > 0.0) {
 		// Diffuse shading
 		float sunDiffuseShading = OrenNayar(0.8, flatShading, dotNV);
 		diffuseShading += sunDiffuseShading * shadowing;
@@ -92,15 +92,15 @@ void main() {
 		float sunSpecularShading = CookTorrance(eyeVec, viewSpaceLight, viewSpaceNormal);
 		gl_FragColor.xyz += sunSpecularShading * shadowing;
 	}
-	
+
 	// apply diffuse/specular shading
 	if (!isEmissive)
 		gl_FragColor.xyz = mix(diffuseShading * gl_FragColor.xyz, specularShading, fresnel);
-	
+
 	// apply fog fading
 	gl_FragColor.xyz = mix(gl_FragColor.xyz, fogColor, fogDensity);
 	gl_FragColor.xyz = max(gl_FragColor.xyz, 0.0);
-	
+
 	// gamma correct
 #if !LINEAR_FRAMEBUFFER
 	gl_FragColor.xyz = sqrt(gl_FragColor.xyz);
