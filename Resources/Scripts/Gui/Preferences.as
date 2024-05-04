@@ -553,33 +553,33 @@ namespace spades {
     }
 
     class ConfigTarget : spades::ui::UIElement {
-        private ConfigItem cg_target("cg_target");
-        private ConfigItem cg_targetLines("cg_targetLines");
-        private ConfigItem cg_targetColor("cg_targetColor");
-        private ConfigItem cg_targetColorR("cg_targetColorR");
-        private ConfigItem cg_targetColorG("cg_targetColorG");
-        private ConfigItem cg_targetColorB("cg_targetColorB");
-        private ConfigItem cg_targetAlpha("cg_targetAlpha");
-        private ConfigItem cg_targetGap("cg_targetGap");
-        private ConfigItem cg_targetSizeHorizontal("cg_targetSizeHorizontal");
-        private ConfigItem cg_targetSizeVertical("cg_targetSizeVertical");
-        private ConfigItem cg_targetThickness("cg_targetThickness");
-        private ConfigItem cg_targetTStyle("cg_targetTStyle");
-        private ConfigItem cg_targetDot("cg_targetDot");
-        private ConfigItem cg_targetDotColorR("cg_targetDotColorR");
-        private ConfigItem cg_targetDotColorG("cg_targetDotColorG");
-        private ConfigItem cg_targetDotColorB("cg_targetDotColorB");
-        private ConfigItem cg_targetDotAlpha("cg_targetDotAlpha");
-        private ConfigItem cg_targetDotThickness("cg_targetDotThickness");
-        private ConfigItem cg_targetOutline("cg_targetOutline");
-        private ConfigItem cg_targetOutlineColorR("cg_targetOutlineColorR");
-        private ConfigItem cg_targetOutlineColorG("cg_targetOutlineColorG");
-        private ConfigItem cg_targetOutlineColorB("cg_targetOutlineColorB");
-        private ConfigItem cg_targetOutlineAlpha("cg_targetOutlineAlpha");
-        private ConfigItem cg_targetOutlineThickness("cg_targetOutlineThickness");
-        private ConfigItem cg_targetOutlineRoundedStyle("cg_targetOutlineRoundedStyle");
-        private ConfigItem cg_targetDynamic("cg_targetDynamic");
-        private ConfigItem cg_targetDynamicSplitDist("cg_targetDynamicSplitdist");
+        private ConfigItem cg_target("cg_target", "1");
+        private ConfigItem cg_targetLines("cg_targetLines", "1");
+        private ConfigItem cg_targetColor("cg_targetColor", "0");
+        private ConfigItem cg_targetColorR("cg_targetColorR", "255");
+        private ConfigItem cg_targetColorG("cg_targetColorG", "255");
+        private ConfigItem cg_targetColorB("cg_targetColorB", "255");
+        private ConfigItem cg_targetAlpha("cg_targetAlpha", "255");
+        private ConfigItem cg_targetGap("cg_targetGap", "4");
+        private ConfigItem cg_targetSizeHorizontal("cg_targetSizeHorizontal", "5");
+        private ConfigItem cg_targetSizeVertical("cg_targetSizeVertical", "5");
+        private ConfigItem cg_targetThickness("cg_targetThickness", "1");
+        private ConfigItem cg_targetTStyle("cg_targetTStyle", "0");
+        private ConfigItem cg_targetDot("cg_targetDot", "0");
+        private ConfigItem cg_targetDotColorR("cg_targetDotColorR", "255");
+        private ConfigItem cg_targetDotColorG("cg_targetDotColorG", "255");
+        private ConfigItem cg_targetDotColorB("cg_targetDotColorB", "255");
+        private ConfigItem cg_targetDotAlpha("cg_targetDotAlpha", "255");
+        private ConfigItem cg_targetDotThickness("cg_targetDotThickness", "1");
+        private ConfigItem cg_targetOutline("cg_targetOutline", "1");
+        private ConfigItem cg_targetOutlineColorR("cg_targetOutlineColorR", "0");
+        private ConfigItem cg_targetOutlineColorG("cg_targetOutlineColorG", "0");
+        private ConfigItem cg_targetOutlineColorB("cg_targetOutlineColorB", "0");
+        private ConfigItem cg_targetOutlineAlpha("cg_targetOutlineAlpha", "255");
+        private ConfigItem cg_targetOutlineThickness("cg_targetOutlineThickness", "1");
+        private ConfigItem cg_targetOutlineRoundedStyle("cg_targetOutlineRoundedStyle", "0");
+        private ConfigItem cg_targetDynamic("cg_targetDynamic", "1");
+        private ConfigItem cg_targetDynamicSplitDist("cg_targetDynamicSplitdist", "7");
 
         ConfigTarget(spades::ui::UIManager@ manager) {
             super(manager);
@@ -615,6 +615,7 @@ namespace spades {
         }
 
         private void OnRandomizePressed(spades::ui::UIElement@ sender) {
+			cg_targetColor.StringValue = cg_targetColor.DefaultValue; // reset
             cg_targetColorR.IntValue = GetRandom(0, 255);
             cg_targetColorG.IntValue = GetRandom(0, 255);
             cg_targetColorB.IntValue = GetRandom(0, 255);
@@ -726,33 +727,33 @@ namespace spades {
     }
 
     class ConfigScope : spades::ui::UIElement {
-        private ConfigItem cg_pngScope("cg_pngScope");
-        private ConfigItem cg_scopeLines("cg_scopeLines");
-        private ConfigItem cg_scopeColor("cg_scopeColor");
-        private ConfigItem cg_scopeColorR("cg_scopeColorR");
-        private ConfigItem cg_scopeColorG("cg_scopeColorG");
-        private ConfigItem cg_scopeColorB("cg_scopeColorB");
-        private ConfigItem cg_scopeAlpha("cg_scopeAlpha");
-        private ConfigItem cg_scopeGap("cg_scopeGap");
-        private ConfigItem cg_scopeSizeHorizontal("cg_scopeSizeHorizontal");
-        private ConfigItem cg_scopeSizeVertical("cg_scopeSizeVertical");
-        private ConfigItem cg_scopeThickness("cg_scopeThickness");
-        private ConfigItem cg_scopeTStyle("cg_scopeTStyle");
-        private ConfigItem cg_scopeDot("cg_scopeDot");
-        private ConfigItem cg_scopeDotColorR("cg_scopeDotColorR");
-        private ConfigItem cg_scopeDotColorG("cg_scopeDotColorG");
-        private ConfigItem cg_scopeDotColorB("cg_scopeDotColorB");
-        private ConfigItem cg_scopeDotAlpha("cg_scopeDotAlpha");
-        private ConfigItem cg_scopeDotThickness("cg_scopeDotThickness");
-        private ConfigItem cg_scopeOutline("cg_scopeOutline");
-        private ConfigItem cg_scopeOutlineColorR("cg_scopeOutlineColorR");
-        private ConfigItem cg_scopeOutlineColorG("cg_scopeOutlineColorG");
-        private ConfigItem cg_scopeOutlineColorB("cg_scopeOutlineColorB");
-        private ConfigItem cg_scopeOutlineAlpha("cg_scopeOutlineAlpha");
-        private ConfigItem cg_scopeOutlineThickness("cg_scopeOutlineThickness");
-        private ConfigItem cg_scopeOutlineRoundedStyle("cg_scopeOutlineRoundedStyle");
-        private ConfigItem cg_scopeDynamic("cg_scopeDynamic");
-        private ConfigItem cg_scopeDynamicSplitDist("cg_scopeDynamicSplitdist");
+        private ConfigItem cg_pngScope("cg_pngScope", "0");
+        private ConfigItem cg_scopeLines("cg_scopeLines", "1");
+        private ConfigItem cg_scopeColor("cg_scopeColor", "0");
+        private ConfigItem cg_scopeColorR("cg_scopeColorR", "255");
+        private ConfigItem cg_scopeColorG("cg_scopeColorG", "0");
+        private ConfigItem cg_scopeColorB("cg_scopeColorB", "255");
+        private ConfigItem cg_scopeAlpha("cg_scopeAlpha", "255");
+        private ConfigItem cg_scopeGap("cg_scopeGap", "4");
+        private ConfigItem cg_scopeSizeHorizontal("cg_scopeSizeHorizontal", "5");
+        private ConfigItem cg_scopeSizeVertical("cg_scopeSizeVertical", "5");
+        private ConfigItem cg_scopeThickness("cg_scopeThickness", "1");
+        private ConfigItem cg_scopeTStyle("cg_scopeTStyle", "0");
+        private ConfigItem cg_scopeDot("cg_scopeDot", "0");
+        private ConfigItem cg_scopeDotColorR("cg_scopeDotColorR", "0");
+        private ConfigItem cg_scopeDotColorG("cg_scopeDotColorG", "0");
+        private ConfigItem cg_scopeDotColorB("cg_scopeDotColorB", "0");
+        private ConfigItem cg_scopeDotAlpha("cg_scopeDotAlpha", "255");
+        private ConfigItem cg_scopeDotThickness("cg_scopeDotThickness", "1");
+        private ConfigItem cg_scopeOutline("cg_scopeOutline", "1");
+        private ConfigItem cg_scopeOutlineColorR("cg_scopeOutlineColorR", "0");
+        private ConfigItem cg_scopeOutlineColorG("cg_scopeOutlineColorG", "0");
+        private ConfigItem cg_scopeOutlineColorB("cg_scopeOutlineColorB", "0");
+        private ConfigItem cg_scopeOutlineAlpha("cg_scopeOutlineAlpha", "255");
+        private ConfigItem cg_scopeOutlineThickness("cg_scopeOutlineThickness", "1");
+        private ConfigItem cg_scopeOutlineRoundedStyle("cg_scopeOutlineRoundedStyle", "0");
+        private ConfigItem cg_scopeDynamic("cg_scopeDynamic", "1");
+        private ConfigItem cg_scopeDynamicSplitDist("cg_scopeDynamicSplitdist", "7");
 
         ConfigScope(spades::ui::UIManager@ manager) {
             super(manager);
@@ -788,6 +789,7 @@ namespace spades {
         }
 
         private void OnRandomizePressed(spades::ui::UIElement@ sender) {
+			cg_scopeColor.StringValue = cg_scopeColor.DefaultValue;
             cg_scopeColorR.IntValue = GetRandom(0, 255);
             cg_scopeColorG.IntValue = GetRandom(0, 255);
             cg_scopeColorB.IntValue = GetRandom(0, 255);
