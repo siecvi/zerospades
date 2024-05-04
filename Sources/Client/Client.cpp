@@ -687,10 +687,13 @@ namespace spades {
 					//! Crowdin warns that this string shouldn't be translated,
 					//! but it actually can be.
 					//! The extra whitespace is not a typo.
-					if (p.IsAlive())
+					if (p.IsAlive()) {
 						s = _Tr("Client", "[Global] ");
-					else
+						if (p.IsSpectator())
+							s = _Tr("Client", "*SPEC* ");
+					} else {
 						s = _Tr("Client", "*DEAD* ");
+				}
 				}
 				s += ChatWindow::TeamColorMessage(p.GetName(), p.GetTeamId());
 				s += ": ";
