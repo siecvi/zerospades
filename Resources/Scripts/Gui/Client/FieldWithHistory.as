@@ -79,12 +79,14 @@ namespace spades {
 					OverwriteItem();
 					currentHistoryIndex--;
 					LoadItem();
+					OnChanged();
 				}
 			} else if (key == "Down") {
 				if (currentHistoryIndex < cmdhistory.length) {
 					OverwriteItem();
 					currentHistoryIndex++;
 					LoadItem();
+					OnChanged();
 				}
 			} else {
 				Field::KeyDown(key);
