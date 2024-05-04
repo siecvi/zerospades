@@ -743,8 +743,15 @@ namespace spades {
 				if (cg_ignorePrivateMessages)
 					return;
 
-				std::string s = "PM from " + msg.substr(8);
-				chatWindow->AddMessage(ChatWindow::ColoredMessage(s, MsgColorGreen));
+				// play chat sound
+				if (!IsMuted()) {
+					Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Feedback/Chat.opus");
+					AudioParam params;
+					params.volume = (float)cg_chatBeep;
+					audioDevice->PlayLocal(c.GetPointerOrNull(), params);
+				}
+
+				chatWindow->AddMessage(ChatWindow::ColoredMessage(msg.substr(8), MsgColorGreen));
 				return;
 			}
 
