@@ -1198,7 +1198,7 @@ namespace spades {
             layouter.AddControl(_Tr("Preferences", "Toggle Hit Test Zoom"), "cg_keyToggleHitTestZoom");
             layouter.AddToggleField(_Tr("Preferences", "Debug Weapon Spread"), "cg_debugAim");
             layouter.AddToggleField(_Tr("Preferences", "Classic Viewmodel"), "cg_classicViewWeapon");
-            layouter.AddToggleField(_Tr("Preferences", "Default Player Models"), "cg_defaultPlayerModels");
+            layouter.AddToggleField(_Tr("Preferences", "Classic Player Model"), "cg_classicPlayerModels");
 
 			layouter.AddHeading(_Tr("Preferences", "Heads-Up Display"));
             layouter.AddToggleField(_Tr("Preferences", "Hide HUD"), "cg_hideHud");

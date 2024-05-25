@@ -32,7 +32,7 @@ using namespace std;
 
 DEFINE_SPADES_SETTING(r_corpseLineCollision, "1");
 
-SPADES_SETTING(cg_defaultPlayerModels);
+SPADES_SETTING(cg_classicPlayerModels);
 
 namespace spades {
 	namespace client {
@@ -518,17 +518,13 @@ namespace spades {
 			Matrix4 torso;
 			Vector3 tX, tY;
 
-			std::string fullPath = "Models/Player/";
-			if (!cg_defaultPlayerModels)
-				fullPath += weaponName + "/";
-
-			const auto getModel = [&](const std::string& fn) -> Handle<IModel> {
-				return renderer.RegisterModel((fullPath + fn + ".kv6").c_str());
-			};
+			std::string modelPath = "Models/Player/";
+			if (!cg_classicPlayerModels)
+				modelPath += weaponName + "/";
 
 			// Torso
 			{
-				model = getModel("Torso");
+				model = renderer.RegisterModel((modelPath + "Torso.kv6").c_str());
 
 				Vector3 tX1 = nodes[Torso1].pos - nodes[Torso2].pos;
 				Vector3 tX2 = nodes[Torso4].pos - nodes[Torso3].pos;
@@ -547,7 +543,7 @@ namespace spades {
 
 			// Head
 			{
-				model = getModel("Head");
+				model = renderer.RegisterModel((modelPath + "Head.kv6").c_str());
 
 				Vector3 headBase = (torso * MakeVector3(0.0F, 0.0F, 0.0F)).GetXYZ();
 
@@ -566,7 +562,7 @@ namespace spades {
 
 			// Arms
 			{
-				model = getModel("Arm");
+				model = renderer.RegisterModel((modelPath + "Arm.kv6").c_str());
 
 				Vector3 arm1Base = (torso * MakeVector3(0.4F, 0.0F, 0.1F)).GetXYZ();
 				Vector3 arm2Base = (torso * MakeVector3(-0.4F, 0.0F, 0.1F)).GetXYZ();
@@ -596,7 +592,7 @@ namespace spades {
 
 			// Legs
 			{
-				model = getModel("Leg");
+				model = renderer.RegisterModel((modelPath + "Leg.kv6").c_str());
 
 				Vector3 leg1Base = (torso * MakeVector3(0.25F, 0.0F, 0.9F)).GetXYZ();
 				Vector3 leg2Base = (torso * MakeVector3(-0.25F, 0.0F, 0.9F)).GetXYZ();

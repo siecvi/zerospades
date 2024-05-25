@@ -54,6 +54,7 @@ DEFINE_SPADES_SETTING(cg_animations, "1");
 SPADES_SETTING(cg_shake);
 SPADES_SETTING(r_hdr);
 DEFINE_SPADES_SETTING(cg_environmentalAudio, "1");
+DEFINE_SPADES_SETTING(cg_classicPlayerModels, "0");
 DEFINE_SPADES_SETTING(cg_classicViewWeapon, "0");
 DEFINE_SPADES_SETTING(cg_viewWeaponX, "0");
 DEFINE_SPADES_SETTING(cg_viewWeaponY, "0");
@@ -62,7 +63,6 @@ DEFINE_SPADES_SETTING(cg_hideBody, "0");
 DEFINE_SPADES_SETTING(cg_hideArms, "0");
 DEFINE_SPADES_SETTING(cg_debugToolSkinAnchors, "0");
 DEFINE_SPADES_SETTING(cg_trueAimDownSight, "1");
-DEFINE_SPADES_SETTING(cg_defaultPlayerModels, "0");
 
 SPADES_SETTING(cg_orientationSmoothing);
 
@@ -602,6 +602,11 @@ namespace spades {
 			IRenderer& renderer = client.GetRenderer();
 			World* world = client.GetWorld();
 			Matrix4 eyeMatrix = GetEyeMatrix();
+			Vector3 vel = p.GetVelocity();
+
+			std::string modelPath = "Models/Player/";
+			if (!cg_classicPlayerModels)
+				modelPath += w.GetName() + "/";
 
 			// Configure the clipping region for the localplayer view in case of overdraw
 			{
@@ -644,14 +649,18 @@ namespace spades {
 			// view weapon
 			Vector3 viewWeaponOffset = this->viewWeaponOffset;
 
+			Handle<IModel> model;
+			ModelRenderParam param;
+			param.depthHack = true;
+			param.customColor = ConvertColorRGB(p.GetColor());
+
 			// Moving this to the scripting environment means
 			// breaking compatibility with existing scripts.
 			if (cg_classicViewWeapon) {
 				Matrix4 mat = Matrix4::Scale(0.033F);
 				Vector3 trans(0.0F, 0.0F, 0.0F);
 
-				Vector3 v = player.GetVelocity();
-				float bob = std::max(fabsf(v.x), fabsf(v.y)) / 1000;
+				float bob = std::max(fabsf(vel.x), fabsf(vel.y)) / 1000;
 				int timer = (int)(time * 1000);
 				bob *= (timer % 1024 < 512)
 					? (timer % 512) - 255.5F
@@ -659,18 +668,13 @@ namespace spades {
 				trans.y += bob;
 
 				if (!p.IsOnGroundOrWade())
-					trans.z -= v.z * 0.2F;
+					trans.z -= vel.z * 0.2F;
 
 				if (sprintState > 0.0F || toolRaiseState < 1.0F) {
 					float per = std::max(sprintState, 1.0F - toolRaiseState) * 5;
 					trans.x -= per;
 					trans.z += per;
 				}
-
-				Handle<IModel> model;
-				ModelRenderParam param;
-				param.depthHack = true;
-				param.customColor = ConvertColorRGB(p.GetColor());
 
 				const float nextSpadeTime = p.GetTimeToNextSpade();
 				const float nextDigTime = p.GetTimeToNextDig();
@@ -778,7 +782,7 @@ namespace spades {
 			{
 				float sp = 1.0F - aimDownState;
 				sp *= 0.3F;
-				sp *= std::min(1.0F, p.GetVelocity().GetLength() * 5.0F);
+				sp *= std::min(1.0F, vel.GetLength() * 5.0F);
 
 				float walkAng = p.GetWalkAnimationProgress() * M_PI_F * 2.0F;
 				float vl = cosf(walkAng);
@@ -844,10 +848,9 @@ namespace spades {
 			float const legsPosZ = inp.crouch ? 0.05F : 0.1F;
 			float const torsoPosZ = inp.crouch ? 0.55F : 1.0F;
 
-			Vector3 v = p.GetVelocity();
 			Vector2 legsRot;
-			legsRot.x = Vector3::Dot(v, p.GetFront2D());
-			legsRot.y = Vector3::Dot(v, p.GetRight());
+			legsRot.x = Vector3::Dot(vel, p.GetFront2D());
+			legsRot.y = Vector3::Dot(vel, p.GetRight());
 			legsRot *= sinf(p.GetWalkAnimationProgress() * M_PI_F * 2.0F) * 3.0F;
 
 			Matrix4 const leg1 = lower
@@ -863,41 +866,27 @@ namespace spades {
 			Matrix4 const torso = lower
 				* Matrix4::Translate(0.0F, 1.0F, -torsoPosZ);
 
-			ModelRenderParam param;
-			param.depthHack = true;
-			param.customColor = ConvertColorRGB(p.GetColor());
-
-			std::string fullPath = "Models/Player/";
-			if (!cg_defaultPlayerModels)
-				fullPath += w.GetName() + "/";
-
-			const auto getModel = [&](const std::string& fn) -> Handle<IModel> {
-				return renderer.RegisterModel((fullPath + fn + ".kv6").c_str());
-			};
-
 			// Legs and Torso
 			if (!cg_hideBody) {
-				Handle<IModel> legModel = getModel(inp.crouch ? "LegCrouch" : "Leg");
-				Handle<IModel> torsoModel = getModel(inp.crouch ? "TorsoCrouch" : "Torso");
+				model = inp.crouch
+					? renderer.RegisterModel((modelPath + "LegCrouch.kv6").c_str())
+					: renderer.RegisterModel((modelPath + "Leg.kv6").c_str());
+				param.matrix = leg1 * scaler;
+				renderer.RenderModel(*model, param);
+				param.matrix = leg2 * scaler;
+				renderer.RenderModel(*model, param);
 
-				{
-					param.matrix = leg1 * scaler;
-					renderer.RenderModel(*legModel, param);
-
-					param.matrix = leg2 * scaler;
-					renderer.RenderModel(*legModel, param);
-				}
-
-				{
-					param.matrix = torso * scaler;
-					renderer.RenderModel(*torsoModel, param);
-				}
+				model = inp.crouch
+					? renderer.RegisterModel((modelPath + "TorsoCrouch.kv6").c_str())
+					: renderer.RegisterModel((modelPath + "Torso.kv6").c_str());
+				param.matrix = torso * scaler;
+				renderer.RenderModel(*model, param);
 			}
 
 			// Arms
 			if (!cg_hideArms && leftHand.GetSquaredLength() > 0.01F && rightHand.GetSquaredLength() > 0.01F) {
-				Handle<IModel> armModel = getModel("Arm");
-				Handle<IModel> upperModel = getModel("UpperArm");
+				Handle<IModel> armModel = renderer.RegisterModel((modelPath + "Arm.kv6").c_str());
+				Handle<IModel> upperModel = renderer.RegisterModel((modelPath + "UpperArm.kv6").c_str());
 
 				const float armlen = 0.5F;
 
@@ -940,26 +929,25 @@ namespace spades {
 
 		void ClientPlayer::AddToSceneThirdPersonView() {
 			Player& p = player;
+			Weapon& w = p.GetWeapon();
 			IRenderer& renderer = client.GetRenderer();
 			World* world = client.GetWorld();
 
-			std::string fullPath = "Models/Player/";
-			if (!cg_defaultPlayerModels)
-				fullPath += p.GetWeapon().GetName() + "/";
-
-			const auto getModel = [&](const std::string& fn) -> Handle<IModel> {
-				return renderer.RegisterModel((fullPath + fn + ".kv6").c_str());
-			};
+			std::string modelPath = "Models/Player/";
+			if (!cg_classicPlayerModels)
+				modelPath += w.GetName() + "/";
 
 			Vector3 o = p.GetFront(cg_orientationSmoothing); // interpolated
 			Vector3 front2D = MakeVector3(o.x, o.y, 0).Normalize();
 			Vector3 right = -Vector3::Cross(MakeVector3(0, 0, -1), front2D).Normalize();
 
+			Handle<IModel> model;
+			ModelRenderParam param;
+			param.customColor = ConvertColorRGB(p.GetColor());
+
 			if (!p.IsAlive()) {
 				if (!cg_ragdoll) {
-					Handle<IModel> model = getModel("Dead");
-					ModelRenderParam param;
-					param.customColor = ConvertColorRGB(p.GetColor());
+					model = renderer.RegisterModel((modelPath + "Dead.kv6").c_str());
 					param.matrix = Matrix4::FromAxis(-right, front2D,
 						MakeVector3(0, 0, 1), p.GetEye());
 					param.matrix = param.matrix * Matrix4::Scale(0.1F);
@@ -989,10 +977,6 @@ namespace spades {
 				ScriptIThirdPersonToolSkin interface(curSkin);
 				pitchBias = interface.GetPitchBias();
 			}
-
-			Handle<IModel> model;
-			ModelRenderParam param;
-			param.customColor = ConvertColorRGB(p.GetColor());
 
 			float yaw = atan2f(o.y, o.x) + M_PI_F * 0.5F;
 			float pitch = -atan2f(o.z, o.GetLength2D());
@@ -1040,7 +1024,7 @@ namespace spades {
 				if (nextBlockTime > 0.0F)
 					armPitch -= (nextBlockTime / 0.5F);
 			} else if (currentTool == Player::ToolWeapon) {
-				float nextFireTime = p.GetWeapon().GetTimeToNextFire();
+				float nextFireTime = w.GetTimeToNextFire();
 				if (nextFireTime > 0.0F)
 					armPitch += nextFireTime;
 			} else if (currentTool == Player::ToolGrenade) {
@@ -1081,7 +1065,9 @@ namespace spades {
 
 			// Legs
 			{
-				model = getModel(inp.crouch ? "LegCrouch" : "Leg");
+				model = inp.crouch
+					? renderer.RegisterModel((modelPath + "LegCrouch.kv6").c_str())
+					: renderer.RegisterModel((modelPath + "Leg.kv6").c_str());
 
 				param.matrix = leg1 * scaler;
 				renderer.RenderModel(*model, param);
@@ -1092,7 +1078,9 @@ namespace spades {
 
 			// Torso
 			{
-				model = getModel(inp.crouch ? "TorsoCrouch" : "Torso");
+				model = inp.crouch
+					? renderer.RegisterModel((modelPath + "TorsoCrouch.kv6").c_str())
+					: renderer.RegisterModel((modelPath + "Torso.kv6").c_str());
 
 				param.matrix = torso * scaler;
 				renderer.RenderModel(*model, param);
@@ -1100,7 +1088,7 @@ namespace spades {
 
 			// Arms
 			{
-				model = getModel("Arms");
+				model = renderer.RegisterModel((modelPath + "Arms.kv6").c_str());
 
 				param.matrix = arms * scaler;
 				renderer.RenderModel(*model, param);
@@ -1108,7 +1096,7 @@ namespace spades {
 
 			// Head
 			{
-				model = getModel("Head");
+				model = renderer.RegisterModel((modelPath + "Head.kv6").c_str());
 
 				param.matrix = head * scaler;
 				renderer.RenderModel(*model, param);
