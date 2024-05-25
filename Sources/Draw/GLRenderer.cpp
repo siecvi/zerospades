@@ -503,6 +503,7 @@ namespace spades {
 		void GLRenderer::AddSprite(client::IImage& img,
 			spades::Vector3 center, float radius, float rotation) {
 			SPADES_MARK_FUNCTION_DEBUG();
+
 			GLImage& glImage = dynamic_cast<GLImage&>(img);
 
 			if (!SphereFrustrumCull(center, radius * 1.5F))
@@ -517,6 +518,7 @@ namespace spades {
 		void GLRenderer::AddLongSprite(client::IImage& img, spades::Vector3 p1, spades::Vector3 p2,
 		                               float radius) {
 			SPADES_MARK_FUNCTION_DEBUG();
+
 			GLImage& glImage = dynamic_cast<GLImage&>(img);
 
 			EnsureInitialized();
@@ -537,6 +539,7 @@ namespace spades {
 		};
 		void GLRenderer::RenderDebugLines() {
 			SPADES_MARK_FUNCTION();
+
 			if (debugLines.empty())
 				return;
 
@@ -641,7 +644,7 @@ namespace spades {
 				ssaoBuffer.Release();
 			}
 
-			{
+			if (settings.r_dlights) {
 				GLProfiler::Context p(*profiler, "Dynamic Light Pass [%d light(s)]",
 				                      (int)lights.size());
 
@@ -1324,7 +1327,7 @@ namespace spades {
 		}
 
 		bool GLRenderer::BoxFrustrumCull(const AABB3& box) {
-			if (IsRenderingMirror()) {
+			if (renderingMirror) {
 				// reflect
 				AABB3 bx = box;
 				std::swap(bx.min.z, bx.max.z);
@@ -1340,7 +1343,7 @@ namespace spades {
 			       PlaneCullTest(frustrum[4], box) && PlaneCullTest(frustrum[5], box);
 		}
 		bool GLRenderer::SphereFrustrumCull(const Vector3& center, float radius) {
-			if (IsRenderingMirror()) {
+			if (renderingMirror) {
 				// reflect
 				Vector3 vx = center;
 				vx.z = 63.0F * 2.0F - vx.z;

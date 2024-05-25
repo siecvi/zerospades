@@ -600,6 +600,8 @@ namespace spades {
 			std::vector<client::ModelRenderParam> params, bool ghostPass) {
 			SPADES_MARK_FUNCTION();
 
+			bool mirror = renderer.IsRenderingMirror();
+
 			device.ActiveTexture(0);
 			aoImage->Bind(IGLDevice::Texture2D);
 			device.TexParamater(IGLDevice::Texture2D,
@@ -692,7 +694,7 @@ namespace spades {
 			device.BindBuffer(IGLDevice::ElementArrayBuffer, idxBuffer);
 
 			for (const auto& param : params) {
-				if (renderer.IsRenderingMirror() && param.depthHack)
+				if (mirror && param.depthHack)
 					continue;
 				if (param.ghost != ghostPass)
 					continue;
@@ -756,6 +758,8 @@ namespace spades {
 		void GLOptimizedVoxelModel::RenderDynamicLightPass(
 			std::vector<client::ModelRenderParam> params, std::vector<GLDynamicLight> lights) {
 			SPADES_MARK_FUNCTION();
+
+			bool mirror = renderer.IsRenderingMirror();
 
 			device.ActiveTexture(0);
 			aoImage->Bind(IGLDevice::Texture2D);
@@ -822,7 +826,7 @@ namespace spades {
 			device.BindBuffer(IGLDevice::ElementArrayBuffer, idxBuffer);
 
 			for (const auto& param : params) {
-				if (renderer.IsRenderingMirror() && param.depthHack)
+				if (mirror && param.depthHack)
 					continue;
 				if (param.ghost)
 					continue;

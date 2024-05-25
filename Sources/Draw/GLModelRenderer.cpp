@@ -104,11 +104,12 @@ namespace spades {
 				"Model [%d model(s), %d unique model type(s)]", modelCount,
 				(int)models.size());
 
-			if (!lights.empty()) {
-				for (const auto& m : models) {
-					GLModel* model = m.model;
-					model->RenderDynamicLightPass(m.params, lights);
-				}
+			if (lights.empty())
+				return;
+
+			for (const auto& m : models) {
+				GLModel* model = m.model;
+				model->RenderDynamicLightPass(m.params, lights);
 			}
 		}
 
