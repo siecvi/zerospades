@@ -120,7 +120,7 @@ namespace spades {
 			if (MoveBlock(dt) == 2) {
 				if (!client->IsMuted() && distSqr < 16.0F * 16.0F) {
 					IAudioDevice& dev = client->GetAudioDevice();
-					Handle<IAudioChunk> c = dev.RegisterSound("Sounds/Player/Bounce.opus");
+					Handle<IAudioChunk> c = dev.RegisterSound("Sounds/Misc/BlockBounce.opus");
 					dev.Play(c.GetPointerOrNull(), matrix.GetOrigin(), AudioParam());
 				}
 			}
