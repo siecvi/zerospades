@@ -43,7 +43,7 @@
 
 #include "NetClient.h"
 
-DEFINE_SPADES_SETTING(cg_clearCorpsesOnRespawn, "0");
+DEFINE_SPADES_SETTING(cg_clearCorpseOnRespawn, "0");
 DEFINE_SPADES_SETTING(cg_centerMessage, "2");
 SPADES_SETTING(cg_playerName);
 
@@ -297,7 +297,7 @@ namespace spades {
 		}
 
 		void Client::PlayerSpawned(Player& p) {
-			if (net->GetGameProperties()->isGameModeArena || cg_clearCorpsesOnRespawn)
+			if (net->GetGameProperties()->isGameModeArena || cg_clearCorpseOnRespawn)
 				RemoveCorpseForPlayer(p.GetId());
 		}
 
