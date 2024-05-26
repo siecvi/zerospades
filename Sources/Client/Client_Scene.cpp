@@ -129,7 +129,7 @@ namespace spades {
 			if (!p.IsAlive() || !p.IsToolWeapon())
 				return 1.0F;
 
-			// I don't even know if this is entirely legal
+			float adsState = clientPlayers[playerId]->GetAimDownState();
 			float delta = 0.8F;
 			switch (p.GetWeapon().GetWeaponType()) {
 				case SMG_WEAPON: delta = 0.8F; break;
@@ -140,9 +140,7 @@ namespace spades {
 			if (cg_classicZoom)
 				delta = 1.0F;
 
-			float ads = clientPlayers[playerId]->GetAimDownState();
-
-			return 1.0F + (3.0F - 2.0F * powf(ads, 1.5F)) * powf(ads, 3.0F) * delta;
+			return 1.0F + (3.0F - 2.0F * powf(adsState, 1.5F)) * powf(adsState, 3.0F) * adsState;
 		}
 
 		SceneDefinition Client::CreateSceneDefinition() {
@@ -155,31 +153,39 @@ namespace spades {
 
 			// Limit the range of cg_fov
 			// (note: comparsion with a NaN always results in false)
-			if (!((float)cg_fov < 90.0F))
-				cg_fov = 90.0F;
+			if (!((float)cg_fov < 110.0F))
+				cg_fov = 110.0F;
 			if (!((float)cg_fov > 45.0F))
 				cg_fov = 45.0F;
-
-			float sw = renderer->ScreenWidth();
-			float sh = renderer->ScreenHeight();
-
-			float ratio = (sw / sh);
-			float fov = DEG2RAD(cg_fov);
-
-			// shake is applied only for local player camera
-			// perhaps we should do this on other players too?
-			int shakeLevel = cg_shake;
 
 			if (world) {
 				IntVector3 fogColor = world->GetFogColor();
 				renderer->SetFogColor(ConvertColorRGB(fogColor));
 
-				def.blurVignette = 0.0F;
+				int shakeLevel = cg_shake;
+
+				auto& freeState = freeCameraState;
+				auto& sharedState = followAndFreeCameraState;
 
 				float roll = 0.0F;
 				float scale = 1.0F;
 				float vibPitch = 0.0F;
 				float vibYaw = 0.0F;
+
+				float sw = renderer->ScreenWidth();
+				float sh = renderer->ScreenHeight();
+				float ratio = (sw / sh);
+				float fov = DEG2RAD(cg_fov);
+
+				if (cg_horizontalFov) {
+					def.fovX = fov;
+					def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) / ratio);
+				} else {
+					def.fovY = fov;
+					def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
+				}
+
+				def.blurVignette = 0.0F;
 
 				switch (GetCameraMode()) {
 					case ClientCameraMode::None: SPUnreachable();
@@ -188,14 +194,6 @@ namespace spades {
 						def.viewAxis[0] = MakeVector3(-1, 0, 0);
 						def.viewAxis[1] = MakeVector3(0, 1, 0);
 						def.viewAxis[2] = MakeVector3(0, 0, 1);
-
-						if (cg_horizontalFov) {
-							def.fovX = fov;
-							def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) / ratio);
-						} else {
-							def.fovY = fov;
-							def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
-						}
 
 						def.zNear = 0.05F;
 						def.skipWorld = false;
@@ -211,14 +209,6 @@ namespace spades {
 						def.viewAxis[0] = -eyeMatrix.GetAxis(0);
 						def.viewAxis[1] = -eyeMatrix.GetAxis(2);
 						def.viewAxis[2] = eyeMatrix.GetAxis(1);
-
-						if (cg_horizontalFov) {
-							def.fovX = fov;
-							def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) / ratio);
-						} else {
-							def.fovY = fov;
-							def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
-						}
 
 						if (shakeLevel >= 1) {
 							float fireVibration = GetLocalFireVibration();
@@ -286,13 +276,13 @@ namespace spades {
 						scale /= GetAimDownZoomScale();
 
 						// Update initial floating camera pos
-						freeCameraState.position = def.viewOrigin;
-						freeCameraState.velocity = MakeVector3(0, 0, 0);
+						freeState.position = def.viewOrigin;
+						freeState.velocity = MakeVector3(0, 0, 0);
 
 						// Update initial floating camera angle
 						Vector3 o = -def.viewAxis[2];
-						followAndFreeCameraState.yaw = atan2f(o.y, o.x);
-						followAndFreeCameraState.pitch = -atan2f(o.z, o.GetLength2D());
+						sharedState.yaw = atan2f(o.y, o.x);
+						sharedState.pitch = -atan2f(o.z, o.GetLength2D());
 						break;
 					}
 					case ClientCameraMode::ThirdPersonLocal:
@@ -328,7 +318,6 @@ namespace spades {
 							distance -= 3.0F * expf(-timeSinceDeath * 1.0F);
 						}
 
-						auto& sharedState = followAndFreeCameraState;
 						Vector3 eye = center;
 						eye.x += cosf(sharedState.pitch) * cosf(sharedState.yaw) * distance;
 						eye.y += cosf(sharedState.pitch) * sinf(sharedState.yaw) * distance;
@@ -355,26 +344,17 @@ namespace spades {
 						def.viewAxis[1] = -Vector3::Cross(front, def.viewAxis[0]);
 						def.viewAxis[2] = front;
 
-						if (cg_horizontalFov) {
-							def.fovX = fov;
-							def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) / ratio);
-						} else {
-							def.fovY = fov;
-							def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
-						}
-
 						// Update initial floating camera pos
-						freeCameraState.position = def.viewOrigin;
-						freeCameraState.velocity = MakeVector3(0, 0, 0);
+						freeState.position = def.viewOrigin;
+						freeState.velocity = MakeVector3(0, 0, 0);
 						break;
 					}
 					case ClientCameraMode::Free: {
 						// spectator view (noclip view)
-						Vector3 center = freeCameraState.position;
+						Vector3 center = freeState.position;
 						Vector3 front;
 						Vector3 up = {0, 0, -1};
 
-						auto& sharedState = followAndFreeCameraState;
 						front.x = cosf(sharedState.pitch) * -cosf(sharedState.yaw);
 						front.y = cosf(sharedState.pitch) * -sinf(sharedState.yaw);
 						front.z = sinf(sharedState.pitch);
@@ -383,14 +363,6 @@ namespace spades {
 						def.viewAxis[0] = -Vector3::Cross(up, front).Normalize();
 						def.viewAxis[1] = -Vector3::Cross(front, def.viewAxis[0]);
 						def.viewAxis[2] = front;
-
-						if (cg_horizontalFov) {
-							def.fovX = fov;
-							def.fovY = 2.0F * atanf(tanf(def.fovX * 0.5F) / ratio);
-						} else {
-							def.fovY = fov;
-							def.fovX = 2.0F * atanf(tanf(def.fovY * 0.5F) * ratio);
-						}
 
 						def.denyCameraBlur = false;
 						break;

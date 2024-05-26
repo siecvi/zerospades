@@ -239,6 +239,21 @@ namespace spades {
         string Format(float value) { return prefix + FormatInternal(value); }
     }
 
+	class ConfigFOVFormatter : ConfigNumberFormatter {
+        ConfigFOVFormatter() {
+            super(0, "");
+        }
+
+        string Format(float value) {
+            if (value == 68)
+                return _Tr("Preferences", "Default");
+            else if (value >= 110)
+                return _Tr("Preferences", "Quake Pro");
+            else
+                return ConfigNumberFormatter::Format(value);
+        }
+    }
+
     class ConfigRenderScaleFormatter : ConfigNumberFormatter {
         ConfigRenderScaleFormatter() {
             super(0, "");
@@ -1189,7 +1204,7 @@ namespace spades {
 
             layouter.AddHeading(_Tr("Preferences", "Misc"));
             layouter.AddSliderField(_Tr("Preferences", "Field of View"), "cg_fov",
-            45, 90, 1, ConfigNumberFormatter(0, "°"));
+            45, 110, 1, ConfigFOVFormatter());
             layouter.AddToggleField(_Tr("Preferences", "Horizontal FOV"), "cg_horizontalFov");
             layouter.AddToggleField(_Tr("Preferences", "Classic Zoom"), "cg_classicZoom");
             layouter.AddToggleField(_Tr("Preferences", "Debug Hit Detection"), "cg_debugHitTest");
