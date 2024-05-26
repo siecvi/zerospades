@@ -50,6 +50,7 @@ DEFINE_SPADES_SETTING(cg_manualFocus, "0");
 DEFINE_SPADES_SETTING(cg_depthOfFieldAmount, "1");
 DEFINE_SPADES_SETTING(cg_shake, "1");
 DEFINE_SPADES_SETTING(cg_playerHitboxes, "1");
+DEFINE_SPADES_SETTING(cg_debugBlockCursor, "0");
 
 SPADES_SETTING(cg_ragdoll);
 SPADES_SETTING(cg_hurtScreenEffects);
@@ -653,16 +654,24 @@ namespace spades {
 								  /* B (Z) */ active ? 1.0F : 0.0F
 								);
 
-								// Hide cursor if needed to stop z-fighting
-								if (blocks > 2 && map->IsSolid(v.x, v.y, v.z))
-									continue;
-
 								ModelRenderParam param;
 								param.ghost = true;
 								param.opacity = active ? 0.5F : 0.25F;
 								param.customColor = color;
 								param.matrix = Matrix4::Translate(MakeVector3(v) + 0.5F);
 								param.matrix = param.matrix * Matrix4::Scale(0.1F);
+
+								if (cg_debugBlockCursor) {
+									AddDebugObjectToScene(
+									  param.matrix * curLine->GetBoundingBox(),
+									  MakeVector4(color.x, color.y, color.z, 1));
+									continue;
+								}
+
+								// hide cursor if needed to stop z-fighting
+								if (blocks > 2 && map->IsSolid(v.x, v.y, v.z))
+									continue;
+
 								renderer->RenderModel(*curLine, param);
 							}
 						}
