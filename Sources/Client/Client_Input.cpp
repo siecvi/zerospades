@@ -490,7 +490,8 @@ namespace spades {
 				} else if (CheckKey(cg_keyAltAttack, name)) {
 					bool lastVal = weapInput.secondary;
 					if (p.IsToolWeapon() && !cg_holdAimDownSight) {
-						if (down && !p.GetWeapon().IsReloading())
+						Weapon& w = p.GetWeapon();
+						if (down && (!w.IsReloading() || w.IsReloadSlow()))
 							weapInput.secondary = !weapInput.secondary;
 					} else {
 						weapInput.secondary = down;
