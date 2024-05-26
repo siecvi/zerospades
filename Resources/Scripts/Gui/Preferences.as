@@ -67,7 +67,7 @@ namespace spades {
             }
 
             AddTab(GameOptionsPanel(Manager, options, fontManager), _Tr("Preferences", "Game Options"));
-            AddTab(RendererOptionsPanel(Manager, options, fontManager), _Tr("Preferences", "Renderer Settings"));
+            AddTab(RendererOptionsPanel(Manager, options, fontManager), _Tr("Preferences", "Graphics Settings"));
             AddTab(ControlOptionsPanel(Manager, options, fontManager), _Tr("Preferences", "Controls"));
             AddTab(MiscOptionsPanel(Manager, options, fontManager), _Tr("Preferences", "Misc"));
 

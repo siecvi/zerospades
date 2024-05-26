@@ -276,7 +276,7 @@ msgstr "No conectado"
 #: Sources/Client/NetClient.cpp:498
 msgctxt "NetClient"
 msgid "Awaiting for state"
-msgstr "A la espera del estado"
+msgstr "Esperando el estado"
 
 #: Sources/Client/NetClient.cpp:508 Sources/Client/NetClient.cpp:1277
 msgctxt "NetClient"
@@ -808,7 +808,7 @@ msgstr "Sensibilidad del zoom"
 #: Resources/Scripts/Gui/Preferences.as:686
 msgctxt "Preferences"
 msgid "Exponential Power"
-msgstr "Puntos por pulgada (DPI)"
+msgstr "Exponente de aceleración"
 
 #: Resources/Scripts/Gui/Preferences.as:688
 msgctxt "Preferences"
@@ -853,7 +853,7 @@ msgstr "Ultima arma usada"
 #: Resources/Scripts/Gui/Preferences.as:696
 msgctxt "Preferences"
 msgid "Switch Tools by Wheel"
-msgstr "Cambiar herramienta con la rueda"
+msgstr "Cambiar arma con la rueda"
 
 #: Resources/Scripts/Gui/Preferences.as:698
 msgctxt "Preferences"
@@ -873,12 +873,12 @@ msgstr "Retroceder"
 #: Resources/Scripts/Gui/Preferences.as:701
 msgctxt "Preferences"
 msgid "Move Left"
-msgstr "Mover a la izquierda"
+msgstr "Moverse a la izquierda"
 
 #: Resources/Scripts/Gui/Preferences.as:702
 msgctxt "Preferences"
 msgid "Move Right"
-msgstr "Mover a la derecha"
+msgstr "Moverse a la derecha"
 
 #: Resources/Scripts/Gui/Preferences.as:703
 msgctxt "Preferences"
@@ -888,7 +888,7 @@ msgstr "Agacharse"
 #: Resources/Scripts/Gui/Preferences.as:704
 msgctxt "Preferences"
 msgid "Sneak"
-msgstr "Colarse"
+msgstr "Caminar (Moverse lento)"
 
 #: Resources/Scripts/Gui/Preferences.as:705
 msgctxt "Preferences"
@@ -898,7 +898,7 @@ msgstr "Saltar"
 #: Resources/Scripts/Gui/Preferences.as:706
 msgctxt "Preferences"
 msgid "Sprint"
-msgstr "Correr"
+msgstr "Correr (Moverse rapido)"
 
 #: Resources/Scripts/Gui/Preferences.as:709
 msgctxt "Preferences"
@@ -938,12 +938,12 @@ msgstr "Guardar mapa"
 #: Resources/Scripts/Gui/Preferences.as:716
 msgctxt "Preferences"
 msgid "Save Sceneshot"
-msgstr "Guardar Sceneshot"
+msgstr "Guardar sceneshot"
 
 #: Resources/Scripts/Gui/Preferences.as:717
 msgctxt "Preferences"
 msgid "Save Screenshot"
-msgstr "Guardar Screenshot"
+msgstr "Guardar screenshot"
 
 #: Resources/Scripts/Gui/Preferences.as:736
 msgctxt "Preferences"
@@ -1174,7 +1174,7 @@ msgstr "Difumina los objetos fuera del foco."
 #: Resources/Scripts/Gui/StartupScreen.as:1186
 msgctxt "StartupScreen"
 msgid "Screen Space Ambient Occlusion"
-msgstr "Oclusión de espacio de pantalla"
+msgstr "Oclusión ambiental de espacio en pantalla"
 
 #: Resources/Scripts/Gui/StartupScreen.as:1187
 msgctxt "StartupScreen"
@@ -1229,8 +1229,8 @@ msgid ""
 "particles."
 msgstr ""
 "Calidad de partículas|Bajo:Artefactos se producen cuando una partícula "
-"intersecta otros objetos.|Medio:La partícula intersecta objetos suavemente.|"
-"Alto:La partícula intersecta objetos suavemente, y algunos objetos proyectan "
+"intersecta otros objetos.|Medio:Las partículas intersectan objetos suavemente.|"
+"Alto:Las partículas intersectan objetos suavemente, y algunos objetos proyectan "
 "su sombra a las partículas."
 
 #: Resources/Scripts/Gui/StartupScreen.as:1213
@@ -1255,7 +1255,7 @@ msgstr "Sombras"
 #: Resources/Scripts/Gui/StartupScreen.as:1219
 msgctxt "StartupScreen"
 msgid "Non-static object casts a shadow."
-msgstr "Objeto no estático proyecta una sombra."
+msgstr "Los objetos no estáticos proyectan una sombra."
 
 #: Resources/Scripts/Gui/StartupScreen.as:1221
 msgctxt "StartupScreen"
@@ -1616,8 +1616,8 @@ msgstr "Ping"
 
 #: Resources/Scripts/Gui/Preferences.as:56
 msgctxt "Preferences"
-msgid "Renderer Settings"
-msgstr "Opciones graficas"
+msgid "Graphics Settings"
+msgstr "Opciones gráficas"
 
 #: Resources/Scripts/Gui/Preferences.as:605
 msgctxt "Preferences"
@@ -1747,7 +1747,7 @@ msgstr "Minimapa"
 #: Resources/Scripts/Gui/Preferences.as:666
 msgctxt "Preferences"
 msgid "Minimap Size"
-msgstr "Tamaño del Minimapa"
+msgstr "Tamaño del minimapa"
 
 #: Resources/Scripts/Gui/Preferences.as:668
 msgctxt "Preferences"
@@ -2159,7 +2159,7 @@ msgstr "Volumen de impacto"
 #: Resources/Scripts/Gui/Preferences.as:1162
 msgctxt "Preferences"
 msgid "Headshot Feedback Volume"
-msgstr "Volumen de tiro en la cabeza"
+msgstr "Volumen de impacto en la cabeza"
 
 #: Resources/Scripts/Gui/Preferences.as:1177
 msgctxt "Preferences"
@@ -2173,8 +2173,8 @@ msgstr "Altura de estadísticas del jugador"
 
 #: Resources/Scripts/Gui/Preferences.as:1186
 msgctxt "Preferences"
-msgid "Default Player Models"
-msgstr "Modelos de jugadores predeterminados"
+msgid "Classic Player Model"
+msgstr "Modelo clásico de jugadores"
 
 msgctxt "Preferences"
 msgid "HUD Edge Positions"
@@ -2460,3 +2460,4 @@ msgstr "Reapareciendo en: {0}"
 msgctxt "Client"
 msgid "Volume: {0}%"
 msgstr "Volumen: {0}%"
+

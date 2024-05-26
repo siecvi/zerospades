@@ -1551,7 +1551,7 @@ msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:56
 msgctxt "Preferences"
-msgid "Renderer Settings"
+msgid "Graphics Settings"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:605
@@ -2097,7 +2097,7 @@ msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:1186
 msgctxt "Preferences"
-msgid "Default Player Models"
+msgid "Classic Player Model"
 msgstr ""
 
 msgctxt "Preferences"
@@ -2382,3 +2382,4 @@ msgstr ""
 msgctxt "Client"
 msgid "Volume: {0}%"
 msgstr ""
+
