@@ -53,6 +53,8 @@ namespace spades {
 #pragma mark - Server Packet Handlers
 
 		void Client::LocalPlayerCreated() {
+			renderer->UpdateFlatGameMap();
+
 			freeCameraState.position = lastSceneDef.viewOrigin;
 			playerInput.jump = PlayerInput().jump;
 			weapInput = WeaponInput();
