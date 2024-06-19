@@ -415,6 +415,8 @@ namespace spades {
 			Handle<IImage> tracerImg = renderer.RegisterImage("Gfx/White.tga");
 			const float tracerW = 0.5F;
 			const AABB2 tracerInRect{0.0F, 0.0F, tracerImg->GetWidth(), tracerImg->GetHeight()};
+
+			renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 0, 1) * alpha);
 			for (const auto& localEntity : client->localEntities) {
 				auto* const tracer = dynamic_cast<MapViewTracer*>(localEntity.get());
 				if (!tracer)
@@ -446,13 +448,22 @@ namespace spades {
 						line3.second - normal * tracerW
 					};
 
-					renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 0, 1) * alpha);
 					renderer.DrawImage(tracerImg, vt[0], vt[1], vt[2], tracerInRect);
 				}
 			}
 
 			// draw player's icon
+			const int iconMode = cg_minimapPlayerIcon;
+			const int colorMode = cg_minimapPlayerColor;
+			const int namesMode = cg_minimapPlayerNames;
+
 			Handle<IImage> playerIcon = renderer.RegisterImage("Gfx/Map/Player.png");
+			Handle<IImage> playerRifleIcon = renderer.RegisterImage("Gfx/Map/Rifle.png");
+			Handle<IImage> playerSMGIcon = renderer.RegisterImage("Gfx/Map/SMG.png");
+			Handle<IImage> playerShotgunIcon = renderer.RegisterImage("Gfx/Map/Shotgun.png");
+			Handle<IImage> playerViewIcon = renderer.RegisterImage("Gfx/Map/View.png");
+			Handle<IImage> playerADSViewIcon = renderer.RegisterImage("Gfx/Map/ViewADS.png");
+
 			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
 				auto maybePlayer = world->GetPlayer(static_cast<unsigned int>(i));
 				if (!maybePlayer)
@@ -471,31 +482,22 @@ namespace spades {
 				IntVector3 iconColor = p.GetColor();
 				if (&p == &localPlayer && !localPlayerIsSpectator)
 					iconColor = MakeIntVector3(0, 255, 255);
-				else if (cg_minimapPlayerColor)
+				else if (colorMode)
 					iconColor = MakeIntVector3(palette[i][0], palette[i][1], palette[i][2]);
 				Vector4 iconColorF = ModifyColor(iconColor) * alpha;
 
-				if (cg_minimapPlayerIcon) {
+				if (iconMode) {
 					switch (p.GetWeaponType()) {
-						case RIFLE_WEAPON:
-							playerIcon = renderer.RegisterImage("Gfx/Map/Rifle.png");
-							break;
-						case SMG_WEAPON:
-							playerIcon = renderer.RegisterImage("Gfx/Map/SMG.png");
-							break;
-						case SHOTGUN_WEAPON:
-							playerIcon = renderer.RegisterImage("Gfx/Map/Shotgun.png");
-							break;
+						case RIFLE_WEAPON: playerIcon = playerRifleIcon; break;
+						case SMG_WEAPON: playerIcon = playerSMGIcon; break;
+						case SHOTGUN_WEAPON: playerIcon = playerShotgunIcon; break;
 					}
 				}
 
 				// draw the focused player view
 				if (&p == &focusPlayer) {
-					Handle<IImage> viewIcon = focusPlayer.IsZoomed()
-						? renderer.RegisterImage("Gfx/Map/ViewADS.png")
-						: renderer.RegisterImage("Gfx/Map/View.png");
-
-					DrawIcon(focusPlayerPos, *viewIcon, iconColorF * 0.9F, focusPlayerAngle);
+					DrawIcon(focusPlayerPos, focusPlayer.IsZoomed()
+						? *playerADSViewIcon : *playerViewIcon, iconColorF * 0.9F, focusPlayerAngle);
 					DrawIcon(focusPlayerPos, *playerIcon, iconColorF, focusPlayerAngle);
 					continue;
 				}
@@ -506,7 +508,7 @@ namespace spades {
 				DrawIcon(pos, *playerIcon, iconColorF, playerAngle);
 
 				// draw player names
-				if (cg_minimapPlayerNames)
+				if (namesMode == 1 || (namesMode >= 2 && largeMap))
 					DrawText(p.GetName(), pos, MakeVector4(1, 1, 1, 0.75F * alpha));
 			}
 
