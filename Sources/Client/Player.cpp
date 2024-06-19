@@ -82,6 +82,8 @@ namespace spades {
 			pendingPlaceBlock = false;
 			pendingRestockBlock = false;
 			canPending = false;
+
+			respawnTime = 0.0F;
 		}
 
 		Player::~Player() { SPADES_MARK_FUNCTION(); }
