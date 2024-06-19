@@ -271,6 +271,9 @@ namespace spades {
 			audioDevice->RegisterSound("Sounds/Misc/SwitchMapZoom.opus");
 			audioDevice->RegisterSound("Sounds/Misc/OpenMap.opus");
 			audioDevice->RegisterSound("Sounds/Misc/CloseMap.opus");
+			audioDevice->RegisterSound("Sounds/Misc/BlockFall.opus");
+			audioDevice->RegisterSound("Sounds/Misc/BlockDestroy.opus");
+			audioDevice->RegisterSound("Sounds/Misc/BlockBounce.opus");
 			audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
 			audioDevice->RegisterSound("Sounds/Player/Footstep1.opus");
 			audioDevice->RegisterSound("Sounds/Player/Footstep2.opus");
