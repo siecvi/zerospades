@@ -368,7 +368,8 @@ namespace spades {
 			l.useLensFlare = true;
 			flashDlights.push_back(l);
 
-			if (!cg_particles)
+			int particleMode = cg_particles;
+			if (!particleMode)
 				return;
 
 			// determines free space around for SetTrajectory
@@ -407,7 +408,7 @@ namespace spades {
 				localEntities.emplace_back(std::move(ent));
 			}
 
-			if ((int)cg_particles < 2)
+			if (particleMode < 2)
 				return;
 
 			// rapid smoke
@@ -431,7 +432,7 @@ namespace spades {
 				               (SampleRandomFloat() - SampleRandomFloat()) * 0.2F)) * 2.0F, 1.0F, 0.0F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 				ent->SetRadius(1.5F + SampleRandomFloat() * SampleRandomFloat() * 0.8F, 0.2F);
-				switch ((int)cg_particles) {
+				switch (particleMode) {
 					case 1: ent->SetLifeTime(0.8F + SampleRandomFloat() * 1.0F, 0.1F, 8.0F); break;
 					case 2: ent->SetLifeTime(1.5F + SampleRandomFloat() * 2.0F, 0.1F, 8.0F); break;
 					case 3:

@@ -616,26 +616,24 @@ namespace spades {
 							int blocks = static_cast<int>(cells.size());
 							bool valid = blocks <= p->GetNumBlocks();
 							bool active = blockCursorActive && valid;
+							bool debugCursor = cg_debugBlockCursor;
 
 							Handle<IModel> curLine = renderer->RegisterModel("Models/MapObjects/BlockCursorLine.kv6");
 
 							for (const auto& v : cells) {
-								Vector3 const color(
-								  /* R (X) */ 1.0F,
-								  /* G (Y) */ valid ? 1.0F : 0.0F,
-								  /* B (Z) */ active ? 1.0F : 0.0F
-								);
+								const Vector3 blockF = MakeVector3(v);
+								const Vector3 color(1.0F, valid, active);
 
 								ModelRenderParam param;
 								param.ghost = true;
 								param.opacity = active ? 0.5F : 0.25F;
 								param.customColor = color;
-								param.matrix = Matrix4::Translate(MakeVector3(v) + 0.5F);
+								param.matrix = Matrix4::Translate(blockF + 0.5F);
 								param.matrix = param.matrix * Matrix4::Scale(0.1F);
 
-								if (cg_debugBlockCursor) {
+								if (debugCursor) {
 									AddDebugObjectToScene(
-									  param.matrix * curLine->GetBoundingBox(),
+									  AABB3(blockF.x, blockF.y, blockF.z, 1, 1, 1),
 									  MakeVector4(color.x, color.y, color.z, 1));
 									continue;
 								}

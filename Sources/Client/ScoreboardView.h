@@ -39,6 +39,7 @@ namespace spades {
 			CTFGameMode* ctf;
 			TCGameMode* tc;
 			Handle<IFont> spectatorFont;
+			Handle<IImage> intelIcon;
 
 			int GetTeamScore(int) const;
 			Vector4 GetTeamColor(int);

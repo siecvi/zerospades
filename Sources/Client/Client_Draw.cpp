@@ -288,10 +288,9 @@ namespace spades {
 			// draw shadow
 			img = renderer->RegisterImage("Gfx/White.tga");
 			for (float y2 = 0.0F; y2 < teamBarH; y2 += 1.0F) {
-				float per = y2 / teamBarH;
-				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.5) * per);
-				renderer->DrawImage(img, AABB2(x - teamBarW, teamBarH + teamBarY - y2, teamBarW, 1.0F));
-				renderer->DrawImage(img, AABB2(x, teamBarH + teamBarY - y2, teamBarW, 1.0F));
+				float per = 1.0F - (y2 / teamBarH);
+				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.5 * per));
+				renderer->DrawImage(img, AABB2(x - teamBarW, teamBarY + y2, teamBarW * 2, 1.0F));
 			}
 
 			// draw team bar
@@ -807,7 +806,7 @@ namespace spades {
 			addLine(_Tr("Client", "Grenade Kills: {0}", grenadeKills));
 
 			if (cg_playerStatsShowPlacedBlocks && !net->GetGameProperties()->isGameModeArena)
-				addLine(_Tr("Client", "Blocks Placed: {0}", placedBlocks).c_str());
+				addLine(_Tr("Client", "Blocks Placed: {0}", placedBlocks));
 		}
 
 		void Client::UpdateDamageIndicators(float dt) {

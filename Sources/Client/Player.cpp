@@ -731,6 +731,8 @@ namespace spades {
 			mapResult = map->CastRay2(muzzle, dir, 32);
 
 			stmp::optional<Player&> hitPlayer;
+
+			if (!dig) {
 			for (size_t i = 0; i < world.GetNumPlayerSlots(); i++) {
 				auto maybeOther = world.GetPlayer(static_cast<unsigned int>(i));
 				if (maybeOther == this || !maybeOther)
@@ -747,6 +749,7 @@ namespace spades {
 
 				hitPlayer = other;
 				break;
+			}
 			}
 
 			IntVector3 outBlockPos = mapResult.hitBlock;

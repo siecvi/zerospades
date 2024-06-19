@@ -84,7 +84,9 @@ namespace spades {
 		void CenterMessageView::Draw() {
 			SPADES_MARK_FUNCTION();
 
+			float sw = renderer.ScreenWidth();
 			float lh = GetLineHeight();
+			float scale = Clamp((float)cg_centerMessageScale, 0.75F, 1.0F);
 
 			for (const auto& ent : entries) {
 				const auto& msg = ent.msg;
@@ -93,11 +95,10 @@ namespace spades {
 				if (fade > 1.0F)
 					fade = 1.0F;
 
-				float scale = Clamp((float)cg_centerMessageScale, 0.75F, 1.0F);
 				Vector2 size = font->Measure(msg) * scale;
 
+				float x = (sw - size.x) * 0.5F;
 				float y = 100.0F + lh * (float)ent.line;
-				float x = (renderer.ScreenWidth() - size.x) * 0.5F;
 
 				Vector4 shadow = {0, 0, 0, fade * 0.5F};
 				Vector4 color = {1, 1, 1, fade};

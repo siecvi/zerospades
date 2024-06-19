@@ -478,7 +478,7 @@ namespace spades {
 			// Update sounds
 			try {
 				audioDevice->Respatialize(sceneDef.viewOrigin,
-					sceneDef.viewAxis[2],  sceneDef.viewAxis[1]);
+					sceneDef.viewAxis[2], sceneDef.viewAxis[1]);
 			} catch (const std::exception& ex) {
 				SPLog("Audio subsystem returned error (ignored):\n%s", ex.what());
 			}

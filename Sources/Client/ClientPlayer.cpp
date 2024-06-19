@@ -889,6 +889,7 @@ namespace spades {
 				Handle<IModel> upperModel = renderer.RegisterModel((modelPath + "UpperArm.kv6").c_str());
 
 				const float armlen = 0.5F;
+				const Matrix4 armsScale = Matrix4::Scale(0.05F);
 
 				Vector3 shoulders[] = {{0.4F, 0.0F, 0.25F}, {-0.4F, 0.0F, 0.25F}};
 				Vector3 hands[] = {leftHand, rightHand};
@@ -901,8 +902,7 @@ namespace spades {
 					axises[0] = Vector3::Cross(axises[1], axises[2]).Normalize();
 
 					param.matrix = Matrix4::FromAxis(axises[0], axises[1], axises[2], v2);
-					param.matrix = param.matrix * Matrix4::Scale(0.05F);
-					param.matrix = eyeMatrix * param.matrix;
+					param.matrix = eyeMatrix * param.matrix * armsScale;
 					renderer.RenderModel(model, param);
 				};
 

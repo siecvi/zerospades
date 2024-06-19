@@ -142,6 +142,10 @@ namespace spades {
 				// this could get annoying with some server scripts..
 				client->PlayBlockDestroySound(vmOrigin);
 
+				int particleMode = cg_particles;
+				if (!particleMode)
+					return false;
+
 				Handle<IImage> img = client->GetRenderer().RegisterImage("Gfx/White.tga");
 
 				auto* getRandom = SampleRandomFloat;
@@ -165,27 +169,25 @@ namespace spades {
 
 							Vector3 p3 = p2 + vmAxis3 * (float)z;
 
-							if (cg_particles) {
-								for (int i = 0; i < 4; i++) {
-									auto ent = stmp::make_unique<ParticleSpriteEntity>(
-									  *client, img.GetPointerOrNull(), color);
-									ent->SetTrajectory(p3, RandomAxis() * 4.0F, 1.0F, 0.6F);
-									ent->SetRadius(0.4F + getRandom() * getRandom() * 0.1F);
-									ent->SetLifeTime(2.0F, 0.0F, 1.0F);
-									if (usePrecisePhysics)
-										ent->SetBlockHitAction(BlockHitAction::BounceWeak);
-									client->AddLocalEntity(std::move(ent));
-								}
+							for (int i = 0; i < 4; i++) {
+								auto ent = stmp::make_unique<ParticleSpriteEntity>(
+									*client, img.GetPointerOrNull(), color);
+								ent->SetTrajectory(p3, RandomAxis() * 4.0F, 1.0F, 0.6F);
+								ent->SetRadius(0.4F + getRandom() * getRandom() * 0.1F);
+								ent->SetLifeTime(2.0F, 0.0F, 1.0F);
+								if (usePrecisePhysics)
+									ent->SetBlockHitAction(BlockHitAction::BounceWeak);
+								client->AddLocalEntity(std::move(ent));
+							}
 
-								if ((int)cg_particles >= 2) {
-									auto ent = stmp::make_unique<SmokeSpriteEntity>(*client, color, 70.0F);
-									ent->SetTrajectory(p3, RandomAxis() * 0.2F, 1.0F, 0.0F);
-									ent->SetRotation(getRandom() * M_PI_F * 2.0F);
-									ent->SetRadius(1.0F, 0.5F);
-									ent->SetBlockHitAction(BlockHitAction::Ignore);
-									ent->SetLifeTime(1.0F + getRandom() * 0.5F, 0.0F, 1.0F);
-									client->AddLocalEntity(std::move(ent));
-								}
+							if (particleMode >= 2) {
+								auto ent = stmp::make_unique<SmokeSpriteEntity>(*client, color, 70.0F);
+								ent->SetTrajectory(p3, RandomAxis() * 0.2F, 1.0F, 0.0F);
+								ent->SetRotation(getRandom() * M_PI_F * 2.0F);
+								ent->SetRadius(1.0F, 0.5F);
+								ent->SetBlockHitAction(BlockHitAction::Ignore);
+								ent->SetLifeTime(1.0F + getRandom() * 0.5F, 0.0F, 1.0F);
+								client->AddLocalEntity(std::move(ent));
 							}
 						}
 					}

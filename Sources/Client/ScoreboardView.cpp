@@ -66,6 +66,8 @@ namespace spades {
 			spectatorFont = hasSpecialChar
 				? client->fontManager->GetMediumFont()
 				: client->fontManager->GetSquareDesignFont();
+
+			intelIcon = renderer.RegisterImage("Gfx/Map/Intel.png");
 		}
 
 		ScoreboardView::~ScoreboardView() {}
@@ -128,7 +130,7 @@ namespace spades {
 			float teamBarHeight = 60.0F;
 			float contentsLeft = (sw - contentsWidth) * 0.5F;
 			float contentsRight = contentsLeft + contentsWidth;
-			float playersHeight = 264.0F - teamBarHeight;
+			float playersHeight = 300.0F - teamBarHeight;
 			float playersTop = teamBarTop + teamBarHeight;
 			float playersBottom = playersTop + playersHeight;
 			
@@ -244,6 +246,8 @@ namespace spades {
 			int row = 0, col = 0;
 			float colWidth = width / (float)cols;
 
+			const int colorMode = cg_minimapPlayerColor;
+
 			for (const auto& ent : entries) {
 				float rowY = top + 6.0F + row * rowHeight;
 				float colX = left + col * colWidth;
@@ -251,7 +255,7 @@ namespace spades {
 				// draw player id
 				sprintf(buf, "#%d", ent.id); // FIXME: 1-base?
 				size = font.Measure(buf);
-				if (cg_minimapPlayerColor) {
+				if (colorMode) {
 					IntVector3 colorplayer = MakeIntVector3(palette[ent.id][0], palette[ent.id][1], palette[ent.id][2]);
 					Vector4 colorplayerF = ModifyColor(colorplayer);
 					font.Draw(buf, MakeVector2(colX + 35.0F - size.x, rowY), 1.0F, colorplayerF);
@@ -272,11 +276,10 @@ namespace spades {
 
 				// draw intel icon
 				if (ctf && ctf->PlayerHasIntel(world->GetPlayer(ent.id).value())) {
-					Handle<IImage> img = renderer.RegisterImage("Gfx/Map/Intel.png");
 					float pulse = std::max(0.5F, fabsf(sinf(world->GetTime() * 4.0F)));
 					renderer.SetColorAlphaPremultiplied(white * pulse);
-					renderer.DrawImage(
-					  img, AABB2(colX + colWidth - 30.0F - size.x, rowY + 2.0F, 16.0F, 16.0F));
+					renderer.DrawImage(intelIcon, AABB2(floorf(colX + colWidth - 30.0F - size.x),
+					                                    rowY + 1.0F, 18.0F, 18.0F));
 				}
 
 				row++;
