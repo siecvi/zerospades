@@ -160,14 +160,23 @@ namespace spades {
 		void Client::CaptureColor() {
 			Player& p = GetWorld()->GetLocalPlayer().value();
 
-			uint32_t col;
-			IntVector3 outBlockPos;
-			if (!map->CastRay(p.GetEye(), p.GetFront(), 256, outBlockPos))
-				col = IntVectorToColor(world->GetFogColor());
-			else
-				col = map->GetColorWrapped(outBlockPos.x, outBlockPos.y, outBlockPos.z);
+			World::WeaponRayCastResult res;
+			res = world->WeaponRayCast(p.GetEye(), p.GetFront(), p.GetId());
 
-			p.SetHeldBlockColor(IntVectorFromColor(col));
+			IntVector3 col;
+			if (res.hit) {
+				if (res.playerId) {
+					Player& player = world->GetPlayer(res.playerId.value()).value();
+					col = player.IsToolBlock() ? player.GetBlockColor() : player.GetColor();
+				} else {
+					col = IntVectorFromColor(
+					  map->GetColorWrapped(res.blockPos.x, res.blockPos.y, res.blockPos.z));
+				}
+			} else {
+				col = world->GetFogColor();
+			}
+
+			p.SetHeldBlockColor(col);
 			net->SendHeldBlockColor();
 		}
 
