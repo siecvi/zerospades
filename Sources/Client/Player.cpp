@@ -601,19 +601,19 @@ namespace spades {
 					if (map->IsValidMapCoord(outBlockPos.x, outBlockPos.y, outBlockPos.z)) {
 						SPAssert(map->IsSolid(outBlockPos.x, outBlockPos.y, outBlockPos.z));
 
-						// block damage shouldn't be shared
-						if (IsLocalPlayer() && outBlockPos.z < map->GroundDepth()) {
+						// damage block
+						if (outBlockPos.z < map->GroundDepth()) {
 							uint32_t col = map->GetColor(outBlockPos.x, outBlockPos.y, outBlockPos.z);
 							int health = (col >> 24) - weapon->GetDamage(HitTypeBlock);
 							if (health <= 0 && !blockDestroyed) {
 								health = 0;
 								blockDestroyed = true;
-								if (listener) // send destroy cmd for local
+								if (listener && IsLocalPlayer()) // send destroy cmd for local
 									listener->LocalPlayerBlockAction(outBlockPos, BlockActionTool);
 							}
 
 							if (map->IsSolid(outBlockPos.x, outBlockPos.y, outBlockPos.z)) {
-								col = (col & 0xFFFFFF) | ((std::max(health, 0) & 0xFF) << 24);
+								col = (col & 0xFFFFFF) | ((health & 0xFF) << 24);
 								map->Set(outBlockPos.x, outBlockPos.y, outBlockPos.z, true, col);
 								world.MarkBlockForRegeneration(outBlockPos);
 							}
@@ -739,23 +739,23 @@ namespace spades {
 			stmp::optional<Player&> hitPlayer;
 
 			if (!dig) {
-			for (size_t i = 0; i < world.GetNumPlayerSlots(); i++) {
-				auto maybeOther = world.GetPlayer(static_cast<unsigned int>(i));
-				if (maybeOther == this || !maybeOther)
-					continue;
+				for (size_t i = 0; i < world.GetNumPlayerSlots(); i++) {
+					auto maybeOther = world.GetPlayer(static_cast<unsigned int>(i));
+					if (maybeOther == this || !maybeOther)
+						continue;
 
-				Player& other = maybeOther.value();
-				if (!other.IsAlive() || other.IsSpectator())
-					continue; // filter deads/spectators
-				if ((other.GetEye() - muzzle).GetSquaredLength() >
-				    (MELEE_DISTANCE * MELEE_DISTANCE))
-					continue; // skip players outside attack range
-				if (!other.RayCastApprox(muzzle, dir))
-					continue; // quickly reject players unlikely to be hit
+					Player& other = maybeOther.value();
+					if (!other.IsAlive() || other.IsSpectator())
+						continue; // filter deads/spectators
+					if ((other.GetEye() - muzzle).GetSquaredLength() >
+					    (MELEE_DISTANCE * MELEE_DISTANCE))
+						continue; // skip players outside attack range
+					if (!other.RayCastApprox(muzzle, dir))
+						continue; // quickly reject players unlikely to be hit
 
-				hitPlayer = other;
-				break;
-			}
+					hitPlayer = other;
+					break;
+				}
 			}
 
 			IntVector3 outBlockPos = mapResult.hitBlock;
@@ -769,24 +769,24 @@ namespace spades {
 				if (map->IsValidMapCoord(outBlockPos.x, outBlockPos.y, outBlockPos.z)) {
 					SPAssert(map->IsSolid(outBlockPos.x, outBlockPos.y, outBlockPos.z));
 
-					// block damage shouldn't be shared
-					if (IsLocalPlayer() && outBlockPos.z < map->GroundDepth()) {
+					// damage block
+					if (outBlockPos.z < map->GroundDepth()) {
 						if (!dig) {
 							uint32_t col = map->GetColor(outBlockPos.x, outBlockPos.y, outBlockPos.z);
 							int health = (col >> 24) - 55;
 							if (health <= 0) {
 								health = 0;
-								if (listener) // send destroy cmd for local
+								if (listener && IsLocalPlayer()) // send destroy cmd for local
 									listener->LocalPlayerBlockAction(outBlockPos, BlockActionTool);
 							}
 
 							if (map->IsSolid(outBlockPos.x, outBlockPos.y, outBlockPos.z)) {
-								col = (col & 0xFFFFFF) | ((std::max(health, 0) & 0xFF) << 24);
+								col = (col & 0xFFFFFF) | ((health & 0xFF) << 24);
 								map->Set(outBlockPos.x, outBlockPos.y, outBlockPos.z, true, col);
 								world.MarkBlockForRegeneration(outBlockPos);
 							}
 						} else {
-							if (listener)
+							if (listener && IsLocalPlayer())
 								listener->LocalPlayerBlockAction(outBlockPos, BlockActionDig);
 						}
 					}
