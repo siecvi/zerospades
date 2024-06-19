@@ -301,27 +301,43 @@ msgctxt "NetClient"
 msgid "Error"
 msgstr "Error"
 
-#: Sources/Client/NetClient.cpp:702
+#: Sources/Client/NetClient.cpp:696
 msgctxt "NetClient"
 msgid "You are banned from this server."
 msgstr "Has sido baneado de este servidor."
 
-#: Sources/Client/NetClient.cpp:707 Sources/Client/NetClient.cpp:710
+#: Sources/Client/NetClient.cpp:697
 msgctxt "NetClient"
-msgid "You were kicked from this server."
-msgstr "Has sido expulsado de este servidor."
+msgid "Your network's public address has too many connections to this server."
+msgstr ""
+"La dirección pública de su red tiene demasiadas conexiones a este servidor."
 
-#: Sources/Client/NetClient.cpp:708
+#: Sources/Client/NetClient.cpp:698
 msgctxt "NetClient"
 msgid "Incompatible client protocol version."
 msgstr "Versión de protocolo de cliente incompatible."
 
-#: Sources/Client/NetClient.cpp:709
+#: Sources/Client/NetClient.cpp:699
 msgctxt "NetClient"
 msgid "Server full"
 msgstr "Servidor lleno"
 
-#: Sources/Client/NetClient.cpp:711
+#: Sources/Client/NetClient.cpp:700
+msgctxt "NetClient"
+msgid "Server shutdown"
+msgstr "Cierre del servidor"
+
+#: Sources/Client/NetClient.cpp:701
+msgctxt "NetClient"
+msgid "You were kicked from this server."
+msgstr "Has sido expulsado de este servidor."
+
+#: Sources/Client/NetClient.cpp:702
+msgctxt "NetClient"
+msgid "Nombre inválido"
+msgstr ""
+
+#: Sources/Client/NetClient.cpp:703
 msgctxt "NetClient"
 msgid "Unknown Reason"
 msgstr "Razón desconocida"
@@ -1592,12 +1608,6 @@ msgstr "Bienvenido al servidor, {0}!"
 msgctxt "Client"
 msgid "You have killed {0}"
 msgstr "Has matado a {0}"
-
-#: Sources/Client/NetClient.cpp:694
-msgctxt "NetClient"
-msgid "Your network's public address has too many connections to this server."
-msgstr ""
-"La dirección pública de su red tiene demasiadas conexiones a este servidor."
 
 #: Resources/Scripts/Gui/Console/ConsoleWindow.as:62
 msgctxt "Console"

@@ -94,6 +94,7 @@ namespace spades {
 				PacketTypeVersionGet = 33,			// S2C
 				PacketTypeVersionSend = 34,			// C2S
 				PacketTypeExtensionInfo = 60,
+				PacketTypePlayerProperties = 64,
 			};
 
 			enum class VersionInfoPropertyId : std::uint8_t {
@@ -688,12 +689,17 @@ namespace spades {
 		}
 
 		std::string NetClient::DisconnectReasonString(uint32_t num) {
+			if (!customKickReasonString.empty())
+				return customKickReasonString;
+
 			switch (num) {
 				case 1: return _Tr("NetClient", "You are banned from this server.");
 				case 2: return _Tr("NetClient", "Your network's public address has too many connections to this server.");
 				case 3: return _Tr("NetClient", "Incompatible client protocol version.");
 				case 4: return _Tr("NetClient", "Server full");
+				case 5: return _Tr("NetClient", "Server shutdown");
 				case 10: return _Tr("NetClient", "You were kicked from this server.");
+				case 20: return _Tr("NetClient", "Invalid name");
 				default: return _Tr("NetClient", "Unknown Reason");
 			}
 		}
@@ -725,11 +731,13 @@ namespace spades {
 			int extCount = r.ReadByte();
 			for (int i = 0; i < extCount; i++) {
 				int extId = r.ReadByte();
+				int extVer = r.ReadByte();
+
 				auto got = implementedExtensions.find(extId);
 				if (got == implementedExtensions.end()) {
-					SPLog("Client does not support extension %d", extId);
+					SPLog("Client does not support extension %d v%d", extId, extVer);
 				} else {
-					SPLog("Client supports extension %d", extId);
+					SPLog("Client supports extension %d v%d", extId, extVer);
 					extensions.emplace(got->first, got->second);
 				}
 			}
@@ -1165,20 +1173,27 @@ namespace spades {
 				} break;
 				case PacketTypeChatMessage: {
 					// might be wrong player id for server message
-					stmp::optional<Player&> p = GetPlayerOrNull(r.ReadByte());
+					int playerId = r.ReadByte();
 					int type = r.ReadByte();
-					std::string msg = r.ReadRemainingString();
+					std::string msg = TrimSpaces(r.ReadRemainingString());
 
-					if (type == 2) {
+					if (type == ChatTypeSystem) {
+						if (playerId == 255) {
+							customKickReasonString = msg.substr(0, 90);
+							return;
+						}
+
 						client->ServerSentMessage(false, msg);
 
 						// Speculate the best game properties based on the server generated messages
 						properties->HandleServerMessage(msg);
-					} else if (type == 0 || type == 1) {
-						if (p)
-							client->PlayerSentChatMessage(*p, (type == 0), TrimSpaces(msg));
-						else
-							client->ServerSentMessage((type == 1), TrimSpaces(msg));
+					} else if (type == ChatTypeAll || type == ChatTypeTeam) {
+						stmp::optional<Player&> p = GetPlayerOrNull(playerId);
+						if (p) {
+							client->PlayerSentChatMessage(*p, (type == ChatTypeAll), msg);
+						} else {
+							client->ServerSentMessage((type == ChatTypeTeam), msg);
+						}
 					}
 				} break;
 				case PacketTypeMapStart: {
@@ -1364,13 +1379,6 @@ namespace spades {
 						p.ReloadDone(clip, reserve);
 					}
 				} break;
-				case PacketTypeChangeTeam: {
-					Player& p = GetPlayer(r.ReadByte());
-					int team = r.ReadByte();
-					if (team < 0 || team > 2)
-						SPRaise("Received invalid team: %d", team);
-					p.SetTeam(team);
-				} break;
 				case PacketTypeChangeWeapon: {
 					Player& p = GetPlayer(r.ReadByte());
 					int weapon = r.ReadByte();
@@ -1385,6 +1393,24 @@ namespace spades {
 					// maybe this command is intended to change local player's
 					// weapon...
 					// p->SetWeaponType(wType);
+				} break;
+				case PacketTypePlayerProperties: {
+					int subId = r.ReadByte();
+					int pId = r.ReadByte();
+					int hp = r.ReadByte();
+					int blocks = r.ReadByte();
+					int grenades = r.ReadByte();
+					int clip = r.ReadByte();
+					int reserve = r.ReadByte();
+					int score = r.ReadByte();
+
+					Player& p = GetPlayer(pId);
+					Weapon& w = p.GetWeapon();
+
+					if (pId == GetWorld()->GetLocalPlayerIndex())
+						p.Refill(hp, grenades, blocks);
+					w.Refill(clip, reserve);
+					GetWorld()->GetPlayerPersistent(pId).score = score;
 				} break;
 				default:
 					printf("WARNING: dropped packet %d\n", (int)r.GetType());

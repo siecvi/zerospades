@@ -80,7 +80,7 @@ namespace spades {
 			blockCursorActive = false;
 			blockCursorDragging = false;
 			pendingPlaceBlock = false;
-			pendingRestockBlock = false;
+			pendingRestock = false;
 			canPending = false;
 
 			respawnTime = 0.0F;
@@ -246,24 +246,26 @@ namespace spades {
 			weapon->ReloadDone(clip, stock);
 		}
 
+		void Player::Refill(int hp, int grenades, int blocks) {
+			SPADES_MARK_FUNCTION();
+
+			localPlayerHealth = hp;
+			localPlayerGrenades = grenades;
+			localPlayerBlocks = blocks;
+			pendingRestock = true;
+		}
+
 		void Player::Restock() {
 			SPADES_MARK_FUNCTION();
 
 			if (!IsAlive())
 				return; // dead man cannot restock
 
-			health = 100;
-			grenades = 3;
+			Refill();
 			weapon->Restock();
-			pendingRestockBlock = true;
 
 			if (world.GetListener())
 				world.GetListener()->PlayerRestocked(*this);
-		}
-
-		void Player::GotBlock() {
-			if (blockStocks < 50)
-				blockStocks++;
 		}
 
 		void Player::SetTool(spades::client::Player::ToolType t) {
@@ -458,9 +460,11 @@ namespace spades {
 			if (weapon->FrameNext(dt))
 				FireWeapon();
 
-			if (pendingRestockBlock) {
-				blockStocks = 50;
-				pendingRestockBlock = false;
+			if (IsLocalPlayer() && pendingRestock) {
+				health = localPlayerHealth;
+				grenades = localPlayerGrenades;
+				blockStocks = localPlayerBlocks;
+				pendingRestock = false;
 			}
 		}
 

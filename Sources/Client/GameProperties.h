@@ -58,13 +58,13 @@ namespace spades {
 			bool isGameModeArena = false;
 
 			/**
-			 * Raises the upper limit of the number of player slots to 128.
+			 * Raises the upper limit of the number of player slots to 256.
 			 *
 			 * Reserved for a future extension.
 			 */
 			bool manyPlayers = false;
 
-			int GetMaxNumPlayerSlots() const { return manyPlayers ? 128 : 32; }
+			int GetMaxNumPlayerSlots() const { return manyPlayers ? 256 : 32; }
 		};
 	} // namespace client
 } // namespace spades

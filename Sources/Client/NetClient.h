@@ -54,7 +54,8 @@ namespace spades {
 		};
 
 		enum NetExtensionType {
-			ExtensionType128Player = 192,
+			ExtensionTypePlayerProperties = 0,
+			ExtensionTypePlayerLimit = 192,
 			ExtensionTypeMessageTypes = 193,
 			ExtensionTypeKickReason = 194,
 		};
@@ -99,7 +100,8 @@ namespace spades {
 			/** Extensions supported by both client and server (map of extension id → version) */
 			std::unordered_map<uint8_t, uint8_t> extensions;
 			/** Extensions implemented in this client (map of extension id → version) */
-			std::unordered_map<uint8_t, uint8_t> implementedExtensions{{ExtensionType128Player, 1},};
+			std::unordered_map<uint8_t, uint8_t> implementedExtensions{
+			  {ExtensionTypePlayerProperties, 1}, {ExtensionTypeKickReason, 1}};
 
 			class BandwidthMonitor {
 				ENetHost* host;
@@ -137,6 +139,7 @@ namespace spades {
 			Player& GetLocalPlayer();
 			stmp::optional<Player&> GetLocalPlayerOrNull();
 
+			std::string customKickReasonString;
 			std::string DisconnectReasonString(uint32_t);
 
 			void MapLoaded();

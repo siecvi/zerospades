@@ -532,11 +532,11 @@ namespace spades {
 				net->SendJoin(team, weap, playerName, lastScore);
 			} else { // localplayer has joined
 				Player& p = maybePlayer.value();
-					if (p.GetTeamId() != team)
-						net->SendTeamChange(team);
+				if (p.GetTeamId() != team)
+					net->SendTeamChange(team);
 				if (team != 255 && p.GetWeapon().GetWeaponType() != weap)
-						net->SendWeaponChange(weap);
-				}
+					net->SendWeaponChange(weap);
+			}
 
 			inGameLimbo = false;
 		}
@@ -696,7 +696,7 @@ namespace spades {
 							s = _Tr("Client", "*SPEC* ");
 					} else {
 						s = _Tr("Client", "*DEAD* ");
-				}
+					}
 				}
 				s += ChatWindow::TeamColorMessage(p.GetName(), p.GetTeamId());
 				s += ": ";
@@ -717,20 +717,17 @@ namespace spades {
 			scriptedUI->RecordChatLog(msg);
 
 			if (cg_serverAlert) {
-				if (msg.substr(0, 3) == "N% ") {
-					ShowAlert(msg.substr(3), AlertType::Notice);
-					return;
-				}
-				if (msg.substr(0, 3) == "!% ") {
-					ShowAlert(msg.substr(3), AlertType::Error);
-					return;
-				}
-				if (msg.substr(0, 3) == "%% ") {
-					ShowAlert(msg.substr(3), AlertType::Warning);
-					return;
-				}
 				if (msg.substr(0, 3) == "C% ") {
 					centerMessageView->AddMessage(msg.substr(3));
+					return;
+				} else if (msg.substr(0, 3) == "N% ") {
+					ShowAlert(msg.substr(3), AlertType::Notice);
+					return;
+				} else if (msg.substr(0, 3) == "%% ") {
+					ShowAlert(msg.substr(3), AlertType::Warning);
+					return;
+				} else if (msg.substr(0, 3) == "!% ") {
+					ShowAlert(msg.substr(3), AlertType::Error);
 					return;
 				}
 			}

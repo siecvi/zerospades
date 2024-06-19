@@ -36,6 +36,18 @@
 #define MAX_BLOCK_DISTANCE 3
 #define MAX_DIG_DISTANCE 3
 
+enum ChatType {
+	ChatTypeAll = 0,
+	ChatTypeTeam,
+	ChatTypeSystem,
+
+	// only through MessageTypes extension
+	ChatTypeBig,
+	ChatTypeInfo,
+	ChatTypeWarning,
+	ChatTypeError
+};
+
 enum WeaponType { RIFLE_WEAPON, SMG_WEAPON, SHOTGUN_WEAPON };
 
 enum BlockActionType {

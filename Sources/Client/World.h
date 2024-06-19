@@ -48,7 +48,7 @@ namespace spades {
 		class HitTestDebugger;
 		struct GameProperties;
 
-		constexpr std::size_t NumPlayerSlots = 128;
+		constexpr std::size_t NumPlayerSlots = 32; // 256
 
 		class World {
 			friend class Client; // FIXME: for debug

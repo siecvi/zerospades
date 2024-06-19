@@ -45,6 +45,10 @@ namespace spades {
 
 		Weapon::~Weapon() { SPADES_MARK_FUNCTION(); }
 
+		void Weapon::Refill(int ammo, int stock) {
+			this->ammo = ammo;
+			this->stock = stock;
+		}
 		void Weapon::Restock() { stock = GetMaxStock(); }
 
 		void Weapon::Reset() {

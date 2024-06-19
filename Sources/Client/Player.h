@@ -87,6 +87,11 @@ namespace spades {
 			int teamId;
 			IntVector3 color; // obsolete
 
+			int localPlayerHealth;
+			int localPlayerGrenades;
+			int localPlayerBlocks;
+			bool pendingRestock;
+
 			int health;
 			int grenades;
 			int blockStocks;
@@ -115,7 +120,6 @@ namespace spades {
 			bool lastSingleBlockBuildSeqDone;
 
 			bool pendingPlaceBlock;
-			bool pendingRestockBlock;
 			bool canPending;
 			IntVector3 pendingPlaceBlockPos;
 
@@ -171,8 +175,10 @@ namespace spades {
 			int GetNumGrenades() { return grenades; }
 			void Reload();
 			void ReloadDone(int clip, int stock);
+			void Refill(int hp = 100, int grenades = 3, int blocks = 50);
 			void Restock();
-			void GotBlock();
+			void GotBlock() { blockStocks = std::min(blockStocks + 1, 50); }
+			void UseBlocks(int c) { blockStocks = std::max(blockStocks - c, 0); }
 
 			bool IsToolSpade() { return tool == ToolSpade; }
 			bool IsToolBlock() { return tool == ToolBlock; }
@@ -192,7 +198,6 @@ namespace spades {
 
 			void SetWeaponType(WeaponType weap);
 			void SetTeam(int tId) { teamId = tId; }
-			void UseBlocks(int c) { blockStocks = std::max(blockStocks - c, 0); }
 
 			/** makes player's health 0. */
 			void KilledBy(KillType, Player& killer, int respawnTime);
