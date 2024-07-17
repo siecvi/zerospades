@@ -1233,7 +1233,9 @@ namespace spades {
                                     array<int> = {0, 2, 1});
             layouter.AddToggleField(_Tr("Preferences", "Show Player Statistics"), "cg_playerStats");
 			layouter.AddToggleField(_Tr("Preferences", "Show Placed Blocks"), "cg_playerStatsShowPlacedBlocks");
-            layouter.AddSliderGroup(_Tr("Preferences", "HUD Edge Positions"),
+            layouter.AddSliderField(_Tr("Preferences", "Player Statistics Height"), "cg_playerStatsHeight",
+            0, 100, 1, ConfigNumberFormatter(0, "px"));
+			layouter.AddSliderGroup(_Tr("Preferences", "HUD Edge Positions"),
             array<string> = { "cg_hudSafezoneX", "cg_hudSafezoneY"},
             0.2, 1, 0.01, 2, array<string> = { "X: ", "Y: "});
             layouter.AddSliderField(_Tr("Preferences", "HUD Color"), "cg_hudColor",
@@ -1244,8 +1246,7 @@ namespace spades {
             10, 100, 1, ConfigNumberFormatter(0, "px"));
             layouter.AddSliderField(_Tr("Preferneces", "Killfeed Height"), "cg_killfeedHeight",
             10, 100, 1, ConfigNumberFormatter(0, "px"));
-			layouter.AddSliderField(_Tr("Preferences", "Player Statistics Height"), "cg_playerStatsHeight",
-            0, 100, 1, ConfigNumberFormatter(0, "px"));
+			layouter.AddToggleField(_Tr("Preferences", "Killfeed Icons"), "cg_killfeedIcons");
             layouter.AddToggleField(_Tr("Preferences", "Small HUD Font"),
                 "cg_smallFont", not options.GameActive);
 

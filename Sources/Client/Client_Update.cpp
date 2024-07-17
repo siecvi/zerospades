@@ -56,7 +56,9 @@ DEFINE_SPADES_SETTING(cg_deathSoundGain, "0.2");
 DEFINE_SPADES_SETTING(cg_tracers, "1");
 DEFINE_SPADES_SETTING(cg_tracersFirstPerson, "1");
 DEFINE_SPADES_SETTING(cg_hitAnalyze, "0");
+DEFINE_SPADES_SETTING(cg_killfeedIcons, "0");
 
+SPADES_SETTING(cg_smallFont);
 SPADES_SETTING(cg_centerMessage);
 SPADES_SETTING(cg_holdAimDownSight);
 SPADES_SETTING(cg_damageIndicators);
@@ -804,6 +806,10 @@ namespace spades {
 
 		void Client::PlayerKilledPlayer(spades::client::Player& killer,
 			spades::client::Player& victim, KillType kt) {
+
+			// only used in case of KillTypeWeapon
+			const auto& weaponType = killer.GetWeapon().GetWeaponType();
+
 			// The local player is dead
 			if (victim.IsLocalPlayer()) {
 				// initialize the look-you-are-dead camera
@@ -880,7 +886,7 @@ namespace spades {
 					if (kt == KillTypeMelee) {
 						dir *= 6.0F;
 					} else {
-						switch (killer.GetWeapon().GetWeaponType()) {
+						switch (weaponType) {
 							case SMG_WEAPON: dir *= 2.8F; break;
 							case SHOTGUN_WEAPON: dir *= 4.5F; break;
 							default: dir *= 3.5F; break;
@@ -903,12 +909,27 @@ namespace spades {
 					RemoveInvisibleCorpses();
 			}
 
-			// add chat message
+			// add killfeed message
 			std::string s, cause;
 			s += ChatWindow::TeamColorMessage(killer.GetName(), killer.GetTeamId());
+
+			bool killfeedIcons = cg_killfeedIcons && !cg_smallFont;
+			if (killfeedIcons) {
+				if (&killer != &victim && (kt == KillTypeWeapon || kt == KillTypeHeadshot)) {
+					if (!killer.IsOnGroundOrWade()) // air shots
+						cause += ChatWindow::KillImage(7);
+					cause += ChatWindow::KillImage(KillTypeWeapon, weaponType);
+					if (!killer.GetWeaponInput().secondary) // nonscoped shots
+						cause += ChatWindow::KillImage(8);
+					if (kt == KillTypeHeadshot)
+						cause += ChatWindow::KillImage(KillTypeHeadshot);
+				} else {
+					cause += ChatWindow::KillImage(kt, weaponType);
+				}
+			} else {
 			switch (kt) {
 				case KillTypeWeapon:
-					switch (killer.GetWeapon().GetWeaponType()) {
+						switch (weaponType) {
 						case RIFLE_WEAPON: cause += _Tr("Client", "Rifle"); break;
 						case SMG_WEAPON: cause += _Tr("Client", "SMG"); break;
 						case SHOTGUN_WEAPON: cause += _Tr("Client", "Shotgun"); break;
@@ -923,16 +944,14 @@ namespace spades {
 				case KillTypeClassChange: cause += _Tr("Client", "Weapon Change"); break;
 				default: cause += "???"; break;
 			}
+			}
 
-			s += " [";
 			if (&killer != &victim && killer.IsTeammate(victim))
-				s += ChatWindow::ColoredMessage(cause, MsgColorFriendlyFire);
-			else if (killer.IsLocalPlayer() || victim.IsLocalPlayer())
-				s += ChatWindow::ColoredMessage(cause, MsgColorGray);
-			else
-				s += cause;
-			s += "] ";
+				cause = ChatWindow::ColoredMessage(cause, MsgColorFriendlyFire);
+			else if ((killer.IsLocalPlayer() || victim.IsLocalPlayer()) && !killfeedIcons)
+				cause = ChatWindow::ColoredMessage(cause, MsgColorGray);
 
+			s += " " + (killfeedIcons ? cause : ("[" + cause + "]")) + " ";
 			if (&killer != &victim)
 				s += ChatWindow::TeamColorMessage(victim.GetName(), victim.GetTeamId());
 

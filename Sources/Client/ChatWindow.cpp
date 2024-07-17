@@ -41,6 +41,17 @@ namespace spades {
 		ChatWindow::ChatWindow(Client* clin, IRenderer* r, IFont* fnt, bool killfeed)
 		    : client(clin), renderer(r), font(fnt), killfeed(killfeed) {
 			firstY = 0.0F;
+			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/a-Rifle.png").GetPointerOrNull());
+			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/b-SMG.png").GetPointerOrNull());
+			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/c-Shotgun.png").GetPointerOrNull());
+			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/d-Headshot.png").GetPointerOrNull());
+			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/e-Melee.png").GetPointerOrNull());
+			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/f-Grenade.png").GetPointerOrNull());
+			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/g-Falling.png").GetPointerOrNull());
+			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/h-Teamchange.png").GetPointerOrNull());
+			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/i-Classchange.png").GetPointerOrNull());
+			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/j-Airborne.png").GetPointerOrNull());
+			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/k-Noscope.png").GetPointerOrNull());
 		}
 		ChatWindow::~ChatWindow() {}
 
@@ -66,6 +77,38 @@ namespace spades {
 		float ChatWindow::GetLineHeight() { return cg_smallFont ? 12.0F : 20.0F; }
 
 		static bool isWordChar(char c) { return isalnum(c) || c == '\''; }
+
+		std::string ChatWindow::KillImage(int kt, int weapon) {
+			std::string tmp = "xx";
+			tmp[0] = MsgImage;
+			switch (kt) {
+				case KillTypeWeapon:
+					switch (weapon) {
+						case RIFLE_WEAPON:
+						case SMG_WEAPON:
+						case SHOTGUN_WEAPON:
+							tmp[1] = 'a' + weapon; break;
+						default: return "";
+					}
+					break;
+				case KillTypeHeadshot:
+				case KillTypeMelee:
+				case KillTypeGrenade:
+				case KillTypeFall:
+				case KillTypeTeamChange:
+				case KillTypeClassChange:
+				case 7:
+				case 8: tmp[1] = 'a' + 2 + kt; break;
+				default: return "";
+			}
+			return tmp;
+		}
+		IImage* ChatWindow::GetKillImage(char index) {
+			int real = index - 'a';
+			if (real >= 0 && real < (int)killImages.size())
+				return killImages[real];
+			return NULL;
+		}
 
 		void ChatWindow::AddMessage(const std::string& msg) {
 			SPADES_MARK_FUNCTION();
@@ -104,10 +147,10 @@ namespace spades {
 					return w ? ConvertColorRGBA(w->GetTeamColor(1)) : MakeVector4(0, 0, 1, 1);
 				case MsgColorTeam3:
 					return w ? ConvertColorRGBA(w->GetTeamColor(2)) : MakeVector4(1, 1, 0, 1);
-				case MsgColorRed: return MakeVector4(1, 0, 0, 1);
+				case MsgColorRed: return MakeVector4(1, 0.25, 0.25, 1);
 				case MsgColorGreen: return MakeVector4(0, 1, 0, 1);
+				case MsgColorYellow: return MakeVector4(1, 1, 0.5, 1);
 				case MsgColorGray: return MakeVector4(0.8F, 0.8F, 0.8F, 1);
-				case MsgColorSysInfo: return MakeVector4(1, 1, 0.5, 1);
 				default: return MakeVector4(1, 1, 1, 1);
 			}
 		}
@@ -208,8 +251,23 @@ namespace spades {
 						tx = 0.0F;
 						ty += lh;
 					} else if (msg[i] <= MsgColorMax && msg[i] >= 1) {
-						color = GetColor(msg[i]);
-						color.w = fade;
+						if (msg[i] == MsgImage) {
+							IImage* img = NULL;
+							if (i + 1 < msg.size() && (img = GetKillImage(msg[i + 1]))) {
+								Vector4 colorP = color;
+								colorP.x *= colorP.w;
+								colorP.y *= colorP.w;
+								colorP.z *= colorP.w;
+								renderer->SetColorAlphaPremultiplied(colorP);
+								renderer->DrawImage(
+								  img, MakeVector2(floorf(tx + winX), floorf(ty + winY)));
+								tx += img->GetWidth();
+								++i;
+							}
+						} else {
+							color = GetColor(msg[i]);
+							color.w = fade;
+						}
 					} else {
 						size_t ln = 0;
 						GetCodePointFromUTF8String(msg, i, &ln);

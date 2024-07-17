@@ -40,7 +40,8 @@ namespace spades {
 		static const char MsgColorRestore = 6;
 		static const char MsgColorYellow = 7;
 		static const char MsgColorGray = 8;
-		static const char MsgColorMax = 9;
+		static const char MsgImage = 9;
+		static const char MsgColorMax = 10;
 		static const char MsgColorFriendlyFire = MsgColorRed;
 		static const char MsgColorSysInfo = MsgColorYellow;
 
@@ -70,6 +71,8 @@ namespace spades {
 			float GetBufferHeight();
 			float GetLineHeight();
 
+			std::vector<IImage*> killImages;
+			IImage* GetKillImage(char);
 			Vector4 GetColor(char);
 
 		public:
@@ -79,6 +82,7 @@ namespace spades {
 			void AddMessage(const std::string&);
 			static std::string ColoredMessage(const std::string&, char);
 			static std::string TeamColorMessage(const std::string&, int);
+			static std::string KillImage(int killType, int weaponType = -1);
 
 			void SetExpanded(bool value) { expanded = value; }
 			bool IsExpanded() { return expanded; }

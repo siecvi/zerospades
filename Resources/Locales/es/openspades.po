@@ -2461,6 +2461,11 @@ msgctxt "Preferences"
 msgid "SIMPLE"
 msgstr "Simple"
 
+#: Resources/Scripts/Gui/Preferences.as:1249
+msgctxt "Preferences"
+msgid "Killfeed Icons"
+msgstr "Iconos del killfeed"
+
 #: Sources/Client/Client_Draw.cpp:958
 msgctxt "Client"
 msgid "Respawning in: {0}"
