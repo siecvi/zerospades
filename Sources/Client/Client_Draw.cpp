@@ -230,9 +230,6 @@ namespace spades {
 			Vector2 size = font.Measure(str);
 			Vector2 pos = (MakeVector2(sw, sh) - 16.0F) - size;
 			font.DrawShadow(str, pos, 1.0F, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.5));
-
-			renderer->FrameDone();
-			renderer->Flip();
 		}
 
 		void Client::DrawPlayingTime() {

@@ -34,7 +34,6 @@ namespace spades {
 		class StartupScreenHelper;
 		class StartupScreen : public View {
 			friend class StartupScreenHelper;
-
 			Handle<client::IRenderer> renderer;
 			Handle<client::IAudioDevice> audioDevice;
 			Handle<client::FontManager> fontManager;
@@ -44,7 +43,6 @@ namespace spades {
 			Handle<StartupScreenHelper> helper;
 			Handle<asIScriptObject> ui;
 
-			void DrawStartupScreen();
 			void DoInit();
 
 			void RestoreRenderer();

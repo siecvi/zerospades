@@ -180,25 +180,6 @@ namespace spades {
 			return c->GetReturnByte() != 0;
 		}
 
-		void StartupScreen::DrawStartupScreen() {
-			SPADES_MARK_FUNCTION();
-
-			float sw = renderer->ScreenWidth();
-			float sh = renderer->ScreenHeight();
-
-			renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1));
-			renderer->DrawImage(nullptr, AABB2(0, 0, sw, sh));
-
-			std::string str = "NOW LOADING";
-			Vector2 size = fontManager->GetGuiFont().Measure(str);
-			Vector2 pos = (MakeVector2(sw, sh) - 16.0F) - size;
-			fontManager->GetGuiFont().DrawShadow(str, pos, 1.0F, MakeVector4(1, 1, 1, 1),
-			                                     MakeVector4(0, 0, 0, 0.5));
-
-			renderer->FrameDone();
-			renderer->Flip();
-		}
-
 		void StartupScreen::RunFrame(float dt) {
 			SPADES_MARK_FUNCTION();
 
