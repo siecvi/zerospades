@@ -555,7 +555,8 @@ namespace spades {
 					HitBoxes hb = other.GetHitBoxes();
 					if (hb.head.RayCast(muzzle, dir, &hitPos)) {
 						float const dist = (hitPos - muzzle).GetLength2D();
-						if (!hitPlayer || dist < hitPlayerDist2D) {
+						if (!hitPlayer || dist < hitPlayerDist2D ||
+						    (hitPart != HitBodyPart::Head && hitPart != HitBodyPart::Torso)) {
 							hitPlayer = other;
 							hitPlayerDist2D = dist;
 							hitPlayerDist3D = (hitPos - muzzle).GetLength();
@@ -565,13 +566,18 @@ namespace spades {
 
 					if (hb.torso.RayCast(muzzle, dir, &hitPos)) {
 						float const dist = (hitPos - muzzle).GetLength2D();
-						if (!hitPlayer || dist < hitPlayerDist2D) {
+						if (!hitPlayer || dist < hitPlayerDist2D ||
+						    (hitPart != HitBodyPart::Head && hitPart != HitBodyPart::Torso)) {
 							hitPlayer = other;
 							hitPlayerDist2D = dist;
 							hitPlayerDist3D = (hitPos - muzzle).GetLength();
 							hitPart = HitBodyPart::Torso;
 						}
 					}
+
+					// check limbs only if no head or torso hit detected
+					if (hitPart == HitBodyPart::Head || hitPart == HitBodyPart::Torso)
+						continue;
 
 					for (int j = 0; j < 3; j++) {
 						if (hb.limbs[j].RayCast(muzzle, dir, &hitPos)) {
@@ -1233,6 +1239,12 @@ namespace spades {
 			float yaw = atan2f(o.y, o.x) + M_PI_F * 0.5F;
 			float pitch = -atan2f(o.z, o.GetLength2D());
 
+			float armPitch = pitch;
+			if (input.sprint)
+				armPitch -= 0.9F;
+			if (armPitch < 0.0F)
+				armPitch = std::max(armPitch, -M_PI_F * 0.5F) * 0.9F;
+
 			// lower axis
 			Matrix4 const lower = Matrix4::Translate(GetOrigin())
 				* Matrix4::Rotate(MakeVector3(0, 0, 1), yaw);
@@ -1240,26 +1252,23 @@ namespace spades {
 				* Matrix4::Translate(0, 0, -(input.crouch ? 0.55F : 1.0F));
 			Matrix4 const head = torso
 				* Matrix4::Rotate(MakeVector3(1, 0, 0), pitch);
+			Matrix4 const arms = torso
+				* Matrix4::Translate(0, 0, input.crouch ? 0.0F : 0.1F)
+				* Matrix4::Rotate(MakeVector3(1, 0, 0), armPitch);
 
 			if (input.crouch) {
-				hb.limbs[0] = AABB3(-0.4F, -0.1F, -0.2F, 0.3F, 0.4F, 0.8F);
-				hb.limbs[1] = AABB3(0.1F, -0.1F, -0.2F, 0.3F, 0.4F, 0.8F);
-				hb.torso = AABB3(-0.4F, -0.1F, -0.1F, 0.8F, 0.8F, 0.7F);
-				hb.limbs[2] = AABB3(-0.6F, -0.15F, -0.1F, 1.2F, 0.3F, 0.7F);
-				hb.head = AABB3(-0.3F, -0.3F, -0.6F, 0.6F, 0.6F, 0.6F);
+				hb.limbs[0] = lower * AABB3(-0.4F, -0.1F, -0.2F, 0.3F, 0.4F, 0.8F);
+				hb.limbs[1] = lower * AABB3(0.1F, -0.1F, -0.2F, 0.3F, 0.4F, 0.8F);
+				hb.torso = torso * AABB3(-0.4F, -0.1F, -0.1F, 0.8F, 0.8F, 0.7F);
+				hb.limbs[2] = arms * AABB3(-0.6F, -1.0F, -0.1F, 1.2F, 1.0F, 0.6F);
+				hb.head = head * AABB3(-0.3F, -0.3F, -0.6F, 0.6F, 0.6F, 0.6F);
 			} else {
-				hb.limbs[0] = AABB3(-0.4F, -0.2F, -0.15F, 0.3F, 0.4F, 1.2F);
-				hb.limbs[1] = AABB3(0.1F, -0.2F, -0.15F, 0.3F, 0.4F, 1.2F);
-				hb.torso = AABB3(-0.4F, -0.2F, 0.0F, 0.8F, 0.4F, 0.9F);
-				hb.limbs[2] = AABB3(-0.6F, -0.15F, 0.0F, 1.2F, 0.3F, 0.9F);
-				hb.head = AABB3(-0.3F, -0.3F, -0.6F, 0.6F, 0.6F, 0.6F);
+				hb.limbs[0] = lower * AABB3(-0.4F, -0.2F, -0.15F, 0.3F, 0.4F, 1.2F);
+				hb.limbs[1] = lower * AABB3(0.1F, -0.2F, -0.15F, 0.3F, 0.4F, 1.2F);
+				hb.torso = torso * AABB3(-0.4F, -0.2F, 0.0F, 0.8F, 0.4F, 0.9F);
+				hb.limbs[2] = arms * AABB3(-0.6F, -1.0F, -0.1F, 1.2F, 1.0F, 0.6F);
+				hb.head = head * AABB3(-0.3F, -0.3F, -0.6F, 0.6F, 0.6F, 0.6F);
 			}
-
-			hb.limbs[0] = lower * hb.limbs[0];
-			hb.limbs[1] = lower * hb.limbs[1];
-			hb.torso = torso * hb.torso;
-			hb.limbs[2] = torso * hb.limbs[2];
-			hb.head = head * hb.head;
 
 			return hb;
 		}
