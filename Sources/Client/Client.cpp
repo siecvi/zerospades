@@ -106,6 +106,8 @@ namespace spades {
 		      hitFeedbackFriendly(false),
 		      debugHitTestZoomState(0.0F),
 		      debugHitTestZoom(false),
+		      spectatorZoomState(0.0F),
+		      spectatorZoom(false),
 		      spectatorPlayerNames(true),
 		      focalLength(20.0F),
 		      targetFocalLength(20.0F),
@@ -165,6 +167,7 @@ namespace spades {
 			scoreboardVisible = false;
 			flashlightOn = false;
 			debugHitTestZoom = false;
+			spectatorZoom = false;
 			largeMapView->SetZoom(false);
 
 			clientPlayers.clear();

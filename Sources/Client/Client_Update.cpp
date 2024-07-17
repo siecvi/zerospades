@@ -225,6 +225,7 @@ namespace spades {
 					// reset all "delayed actions"
 					reloadKeyPressed = false;
 					debugHitTestZoom = false;
+					spectatorZoom = false;
 				}
 
 				if (player.IsSpectator())
@@ -325,6 +326,16 @@ namespace spades {
 				debugHitTestZoomState -= dt * 10.0F;
 				if (debugHitTestZoomState < 0.0F)
 					debugHitTestZoomState = 0.0F;
+			}
+
+			if (spectatorZoom) {
+				spectatorZoomState += dt * 3.0F;
+				if (spectatorZoomState > 1.0F)
+					spectatorZoomState = 1.0F;
+			} else {
+				spectatorZoomState -= dt * 5.0F;
+				if (spectatorZoomState < 0.0F)
+					spectatorZoomState = 0.0F;
 			}
 		}
 
@@ -927,23 +938,23 @@ namespace spades {
 					cause += ChatWindow::KillImage(kt, weaponType);
 				}
 			} else {
-			switch (kt) {
-				case KillTypeWeapon:
+				switch (kt) {
+					case KillTypeWeapon:
 						switch (weaponType) {
-						case RIFLE_WEAPON: cause += _Tr("Client", "Rifle"); break;
-						case SMG_WEAPON: cause += _Tr("Client", "SMG"); break;
-						case SHOTGUN_WEAPON: cause += _Tr("Client", "Shotgun"); break;
-						default: SPUnreachable();
-					}
-					break;
-				case KillTypeFall: cause += _Tr("Client", "Fall"); break;
-				case KillTypeMelee: cause += _Tr("Client", "Melee"); break;
-				case KillTypeGrenade: cause += _Tr("Client", "Grenade"); break;
-				case KillTypeHeadshot: cause += _Tr("Client", "Headshot"); break;
-				case KillTypeTeamChange: cause += _Tr("Client", "Team Change"); break;
-				case KillTypeClassChange: cause += _Tr("Client", "Weapon Change"); break;
-				default: cause += "???"; break;
-			}
+							case RIFLE_WEAPON: cause += _Tr("Client", "Rifle"); break;
+							case SMG_WEAPON: cause += _Tr("Client", "SMG"); break;
+							case SHOTGUN_WEAPON: cause += _Tr("Client", "Shotgun"); break;
+							default: SPUnreachable();
+						}
+						break;
+					case KillTypeFall: cause += _Tr("Client", "Fall"); break;
+					case KillTypeMelee: cause += _Tr("Client", "Melee"); break;
+					case KillTypeGrenade: cause += _Tr("Client", "Grenade"); break;
+					case KillTypeHeadshot: cause += _Tr("Client", "Headshot"); break;
+					case KillTypeTeamChange: cause += _Tr("Client", "Team Change"); break;
+					case KillTypeClassChange: cause += _Tr("Client", "Weapon Change"); break;
+					default: cause += "???"; break;
+				}
 			}
 
 			if (&killer != &victim && killer.IsTeammate(victim))

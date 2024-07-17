@@ -45,6 +45,7 @@
 DEFINE_SPADES_SETTING(cg_fov, "68");
 DEFINE_SPADES_SETTING(cg_horizontalFov, "0");
 DEFINE_SPADES_SETTING(cg_classicZoom, "0");
+DEFINE_SPADES_SETTING(cg_spectatorZoomScale, "4");
 DEFINE_SPADES_SETTING(cg_thirdperson, "0");
 DEFINE_SPADES_SETTING(cg_manualFocus, "0");
 DEFINE_SPADES_SETTING(cg_depthOfFieldAmount, "1");
@@ -363,6 +364,10 @@ namespace spades {
 						def.viewAxis[0] = -Vector3::Cross(up, front).Normalize();
 						def.viewAxis[1] = -Vector3::Cross(front, def.viewAxis[0]);
 						def.viewAxis[2] = front;
+
+						// Apply spectator zoom
+						scale /= Mix(1.0F, cg_spectatorZoomScale,
+							SmoothStep(spectatorZoomState));
 
 						def.denyCameraBlur = false;
 						break;

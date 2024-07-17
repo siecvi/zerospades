@@ -92,6 +92,7 @@ SPADES_SETTING(cg_manualFocus);
 DEFINE_SPADES_SETTING(cg_keyAutoFocus, "MiddleMouseButton");
 
 DEFINE_SPADES_SETTING(cg_keyToggleSpectatorNames, "z");
+DEFINE_SPADES_SETTING(cg_keySpectatorZoom, "e");
 
 SPADES_SETTING(s_volume);
 SPADES_SETTING(cg_debugHitTest);
@@ -143,6 +144,14 @@ namespace spades {
 					if (!cg_invertMouseY)
 						y = -y;
 
+					// scale by FOV (when zooming)
+					if (spectatorZoomState > 0.0F) {
+						float k = atanf(tanf(lastSceneDef.fovX * 0.5F));
+
+						x *= k;
+						y *= k;
+					}
+
 					auto& sharedState = followAndFreeCameraState;
 					sharedState.yaw -= x * 0.003F;
 					sharedState.pitch -= y * 0.003F;
@@ -163,9 +172,9 @@ namespace spades {
 					if (p.IsAlive()) {
 						float sensitivity = cg_mouseSensitivity;
 
-						// scale by FOV
-						float zoomScale = GetAimDownZoomScale();
-						if (zoomScale != 1) {
+						// scale by FOV (when zooming)
+						float aimDownState = GetAimDownState();
+						if (aimDownState > 0.0F) {
 							float k = atanf(tanf(lastSceneDef.fovX * 0.5F));
 
 							x *= k;
@@ -195,7 +204,6 @@ namespace spades {
 							}
 						}
 
-						float aimDownState = GetAimDownState();
 						if (aimDownState > 0.0F) {
 							float scale = cg_zoomedMouseSensScale;
 							scale = powf(scale, aimDownState);
@@ -412,6 +420,12 @@ namespace spades {
 
 								// reset jump
 								playerInput.jump = PlayerInput().jump;
+
+								// reset zoom
+								if (spectatorZoom) {
+									spectatorZoom = false;
+									spectatorZoomState = 0.0F;
+								}
 							}
 							return;
 						}
@@ -455,6 +469,9 @@ namespace spades {
 						Handle<IAudioChunk> c =
 						  audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
 						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+					} else if (CheckKey(cg_keySpectatorZoom, name) &&
+					           cameraMode == ClientCameraMode::Free) {
+						spectatorZoom = down;
 					}
 				}
 

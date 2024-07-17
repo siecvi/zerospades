@@ -230,6 +230,9 @@ namespace spades {
 			float debugHitTestZoomState;
 			bool debugHitTestZoom;
 
+			float spectatorZoomState;
+			bool spectatorZoom;
+
 			// manual focus
 			float focalLength;
 			float targetFocalLength;
