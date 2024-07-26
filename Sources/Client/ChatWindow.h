@@ -38,10 +38,10 @@ namespace spades {
 		static const char MsgColorRed = 4;
 		static const char MsgColorGreen = 5;
 		static const char MsgColorRestore = 6;
-		static const char MsgColorYellow = 7;
+		static const char MsgImage = 7;
 		static const char MsgColorGray = 8;
-		static const char MsgImage = 9;
-		static const char MsgColorMax = 10;
+		static const char MsgColorYellow = 9;
+		static const char MsgColorMax = 12;
 		static const char MsgColorFriendlyFire = MsgColorRed;
 		static const char MsgColorSysInfo = MsgColorYellow;
 

@@ -920,49 +920,63 @@ namespace spades {
 					RemoveInvisibleCorpses();
 			}
 
-			// add killfeed message
+			// create a killfeed message
 			std::string s, cause;
+
+			// add colored killer name
 			s += ChatWindow::TeamColorMessage(killer.GetName(), killer.GetTeamId());
 
-			bool killfeedIcons = cg_killfeedIcons && !cg_smallFont;
-			if (killfeedIcons) {
-				if (&killer != &victim && (kt == KillTypeWeapon || kt == KillTypeHeadshot)) {
-					if (!killer.IsOnGroundOrWade()) // air shots
-						cause += ChatWindow::KillImage(7);
-					cause += ChatWindow::KillImage(KillTypeWeapon, weaponType);
-					if (!killer.GetWeaponInput().secondary) // nonscoped shots
-						cause += ChatWindow::KillImage(8);
-					if (kt == KillTypeHeadshot)
-						cause += ChatWindow::KillImage(KillTypeHeadshot);
-				} else {
-					cause += ChatWindow::KillImage(kt, weaponType);
-				}
-			} else {
-				switch (kt) {
-					case KillTypeWeapon:
-						switch (weaponType) {
-							case RIFLE_WEAPON: cause += _Tr("Client", "Rifle"); break;
-							case SMG_WEAPON: cause += _Tr("Client", "SMG"); break;
-							case SHOTGUN_WEAPON: cause += _Tr("Client", "Shotgun"); break;
-							default: SPUnreachable();
-						}
-						break;
-					case KillTypeFall: cause += _Tr("Client", "Fall"); break;
-					case KillTypeMelee: cause += _Tr("Client", "Melee"); break;
-					case KillTypeGrenade: cause += _Tr("Client", "Grenade"); break;
-					case KillTypeHeadshot: cause += _Tr("Client", "Headshot"); break;
-					case KillTypeTeamChange: cause += _Tr("Client", "Team Change"); break;
-					case KillTypeClassChange: cause += _Tr("Client", "Weapon Change"); break;
-					default: cause += "???"; break;
-				}
+			switch (kt) {
+				case KillTypeWeapon:
+					switch (weaponType) {
+						case RIFLE_WEAPON: cause += _Tr("Client", "Rifle"); break;
+						case SMG_WEAPON: cause += _Tr("Client", "SMG"); break;
+						case SHOTGUN_WEAPON: cause += _Tr("Client", "Shotgun"); break;
+						default: SPUnreachable();
+					}
+					break;
+				case KillTypeFall: cause += _Tr("Client", "Fall"); break;
+				case KillTypeMelee: cause += _Tr("Client", "Melee"); break;
+				case KillTypeGrenade: cause += _Tr("Client", "Grenade"); break;
+				case KillTypeHeadshot: cause += _Tr("Client", "Headshot"); break;
+				case KillTypeTeamChange: cause += _Tr("Client", "Team Change"); break;
+				case KillTypeClassChange: cause += _Tr("Client", "Weapon Change"); break;
+				default: cause += "???"; break;
 			}
 
-			if (&killer != &victim && killer.IsTeammate(victim))
-				cause = ChatWindow::ColoredMessage(cause, MsgColorFriendlyFire);
-			else if ((killer.IsLocalPlayer() || victim.IsLocalPlayer()) && !killfeedIcons)
-				cause = ChatWindow::ColoredMessage(cause, MsgColorGray);
+			// add cause of death
+			s += " ";
+			if (cg_killfeedIcons && !cg_smallFont) {
+				std::string killImg;
+				if (&killer != &victim && (kt == KillTypeWeapon || kt == KillTypeHeadshot)) {
+					if (!killer.IsOnGroundOrWade()) // air shots
+						killImg += ChatWindow::KillImage(7);
+					killImg += ChatWindow::KillImage(KillTypeWeapon, weaponType);
+					if (!killer.GetWeaponInput().secondary) // nonscoped shots
+						killImg += ChatWindow::KillImage(8);
+					if (kt == KillTypeHeadshot)
+						killImg += ChatWindow::KillImage(KillTypeHeadshot);
+				} else {
+					killImg += ChatWindow::KillImage(kt, weaponType);
+				}
 
-			s += " " + (killfeedIcons ? cause : ("[" + cause + "]")) + " ";
+				if (&killer != &victim && killer.IsTeammate(victim))
+					s += ChatWindow::ColoredMessage(killImg, MsgColorFriendlyFire);
+				else
+					s += killImg;
+			} else {
+				s += "[";
+				if (&killer != &victim && killer.IsTeammate(victim))
+					s += ChatWindow::ColoredMessage(cause, MsgColorFriendlyFire);
+				else if (killer.IsLocalPlayer() || victim.IsLocalPlayer())
+					s += ChatWindow::ColoredMessage(cause, MsgColorGray);
+				else
+					s += cause;
+				s += "]";
+			}
+			s += " ";
+
+			// add colored victim name
 			if (&killer != &victim)
 				s += ChatWindow::TeamColorMessage(victim.GetName(), victim.GetTeamId());
 

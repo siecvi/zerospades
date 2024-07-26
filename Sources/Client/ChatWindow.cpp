@@ -149,8 +149,8 @@ namespace spades {
 					return w ? ConvertColorRGBA(w->GetTeamColor(2)) : MakeVector4(1, 1, 0, 1);
 				case MsgColorRed: return MakeVector4(1, 0.25, 0.25, 1);
 				case MsgColorGreen: return MakeVector4(0, 1, 0, 1);
-				case MsgColorYellow: return MakeVector4(1, 1, 0.5, 1);
 				case MsgColorGray: return MakeVector4(0.8F, 0.8F, 0.8F, 1);
+				case MsgColorYellow: return MakeVector4(1, 1, 0.5, 1);
 				default: return MakeVector4(1, 1, 1, 1);
 			}
 		}
@@ -250,7 +250,7 @@ namespace spades {
 					if (msg[i] == '\r' || msg[i] == '\n') {
 						tx = 0.0F;
 						ty += lh;
-					} else if (msg[i] <= MsgColorMax && msg[i] >= 1) {
+					} else if (msg[i] >= 1 && msg[i] <= MsgColorMax) {
 						if (msg[i] == MsgImage) {
 							IImage* img = NULL;
 							if (i + 1 < msg.size() && (img = GetKillImage(msg[i + 1]))) {
