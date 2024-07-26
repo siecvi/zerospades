@@ -1053,7 +1053,7 @@ namespace spades {
 
 			// don't bleed local player
 			if (!IsInFirstPersonView(hurtPlayer.GetId()))
-				Bleed(hitPos);
+				Bleed(hitPos, byLocalPlayer);
 
 			if (hurtPlayer.IsLocalPlayer()) {
 				// don't player hit sound now;

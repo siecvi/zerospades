@@ -332,7 +332,7 @@ namespace spades {
 			// effects (local entity, etc)
 			std::vector<DynamicLightParam> flashDlights;
 			std::vector<DynamicLightParam> flashDlightsOld;
-			void Bleed(Vector3);
+			void Bleed(Vector3, bool bounce = false);
 			void EmitBlockFragments(Vector3, IntVector3 color);
 			void EmitBlockDestroyFragments(IntVector3 pos);
 			void GrenadeExplosion(Vector3);

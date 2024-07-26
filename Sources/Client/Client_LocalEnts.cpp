@@ -136,7 +136,7 @@ namespace spades {
 			return time - worldSetTime < 0.05F;
 		}
 
-		void Client::Bleed(spades::Vector3 pos) {
+		void Client::Bleed(spades::Vector3 pos, bool bounce) {
 			SPADES_MARK_FUNCTION();
 
 			if (!cg_blood)
@@ -163,7 +163,7 @@ namespace spades {
 				ent->SetTrajectory(pos, (RandomAxis() + velBias * 0.5F) * 8.0F);
 				ent->SetRadius(0.4F);
 				ent->SetLifeTime(3.0F, 0.0F, 1.0F);
-				if (distSqr < 16.0F * 16.0F)
+				if (distSqr < 16.0F * 16.0F || bounce)
 					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}
