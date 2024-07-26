@@ -48,6 +48,10 @@
 
 DEFINE_SPADES_SETTING(cg_unicode, "1");
 
+DEFINE_SPADES_SETTING(cg_defaultBlockColorR, "111");
+DEFINE_SPADES_SETTING(cg_defaultBlockColorG, "111");
+DEFINE_SPADES_SETTING(cg_defaultBlockColorB, "111");
+
 namespace spades {
 	namespace client {
 
@@ -988,6 +992,13 @@ namespace spades {
 						GetWorld()->GetPlayerPersistent(pId).name = name;
 
 					if (pId == GetWorld()->GetLocalPlayerIndex()) {
+						// override default block color for localplayer
+						IntVector3 blockColor;
+						blockColor.x = Clamp((int)cg_defaultBlockColorR, 0, 255);
+						blockColor.y = Clamp((int)cg_defaultBlockColorG, 0, 255);
+						blockColor.z = Clamp((int)cg_defaultBlockColorB, 0, 255);
+						pRef.SetHeldBlockColor(blockColor);
+
 						client->LocalPlayerCreated();
 						lastPlayerInput = 0xFFFFFFFF;
 						lastWeaponInput = 0xFFFFFFFF;
