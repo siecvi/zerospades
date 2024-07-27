@@ -492,7 +492,7 @@ namespace spades {
 			return dist < tolerance;
 		}
 
-		enum class HitBodyPart { None, Head, Torso, Limb1, Limb2, Arms };
+		enum class HitBodyPart { None, Head, Torso, Leg1, Leg2, Arms };
 
 		void Player::FireWeapon() {
 			SPADES_MARK_FUNCTION();
@@ -537,6 +537,7 @@ namespace spades {
 				float hitPlayerDist2D = 0.0F; // disregarding Z coordinate
 				float hitPlayerDist3D = 0.0F;
 				HitBodyPart hitPart = HitBodyPart::None;
+				hitTag_t hitFlag = hit_None;
 
 				for (size_t i = 0; i < world.GetNumPlayerSlots(); i++) {
 					// TODO: This is a repeated pattern, add something like
@@ -555,9 +556,13 @@ namespace spades {
 					HitBoxes hb = other.GetHitBoxes();
 					if (hb.head.RayCast(muzzle, dir, &hitPos)) {
 						float const dist = (hitPos - muzzle).GetLength2D();
-						if (!hitPlayer || dist < hitPlayerDist2D ||
-						    (hitPart != HitBodyPart::Head && hitPart != HitBodyPart::Torso)) {
-							hitPlayer = other;
+						if (!hitPlayer || dist < hitPlayerDist2D || hitPart == HitBodyPart::Arms) {
+							if (hitPlayer != other) {
+								hitPlayer = other;
+								hitFlag = hit_None;
+							}
+							hitFlag |= hit_Head;
+
 							hitPlayerDist2D = dist;
 							hitPlayerDist3D = (hitPos - muzzle).GetLength();
 							hitPart = HitBodyPart::Head;
@@ -566,32 +571,55 @@ namespace spades {
 
 					if (hb.torso.RayCast(muzzle, dir, &hitPos)) {
 						float const dist = (hitPos - muzzle).GetLength2D();
-						if (!hitPlayer || dist < hitPlayerDist2D ||
-						    (hitPart != HitBodyPart::Head && hitPart != HitBodyPart::Torso)) {
-							hitPlayer = other;
+						if (!hitPlayer || dist < hitPlayerDist2D || hitPart == HitBodyPart::Arms) {
+							if (hitPlayer != other) {
+								hitPlayer = other;
+								hitFlag = hit_None;
+							}
+							hitFlag |= hit_Torso;
+
 							hitPlayerDist2D = dist;
 							hitPlayerDist3D = (hitPos - muzzle).GetLength();
 							hitPart = HitBodyPart::Torso;
 						}
 					}
 
-					// check limbs only if no head or torso hit detected
-					if (hitPart == HitBodyPart::Head || hitPart == HitBodyPart::Torso)
-						continue;
-
-					for (int j = 0; j < 3; j++) {
+					for (int j = 0; j < 2; j++) {
 						if (hb.limbs[j].RayCast(muzzle, dir, &hitPos)) {
 							float const dist = (hitPos - muzzle).GetLength2D();
 							if (!hitPlayer || dist < hitPlayerDist2D) {
-								hitPlayer = other;
+								if (hitPlayer != other) {
+									hitPlayer = other;
+									hitFlag = hit_None;
+								}
+								hitFlag |= hit_Legs;
+
 								hitPlayerDist2D = dist;
 								hitPlayerDist3D = (hitPos - muzzle).GetLength();
 								switch (j) {
-									case 0: hitPart = HitBodyPart::Limb1; break;
-									case 1: hitPart = HitBodyPart::Limb2; break;
-									case 2: hitPart = HitBodyPart::Arms; break;
+									case 0: hitPart = HitBodyPart::Leg1; break;
+									case 1: hitPart = HitBodyPart::Leg2; break;
 								}
 							}
+						}
+					}
+
+					// check arms only if no head or torso hit detected
+					if (hitPart == HitBodyPart::Head || hitPart == HitBodyPart::Torso)
+						continue;
+
+					if (hb.limbs[2].RayCast(muzzle, dir, &hitPos)) {
+						float const dist = (hitPos - muzzle).GetLength2D();
+						if (!hitPlayer || dist < hitPlayerDist2D) {
+							if (hitPlayer != other) {
+								hitPlayer = other;
+								hitFlag = hit_None;
+							}
+							hitFlag |= hit_Arms;
+
+							hitPlayerDist2D = dist;
+							hitPlayerDist3D = (hitPos - muzzle).GetLength();
+							hitPart = HitBodyPart::Arms;
 						}
 					}
 				}
@@ -635,26 +663,32 @@ namespace spades {
 						bulletVectors.push_back(finalHitPos);
 
 					HitType hitType;
+					if (hitFlag & hit_Head || hitFlag & hit_Torso) {
+						if (hitFlag & hit_Head)
+							hitType = HitTypeHead;
+						if (hitFlag & hit_Torso)
+							hitType = HitTypeTorso;
+					} else if (hitFlag & hit_Arms) {
+						hitType = HitTypeArms;
+					} else {
+						hitType = HitTypeLegs;
+					}
+
 					switch (hitPart) {
 						case HitBodyPart::Head:
 							playerHits[hitPlayer->playerId].numHeadHits++;
-							hitType = HitTypeHead;
 							break;
 						case HitBodyPart::Torso:
 							playerHits[hitPlayer->playerId].numTorsoHits++;
-							hitType = HitTypeTorso;
 							break;
-						case HitBodyPart::Limb1:
+						case HitBodyPart::Leg1:
 							playerHits[hitPlayer->playerId].numLimbHits[0]++;
-							hitType = HitTypeLegs;
 							break;
-						case HitBodyPart::Limb2:
+						case HitBodyPart::Leg2:
 							playerHits[hitPlayer->playerId].numLimbHits[1]++;
-							hitType = HitTypeLegs;
 							break;
 						case HitBodyPart::Arms:
 							playerHits[hitPlayer->playerId].numLimbHits[2]++;
-							hitType = HitTypeArms;
 							break;
 						case HitBodyPart::None: SPAssert(false); break;
 					}
