@@ -64,6 +64,7 @@ namespace spades {
 			color = col;
 
 			health = 100;
+			lastHealth = health;
 			grenades = 3;
 			blockStocks = 50;
 			blockColor = MakeIntVector3(111, 111, 111);
@@ -249,6 +250,7 @@ namespace spades {
 		void Player::Refill(int hp, int grenades, int blocks) {
 			SPADES_MARK_FUNCTION();
 
+			lastHealth = localPlayerHealth;
 			localPlayerHealth = hp;
 			localPlayerGrenades = grenades;
 			localPlayerBlocks = blocks;
@@ -337,6 +339,7 @@ namespace spades {
 		}
 
 		void Player::SetHP(int hp, HurtType type, spades::Vector3 p) {
+			lastHealth = health;
 			health = hp;
 			if (world.GetListener())
 				world.GetListener()->LocalPlayerHurt(type, p);
@@ -461,6 +464,7 @@ namespace spades {
 				FireWeapon();
 
 			if (IsLocalPlayer() && pendingRestock) {
+				lastHealth = health;
 				health = localPlayerHealth;
 				grenades = localPlayerGrenades;
 				blockStocks = localPlayerBlocks;

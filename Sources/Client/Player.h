@@ -87,6 +87,8 @@ namespace spades {
 			int teamId;
 			IntVector3 color; // obsolete
 
+			int lastHealth;
+
 			int localPlayerHealth;
 			int localPlayerGrenades;
 			int localPlayerBlocks;
@@ -207,6 +209,7 @@ namespace spades {
 			float GetTimeToRespawn();
 			/** Returns player's health (local player only) */
 			int GetHealth() { return health; }
+			int GetLastHealth() { return lastHealth; }
 
 			Vector3 GetPosition() { return position; }
 			Vector3 GetFront(bool interpolate = false);

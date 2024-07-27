@@ -80,6 +80,8 @@ DEFINE_SPADES_SETTING(cg_hudAmmoStyle, "0");
 DEFINE_SPADES_SETTING(cg_hudSafezoneX, "1");
 DEFINE_SPADES_SETTING(cg_hudSafezoneY, "1");
 DEFINE_SPADES_SETTING(cg_hudPlayerCount, "0");
+DEFINE_SPADES_SETTING(cg_hudHealthBar, "1");
+DEFINE_SPADES_SETTING(cg_hudHealthAnimation, "1");
 DEFINE_SPADES_SETTING(cg_playerNames, "2");
 DEFINE_SPADES_SETTING(cg_playerNameX, "0");
 DEFINE_SPADES_SETTING(cg_playerNameY, "0");
@@ -286,7 +288,7 @@ namespace spades {
 			img = renderer->RegisterImage("Gfx/White.tga");
 			for (float y2 = 0.0F; y2 < teamBarH; y2 += 1.0F) {
 				float per = 1.0F - (y2 / teamBarH);
-				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.5 * per));
+				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.5F * per));
 				renderer->DrawImage(img, AABB2(x - teamBarW, teamBarY + y2, teamBarW * 2, 1.0F));
 			}
 
@@ -594,6 +596,15 @@ namespace spades {
 				? MakeVector4(0, 0, 0, 0.5)
 				: MakeVector4(1, 1, 1, 0.5);
 
+			// premultiplied
+			Vector4 shadowP = shadowColor;
+			shadowP.x *= shadowP.w;
+			shadowP.y *= shadowP.w;
+			shadowP.z *= shadowP.w;
+
+			Vector4 grayColor = MakeVector4(0.4F, 0.4F, 0.4F, 1);
+			Vector4 bgColor = (luminosity > 0.9F) ? color * grayColor : grayColor;
+
 			switch (tool) {
 				case Player::ToolSpade:
 				case Player::ToolBlock:
@@ -673,25 +684,16 @@ namespace spades {
 					Vector2 iconSize = MakeVector2(ammoIcon->GetWidth(), ammoIcon->GetHeight());
 					Vector2 iconPos = MakeVector2(x - (iconSize.x + spacing), y - iconSize.y);
 
-					Vector4 grayColor = MakeVector4(0.4F, 0.4F, 0.4F, 1);
-
-					// premultiplied
-					Vector4 shadow = shadowColor;
-					shadow.x *= shadow.w;
-					shadow.y *= shadow.w;
-					shadow.z *= shadow.w;
-
 					for (int i = 0; i < clipSize; i++) {
 						iconPos.x = x - ((float)(i + 1) * (iconSize.x + spacing));
 
 						// draw icon shadow
-						renderer->SetColorAlphaPremultiplied(
-						  (clipNum >= i + 1) ? shadow : (shadow * grayColor));
+						renderer->SetColorAlphaPremultiplied(shadowP);
 						renderer->DrawImage(ammoIcon, iconPos + MakeVector2(1, 1));
 
 						// draw icon
 						renderer->SetColorAlphaPremultiplied(
-						  (clipNum >= i + 1) ? ammoCol : (color * grayColor));
+						  (clipNum >= i + 1) ? ammoCol : bgColor);
 						renderer->DrawImage(ammoIcon, iconPos);
 					}
 
@@ -705,21 +707,60 @@ namespace spades {
 			// draw player health
 			{
 				int hp = p.GetHealth(); // current player health
-				int maxHealth = 100; // server doesn't send this
+				int maxHealth = 100;    // server doesn't send this
+				int damageTaken = p.GetLastHealth() - hp;
 				float hpFrac = Clamp((float)hp / (float)maxHealth, 0.0F, 1.0F);
-				Vector4 col = color + (MakeVector4(1, 0, 0, 1) - color) * (1.0F - hpFrac);
+
+				Vector4 white = MakeVector4(1, 1, 1, 1);
+				Vector4 red = MakeVector4(1, 0, 0, 1);
+				Vector4 hpColor = color + (red - color) * (1.0F - hpFrac);
 
 				float hurtTime = (time - lastHurtTime) / 0.25F;
 				hurtTime = std::max(0.0F, 1.0F - hurtTime);
-				col += (MakeVector4(1, 1, 1, 1) - col) * hurtTime;
 
-				auto healthStr = ToString(hp);
+				if (cg_hudHealthBar) {
+					float barW = 44.0F;
+					float barH = 4.0F;
+					float barX = sw - x;
+					float barY = y - (barH + 2.0F);
+					float barPrg = std::ceilf(barW * hpFrac);
+
+					Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
+
+					// draw shadow
+					renderer->SetColorAlphaPremultiplied(shadowP);
+					renderer->DrawImage(img, AABB2(barX + 1, barY + 1, barW, barH));
+
+					// draw background
+					if (hp < maxHealth) {
+						renderer->SetColorAlphaPremultiplied(bgColor);
+						renderer->DrawImage(img, AABB2(barX, barY, barW, barH));
+
+						// draw damaged portion
+						if (hurtTime > 0.0F) {
+							Vector4 dmgColor = red + (white - red) * hurtTime;
+							float dmgBarH = damageTaken * (barW / maxHealth) * hurtTime;
+							for (float x2 = barPrg; x2 < barPrg + dmgBarH; x2 += 1.0F) {
+								float per = 1.0F - ((x2 - barPrg) / dmgBarH);
+								renderer->SetColorAlphaPremultiplied(dmgColor * per);
+								renderer->DrawImage(img, AABB2(barX + x2 - 1.0F, barY, 1.0F, barH));
+							}
+						}
+					}
+
+					// draw health bar
+					renderer->SetColorAlphaPremultiplied(color + (white - color) * hurtTime);
+					renderer->DrawImage(img, AABB2(barX, barY, barPrg, barH));
+				}
+
+				auto healthStr = ToString(cg_hudHealthAnimation
+					? ((int)(hp + damageTaken * hurtTime)) : hp);
 				IFont& font = squareFont;
 				Vector2 size = font.Measure(healthStr);
 				Vector2 pos = MakeVector2(sw - x, y - size.y);
 
 				font.Draw(healthStr, pos + MakeVector2(1, 1), 1.0F, shadowColor);
-				font.Draw(healthStr, pos, 1.0F, col);
+				font.Draw(healthStr, pos, 1.0F, hpColor + (white - hpColor) * hurtTime);
 			}
 		}
 
