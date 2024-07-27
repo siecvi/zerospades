@@ -23,10 +23,12 @@
 namespace spades {
 
 	class ServerListItem : spades::ui::ButtonBase {
+		MainScreenHelper@ helper;
 		MainScreenServerItem@ item;
 		FlagIconRenderer@ flagIconRenderer;
-		ServerListItem(spades::ui::UIManager@ manager, MainScreenServerItem@ item) {
+		ServerListItem(spades::ui::UIManager@ manager, MainScreenHelper@ helper, MainScreenServerItem@ item) {
 			super(manager);
+			@this.helper = helper;
 			@this.item = item;
 			@flagIconRenderer = FlagIconRenderer(manager.Renderer);
 		}
@@ -34,6 +36,20 @@ namespace spades {
 			Renderer@ r = Manager.Renderer;
 			Vector2 pos	= ScreenPosition;
 			Vector2 size = Size;
+			
+			// adjust based on screen width
+			float maxContentsWidth = 750.0F;
+			float scaleF = Min(Manager.ScreenWidth / maxContentsWidth, 1.0F);
+			
+			float itemOffsetX = 2.0F;
+			float itemOffsetY = 2.0F;
+			float flagIconOffsetX = (itemOffsetX + 12.0F) * scaleF;
+			float nameOffsetX = (itemOffsetX + 24.0F) * scaleF;
+			float slotsOffsetX = 330.0F * scaleF;
+			float mapNameOffsetX = 370.0F * scaleF;
+			float gameModeOffsetX = 580.0F * scaleF;
+			float protocolOffsetX = 640.0F * scaleF;
+			float pingOffsetX = size.x - itemOffsetX;
 
 			Vector4 bgcolor = Vector4(1.0F, 1.0F, 1.0F, 0.0F);
 			Vector4 fgcolor = Vector4(1.0F, 1.0F, 1.0F, 1.0F);
@@ -43,11 +59,12 @@ namespace spades {
 				fgcolor = Vector4(220, 220, 0, 255) / 255.0F;
 			}
 
-			if (Pressed and Hover)
+			if (Pressed and Hover) {
 				bgcolor.w = 0.3F;
-			else if (Hover)
+			} else if (Hover) {
 				bgcolor.w = 0.15F;
-
+			}
+			
 			r.ColorNP = bgcolor;
 			r.DrawImage(null, AABB2(pos.x + 1.0F, pos.y + 1.0F, size.x, size.y));
 
@@ -57,8 +74,12 @@ namespace spades {
 				fgcolor.w *= 0.5F;
 			}
 
+			// Draw server country flag icon
+			r.ColorNP = col;
+			flagIconRenderer.DrawIcon(item.Country, pos + Vector2(flagIconOffsetX, itemOffsetY + (size.y * 0.5F)));
+
 			// Draw server name
-			Font.Draw(item.Name, pos + Vector2(4.0F, 2.0F), 1.0F, fgcolor);
+			Font.Draw(item.Name, pos + Vector2(nameOffsetX, itemOffsetY), 1.0F, fgcolor);
 
 			// Draw server slots
 			string playersStr = ToString(item.NumPlayers) + "/" + ToString(item.MaxPlayers);
@@ -69,24 +90,30 @@ namespace spades {
 				playersCol = Vector4(1.0F, 1.0F, 0.7F, col.w);
 			else if (item.NumPlayers == 0)
 				playersCol = Vector4(0.7F, 0.7F, 1.0F, col.w);
-			Font.Draw(playersStr, pos + Vector2(279.0F - Font.Measure(playersStr).x * 0.5F, 2.0F), 1.0F, playersCol);
+			Font.Draw(playersStr, pos + Vector2(slotsOffsetX - Font.Measure(playersStr).x * 0.5F, itemOffsetY), 1.0F, playersCol);
 
 			// Draw map name
-			Font.Draw(item.MapName, pos + Vector2(330.0F, 2.0F), 1.0F, col);
+			Font.Draw(item.MapName, pos + Vector2(mapNameOffsetX, itemOffsetY), 1.0F, col);
 
 			// Draw server gamemode
-			Font.Draw(item.GameMode, pos + Vector2(470.0F, 2.0F), 1.0F, col);
+			Font.Draw(item.GameMode, pos + Vector2(gameModeOffsetX - Font.Measure(item.GameMode).x * 0.5F, itemOffsetY), 1.0F, col);
 
 			// Draw server protocol
-			Font.Draw(item.Protocol, pos + Vector2(570.0F, 2.0F), 1.0F, col);
-
-			// Draw server country flag icon
-			flagIconRenderer.DrawIcon(item.Country, pos + Vector2(640.0F, size.y * 0.5F));
+			Font.Draw(item.Protocol, pos + Vector2(protocolOffsetX, itemOffsetY), 1.0F, col);
 
 			// Draw server ping
-			string pingStr = ToString(item.Ping);
-			Vector4 pingCol(Min((2.0F * item.Ping) / 300.0F, 1.0F), Min((2.0F * (300 - item.Ping)) / 300.0F, 1.0F), 0.1F, col.w);
-			Font.Draw(pingStr, pos + Vector2(710.0F - Font.Measure(pingStr).x, 2.0F), 1.0F, pingCol);
+			int ping = helper.GetServerPing(item.Address);
+			string pingStr = (ping == -1) ? "?" : ToString(ping);
+			
+			Vector4 pingCol = Vector4(1.0F, 1.0F, 1.0F, col.w);
+			if (ping != -1) {
+				float ratio = (2.0F * ping) / 300.0F;
+				pingCol.x = Clamp(ratio - 1.0F, 0.0F, 1.0F);
+				pingCol.y = Clamp(1.0F - pingCol.x, 0.0F, ratio);
+				pingCol.z = Clamp(1.0F - ratio, 0.0F, ratio);
+			}
+
+			Font.Draw(pingStr, pos + Vector2(pingOffsetX - Font.Measure(pingStr).x, itemOffsetY), 1.0F, pingCol);
 		}
 	}
 
@@ -94,16 +121,35 @@ namespace spades {
 
 	class ServerListModel : spades::ui::ListViewModel {
 		spades::ui::UIManager@ manager;
+		MainScreenHelper@ helper;
 		MainScreenServerItem @[] @list;
+		ServerListItem@[]@ itemElements;
 
 		ServerListItemEventHandler@ ItemActivated;
 		ServerListItemEventHandler@ ItemDoubleClicked;
 		ServerListItemEventHandler@ ItemRightClicked;
 
-		ServerListModel(spades::ui::UIManager@ manager, MainScreenServerItem @[] @list) {
+		ServerListModel(spades::ui::UIManager@ manager, MainScreenHelper@ helper, MainScreenServerItem@[]@ list) {
 			@this.manager = manager;
+			@this.helper = helper;
 			@this.list = list;
+
+			@this.itemElements = array<ServerListItem@>();
+			for (uint i = list.length; i > 0; --i)
+				itemElements.insertLast(null);
 		}
+
+		void ReplaceList(MainScreenServerItem@[]@ list) {
+			Assert(list.length == this.list.length);
+			@this.list = list;
+
+			// Kinda dirty hack
+			for (uint i = 0, count = list.length; i < count; ++i) {
+				if (itemElements[i] !is null)
+					@itemElements[i].item = list[i];
+			}
+		}
+
 		int NumRows {
 			get { return int(list.length); }
 		}
@@ -123,11 +169,14 @@ namespace spades {
 				ItemRightClicked(this, item.item);
 		}
 		spades::ui::UIElement@ CreateElement(int row) {
-			ServerListItem i(manager, list[row]);
-			@i.Activated = spades::ui::EventHandler(this.OnItemClicked);
-			@i.DoubleClicked = spades::ui::EventHandler(this.OnItemDoubleClicked);
-			@i.RightClicked = spades::ui::EventHandler(this.OnItemRightClicked);
-			return i;
+			if (itemElements[row] is null) {
+				ServerListItem i(manager, helper, list[row]);
+				@i.Activated = spades::ui::EventHandler(this.OnItemClicked);
+				@i.DoubleClicked = spades::ui::EventHandler(this.OnItemDoubleClicked);
+				@i.RightClicked = spades::ui::EventHandler(this.OnItemRightClicked);
+				@itemElements[row] = i;
+			}
+			return itemElements[row];
 		}
 		void RecycleElement(spades::ui::UIElement@ elem) {}
 	}

@@ -69,6 +69,10 @@ namespace spades {
 					  "array<spades::MainScreenServerItem@>@ GetServerList(string, bool)",
 					  asMETHOD(gui::MainScreenHelper, GetServerList), asCALL_THISCALL);
 					manager->CheckError(r);
+					r = eng->RegisterObjectMethod("MainScreenHelper", "int GetServerPing(string)",
+					                              asMETHOD(gui::MainScreenHelper, GetServerPing),
+					                              asCALL_THISCALL);
+					manager->CheckError(r);
 					r = eng->RegisterObjectMethod(
 					  "MainScreenHelper", "string ConnectServer(string, int)",
 					  asMETHOD(gui::MainScreenHelper, ConnectServer), asCALL_THISCALL);

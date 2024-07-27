@@ -242,11 +242,16 @@ namespace spades {
 				timeToStartInitialization = 0.2F;
 			if (timeToStartInitialization > 0.0F) {
 				DrawStartupScreen();
+
 				timeToStartInitialization -= dt;
-				if (timeToStartInitialization <= 0.0F)
+				if (timeToStartInitialization <= 0.0F) {
 					DoInit(); // do init
-				return;
+				} else {
+					return;
+				}
 			}
+
+			helper->Update();
 
 			ScopedPrivilegeEscalation privilege;
 			static ScriptFunction func("MainScreenUI", "void RunFrame(float)");

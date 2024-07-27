@@ -32,10 +32,12 @@
 
 namespace spades {
 	class ServerItem;
+	class PingTester;
 	namespace gui {
 		class MainScreen;
 
 		class MainScreenServerItem : public RefCountedObject {
+			friend class MainScreenHelper;
 			std::string name;
 			std::string address;
 			std::string mapName;
@@ -59,6 +61,7 @@ namespace spades {
 			std::string GetGameMode() const { return gameMode; }
 			std::string GetCountry() const { return country; }
 			std::string GetProtocol() const { return protocol; }
+			/** Ping seen from *the master server*. */
 			int GetPing() const { return ping; }
 			int GetNumPlayers() const { return numPlayers; }
 			int GetMaxPlayers() const { return maxPlayers; }
@@ -77,12 +80,15 @@ namespace spades {
 			friend class MainScreen;
 			class ServerListQuery;
 
+			std::unique_ptr<PingTester> pingTester;
 			MainScreen *mainScreen;
 			std::unique_ptr<MainScreenServerList> result;
 			stmp::atomic_unique_ptr<MainScreenServerList> resultCell;
 			ServerListQuery *query;
 			std::string errorMessage;
 			std::unordered_set<std::string> favorites;
+
+			void Update();
 
 		protected:
 			~MainScreenHelper();
@@ -99,7 +105,7 @@ namespace spades {
 			void StartQuery();
 			CScriptArray *GetServerList(std::string sortKey, bool descending);
 			std::string GetServerListQueryMessage();
-
+			int GetServerPing(std::string address);
 			std::string ConnectServer(std::string hostname, int protocolVersion);
 			std::string GetPendingErrorMessage();
 
