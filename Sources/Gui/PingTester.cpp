@@ -367,7 +367,7 @@ namespace spades {
 
 		// Initiate new measurements
 		ENetBuffer pingBuffer;
-		pingBuffer.data = "HELLO";
+		pingBuffer.data = (void*)"HELLO";
 		pingBuffer.dataLength = 5;
 
 		while (priv->ongoing.size() < g_maxSimultaneousMeasurement && !priv->queue.empty() &&
