@@ -723,7 +723,7 @@ namespace spades {
 					float barH = 4.0F;
 					float barX = sw - x;
 					float barY = y - (barH + 2.0F);
-					float barPrg = std::ceilf(barW * hpFrac);
+					float barPrg = ceilf(barW * hpFrac);
 
 					Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
 
