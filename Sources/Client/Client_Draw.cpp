@@ -684,6 +684,10 @@ namespace spades {
 					Vector2 iconSize = MakeVector2(ammoIcon->GetWidth(), ammoIcon->GetHeight());
 					Vector2 iconPos = MakeVector2(x - (iconSize.x + spacing), y - iconSize.y);
 
+					bool isReloading = weapon.IsAwaitingReloadCompletion() && !weapon.IsReloadSlow();
+					int clip = isReloading
+						? (int)(clipSize * weapon.GetReloadProgress()) : clipSize;
+
 					for (int i = 0; i < clipSize; i++) {
 						iconPos.x = x - ((float)(i + 1) * (iconSize.x + spacing));
 
@@ -693,7 +697,8 @@ namespace spades {
 
 						// draw icon
 						renderer->SetColorAlphaPremultiplied(
-						  (clipNum >= i + 1) ? ammoCol : bgColor);
+						  isReloading ? ((i < clip) ? color : bgColor)
+						              : ((clipNum >= i + 1) ? ammoCol : bgColor));
 						renderer->DrawImage(ammoIcon, iconPos);
 					}
 
