@@ -1147,8 +1147,8 @@ namespace spades {
 					s += "[";
 					switch (type) {
 						case HitTypeTorso: s += _Tr("Client", "TORSO"); break;
-						case HitTypeArms:
-						case HitTypeLegs: s += _Tr("Client", "LIMB"); break;
+						case HitTypeArms: s += _Tr("Client", "ARMS"); break;
+						case HitTypeLegs: s += _Tr("Client", "LEGS"); break;
 						case HitTypeMelee: s += _Tr("Client", "MELEE"); break;
 						default: s += _Tr("Client", "HEAD"); break;
 					}

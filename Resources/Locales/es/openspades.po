@@ -2383,22 +2383,27 @@ msgctxt "Client"
 msgid "You hit {0} from: {1} blocks "
 msgstr "Le diste a {0} desde: {1} bloques "
 
-#: Sources/Client/Client_Update.cpp:1093
+#: Sources/Client/Client_Update.cpp:1148
 msgctxt "Client"
 msgid "TORSO"
 msgstr "TORSO"
 
-#: Sources/Client/Client_Update.cpp:1095
+#: Sources/Client/Client_Update.cpp:1149
 msgctxt "Client"
-msgid "LIMB"
-msgstr "MIEMBRO"
+msgid "ARMS"
+msgstr "BRAZOS"
 
-#: Sources/Client/Client_Update.cpp:1096
+#: Sources/Client/Client_Update.cpp:1150
+msgctxt "Client"
+msgid "LEGS"
+msgstr "PIERNAS"
+
+#: Sources/Client/Client_Update.cpp:1151
 msgctxt "Client"
 msgid "MELEE"
 msgstr "MELEE"
 
-#: Sources/Client/Client_Update.cpp:1097
+#: Sources/Client/Client_Update.cpp:1152
 msgctxt "Client"
 msgid "HEAD"
 msgstr "CABEZA"
