@@ -71,12 +71,12 @@ namespace spades {
 
 			SPLog("Initializing framebuffer manager");
 
-			if (!settings.r_blitFramebuffer && settings.r_multisamples) {
+			useMultisample = (int)settings.r_multisamples > 0;
+			if (!settings.r_blitFramebuffer && useMultisample) {
 				SPLog("WARNING: Disabling MSAA: no support for MSAA when r_blitFramebuffer = 0");
-				settings.r_multisamples = 0;
+				settings.r_multisamples = useMultisample = 0;
 			}
 
-			useMultisample = (int)settings.r_multisamples > 0;
 			useHighPrec = settings.r_highPrec ? 1 : 0;
 			useHdr = settings.r_hdr;
 

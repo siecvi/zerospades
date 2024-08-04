@@ -29,7 +29,7 @@ namespace spades {
 			GLSettings();
 
 			// clang-format off
-			TypedItemHandle<bool> r_blitFramebuffer     { *this, "r_blitFramebuffer" };
+			TypedItemHandle<bool> r_blitFramebuffer     { *this, "r_blitFramebuffer", ItemFlags::Latch };
 			TypedItemHandle<bool> r_bloom               { *this, "r_bloom", ItemFlags::Latch };
 			TypedItemHandle<float> r_cameraBlur         { *this, "r_cameraBlur" };
 			TypedItemHandle<bool> r_colorCorrection     { *this, "r_colorCorrection" };
