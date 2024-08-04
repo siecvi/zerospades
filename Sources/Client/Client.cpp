@@ -754,7 +754,9 @@ namespace spades {
 					audioDevice->PlayLocal(c.GetPointerOrNull(), params);
 				}
 
-				chatWindow->AddMessage(ChatWindow::ColoredMessage(msg.substr(8), MsgColorGreen));
+				std::string s = _Tr("Client", "[PM] ");
+				s += ChatWindow::ColoredMessage(msg.substr(8), MsgColorGreen);
+				chatWindow->AddMessage(s);
 				return;
 			}
 
