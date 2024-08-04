@@ -56,7 +56,7 @@ DEFINE_SPADES_SETTING(cg_deathSoundGain, "0.2");
 DEFINE_SPADES_SETTING(cg_tracers, "1");
 DEFINE_SPADES_SETTING(cg_tracersFirstPerson, "1");
 DEFINE_SPADES_SETTING(cg_hitAnalyze, "0");
-DEFINE_SPADES_SETTING(cg_killfeedIcons, "0");
+DEFINE_SPADES_SETTING(cg_killfeedIcons, "1");
 
 SPADES_SETTING(cg_smallFont);
 SPADES_SETTING(cg_centerMessage);
