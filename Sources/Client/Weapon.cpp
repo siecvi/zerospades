@@ -201,6 +201,8 @@ namespace spades {
 		}
 
 		void Weapon::ForceReloadDone() {
+			reloading = false; // force reload completion
+
 			int newStock = std::max(0, stock - GetClipSize() + ammo);
 			ammo += stock - newStock;
 			stock = newStock;

@@ -77,6 +77,7 @@ namespace spades {
 
 			cookingGrenade = false;
 			grenadeTime = 0.0F;
+			lastReloadingTime = 0.0F;
 
 			blockCursorActive = false;
 			blockCursorDragging = false;
@@ -462,6 +463,15 @@ namespace spades {
 
 			if (weapon->FrameNext(dt))
 				FireWeapon();
+
+			if (weapon->GetReloadProgress() < 1.0F) {
+				lastReloadingTime = world.GetTime();
+			} else if (weapon->IsReloading()) {
+				// for some reason a server didn't return
+				// WeaponReload packet.
+				if (world.GetTime() - lastReloadingTime > 5.0F)
+					weapon->ForceReloadDone();
+			}
 
 			if (IsLocalPlayer() && pendingRestock) {
 				lastHealth = health;
