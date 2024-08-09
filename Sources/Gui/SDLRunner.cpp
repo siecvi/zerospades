@@ -487,22 +487,23 @@ namespace spades {
 					SPRaise("Failed to create graphics window: %s", msg.c_str());
 				}
 
-				{
-					SDL_Surface* icon = nullptr;
-					SDL_RWops* icon_rw = nullptr;
-					icon_rw = SDL_RWFromConstMem(g_appIconData, GetAppIconDataSize());
-					if (icon_rw != nullptr) {
-						icon = IMG_LoadPNG_RW(icon_rw);
-						SDL_FreeRW(icon_rw);
-					}
-					if (icon == nullptr) {
-						std::string msg = SDL_GetError();
-						SPLog("Failed to load icon: %s", msg.c_str());
-					} else {
-						SDL_SetWindowIcon(window, icon);
-						SDL_FreeSurface(icon);
-					}
+#ifdef __APPLE__
+#elif __unix
+				SDL_Surface* icon = nullptr;
+				SDL_RWops* icon_rw = nullptr;
+				icon_rw = SDL_RWFromConstMem(g_appIconData, GetAppIconDataSize());
+				if (icon_rw != nullptr) {
+					icon = IMG_LoadPNG_RW(icon_rw);
+					SDL_FreeRW(icon_rw);
 				}
+				if (icon == nullptr) {
+					std::string msg = SDL_GetError();
+					SPLog("Failed to load icon: %s", msg.c_str());
+				} else {
+					SDL_SetWindowIcon(window, icon);
+					SDL_FreeSurface(icon);
+				}
+#endif
 
 				SDL_SetRelativeMouseMode(SDL_FALSE);
 				SDL_ShowCursor(SDL_DISABLE);
