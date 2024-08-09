@@ -79,6 +79,7 @@ namespace spades {
 			virtual void BulletHitPlayer(Player& hurtPlayer, HitType hitType, Vector3 hitPos,
 			                             Player& by,
 			                             std::unique_ptr<IBulletHitScanState>& stateCell) = 0;
+			virtual void BulletNearPlayer(Player& by) = 0;
 			virtual void BulletHitBlock(Vector3 hitPos, IntVector3 blockPos, IntVector3 normal) = 0;
 			virtual void AddBulletTracer(Player& player, Vector3 muzzlePos, Vector3 hitPos) = 0;
 

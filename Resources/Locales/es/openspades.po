@@ -2344,32 +2344,37 @@ msgstr ""
 "Sincronización vertical:Sincroniza las actualizaciones de la pantalla con la "
 "frecuencia de actualización del monitor.|Off|On|Adaptativo"
 
-#: Sources/Client/Client_Draw.cpp:771
+#: Sources/Client/Client_Draw.cpp:860
+msgctxt "Client"
+msgid "Accuracy: {0}%"
+msgstr "Precisión: {0}%"
+
+#: Sources/Client/Client_Draw.cpp:864
 msgctxt "Client"
 msgid "K/D Ratio: {0}"
 msgstr "Ratio de muertes: {0}"
 
-#: Sources/Client/Client_Draw.cpp:772
+#: Sources/Client/Client_Draw.cpp:866
 msgctxt "Client"
 msgid "Kill Streak: {0}"
 msgstr "Racha de muertes: {0}"
 
-#: Sources/Client/Client_Draw.cpp:773
+#: Sources/Client/Client_Draw.cpp:867
 msgctxt "Client"
 msgid "Best Streak: {0}"
 msgstr "Mejor racha: {0}"
 
-#: Sources/Client/Client_Draw.cpp:774
+#: Sources/Client/Client_Draw.cpp:868
 msgctxt "Client"
 msgid "Melee Kills: {0}"
 msgstr "Muertes cuerpo a cuerpo: {0}"
 
-#: Sources/Client/Client_Draw.cpp:775
+#: Sources/Client/Client_Draw.cpp:869
 msgctxt "Client"
 msgid "Grenade Kills: {0}"
 msgstr "Muertes por granada: {0}"
 
-#: Sources/Client/Client_Draw.cpp:778
+#: Sources/Client/Client_Draw.cpp:870
 msgctxt "Client"
 msgid "Blocks Placed: {0}"
 msgstr "Bloques colocados: {0}"

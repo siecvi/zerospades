@@ -744,9 +744,9 @@ namespace spades {
 						// draw damaged portion
 						if (hurtTime > 0.0F) {
 							Vector4 dmgColor = red + (white - red) * hurtTime;
-							float dmgBarH = damageTaken * (barW / maxHealth) * hurtTime;
-							for (float x2 = barPrg; x2 < barPrg + dmgBarH; x2 += 1.0F) {
-								float per = 1.0F - ((x2 - barPrg) / dmgBarH);
+							float dmgBarW = damageTaken * (barW / maxHealth) * hurtTime;
+							for (float x2 = barPrg; x2 < barPrg + dmgBarW; x2 += 1.0F) {
+								float per = 1.0F - ((x2 - barPrg) / dmgBarW);
 								renderer->SetColorAlphaPremultiplied(dmgColor * per);
 								renderer->DrawImage(img, AABB2(barX + x2 - 1.0F, barY, 1.0F, barH));
 							}
@@ -821,6 +821,8 @@ namespace spades {
 		void Client::DrawPlayerStats() {
 			SPADES_MARK_FUNCTION();
 
+			Player& p = GetWorld()->GetLocalPlayer().value();
+
 			IFont& font = cg_smallFont
 				? fontManager->GetSmallFont()
 				: fontManager->GetGuiFont();
@@ -838,6 +840,24 @@ namespace spades {
 				font.DrawShadow(text, pos, 1.0F, MakeVector4(1, 1, 1, 1),
 				                MakeVector4(0, 0, 0, 0.8F));
 			};
+
+			int hits, shots;
+			switch (p.GetWeaponType()) {
+				case RIFLE_WEAPON:
+					hits = rifleHits;
+					shots = rifleShots;
+					break;
+				case SMG_WEAPON:
+					hits = smgHits;
+					shots = smgShots;
+					break;
+				case SHOTGUN_WEAPON:
+					hits = shotgunHits;
+					shots = shotgunShots;
+					break;
+			}
+			int accPerc = int(100.0F * (float(hits) / float(std::max(1, shots))));
+			addLine(_Tr("Client", "Accuracy: {0}%", accPerc));
 
 			char buf[64];
 			sprintf(buf, "%.3g", curKills / float(std::max(1, curDeaths)));

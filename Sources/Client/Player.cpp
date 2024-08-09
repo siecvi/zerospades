@@ -498,12 +498,12 @@ namespace spades {
 				return false;
 
 			// |P-A|^2
-			float sq = sqDist2D + diff.z * diff.z;
+			float sqDist3D = sqDist2D + diff.z * diff.z;
 
 			// |P-A| * sin(theta)
-			float dist = sqrtf(sq - c * c);
+			float dist = sqDist3D - (c * c);
 
-			return dist < tolerance;
+			return dist < (tolerance * tolerance);
 		}
 
 		enum class HitBodyPart { None, Head, Torso, Leg1, Leg2, Arms };
@@ -547,6 +547,7 @@ namespace spades {
 				GameMap::RayCastResult mapResult;
 				mapResult = map->CastRay2(muzzle, dir, 256);
 
+				bool nearPlayer = false;
 				stmp::optional<Player&> hitPlayer;
 				float hitPlayerDist2D = 0.0F; // disregarding Z coordinate
 				float hitPlayerDist3D = 0.0F;
@@ -563,8 +564,11 @@ namespace spades {
 					Player& other = maybeOther.value();
 					if (!other.IsAlive() || other.IsSpectator())
 						continue; // filter deads/spectators
-					if (!other.RayCastApprox(muzzle, dir))
+					if (other.RayCastApprox(muzzle, dir)) {
+						nearPlayer = true;
+					} else {
 						continue; // quickly reject players unlikely to be hit
+					}
 
 					Vector3 hitPos;
 					HitBoxes hb = other.GetHitBoxes();
@@ -712,6 +716,10 @@ namespace spades {
 							hitType, finalHitPos, *this, stateCell);
 				}
 
+				// register near shots
+				if (listener && nearPlayer && IsLocalPlayer())
+					listener->BulletNearPlayer(*this);
+
 				if (listener)
 					listener->AddBulletTracer(*this, muzzle, finalHitPos);
 			} // one pellet done
@@ -722,6 +730,7 @@ namespace spades {
 				if (debugger && !playerHits.empty())
 					debugger->SaveImage(playerHits, bulletVectors);
 
+				// do weapon recoil
 				Vector2 rec = weapon->GetRecoil();
 
 				// vanilla's horizontial recoil is driven by a triangular wave generator.

@@ -1075,27 +1075,30 @@ namespace spades {
 
 			auto& hitScanState = dynamic_cast<BulletHitScanState&>(*stateCell);
 
-			if (!IsMuted() && !hitScanState.hasPlayedNormalHitSound) {
+			if (!hitScanState.hasPlayedNormalHitSound) {
 				Handle<IAudioChunk> c;
 				AudioParam param;
-				if (type == HitTypeMelee) {
-					c = audioDevice->RegisterSound("Sounds/Weapons/Spade/HitPlayer.opus");
-					audioDevice->Play(c.GetPointerOrNull(), hitPos, param);
-				} else {
-					switch (SampleRandomInt(0, 2)) {
-						case 0:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh1.opus");
-							break;
-						case 1:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh2.opus");
-							break;
-						case 2:
-							c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh3.opus");
-							break;
-					}
 
-					param.volume = 4.0F;
-					audioDevice->Play(c.GetPointerOrNull(), hitPos, param);
+				if (!IsMuted()) {
+					if (type == HitTypeMelee) {
+						c = audioDevice->RegisterSound("Sounds/Weapons/Spade/HitPlayer.opus");
+						audioDevice->Play(c.GetPointerOrNull(), hitPos, param);
+					} else {
+						switch (SampleRandomInt(0, 2)) {
+							case 0:
+								c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh1.opus");
+								break;
+							case 1:
+								c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh2.opus");
+								break;
+							case 2:
+								c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh3.opus");
+								break;
+						}
+
+						param.volume = 4.0F;
+						audioDevice->Play(c.GetPointerOrNull(), hitPos, param);
+					}
 				}
 
 				if (byLocalPlayer && type != HitTypeHead) {
@@ -1109,6 +1112,15 @@ namespace spades {
 
 			if (byLocalPlayer) {
 				net->SendHit(hurtPlayer.GetId(), type);
+
+				// register bullet hits
+				if (type != HitTypeMelee) {
+					switch (by.GetWeaponType()) {
+						case RIFLE_WEAPON: rifleHits++; break;
+						case SMG_WEAPON: smgHits++; break;
+						case SHOTGUN_WEAPON: shotgunHits++; break;
+					}
+				}
 
 				if ((bool)cg_damageIndicators && type != HitTypeMelee) {
 					DamageIndicator damages;
@@ -1158,7 +1170,7 @@ namespace spades {
 					chatWindow->AddMessage(s);
 				}
 
-				if (type == HitTypeHead && !hitScanState.hasPlayedHeadshotSound) {
+				if (!hitScanState.hasPlayedHeadshotSound && type == HitTypeHead) {
 					Handle<IAudioChunk> c =
 					  audioDevice->RegisterSound("Sounds/Feedback/HeadshotFeedback.opus");
 					AudioParam param;
@@ -1171,6 +1183,17 @@ namespace spades {
 				hitFeedbackIconState = 1.0F;
 				hitFeedbackFriendly = by.IsTeammate(hurtPlayer);
 				lastHitTime = world->GetTime();
+			}
+		}
+
+		void Client::BulletNearPlayer(spades::client::Player& by) {
+			SPADES_MARK_FUNCTION();
+
+			// register near shots
+			switch (by.GetWeaponType()) {
+				case RIFLE_WEAPON: rifleShots++; break;
+				case SMG_WEAPON: smgShots++; break;
+				case SHOTGUN_WEAPON: shotgunShots++; break;
 			}
 		}
 

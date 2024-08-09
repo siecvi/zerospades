@@ -163,6 +163,12 @@ namespace spades {
 			int meleeKills;
 			int grenadeKills;
 			int placedBlocks;
+			int rifleHits;
+			int smgHits;
+			int shotgunHits;
+			int rifleShots;
+			int smgShots;
+			int shotgunShots;
 			float worldSetTime;
 
 			bool reloadKeyPressed;
@@ -527,6 +533,7 @@ namespace spades {
 
 			void BulletHitPlayer(Player& hurtPlayer, HitType, Vector3 hitPos, Player& by, 
 				std::unique_ptr<IBulletHitScanState>& stateCell) override;
+			void BulletNearPlayer(Player& by) override;
 			void BulletHitBlock(Vector3, IntVector3 blockPos, IntVector3 normal) override;
 			void AddBulletTracer(Player& player, Vector3 muzzlePos, Vector3 hitPos) override;
 			void GrenadeExploded(const Grenade&) override;
