@@ -660,19 +660,36 @@ namespace spades {
 #pragma mark - Chat Messages
 
 		void Client::PlayerSentChatMessage(Player& p, bool global, const std::string& msg) {
-			{
-				std::string s = global
-					? _Tr("Client", "Global") : _Tr("Client", "Team");
-				std::string teamName = p.IsSpectator()
-					? _Tr("Client", "Spectator") : p.GetTeamName();
-				NetLog("[%s] %s (%s): %s", s.c_str(),
-					p.GetName().c_str(), teamName.c_str(), msg.c_str());
+			std::string msgType = global
+				? _Tr("Client", "Global") : _Tr("Client", "Team");
+			std::string playername = p.GetName();
+			std::string teamName = p.IsSpectator()
+				? _Tr("Client", "Spectator") : p.GetTeamName();
+			NetLog("[%s] %s (%s): %s",
+				msgType.c_str(), playername.c_str(),
+				teamName.c_str(), msg.c_str());
+
+			std::string state;
+			if (!p.IsAlive()) {
+				state = _Tr("Client", "(DEAD)");
+			} else if (p.IsSpectator()) {
+				state = _Tr("Client", "(SPEC)");
 			}
+
 			{
 				std::string s;
-				if (global)
-					s = _Tr("Client", "[Global] ");
-				s += p.GetName();
+				if (global) {
+					s = _Tr("Client", "[Global]");
+					s += " ";
+				}
+				s += playername;
+
+				// add player state to chat log
+				if (!state.empty()) {
+					s += " ";
+					s += state;
+				}
+
 				s += ": ";
 				s += msg;
 				scriptedUI->RecordChatLog(s, ConvertColorRGBA(p.GetColor()));
@@ -688,20 +705,17 @@ namespace spades {
 					//! Prefix added to global chat messages.
 					//!
 					//! Example: [Global] playername: blah blah
-					//! if sender is dead: *DEAD* playername: oof
-					//!
-					//! Crowdin warns that this string shouldn't be translated,
-					//! but it actually can be.
-					//! The extra whitespace is not a typo.
-					if (p.IsAlive()) {
-						s = _Tr("Client", "[Global] ");
-						if (p.IsSpectator())
-							s = _Tr("Client", "*SPEC* ");
-					} else {
-						s = _Tr("Client", "*DEAD* ");
-					}
+					s = _Tr("Client", "[Global]");
+					s += " ";
 				}
-				s += ChatWindow::TeamColorMessage(p.GetName(), p.GetTeamId());
+				s += ChatWindow::TeamColorMessage(playername, p.GetTeamId());
+
+				// add player state to chat messages
+				if (!state.empty()) {
+					s += " ";
+					s += state;
+				}
+
 				s += ": ";
 				s += msg;
 				chatWindow->AddMessage(s);

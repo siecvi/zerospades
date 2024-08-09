@@ -30,14 +30,10 @@ msgstr "Error en el guardado del mapa: {0} "
 #. ! Prefix added to global chat messages.
 #. !
 #. ! Example: [Global] playername (Red) blah blah
-#. !
-#. ! Crowdin warns that this string shouldn't be translated,
-#. ! but it actually can be.
-#. ! The extra whitespace is not a typo.
 #: Sources/Client/Client.cpp:633
 msgctxt "Client"
-msgid "[Global] "
-msgstr "[Global] "
+msgid "[Global]"
+msgstr "[Global]"
 
 #: Sources/Client/Client_Draw.cpp:119
 msgctxt "Client"
@@ -1576,8 +1572,8 @@ msgstr[1] "{0} minutos restantes"
 
 #: Sources/Client/Client.cpp:643
 msgctxt "Client"
-msgid "*DEAD* "
-msgstr "*MUERTO* "
+msgid "(DEAD)"
+msgstr "(MUERTO)"
 
 #: Sources/Client/Client_Draw.cpp:729
 msgctxt "Client"

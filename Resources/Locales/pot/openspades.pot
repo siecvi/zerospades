@@ -31,13 +31,9 @@ msgstr ""
 #. ! Prefix added to global chat messages.
 #. !
 #. ! Example: [Global] playername (Red) blah blah
-#. !
-#. ! Crowdin warns that this string shouldn't be translated,
-#. ! but it actually can be.
-#. ! The extra whitespace is not a typo.
 #: Sources/Client/Client.cpp:633
 msgctxt "Client"
-msgid "[Global] "
+msgid "[Global]"
 msgstr ""
 
 #: Sources/Client/Client_Draw.cpp:119
@@ -1511,7 +1507,7 @@ msgstr[1] ""
 
 #: Sources/Client/Client.cpp:643
 msgctxt "Client"
-msgid "*DEAD* "
+msgid (DEAD)"
 msgstr ""
 
 #: Sources/Client/Client_Draw.cpp:729
