@@ -1688,7 +1688,7 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			std::string osInfo = VersionInfo::GetVersionInfo();
-			osInfo += " | ZeroSpades 0.0.5 " GIT_COMMIT_HASH;
+			osInfo += " | ZeroSpades 0.0.6 " GIT_COMMIT_HASH;
 
 			NetPacketWriter w(PacketTypeVersionSend);
 			w.WriteByte((uint8_t)'o');
