@@ -262,7 +262,7 @@ namespace spades {
 			float sh = renderer->ScreenHeight();
 
 			float teamBarW = 30.0F;
-			float teamBarH = 30.0F;
+			float teamBarH = 45.0F;
 
 			float spacing = isSmallFont ? 40.0F : 50.0F;
 
@@ -281,8 +281,12 @@ namespace spades {
 			Vector2 pos, size;
 			std::string str;
 
+			Vector4 white = MakeVector4(1, 1, 1, 1);
 			Vector4 col1 = ConvertColorRGBA(world->GetTeamColor(0));
 			Vector4 col2 = ConvertColorRGBA(world->GetTeamColor(1));
+			Vector4 brightCol1 = col1 + (white - col1) * 0.5F;
+			Vector4 brightCol2 = col2 + (white - col2) * 0.5F;
+			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.5);
 
 			// draw shadow
 			img = renderer->RegisterImage("Gfx/White.tga");
@@ -298,22 +302,39 @@ namespace spades {
 			renderer->SetColorAlphaPremultiplied(col2);
 			renderer->DrawImage(img, AABB2(x, teamBarY, teamBarW, 2));
 
-			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.5);
+			// draw player icon
+			img = renderer->RegisterImage("Gfx/User.png");
+			Vector2 iconSize = MakeVector2(12.0F, 10.0F);
+			float iconSpacing = 5.0F;
+			
+			pos.x = x - (teamBarW * 0.5F) - (iconSize.x * 0.5F);
+			pos.y = teamBarY + iconSize.y - iconSpacing;
+			renderer->SetColorAlphaPremultiplied(shadowColor);
+			renderer->DrawImage(img, pos + MakeVector2(1, 1));
+			renderer->SetColorAlphaPremultiplied(brightCol1);
+			renderer->DrawImage(img, pos);
+
+			pos.x = x + (teamBarW * 0.5F) - (iconSize.x * 0.5F);
+			pos.y = teamBarY + iconSize.y - iconSpacing;
+			renderer->SetColorAlphaPremultiplied(shadowColor);
+			renderer->DrawImage(img, pos + MakeVector2(1, 1));
+			renderer->SetColorAlphaPremultiplied(brightCol2);
+			renderer->DrawImage(img, pos);
 
 			// draw player count
 			str = ToString(world->GetNumPlayersAlive(0));
 			size = font.Measure(str);
 			pos.x = x - (teamBarW * 0.5F) - size.x * 0.5F;
-			pos.y = teamBarY;
+			pos.y = teamBarY + iconSize.y + iconSpacing;
 			font.Draw(str, pos + MakeVector2(1, 1), 1.0F, shadowColor);
-			font.Draw(str, pos, 1.0F, col1 + (MakeVector4(1, 1, 1, 1) - col1) * 0.5F);
+			font.Draw(str, pos, 1.0F, brightCol1);
 
 			str = ToString(world->GetNumPlayersAlive(1));
 			size = font.Measure(str);
 			pos.x = x + (teamBarW * 0.5F) - size.x * 0.5F;
-			pos.y = teamBarY;
+			pos.y = teamBarY + iconSize.y + iconSpacing;
 			font.Draw(str, pos + MakeVector2(1, 1), 1.0F, shadowColor);
-			font.Draw(str, pos, 1.0F, col2 + (MakeVector4(1, 1, 1, 1) - col2) * 0.5F);
+			font.Draw(str, pos, 1.0F, brightCol2);
 		}
 
 		void Client::DrawHurtSprites() {
