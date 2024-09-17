@@ -1304,8 +1304,9 @@ namespace spades {
 			Matrix4 const lower = Matrix4::Translate(GetOrigin())
 				* Matrix4::Rotate(MakeVector3(0, 0, 1), yaw);
 			Matrix4 const torso = lower
-				* Matrix4::Translate(0, 0, -(input.crouch ? 0.55F : 1.0F));
+				* Matrix4::Translate(0, 0, -(input.crouch ? 0.5F : 1.0F));
 			Matrix4 const head = torso
+				* Matrix4::Translate(0.0F, 0.0F, -(input.crouch ? 0.05F : 0.0F))
 				* Matrix4::Rotate(MakeVector3(1, 0, 0), pitch);
 			Matrix4 const arms = torso
 				* Matrix4::Translate(0, 0, input.crouch ? 0.0F : 0.1F)

@@ -992,7 +992,8 @@ namespace spades {
 
 			float const legsPosY = inp.crouch ? 0.25F : 0.0F;
 			float const legsPosZ = inp.crouch ? 0.05F : 0.1F;
-			float const torsoPosZ = inp.crouch ? 0.55F : 1.0F;
+			float const headPosZ = inp.crouch ? 0.05F : 0.0F;
+			float const torsoPosZ = inp.crouch ? 0.5F : 1.0F;
 			float const armsPosZ = inp.crouch ? 0.0F : 0.1F;
 
 			float armPitch = pitch;
@@ -1057,6 +1058,7 @@ namespace spades {
 				* Matrix4::Translate(0.0F, 0.0F, -torsoPosZ);
 
 			Matrix4 const head = torso
+				* Matrix4::Translate(0.0F, 0.0F, -headPosZ)
 				* Matrix4::Rotate(MakeVector3(1, 0, 0), pitch);
 
 			Matrix4 const arms = torso
