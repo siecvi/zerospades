@@ -36,11 +36,11 @@ namespace spades {
 			Renderer@ r = Manager.Renderer;
 			Vector2 pos	= ScreenPosition;
 			Vector2 size = Size;
-			
+
 			// adjust based on screen width
 			float maxContentsWidth = 750.0F;
 			float scaleF = Min(Manager.ScreenWidth / maxContentsWidth, 1.0F);
-			
+
 			float itemOffsetX = 2.0F;
 			float itemOffsetY = 2.0F;
 			float flagIconOffsetX = (itemOffsetX + 12.0F) * scaleF;
@@ -64,7 +64,7 @@ namespace spades {
 			} else if (Hover) {
 				bgcolor.w = 0.15F;
 			}
-			
+
 			r.ColorNP = bgcolor;
 			r.DrawImage(null, AABB2(pos.x + 1.0F, pos.y + 1.0F, size.x, size.y));
 
@@ -104,13 +104,16 @@ namespace spades {
 			// Draw server ping
 			int ping = helper.GetServerPing(item.Address);
 			string pingStr = (ping == -1) ? "?" : ToString(ping);
-			
+
 			Vector4 pingCol = Vector4(1.0F, 1.0F, 1.0F, col.w);
 			if (ping != -1) {
-				float ratio = (2.0F * ping) / 300.0F;
-				pingCol.x = Clamp(ratio - 1.0F, 0.0F, 1.0F);
-				pingCol.y = Clamp(1.0F - pingCol.x, 0.0F, ratio);
-				pingCol.z = Clamp(1.0F - ratio, 0.0F, ratio);
+				int maxPing = 300;
+				float ratio = float(Min(ping, maxPing)) / float(maxPing);
+				float hue = (1.0F - ratio) * 240.0F / 360.0F;
+				Vector3 gradient = HSV(hue, 0.9F, 1.0F);
+				pingCol.x = gradient.x;
+				pingCol.y = gradient.y;
+				pingCol.z = gradient.z;
 			}
 
 			Font.Draw(pingStr, pos + Vector2(pingOffsetX - Font.Measure(pingStr).x, itemOffsetY), 1.0F, pingCol);
@@ -194,7 +197,7 @@ namespace spades {
 				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.3F);
 			else if (Hover)
 				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.15F);
-			else 
+			else
 				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.0F);
 			r.DrawImage(null, AABB2(pos.x - 2.0F, pos.y, size.x, size.y));
 
