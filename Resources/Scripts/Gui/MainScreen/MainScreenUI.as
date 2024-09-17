@@ -37,8 +37,8 @@ namespace spades {
 
 		private float time = -1.0F;
 
-		private ConfigItem cg_playerName("cg_playerName");
-		private ConfigItem cg_playerNameIsSet("cg_playerNameIsSet");
+		private ConfigItem cg_playerName("cg_playerName", "Deuce");
+		private ConfigItem cg_playerNameIsSet("cg_playerNameIsSet", "0");
 
 		MainScreenUI(Renderer@ renderer, AudioDevice@ audioDevice, FontManager@ fontManager, MainScreenHelper@ helper) {
 			@this.renderer = renderer;
@@ -59,6 +59,11 @@ namespace spades {
 			string nameStr = cg_playerName.StringValue;
 			if (nameStr != "" and nameStr != "Deuce")
 				cg_playerNameIsSet.IntValue = 1;
+				
+			// prompt window if user has an empty name
+			if (nameStr == "")
+				cg_playerNameIsSet.IntValue = 0;
+				
 			if (not cg_playerNameIsSet.BoolValue) {
 				CreateProfileScreen al(mainMenu, fontManager);
 				al.Run();

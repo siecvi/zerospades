@@ -28,8 +28,8 @@ namespace spades {
 		private spades::ui::Button@ okButton;
 		private FontManager@ fontManager;
 
-		private ConfigItem cg_playerName("cg_playerName", "Deuce");
-		private ConfigItem cg_playerNameIsSet("cg_playerNameIsSet", "0");
+		private ConfigItem cg_playerName("cg_playerName");
+		private ConfigItem cg_playerNameIsSet("cg_playerNameIsSet");
 
 		CreateProfileScreen(spades::ui::UIElement@ owner, FontManager@ fontManager) {
 			super(owner.Manager);
@@ -118,12 +118,15 @@ namespace spades {
 		private void OnOkPressed(spades::ui::UIElement@ sender) {
 			if (nameField.Text.length == 0)
 				return;
-			cg_playerName = nameField.Text;
-			cg_playerNameIsSet = 1;
+			cg_playerName.StringValue = nameField.Text;
+			cg_playerNameIsSet.IntValue = 1;
 			Close();
 		}
 
-		private void OnChooseLater(spades::ui::UIElement@ sender) { Close(); }
+		private void OnChooseLater(spades::ui::UIElement@ sender) { 
+			cg_playerName.StringValue = "Deuce";
+			Close(); 
+		}
 
 		private void OnNameChanged(spades::ui::UIElement@ sender) {
 			okButton.Enable = nameField.Text.length > 0;
