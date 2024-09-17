@@ -1123,13 +1123,10 @@ namespace spades {
 					world.GetListener()->PlayerLanded(*this, hurtOnLanding);
 			}
 
-			if (IsOnGroundOrWade()) {
-				// count move distance
-				f = fsynctics * 32.0F;
-				float dx = f * velocity.x;
-				float dy = f * velocity.y;
-				float dist = sqrtf(dx*dx + dy*dy);
-				moveDistance += dist * 0.3F;
+			float vel2D = velocity.GetSquaredLength2D();
+			if (vel2D > 0.0F) {
+				// count move distance, not based on velocity but on sprint state
+				moveDistance += input.sprint ? 0.045F : 0.035F;
 
 				bool madeFootstep = false;
 				while (moveDistance > 1.0F) {
@@ -1137,7 +1134,8 @@ namespace spades {
 					moveDistance -= 1.0F;
 
 					if (world.GetListener() && !madeFootstep) {
-						if (!input.crouch && !input.sneak && !IsZoomed())
+						if (vel2D > 0.01F && IsOnGroundOrWade() &&
+						    !input.crouch && !input.sneak && !IsZoomed())
 							world.GetListener()->PlayerMadeFootstep(*this);
 						madeFootstep = true;
 					}
