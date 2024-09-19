@@ -826,7 +826,7 @@ namespace spades {
 
 			Vector3 blockF = MakeVector3(outBlockPos) + 0.5F;
 			Vector3 shiftedPos = blockF + (MakeVector3(outBlockNormal) * 0.6F);
-			float hitBlockDist = (shiftedPos - muzzle).GetChebyshevLength();
+			float hitBlockDist = ((dig ? blockF : shiftedPos) - muzzle).GetChebyshevLength();
 
 			if (mapResult.hit && hitBlockDist < MAX_DIG_DISTANCE && (!hitPlayer || dig)) {
 				if (map->IsValidMapCoord(outBlockPos.x, outBlockPos.y, outBlockPos.z)) {
