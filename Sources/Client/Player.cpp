@@ -126,40 +126,36 @@ namespace spades {
 			if (!IsAlive())
 				return;
 
-			auto* listener = world.GetListener();
+			bool isLocal = this->IsLocalPlayer();
 
-			if (IsWalking() && !input.crouch && input.sprint) {
-				newInput.primary = false;
-				newInput.secondary = false;
-			}
+			const float primaryDelay = GetToolPrimaryDelay();
+			const float secondaryDelay = GetToolSecondaryDelay();
 
 			if (tool == ToolSpade) {
 				if (newInput.primary)
 					newInput.secondary = false;
 				if (newInput.secondary != weapInput.secondary) {
 					if (newInput.secondary) {
-						nextDigTime = world.GetTime() + GetToolSecondaryDelay();
 						firstDig = true;
+						nextDigTime = world.GetTime() + secondaryDelay;
 					}
 				}
-			} else if (tool == ToolGrenade) {
+			} else if (tool == ToolGrenade && isLocal) {
 				if (world.GetTime() < nextGrenadeTime)
 					newInput.primary = false;
-				if (grenades <= 0 && IsLocalPlayer())
+				if (grenades <= 0)
 					newInput.primary = false;
 
 				if (newInput.primary != weapInput.primary) {
-					if (!newInput.primary) {
-						ThrowGrenade();
+					if (newInput.primary) {
+						CookGrenade();
 					} else {
-						cookingGrenade = true;
-						grenadeTime = world.GetTime();
-
-						if (listener)
-							listener->PlayerPulledGrenadePin(*this);
+						ThrowGrenade();
 					}
 				}
-			} else if (tool == ToolBlock && IsLocalPlayer()) {
+			} else if (tool == ToolBlock && isLocal) {
+				auto* listener = world.GetListener();
+
 				if (world.GetTime() < nextBlockTime) {
 					newInput.primary = false;
 					newInput.secondary = false;
@@ -187,7 +183,7 @@ namespace spades {
 									if (listener) // cannot build; insufficient blocks.
 										listener->LocalPlayerBuildError(BuildFailureReason::InsufficientBlocks);
 								}
-								nextBlockTime = world.GetTime() + GetToolSecondaryDelay();
+								nextBlockTime = world.GetTime() + secondaryDelay;
 							} else {
 								if (listener) // cannot build; invalid position.
 									listener->LocalPlayerBuildError(BuildFailureReason::InvalidPosition);
@@ -208,7 +204,7 @@ namespace spades {
 								listener->LocalPlayerBlockAction(blockCursorPos, BlockActionCreate);
 
 							lastSingleBlockBuildSeqDone = true;
-							nextBlockTime = world.GetTime() + GetToolPrimaryDelay();
+							nextBlockTime = world.GetTime() + primaryDelay;
 						} else if (blockStocks > 0 && airborne && canPending) {
 							pendingPlaceBlock = true;
 							pendingPlaceBlockPos = blockCursorPos;
@@ -221,12 +217,12 @@ namespace spades {
 							listener->LocalPlayerBuildError(BuildFailureReason::InvalidPosition);
 					}
 				}
-			} else if (tool == ToolBlock) {
-				if (newInput.secondary != weapInput.secondary && !newInput.secondary) {
-					if (world.GetTime() > nextBlockTime)
-						nextBlockTime = world.GetTime() + GetToolPrimaryDelay();
+			} else if (tool == ToolBlock) { // handle secondary action for non-local
+				if (newInput.secondary != weapInput.secondary) {
+					if (!newInput.secondary && world.GetTime() > nextBlockTime)
+						nextBlockTime = world.GetTime() + secondaryDelay;
 				}
-			} else if (tool == ToolWeapon) {
+			} else if (tool == ToolWeapon && isLocal) {
 				weapon->SetShooting(newInput.primary);
 			} else {
 				SPAssert(false);
@@ -271,26 +267,18 @@ namespace spades {
 				world.GetListener()->PlayerRestocked(*this);
 		}
 
-		void Player::SetTool(spades::client::Player::ToolType t) {
+		void Player::SetTool(ToolType t) {
 			SPADES_MARK_FUNCTION();
 
-			if (t == tool)
-				return;
-
-			ToolType oldTool = tool;
 			tool = t;
-			if (oldTool == ToolWeapon)
-				weapon->SetShooting(false);
-			if (tool == ToolWeapon)
-				weapon->SetShooting(weapInput.primary);
 
 			cookingGrenade = false;
+			weapon->SetShooting(false);
+
+			// reset block cursor
 			if (IsLocalPlayer()) {
 				blockCursorActive = false;
 				blockCursorDragging = false;
-
-				WeaponInput winp;
-				SetWeaponInput(winp);
 			}
 
 			if (world.GetListener())
@@ -360,7 +348,10 @@ namespace spades {
 		void Player::Update(float dt) {
 			SPADES_MARK_FUNCTION();
 
-			auto* listener = world.GetListener();
+			bool isLocal = this->IsLocalPlayer();
+
+			const float primaryDelay = GetToolPrimaryDelay();
+			const float secondaryDelay = GetToolSecondaryDelay();
 
 			MovePlayer(dt);
 
@@ -368,16 +359,18 @@ namespace spades {
 				if (weapInput.primary) {
 					if (world.GetTime() > nextSpadeTime) {
 						UseSpade(false);
-						nextSpadeTime = world.GetTime() + GetToolPrimaryDelay();
+						nextSpadeTime = world.GetTime() + primaryDelay;
 					}
 				} else if (weapInput.secondary) {
 					if (world.GetTime() > nextDigTime) {
 						UseSpade(true);
-						nextDigTime = world.GetTime() + GetToolSecondaryDelay();
 						firstDig = false;
+						nextDigTime = world.GetTime() + secondaryDelay;
 					}
 				}
-			} else if (tool == ToolBlock && IsLocalPlayer()) {
+			} else if (tool == ToolBlock && isLocal) {
+				auto* listener = world.GetListener();
+
 				Vector3 muzzle = GetEye(), dir = GetFront();
 
 				const Handle<GameMap>& map = world.GetMap();
@@ -433,7 +426,7 @@ namespace spades {
 
 						pendingPlaceBlock = false;
 						lastSingleBlockBuildSeqDone = true;
-						nextBlockTime = world.GetTime() + GetToolPrimaryDelay();
+						nextBlockTime = world.GetTime() + primaryDelay;
 					}
 				} else {
 					// Delayed Block Placement can be activated only
@@ -455,10 +448,19 @@ namespace spades {
 				}
 			} else if (tool == ToolBlock) {
 				if (weapInput.primary && world.GetTime() > nextBlockTime)
-					nextBlockTime = world.GetTime() + GetToolPrimaryDelay();
-			} else if (tool == ToolGrenade) {
+					nextBlockTime = world.GetTime() + primaryDelay;
+			} else if (tool == ToolGrenade && isLocal) {
 				if (GetGrenadeCookTime() >= 3.0F)
 					ThrowGrenade();
+			} else if (tool == ToolGrenade) {
+				if (weapInput.primary) {
+					CookGrenade();
+				} else {
+					// grenade throw is sent by the server
+					cookingGrenade = false;
+				}
+			} else if (tool == ToolWeapon && !isLocal) {
+				weapon->SetShooting(weapInput.primary);
 			}
 
 			if (weapon->FrameNext(dt))
@@ -473,7 +475,7 @@ namespace spades {
 					weapon->ForceReloadDone();
 			}
 
-			if (IsLocalPlayer() && pendingRestock) {
+			if (isLocal && pendingRestock) {
 				lastHealth = health;
 				health = localPlayerHealth;
 				grenades = localPlayerGrenades;
@@ -512,6 +514,8 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			auto* listener = world.GetListener();
+
+			bool isLocal = this->IsLocalPlayer();
 
 			Vector3 dir = GetFront();
 			Vector3 muzzle = GetEye() + (dir * 0.01F);
@@ -660,7 +664,7 @@ namespace spades {
 							if (health <= 0 && !blockDestroyed) {
 								health = 0;
 								blockDestroyed = true;
-								if (listener && IsLocalPlayer()) // send destroy cmd for local
+								if (listener && isLocal) // send destroy cmd for local
 									listener->LocalPlayerBlockAction(outBlockPos, BlockActionTool);
 							}
 
@@ -677,7 +681,7 @@ namespace spades {
 				} else if (hitPlayer) {
 					finalHitPos = muzzle + dir * hitPlayerDist3D;
 
-					if (this->IsLocalPlayer())
+					if (isLocal)
 						bulletVectors.push_back(finalHitPos);
 
 					HitType hitType;
@@ -717,14 +721,14 @@ namespace spades {
 				}
 
 				// register near shots
-				if (listener && nearPlayer && IsLocalPlayer())
+				if (listener && nearPlayer && isLocal)
 					listener->BulletNearPlayer(*this);
 
 				if (listener)
 					listener->AddBulletTracer(*this, muzzle, finalHitPos);
 			} // one pellet done
 
-			if (this->IsLocalPlayer()) {
+			if (isLocal) {
 				// do hit test debugging
 				auto* debugger = world.GetHitTestDebugger();
 				if (debugger && !playerHits.empty())
@@ -753,14 +757,25 @@ namespace spades {
 			}
 		}
 
+		void Player::CookGrenade() {
+			SPADES_MARK_FUNCTION();
+
+			if (cookingGrenade)
+				return;
+
+			if (world.GetListener())
+				world.GetListener()->PlayerPulledGrenadePin(*this);
+
+			cookingGrenade = true;
+			grenadeTime = world.GetTime();
+		}
+
 		void Player::ThrowGrenade() {
 			SPADES_MARK_FUNCTION();
 
 			if (!cookingGrenade)
 				return;
-
-			auto* listener = world.GetListener();
-
+			
 			if (IsLocalPlayer()) {
 				Vector3 const dir = GetFront();
 				Vector3 const muzzle = GetEye() + (dir * 0.1F);
@@ -771,14 +786,14 @@ namespace spades {
 				float const fuse = 3.0F - GetGrenadeCookTime();
 
 				auto nade = stmp::make_unique<Grenade>(world, muzzle, vel, fuse);
-				if (listener)
-					listener->PlayerThrewGrenade(*this, *nade);
+				if (world.GetListener())
+					world.GetListener()->PlayerThrewGrenade(*this, *nade);
 				world.AddGrenade(std::move(nade));
 				grenades--;
 			} else {
 				// grenade packet will be sent by server
-				if (listener)
-					listener->PlayerThrewGrenade(*this, {});
+				if (world.GetListener())
+					world.GetListener()->PlayerThrewGrenade(*this, {});
 			}
 
 			cookingGrenade = false;
@@ -861,14 +876,13 @@ namespace spades {
 			} else if (hitPlayer && !dig) {
 				// The custom state data, optionally set by `BulletHitPlayer`'s implementation
 				std::unique_ptr<IBulletHitScanState> stateCell;
-
 				if (listener)
 					listener->BulletHitPlayer(*hitPlayer,
 						HitTypeMelee, hitPlayer->GetEye(), *this, stateCell);
+			} else {
+				if (listener)
+					listener->PlayerMissedSpade(*this);
 			}
-
-			if (listener)
-				listener->PlayerMissedSpade(*this);
 		}
 
 		Vector3 Player::GetFront(bool interpolate) {
@@ -1227,28 +1241,15 @@ namespace spades {
 				default: SPInvalidEnum("tool", tool);
 			}
 		}
-
 		float Player::GetToolSecondaryDelay() {
 			SPADES_MARK_FUNCTION_DEBUG();
 			switch (tool) {
 				case ToolSpade: return 1.0F;
+				case ToolGrenade:
+				case ToolWeapon:
 				case ToolBlock: return GetToolPrimaryDelay();
 				default: SPInvalidEnum("tool", tool);
 			}
-		}
-
-		float Player::GetSpadeAnimationProgress() {
-			SPADES_MARK_FUNCTION_DEBUG();
-			SPAssert(tool == ToolSpade);
-			SPAssert(weapInput.primary);
-			return 1.0F - (GetTimeToNextSpade() / GetToolPrimaryDelay());
-		}
-
-		float Player::GetDigAnimationProgress() {
-			SPADES_MARK_FUNCTION_DEBUG();
-			SPAssert(tool == ToolSpade);
-			SPAssert(weapInput.secondary);
-			return 1.0F - (GetTimeToNextDig() / GetToolSecondaryDelay());
 		}
 
 		float Player::GetWalkAnimationProgress() {
@@ -1261,12 +1262,15 @@ namespace spades {
 			health = 0;
 			weapon->SetShooting(false);
 
-			if (IsLocalPlayer() && tool == ToolBlock)
-				blockCursorDragging = false; // do death cleanup
+			if (IsLocalPlayer()) {
+				// drop the live grenade (though it won't do any damage?)
+				if (tool == ToolGrenade)
+					ThrowGrenade();
 
-			// if local player is killed while cooking grenade, drop the live grenade.
-			if (IsLocalPlayer() && tool == ToolGrenade)
-				ThrowGrenade();
+				// reset block cursor
+				blockCursorActive = false;
+				blockCursorDragging = false;
+			}
 
 			if (world.GetListener())
 				world.GetListener()->PlayerKilledPlayer(killer, *this, type);

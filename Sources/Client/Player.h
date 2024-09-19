@@ -135,7 +135,6 @@ namespace spades {
 
 			void UseSpade(bool dig);
 			void FireWeapon();
-			void ThrowGrenade();
 
 		public:
 			Player(World&, int pId, WeaponType wType, 
@@ -182,6 +181,8 @@ namespace spades {
 			void Restock();
 			void GotBlock() { blockStocks = std::min(blockStocks + 1, 50); }
 			void UseBlocks(int c) { blockStocks = std::max(blockStocks - c, 0); }
+			void CookGrenade();
+			void ThrowGrenade();
 
 			bool IsToolSpade() { return tool == ToolSpade; }
 			bool IsToolBlock() { return tool == ToolBlock; }
@@ -237,12 +238,10 @@ namespace spades {
 			float GetTimeToNextGrenade();
 
 			float GetGrenadeCookTime();
-			bool IsCookingGrenade() { return tool == ToolGrenade && cookingGrenade; }
-
+			bool IsCookingGrenade() { return cookingGrenade; }
+			
 			float GetToolPrimaryDelay();
 			float GetToolSecondaryDelay();
-			float GetSpadeAnimationProgress();
-			float GetDigAnimationProgress();
 			bool IsFirstDig() const { return firstDig; }
 
 			float GetWalkAnimationProgress();

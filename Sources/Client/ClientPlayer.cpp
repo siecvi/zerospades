@@ -524,34 +524,38 @@ namespace spades {
 
 		void ClientPlayer::SetSkinParameterForTool(Player::ToolType type, asIScriptObject* skin) {
 			Player& p = player;
+
 			WeaponInput actualWeapInput = p.GetWeaponInput();
+
+			const float primaryDelay = p.GetToolPrimaryDelay();
+			const float secondaryDelay = p.GetToolSecondaryDelay();
 
 			if (type == Player::ToolSpade) {
 				ScriptISpadeSkin interface(skin);
 				const float nextSpadeTime = p.GetTimeToNextSpade();
-				if (actualWeapInput.primary && nextSpadeTime > 0.0F) {
+				if (nextSpadeTime > 0.0F) {
 					interface.SetActionType(SpadeActionTypeBash);
-					interface.SetActionProgress(1.0F - (nextSpadeTime / 0.2F));
+					interface.SetActionProgress(1.0F - (nextSpadeTime / primaryDelay));
 				} else if (actualWeapInput.secondary) {
-					interface.SetActionType(p.IsFirstDig() 
+					interface.SetActionType(p.IsFirstDig()
 						? SpadeActionTypeDigStart : SpadeActionTypeDig);
-					interface.SetActionProgress(1.0F - p.GetTimeToNextDig());
+					interface.SetActionProgress(1.0F - (p.GetTimeToNextDig() / secondaryDelay));
 				} else {
 					interface.SetActionType(SpadeActionTypeIdle);
 					interface.SetActionProgress(0.0F);
 				}
 			} else if (type == Player::ToolBlock) {
 				ScriptIBlockSkin interface(skin);
-				interface.SetReadyState(1.0F - (p.GetTimeToNextBlock() / 0.5F));
+				interface.SetReadyState(1.0F - (p.GetTimeToNextBlock() / primaryDelay));
 				interface.SetBlockColor(ConvertColorRGB(p.GetBlockColor()));
 			} else if (type == Player::ToolGrenade) {
 				ScriptIGrenadeSkin interface(skin);
-				interface.SetReadyState(1.0F - (p.GetTimeToNextGrenade() / 0.5F));
+				interface.SetReadyState(1.0F - (p.GetTimeToNextGrenade() / primaryDelay));
 				interface.SetCookTime(actualWeapInput.primary ? p.GetGrenadeCookTime() : 0.0F);
 			} else if (type == Player::ToolWeapon) {
 				Weapon& w = p.GetWeapon();
 				ScriptIWeaponSkin interface(skin);
-				interface.SetReadyState(1.0F - (w.GetTimeToNextFire() / w.GetDelay()));
+				interface.SetReadyState(1.0F - (w.GetTimeToNextFire() / primaryDelay));
 				interface.SetAimDownSightState(cg_trueAimDownSight ? aimDownState : aimDownState * 0.5F);
 				interface.SetAmmo(w.GetAmmo());
 				interface.SetClipSize(w.GetClipSize());
@@ -579,10 +583,12 @@ namespace spades {
 			float putdown = 1.0F - toolRaiseState;
 			putdown *= putdown;
 			putdown = std::min(1.0F, putdown * 1.5F);
+			float raiseState = (skin == curSkin) ? (1.0F - putdown) : 0.0F;
+
 			{
 				ScriptIToolSkin interface(skin);
 				interface.SetTeamColor(ConvertColorRGB(player.GetColor()));
-				interface.SetRaiseState((skin == curSkin) ? (1.0F - putdown) : 0.0F);
+				interface.SetRaiseState(player.IsLocalPlayer() ? raiseState : 1.0F);
 				interface.SetSprintState(sprint);
 				interface.SetMuted(client.IsMuted());
 			}
@@ -670,33 +676,35 @@ namespace spades {
 				if (!p.IsOnGroundOrWade())
 					trans.z -= vel.z * 0.2F;
 
-				if (sprintState > 0.0F || toolRaiseState < 1.0F) {
-					float per = std::max(sprintState, 1.0F - toolRaiseState) * 5;
+				float raiseState = p.IsLocalPlayer() ? toolRaiseState : 1.0F;
+				if (sprintState > 0.0F || raiseState < 1.0F) {
+					float per = std::max(sprintState, 1.0F - raiseState) * 5;
 					trans.x -= per;
 					trans.z += per;
 				}
+
+				WeaponInput actualWeapInput = p.GetWeaponInput();
 
 				const float nextSpadeTime = p.GetTimeToNextSpade();
 				const float nextDigTime = p.GetTimeToNextDig();
 				const float nextBlockTime = p.GetTimeToNextBlock();
 				const float nextFireTime = w.GetTimeToNextFire();
 
-				const float spadeProgress = 1.0F - (nextSpadeTime / 0.2F);
-				const float spadeDigProgress = 1.0F - nextDigTime;
+				const float primaryDelay = p.GetToolPrimaryDelay();
+				const float secondaryDelay = p.GetToolSecondaryDelay();
+
 				const float cookGrenadeTime = p.GetGrenadeCookTime();
 				const float reloadProgress = 1.0F - w.GetReloadProgress();
-
-				WeaponInput actualWeapInput = p.GetWeaponInput();
 
 				switch (currentTool) {
 					case Player::ToolSpade:
 						model = renderer.RegisterModel("Models/Weapons/Spade/Spade.kv6");
-						if (actualWeapInput.primary && nextSpadeTime > 0.0F) {
-							float f = 1.0F - spadeProgress;
+						if (nextSpadeTime > 0.0F) {
+							float f = nextSpadeTime / primaryDelay;
 							mat = Matrix4::Rotate(MakeVector3(1, 0, 0), f * 1.25F) * mat;
 							mat = Matrix4::Translate(0.0F, f * 0.5F, f * 0.25F) * mat;
 						} else if (actualWeapInput.secondary && nextDigTime > 0.0F) {
-							float f = 1.0F - spadeDigProgress;
+							float f = nextDigTime / secondaryDelay;
 							float f2;
 							if (f >= 0.6F) {
 								f2 = 0.0F;
@@ -1014,22 +1022,26 @@ namespace spades {
 			// breaking compatibility with existing scripts.
 			WeaponInput actualWeapInput = p.GetWeaponInput();
 
+			const float primaryDelay = p.GetToolPrimaryDelay();
+			const float secondaryDelay = p.GetToolSecondaryDelay();
+
 			if (currentTool == Player::ToolSpade) {
-				float nextSpadeTime = p.GetTimeToNextSpade();
+				const float nextSpadeTime = p.GetTimeToNextSpade();
+				const float nextDigTime = p.GetTimeToNextDig();
 				if (nextSpadeTime > 0.0F)
-					armPitch -= (nextSpadeTime / 0.2F);
-				if (actualWeapInput.secondary)
-					armPitch -= 1.0F - p.GetTimeToNextDig();
+					armPitch -= (nextSpadeTime / primaryDelay);
+				else if (actualWeapInput.secondary && nextDigTime > 0.0F)
+					armPitch -= 1.0F - (nextDigTime / secondaryDelay);
 			} else if (currentTool == Player::ToolBlock) {
-				float nextBlockTime = p.GetTimeToNextBlock();
+				const float nextBlockTime = p.GetTimeToNextBlock();
 				if (nextBlockTime > 0.0F)
-					armPitch -= (nextBlockTime / 0.5F);
+					armPitch -= (nextBlockTime / primaryDelay);
 			} else if (currentTool == Player::ToolWeapon) {
-				float nextFireTime = w.GetTimeToNextFire();
+				const float nextFireTime = w.GetTimeToNextFire();
 				if (nextFireTime > 0.0F)
 					armPitch += nextFireTime;
 			} else if (currentTool == Player::ToolGrenade) {
-				float fuse = p.GetGrenadeCookTime();
+				const float fuse = p.GetGrenadeCookTime();
 				if (p.IsCookingGrenade() && fuse > 0.0F)
 					armPitch += fuse * DEG2RAD(30);
 			}

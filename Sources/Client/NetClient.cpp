@@ -846,12 +846,19 @@ namespace spades {
 					if (!GetWorld())
 						break;
 					{
-						int pId = r.ReadByte(); // skip player Id
+						Player& p = GetPlayer(r.ReadByte());
 						float fuse = r.ReadFloat();
 						Vector3 pos = r.ReadVector3();
 						Vector3 vel = r.ReadVector3();
-						Grenade* g = new Grenade(*GetWorld(), pos, vel, fuse);
-						GetWorld()->AddGrenade(std::unique_ptr<Grenade>{g});
+
+						if (p.IsLocalPlayer()) {
+							break;
+						} else {
+							Grenade* g = new Grenade(*GetWorld(), pos, vel, fuse);
+
+							p.ThrowGrenade();
+							GetWorld()->AddGrenade(std::unique_ptr<Grenade>{g});
+						}
 					}
 					break;
 				case PacketTypeSetTool: {
