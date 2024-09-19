@@ -36,6 +36,7 @@
 #include "Player.h"
 #include "Weapon.h"
 #include "World.h"
+#include "NetClient.h"
 #include <Core/Bitmap.h>
 #include <Core/Settings.h>
 #include <ScriptBindings/IBlockSkin.h>
@@ -385,6 +386,7 @@ namespace spades {
 					if (toolRaiseState < 0.0F) {
 						toolRaiseState = 0.0F;
 						currentTool = player.GetTool();
+						client.net->SendTool();
 
 						// play tool change sound
 						IAudioDevice& audioDevice = client.GetAudioDevice();

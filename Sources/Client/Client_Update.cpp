@@ -190,9 +190,6 @@ namespace spades {
 
 			world->GetLocalPlayer()->SetTool(type);
 
-			// TODO: We should send tool after raise cooldown, not before...
-			net->SendTool();
-
 			if (!quiet) {
 				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Weapons/SwitchLocal.opus");
 				audioDevice->PlayLocal(c.GetPointerOrNull(), MakeVector3(0.4F, -0.3F, 0.5F), AudioParam());
