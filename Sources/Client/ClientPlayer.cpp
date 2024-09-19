@@ -917,7 +917,7 @@ namespace spades {
 				};
 
 				for (int i = 0; i < 2; i++) {
-					Vector3 shoulder = shoulders[i];
+					Vector3 shoulder = shoulders[i] + viewWeaponOffset;
 					Vector3 hand = hands[i];
 					Vector3 benddir = benddirs[i];
 
