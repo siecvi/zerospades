@@ -53,6 +53,7 @@ DEFINE_SPADES_SETTING(cg_ejectBrass, "1");
 DEFINE_SPADES_SETTING(cg_hitFeedbackSoundGain, "0.2");
 DEFINE_SPADES_SETTING(cg_headshotFeedbackSoundGain, "0.2");
 DEFINE_SPADES_SETTING(cg_deathSoundGain, "0.2");
+DEFINE_SPADES_SETTING(cg_respawnSoundGain, "1");
 DEFINE_SPADES_SETTING(cg_tracers, "1");
 DEFINE_SPADES_SETTING(cg_tracersFirstPerson, "1");
 DEFINE_SPADES_SETTING(cg_hitAnalyze, "0");
@@ -449,6 +450,10 @@ namespace spades {
 			PlayerInput inp = playerInput;
 			WeaponInput winp = weapInput;
 
+			int health = player.GetHealth();
+			bool isPlayerAlive = health > 0;
+			bool isToolWeapon = player.IsToolWeapon();
+
 			Vector3 vel = player.GetVelocity();
 			if (vel.GetSquaredLength2D() < 0.01F)
 				inp.sprint = false;
@@ -457,14 +462,14 @@ namespace spades {
 			if (inp.jump && !player.IsOnGroundOrWade())
 				inp.jump = false;
 
-			// Can't use a tool while sprinting or switching to another tool, etc.
+			// can't use a tool while sprinting or switching to another tool, etc.
 			if (!CanLocalPlayerUseTool()) {
 				winp.primary = false;
 				winp.secondary = false;
 			}
 
-			// Disable weapon while reloading (except shotgun)
-			if (player.GetTool() == Player::ToolWeapon) {
+			// disable weapon while reloading (except shotgun)
+			if (isPlayerAlive && isToolWeapon) {
 				if (weapon.GetAmmo() == 0)
 					winp.primary = false;
 				if (weapon.IsAwaitingReloadCompletion() && !weapon.IsReloadSlow()) {
@@ -483,7 +488,7 @@ namespace spades {
 			inp.crouch = actualInput.crouch;
 
 			// send player input
-			if (player.IsAlive()) {
+			if (isPlayerAlive) {
 				PlayerInput sentInput = inp;
 				WeaponInput sentWeaponInput = winp;
 
@@ -493,7 +498,7 @@ namespace spades {
 			}
 
 			// reload weapon
-			if (player.IsAlive() && player.IsToolWeapon()
+			if (isPlayerAlive && isToolWeapon
 				&& CanLocalPlayerReloadWeapon() && reloadKeyPressed) {
 				// reset zoom when reloading (unless weapon is shotgun)
 				if (weapInput.secondary && !weapon.IsReloadSlow()) {
@@ -506,12 +511,12 @@ namespace spades {
 			}
 
 			// there is a possibility that player has respawned or something.
-			if (!((player.IsToolWeapon() && actualWeapInput.secondary) && player.IsAlive())
-				&& (player.IsToolWeapon() && !(cg_holdAimDownSight && weapInput.secondary)))
+			if (!((isToolWeapon && actualWeapInput.secondary) && isPlayerAlive)
+				&& (isToolWeapon && !(cg_holdAimDownSight && weapInput.secondary)))
 				weapInput.secondary = false; // stop aiming down
 
 			// is the selected tool no longer usable (ex. out of ammo)?
-			if (!player.IsToolSelectable(player.GetTool())) {
+			if (isPlayerAlive && !player.IsToolSelectable(player.GetTool())) {
 				// release mouse buttons before auto-switching tools
 				winp.primary = false;
 				winp.secondary = false;
@@ -532,7 +537,7 @@ namespace spades {
 				SetSelectedTool(t);
 			}
 
-			if (player.IsAlive()) {
+			if (isPlayerAlive) {
 				// send position packet - 1 per second
 				Vector3 curPos = player.GetPosition();
 				if (curPos != lastPosSent && time - lastPosSentTime > 1.0F) {
@@ -551,7 +556,7 @@ namespace spades {
 			}
 
 			// show block count when building block lines.
-			if (player.IsAlive() && player.IsToolBlock() && player.IsBlockCursorDragging()) {
+			if (isPlayerAlive && player.IsToolBlock() && player.IsBlockCursorDragging()) {
 				if (player.IsBlockCursorActive()) {
 					int blocks = world->CubeLineCount(player.GetBlockCursorDragPos(),
 					                                  player.GetBlockCursorPos());
@@ -565,10 +570,22 @@ namespace spades {
 				}
 			}
 
-			if (player.IsAlive())
-				lastAliveTime = time;
+			// play respawn sound
+			if (!isPlayerAlive) {
+				int count = (int)roundf(player.GetTimeToRespawn());
+				if (count != lastRespawnCount) {
+					if (count <= 3) {
+						Handle<IAudioChunk> c = (count > 1)
+							? audioDevice->RegisterSound("Sounds/Feedback/Beep2.opus")
+							: audioDevice->RegisterSound("Sounds/Feedback/Beep1.opus");
+						AudioParam param;
+						param.volume = cg_respawnSoundGain;
+						audioDevice->PlayLocal(c.GetPointerOrNull(), param);
+					}
+					lastRespawnCount = count;
+				}
+			}
 
-			int health = player.GetHealth();
 			if (health != lastHealth) {
 				if (health < lastHealth) { // ouch!
 					lastHurtTime = time;
@@ -820,6 +837,8 @@ namespace spades {
 
 			// The local player is dead
 			if (victim.IsLocalPlayer()) {
+				lastAliveTime = time;
+
 				// initialize the look-you-are-dead camera
 				Vector3 o = -victim.GetFront();
 				followCameraState.enabled = false;

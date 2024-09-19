@@ -87,6 +87,7 @@ namespace spades {
 		      lastPosSentTime(0.0F),
 		      lastOriSentTime(0.0F),
 		      lastAliveTime(0.0F),
+		      lastRespawnCount(0),
 		      lastHitTime(0.0F),
 		      lastScore(0),
 		      curKills(0),

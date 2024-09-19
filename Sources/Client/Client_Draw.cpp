@@ -88,7 +88,6 @@ DEFINE_SPADES_SETTING(cg_playerNameY, "0");
 DEFINE_SPADES_SETTING(cg_dbgHitTestSize, "128");
 DEFINE_SPADES_SETTING(cg_damageIndicators, "1");
 DEFINE_SPADES_SETTING(cg_hurtScreenEffects, "1");
-DEFINE_SPADES_SETTING(cg_respawnSoundGain, "1");
 
 SPADES_SETTING(cg_smallFont);
 SPADES_SETTING(cg_minimapSize);
@@ -945,22 +944,8 @@ namespace spades {
 			Player& p = GetWorld()->GetLocalPlayer().value();
 
 			std::string msg;
-			int secs = (int)p.GetTimeToRespawn();
+			int secs = (int)roundf(p.GetTimeToRespawn());
 			if (secs > 0) {
-				static int lastCount = 0;
-				if (lastCount != secs) {
-					if (secs <= 3) {
-						Handle<IAudioChunk> c = (secs == 1)
-							? audioDevice->RegisterSound("Sounds/Feedback/Beep1.opus")
-							: audioDevice->RegisterSound("Sounds/Feedback/Beep2.opus");
-						AudioParam param;
-						param.volume = cg_respawnSoundGain;
-						audioDevice->PlayLocal(c.GetPointerOrNull(), param);
-					}
-
-					lastCount = secs;
-				}
-
 				msg = _Tr("Client", "You will respawn in: {0}", secs);
 			} else {
 				msg = _Tr("Client", "Waiting for respawn");
@@ -1018,7 +1003,7 @@ namespace spades {
 					addLine(_Tr("Client", "Following {0} [#{1}]",
 						world->GetPlayerName(playerId), playerId));
 
-					int secs = (int)camTarget.GetTimeToRespawn();
+					int secs = (int)roundf(camTarget.GetTimeToRespawn());
 					if (secs > 0)
 						addLine(_Tr("Client", "Respawning in: {0}", secs));
 				}
