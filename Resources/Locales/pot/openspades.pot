@@ -1346,12 +1346,6 @@ msgctxt "StartupScreen"
 msgid "Disables audio output."
 msgstr ""
 
-#: Resources/Scripts/Gui/StartupScreen.as:1538
-#: Resources/Scripts/Gui/StartupScreen.as:1562
-msgctxt "StartupScreen"
-msgid "Polyphonics"
-msgstr ""
-
 #: Resources/Scripts/Gui/StartupScreen.as:1539
 msgctxt "StartupScreen"
 msgid ""
@@ -2273,17 +2267,12 @@ msgstr ""
 
 #: Sources/Client/Client_Draw.cpp:864
 msgctxt "Client"
-msgid "K/D Ratio: {0}"
+msgid "Kill/Death Ratio: {0}"
 msgstr ""
 
 #: Sources/Client/Client_Draw.cpp:866
 msgctxt "Client"
-msgid "Kill Streak: {0}"
-msgstr ""
-
-#: Sources/Client/Client_Draw.cpp:867
-msgctxt "Client"
-msgid "Best Streak: {0}"
+msgid "Kill Streak: {0}, Best: {1}"
 msgstr ""
 
 #: Sources/Client/Client_Draw.cpp:868

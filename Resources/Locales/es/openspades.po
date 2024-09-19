@@ -25,7 +25,7 @@ msgstr "Mapa guardado: {0}"
 #: Sources/Client/Client.cpp:589 Sources/Client/Client.cpp:595
 msgctxt "Client"
 msgid "Saving map failed: "
-msgstr "Error en el guardado del mapa: {0} "
+msgstr "Error en el guardado del mapa: "
 
 #. ! Prefix added to global chat messages.
 #. !
@@ -48,7 +48,7 @@ msgstr "Screenshot guardada: {0}"
 #: Sources/Client/Client_Draw.cpp:125 Sources/Client/Client_Draw.cpp:131
 msgctxt "Client"
 msgid "Screenshot failed: "
-msgstr "Screenshot fallida: {0} "
+msgstr "Screenshot fallida: "
 
 #: Sources/Client/Client_Draw.cpp:198
 msgctxt "Client"
@@ -330,8 +330,8 @@ msgstr "Has sido expulsado de este servidor."
 
 #: Sources/Client/NetClient.cpp:702
 msgctxt "NetClient"
-msgid "Nombre inválido"
-msgstr ""
+msgid "Invalid name"
+msgstr "Nombre inválido"
 
 #: Sources/Client/NetClient.cpp:703
 msgctxt "NetClient"
@@ -505,7 +505,7 @@ msgstr "Salir"
 #: Resources/Scripts/Gui/MainScreen.as:418
 msgctxt "MainScreen"
 msgid "Credits"
-msgstr "Creditos"
+msgstr "Créditos"
 
 #: Resources/Scripts/Gui/MainScreen.as:425
 msgctxt "MainScreen"
@@ -605,7 +605,7 @@ msgstr "Controles"
 #: Resources/Scripts/Gui/Preferences.as:708
 msgctxt "Preferences"
 msgid "Misc"
-msgstr "Misceláneos"
+msgstr "Varios"
 
 #: Resources/Scripts/Gui/Preferences.as:66
 msgctxt "Preferences"
@@ -665,12 +665,12 @@ msgstr "Botón central del ratón"
 #: Resources/Scripts/Gui/Preferences.as:437
 msgctxt "Preferences"
 msgid "Mouse Button 4"
-msgstr "Botón del ratón 4"
+msgstr "Botón 4 del ratón"
 
 #: Resources/Scripts/Gui/Preferences.as:439
 msgctxt "Preferences"
 msgid "Mouse Button 5"
-msgstr "Botón del ratón 5"
+msgstr "Botón 5 del ratón"
 
 #: Resources/Scripts/Gui/Preferences.as:613
 #: Resources/Scripts/Gui/Preferences.as:619
@@ -694,12 +694,12 @@ msgstr "Invertido"
 #: Resources/Scripts/Gui/Preferences.as:637
 msgctxt "Preferences"
 msgid "Player Information"
-msgstr "Informacion del jugador"
+msgstr "Información del jugador"
 
 #: Resources/Scripts/Gui/Preferences.as:638
 msgctxt "Preferences"
 msgid "Player Name"
-msgstr "Nombre del Jugador"
+msgstr "Nombre del jugador"
 
 #: Resources/Scripts/Gui/Preferences.as:642
 msgctxt "Preferences"
@@ -860,7 +860,7 @@ msgstr "Equipar granada"
 #: Resources/Scripts/Gui/Preferences.as:695
 msgctxt "Preferences"
 msgid "Last Used Tool"
-msgstr "Ultima arma usada"
+msgstr "Última arma usada"
 
 #: Resources/Scripts/Gui/Preferences.as:696
 msgctxt "Preferences"
@@ -910,7 +910,7 @@ msgstr "Saltar"
 #: Resources/Scripts/Gui/Preferences.as:706
 msgctxt "Preferences"
 msgid "Sprint"
-msgstr "Correr (Moverse rapido)"
+msgstr "Correr (Moverse rápido)"
 
 #: Resources/Scripts/Gui/Preferences.as:709
 msgctxt "Preferences"
@@ -940,7 +940,7 @@ msgstr "Chat de equipo"
 #: Resources/Scripts/Gui/Preferences.as:714
 msgctxt "Preferences"
 msgid "Limbo Menu"
-msgstr "Menu limbo"
+msgstr "Menú limbo"
 
 #: Resources/Scripts/Gui/Preferences.as:715
 msgctxt "Preferences"
@@ -980,12 +980,12 @@ msgstr "Iniciar"
 #: Resources/Scripts/Gui/StartupScreen.as:167
 msgctxt "StartupScreen"
 msgid "Skip this screen next time"
-msgstr "Saltar esta pantalla la proxima vez"
+msgstr "Saltar esta pantalla la próxima vez"
 
 #: Resources/Scripts/Gui/StartupScreen.as:211
 msgctxt "StartupScreen"
 msgid "Graphics"
-msgstr "Graficos"
+msgstr "Gráficos"
 
 #: Resources/Scripts/Gui/StartupScreen.as:212
 msgctxt "StartupScreen"
@@ -1397,12 +1397,6 @@ msgstr "Nulo"
 msgctxt "StartupScreen"
 msgid "Disables audio output."
 msgstr "Desactivar salida de audio."
-
-#: Resources/Scripts/Gui/StartupScreen.as:1538
-#: Resources/Scripts/Gui/StartupScreen.as:1562
-msgctxt "StartupScreen"
-msgid "Polyphonics"
-msgstr "Polifónico"
 
 #: Resources/Scripts/Gui/StartupScreen.as:1539
 msgctxt "StartupScreen"
@@ -2351,28 +2345,23 @@ msgstr "Precisión: {0}%"
 
 #: Sources/Client/Client_Draw.cpp:864
 msgctxt "Client"
-msgid "K/D Ratio: {0}"
-msgstr "Ratio de muertes: {0}"
+msgid "Kill/Death Ratio: {0}"
+msgstr "Tasa de bajas/muertes: {0}"
 
 #: Sources/Client/Client_Draw.cpp:866
 msgctxt "Client"
-msgid "Kill Streak: {0}"
-msgstr "Racha de muertes: {0}"
-
-#: Sources/Client/Client_Draw.cpp:867
-msgctxt "Client"
-msgid "Best Streak: {0}"
-msgstr "Mejor racha: {0}"
+msgid "Kill Streak: {0}, Best: {1}"
+msgstr "Racha de bajas: {0}, Mejor: {1}"
 
 #: Sources/Client/Client_Draw.cpp:868
 msgctxt "Client"
 msgid "Melee Kills: {0}"
-msgstr "Muertes cuerpo a cuerpo: {0}"
+msgstr "Bajas cuerpo a cuerpo: {0}"
 
 #: Sources/Client/Client_Draw.cpp:869
 msgctxt "Client"
 msgid "Grenade Kills: {0}"
-msgstr "Muertes por granada: {0}"
+msgstr "Bajas con granadas: {0}"
 
 #: Sources/Client/Client_Draw.cpp:870
 msgctxt "Client"

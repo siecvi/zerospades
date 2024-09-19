@@ -881,10 +881,8 @@ namespace spades {
 
 			char buf[64];
 			sprintf(buf, "%.3g", curKills / float(std::max(1, curDeaths)));
-			addLine(_Tr("Client", "K/D Ratio: {0}", std::string(buf)));
-
-			addLine(_Tr("Client", "Kill Streak: {0}", curStreak));
-			addLine(_Tr("Client", "Best Streak: {0}", bestStreak));
+			addLine(_Tr("Client", "Kill/Death Ratio: {0}", std::string(buf)));
+			addLine(_Tr("Client", "Kill Streak: {0}, Best: {1}", curStreak, bestStreak));
 			addLine(_Tr("Client", "Melee Kills: {0}", meleeKills));
 			addLine(_Tr("Client", "Grenade Kills: {0}", grenadeKills));
 
