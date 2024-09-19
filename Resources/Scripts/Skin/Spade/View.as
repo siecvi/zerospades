@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -62,64 +62,12 @@
 			float sprintStateSS = sprintState * sprintState;
 			if (sprintStateSS > sprintStateSmooth)
 				sprintStateSmooth = Mix(sprintStateSmooth, sprintStateSS, 1.0F - pow(0.001F, dt));
-            else
-                sprintStateSmooth = sprintStateSS;
+			else
+				sprintStateSmooth = sprintStateSS;
 		}
 
 		void AddToScene() {
 			Matrix4 mat = CreateScaleMatrix(0.033F);
-
-			if (actionType == spades::SpadeActionType::Bash) {
-				@model = @pickaxeModel;
-
-                float per = 1.0F - actionProgress;
-                mat = CreateRotateMatrix(Vector3(1, 0, 0), per * 1.7F) * mat;
-                mat = CreateTranslateMatrix(0.0F, per * 0.3F, 0.0F) * mat;
-            } else if (actionType == spades::SpadeActionType::DigStart or actionType == spades::SpadeActionType::Dig) {
-                @model = @spadeModel;
-
-				float per = actionProgress;
-
-                // some tunes
-                const float readyFront = -0.8F;
-                const float digAngle = 0.6F;
-                const float readyAngle = 0.6F;
-
-                float angle;
-                float front = readyFront;
-                float side = 1.0F;
-
-                if (per < 0.5F) {
-                    if (actionType == spades::SpadeActionType::DigStart) {
-                        // bringing to the dig position
-                        per = 4.0F * per * per;
-                        angle = per * readyAngle;
-                        side = per;
-                        front = per * readyFront;
-                    } else {
-                        // soon after digging
-                        angle = readyAngle;
-                        per = (0.5F - per) / 0.5F;
-                        per *= per;
-                        per *= per;
-                        angle += per * digAngle;
-                        front += per * 2.0F;
-                    }
-                } else {
-                    per = (per - 0.5F) / 0.5F;
-                    per = 1.0F - (1.0F - per) * (1.0F - per);
-                    angle = readyAngle + per * digAngle;
-                    front += per * 2.0F;
-                }
-
-                mat = CreateRotateMatrix(Vector3(1, 0, 0), angle) * mat;
-                mat = CreateRotateMatrix(Vector3(0, 0, 1), front * 0.125F) * mat;
-
-                side *= 0.3F;
-                front *= 0.1F;
-
-                mat = CreateTranslateMatrix(side, front, front * 0.2F) * mat;
-            }
 
 			if (sprintStateSmooth > 0.0F or raiseState < 1.0F) {
 				float per = Max(sprintStateSmooth, 1.0F - raiseState);
@@ -128,15 +76,70 @@
 			}
 			mat = CreateTranslateMatrix(0.0F, (1.0F - raiseState) * -0.3F, 0.0F) * mat;
 
-			mat = CreateTranslateMatrix(-0.3F, 0.7F, 0.3F) * mat;
-			mat = CreateTranslateMatrix(swing) * mat;
+			if (actionType == spades::SpadeActionType::Bash) {
+				@model = @pickaxeModel;
 
+				float per = 1.0F - actionProgress;
+				mat = CreateRotateMatrix(Vector3(1, 0, 0), per * 1.7F) * mat;
+				mat = CreateTranslateMatrix(0.0F, per * 0.3F, 0.0F) * mat;
+			} else if (actionType == spades::SpadeActionType::DigStart or actionType == spades::SpadeActionType::Dig) {
+				@model = @spadeModel;
+
+				float per = actionProgress;
+
+				// some tunes
+				const float readyFront = -1.2F;
+				const float digAngle = 0.6F;
+				const float readyAngle = 0.6F;
+
+				float angle;
+				float front = readyFront;
+				float side = 1.0F;
+
+				if (per < 0.5F) {
+					if (actionType == spades::SpadeActionType::DigStart) {
+						// bringing to the dig position
+						per = 4.0F * per * per;
+						angle = per * readyAngle;
+						side = per;
+						front = per * readyFront;
+					} else {
+						// soon after digging
+						angle = readyAngle;
+						per = (0.5F - per) / 0.5F;
+						per *= per;
+						per *= per;
+						angle += per * digAngle;
+						front += per * 2.0F;
+					}
+				} else {
+					per = (per - 0.5F) / 0.5F;
+					per = 1.0F - (1.0F - per) * (1.0F - per);
+					angle = readyAngle + per * digAngle;
+					front += per * 2.0F;
+				}
+
+				mat = CreateRotateMatrix(Vector3(1, 0, 0), angle) * mat;
+				mat = CreateRotateMatrix(Vector3(0, 0, 1), front * 0.125F) * mat;
+
+				side *= 0.3F;
+				front *= 0.1F;
+
+				mat = CreateTranslateMatrix(side, front, front * 0.2F) * mat;
+			}
+			
+			// add weapon offset and sway
+			Vector3 trans(0.0F, 0.0F, 0.0F);
+			trans += Vector3(-0.3F, 0.7F, 0.3F);
+			trans += swing;
+			mat = CreateTranslateMatrix(trans) * mat;
+
+			// hands offset
 			leftHand = mat * Vector3(0.0F, 0.0F, 7.0F);
 			rightHand = mat * Vector3(0.0F, 0.0F, -2.0F);
 
 			ModelRenderParam param;
 			param.depthHack = true;
-
 			param.matrix = eyeMatrix * mat;
 			renderer.AddModel(model, param);
 		}

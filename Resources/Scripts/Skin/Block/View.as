@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -69,22 +69,25 @@
 				mat = CreateRotateMatrix(Vector3(0.0F, 0.0F, 1.0F), sprintStateSmooth * -0.3F) * mat;
 				mat = CreateTranslateMatrix(Vector3(0.1F, -0.4F, -0.05F) * sprintStateSmooth) * mat;
 			}
-
 			mat = CreateTranslateMatrix(Vector3(-0.1F, -0.3F, 0.2F) * (1.0F - raiseState)) * mat;
 
 			if (readyState < 0.99F)
 				mat = CreateTranslateMatrix(Vector3(-0.25F, 0.0F, 0.4F) * (1.0F - readyState)) * mat;
+			
+			// add weapon offset and sway
+			Vector3 trans(0.0F, 0.0F, 0.0F);
+			trans += Vector3(-0.3F, 0.7F, 0.3F);
+			trans += swing;
+			mat = CreateTranslateMatrix(trans) * mat;
 
-			mat = CreateTranslateMatrix(-0.3F, 0.7F, 0.3F) * mat;
-			mat = CreateTranslateMatrix(swing) * mat;
-
+			// hands offset
 			leftHand = mat * Vector3(5.0F, -1.0F, 4.0F);
 			rightHand = mat * Vector3(-5.5F, 3.0F, -5.0F);
 
 			ModelRenderParam param;
-			param.matrix = eyeMatrix * mat;
-			param.customColor = blockColor;
 			param.depthHack = true;
+			param.customColor = blockColor;
+			param.matrix = eyeMatrix * mat;
 			renderer.AddModel(model, param);
 		}
 

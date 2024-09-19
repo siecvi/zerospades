@@ -233,33 +233,14 @@ namespace spades {
 			sprintSpring.Update(dt);
 			raiseSpring.Update(dt);
 
-			bool isSprinting;
-			if (sprintState >= 1)
-				isSprinting = true;
-			else if (sprintState > lastSprintState)
-				isSprinting = true;
-			else if (sprintState < lastSprintState)
-				isSprinting = false;
-			else if (sprintState <= 0)
-				isSprinting = false;
-			else
-				isSprinting = false;
-			lastSprintState = sprintState;
-			sprintSpring.desired = isSprinting ? 1 : 0;
+			bool isSprinting = sprintState >= 1 or sprintState > lastSprintState;
+			bool isRaised = raiseState >= 1 or raiseState > lastRaiseState;
 
-			bool isRaised;
-			if (raiseState >= 1)
-				isRaised = true;
-			else if (raiseState > lastRaiseState)
-				isRaised = true;
-			else if (raiseState < lastRaiseState)
-				isRaised = false;
-			else if (raiseState <= 0)
-				isRaised = false;
-			else
-				isRaised = false;
-			lastRaiseState = raiseState;
+			sprintSpring.desired = isSprinting ? 1 : 0;
 			raiseSpring.desired = isRaised ? 0 : 1;
+
+			lastSprintState = sprintState;
+			lastRaiseState = raiseState;
 		}
 
 		void WeaponFired() {
@@ -336,6 +317,7 @@ namespace spades {
 			mat = CreateEulerAnglesMatrix(recoilRot * sp) * mat;
 			mat = mat * CreateTranslateMatrix(recoilOffset);
 
+			// add weapon offset and sway
 			Vector3 trans(0, 0, 0);
 			trans += Vector3(-0.13F * sp, 0.5F, GetZPos());
 			trans += swing * sp;
