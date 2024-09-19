@@ -89,6 +89,12 @@ DEFINE_SPADES_SETTING(cg_dbgHitTestSize, "128");
 DEFINE_SPADES_SETTING(cg_damageIndicators, "1");
 DEFINE_SPADES_SETTING(cg_hurtScreenEffects, "1");
 
+DEFINE_SPADES_SETTING(cg_hudHotbar, "1");
+SPADES_SETTING(cg_keyToolSpade);
+SPADES_SETTING(cg_keyToolBlock);
+SPADES_SETTING(cg_keyToolWeapon);
+SPADES_SETTING(cg_keyToolGrenade);
+
 SPADES_SETTING(cg_smallFont);
 SPADES_SETTING(cg_minimapSize);
 
@@ -574,12 +580,18 @@ namespace spades {
 			float safeZoneX = Clamp((float)cg_hudSafezoneX, safeZoneXMin, 1.0F);
 			float safeZoneY = Clamp((float)cg_hudSafezoneY, 0.85F, 1.0F);
 
-			float x = (sw - 16.0F) * safeZoneX;
-			float y = (sh - 16.0F) * safeZoneY;
+			float x = floorf((sw - 16.0F) * safeZoneX);
+			float y = floorf((sh - 16.0F) * safeZoneY);
 
 			Player& p = GetWorld()->GetLocalPlayer().value();
 			Weapon& weapon = p.GetWeapon();
-			Player::ToolType tool = p.GetTool();
+
+			Player::ToolType curToolType = p.GetTool();
+			WeaponType curWeaponType = weapon.GetWeaponType();
+
+			bool isToolWeapon = curToolType == Player::ToolWeapon;
+			bool awaitingReload = weapon.IsAwaitingReloadCompletion();
+			bool isReloading = awaitingReload && !weapon.IsReloadSlow();
 
 			Handle<IImage> ammoIcon;
 			float spacing = 2.0F;
@@ -622,10 +634,12 @@ namespace spades {
 			shadowP.y *= shadowP.w;
 			shadowP.z *= shadowP.w;
 
-			Vector4 grayColor = MakeVector4(0.4F, 0.4F, 0.4F, 1);
-			Vector4 bgColor = (luminosity > 0.9F) ? color * grayColor : grayColor;
+			Vector4 white = MakeVector4(1, 1, 1, 1);
+			Vector4 red = MakeVector4(1, 0, 0, 1);
+			Vector4 gray = MakeVector4(0.4F, 0.4F, 0.4F, 1);
+			Vector4 bgColor = (luminosity > 0.9F) ? color * gray : gray;
 
-			switch (tool) {
+			switch (curToolType) {
 				case Player::ToolSpade:
 				case Player::ToolBlock:
 					clipNum = stockNum = p.GetNumBlocks();
@@ -636,7 +650,7 @@ namespace spades {
 					clipSize = stockMax = 3;
 					break;
 				case Player::ToolWeapon: {
-					switch (weapon.GetWeaponType()) {
+					switch (curWeaponType) {
 						case RIFLE_WEAPON:
 							ammoIcon = renderer->RegisterImage("Gfx/Bullet/7.62mm.png");
 							break;
@@ -647,7 +661,7 @@ namespace spades {
 						case SHOTGUN_WEAPON:
 							ammoIcon = renderer->RegisterImage("Gfx/Bullet/12gauge.png");
 							break;
-						default: SPInvalidEnum("weapon.GetWeaponType()", weapon.GetWeaponType());
+						default: SPInvalidEnum("weapon.GetWeaponType()", curWeaponType);
 					}
 
 					clipNum = weapon.GetAmmo();
@@ -655,20 +669,101 @@ namespace spades {
 					stockNum = weapon.GetStock();
 					stockMax = weapon.GetMaxStock();
 				} break;
-				default: SPInvalidEnum("p.GetTool()", tool);
+				default: SPInvalidEnum("p.GetTool()", curToolType);
 			}
 
 			// draw damage rings
 			hurtRingView->Draw();
 
 			// draw color palette
-			if (tool == Player::ToolBlock)
+			if (curToolType == Player::ToolBlock)
 				paletteView->Draw();
 
+			// draw hotbar when unable to use tool
+			if ((!CanLocalPlayerUseTool() || (isToolWeapon && isReloading)) && cg_hudHotbar) {
+				IFont& font = fontManager->GetSmallFont();
+
+				// register tool icons
+				Handle<IImage> blockIcon = renderer->RegisterImage("Gfx/Hotbar/Block.png");
+				Handle<IImage> grenadeIcon = renderer->RegisterImage("Gfx/Hotbar/Grenade.png");
+				Handle<IImage> spadeIcon = renderer->RegisterImage("Gfx/Hotbar/Spade.png");
+				Handle<IImage> weaponIcon;
+				switch (curWeaponType) {
+					case RIFLE_WEAPON:
+						weaponIcon = renderer->RegisterImage("Gfx/Hotbar/Rifle.png");
+						break;
+					case SMG_WEAPON:
+						weaponIcon = renderer->RegisterImage("Gfx/Hotbar/SMG.png");
+						break;
+					case SHOTGUN_WEAPON:
+						weaponIcon = renderer->RegisterImage("Gfx/Hotbar/Shotgun.png");
+						break;
+				}
+
+				const int toolCount = 4;
+				Handle<IImage> toolIcons[toolCount] = {
+					spadeIcon, blockIcon,
+					weaponIcon, grenadeIcon
+				};
+				std::string hotKeys[toolCount] = {
+					cg_keyToolSpade, cg_keyToolBlock,
+					cg_keyToolWeapon, cg_keyToolGrenade
+				};
+
+				const float iconSpacing = 10.0F;
+				float totalWidth = 0.0F;
+
+				for (int i = 0; i < toolCount; i++) {
+					if (!p.IsToolSelectable(static_cast<Player::ToolType>(i)))
+						continue;
+					totalWidth += toolIcons[i]->GetWidth() + iconSpacing;
+				}
+
+				Vector2 iconPos = MakeVector2((sw - totalWidth) * 0.5F, sh * 0.6F);
+				iconPos.x = floorf(iconPos.x);
+				iconPos.y = floorf(iconPos.y);
+
+				for (int i = 0; i < toolCount; i++) {
+					const auto tool = static_cast<Player::ToolType>(i);
+					if (!p.IsToolSelectable(tool))
+						continue;
+
+					Handle<IImage> icon = toolIcons[i];
+					float iconWidth = icon->GetWidth();
+					Vector2 pos = iconPos;
+
+					// draw hotkey
+					Vector2 hotkeyPos = pos + MakeVector2(iconWidth + 1, 16.0F);
+					font.DrawShadow(hotKeys[i], hotkeyPos, 1.0F,
+						MakeVector4(1, 1, 1, 0.8F), MakeVector4(0, 0, 0, 0.25F));
+
+					// draw icon
+					Vector4 iconColor = color;
+					Vector4 iconShadow = shadowP;
+
+					// fade non-selected icons
+					if (tool != curToolType) {
+						iconColor *= 0.25F;
+						iconShadow *= 0.25F;
+					} else {
+						// move selected icon upwards slightly
+						pos.y -= 5;
+					}
+
+					renderer->SetColorAlphaPremultiplied(iconShadow);
+					renderer->DrawImage(icon, pos + MakeVector2(1, 1));
+
+					renderer->SetColorAlphaPremultiplied(iconColor);
+					renderer->DrawImage(icon, pos);
+
+					iconPos.x += iconWidth + iconSpacing;
+				}
+			}
+
 			// draw "press ... to reload"
-			if (tool == Player::ToolWeapon) {
+			if (isToolWeapon) {
 				std::string msg = "";
-				if (weapon.IsAwaitingReloadCompletion()) {
+				if (awaitingReload) {
 					msg = _Tr("Client", "Reloading");
 				} else if (stockNum > 0 && clipNum < (clipSize / 4)) {
 					msg = _Tr("Client", "Press [{0}] to Reload", TrKey(cg_keyReloadWeapon));
@@ -678,21 +773,20 @@ namespace spades {
 					IFont& font = fontManager->GetGuiFont();
 					Vector2 size = font.Measure(msg);
 					Vector2 pos = MakeVector2((sw - size.x) * 0.5F, sh * (2.0F / 3.0F));
-					font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1),
-					                MakeVector4(0, 0, 0, 0.5F));
+					font.DrawShadow(msg, pos, 1.0F, white, MakeVector4(0, 0, 0, 0.5F));
 				}
 			}
 
 			// draw remaining ammo counter
 			{
 				float per = Clamp((float)clipNum / (float)(clipSize / 3), 0.0F, 1.0F);
-				Vector4 ammoCol = color + (MakeVector4(1, 0, 0, 1) - color) * (1.0F - per);
+				Vector4 ammoCol = color + (red - color) * (1.0F - per);
 
 				per = Clamp((float)stockNum / (float)(stockMax / 3), 0.0F, 1.0F);
-				Vector4 stockCol = color + (MakeVector4(1, 0, 0, 1) - color) * (1.0F - per);
+				Vector4 stockCol = color + (red - color) * (1.0F - per);
 
 				auto stockStr = ToString(stockNum);
-				if (ammoStyle >= 1 && tool == Player::ToolWeapon)
+				if (ammoStyle >= 1 && curToolType == Player::ToolWeapon)
 					stockStr = ToString(clipNum) + "-" + stockStr;
 
 				IFont& font = squareFont;
@@ -700,11 +794,10 @@ namespace spades {
 				Vector2 pos = MakeVector2(x, y) - size;
 
 				// draw ammo icon
-				if (ammoStyle < 1 && tool == Player::ToolWeapon) {
+				if (ammoStyle < 1 && isToolWeapon) {
 					Vector2 iconSize = MakeVector2(ammoIcon->GetWidth(), ammoIcon->GetHeight());
 					Vector2 iconPos = MakeVector2(x - (iconSize.x + spacing), y - iconSize.y);
 
-					bool isReloading = weapon.IsAwaitingReloadCompletion() && !weapon.IsReloadSlow();
 					int clip = isReloading
 						? (int)(clipSize * weapon.GetReloadProgress()) : clipSize;
 
@@ -736,8 +829,6 @@ namespace spades {
 				int damageTaken = p.GetLastHealth() - hp;
 				float hpFrac = Clamp((float)hp / (float)maxHealth, 0.0F, 1.0F);
 
-				Vector4 white = MakeVector4(1, 1, 1, 1);
-				Vector4 red = MakeVector4(1, 0, 0, 1);
 				Vector4 hpColor = color + (red - color) * (1.0F - hpFrac);
 
 				float hurtTime = (time - lastHurtTime) / 0.25F;
