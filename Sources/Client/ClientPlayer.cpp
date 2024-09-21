@@ -738,10 +738,9 @@ namespace spades {
 						break;
 					case Player::ToolGrenade:
 						model = renderer.RegisterModel("Models/Weapons/Grenade/Grenade.kv6");
-						if (actualWeapInput.primary) {
-							float f = cookGrenadeTime;
-							trans.x -= f;
-							trans.z -= f;
+						if (p.IsCookingGrenade() && cookGrenadeTime > 0.0F) {
+							trans.x -= cookGrenadeTime;
+							trans.z -= cookGrenadeTime;
 						}
 						break;
 					case Player::ToolWeapon: {
