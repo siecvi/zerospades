@@ -763,6 +763,9 @@ namespace spades {
 			if (cookingGrenade)
 				return;
 
+			if (world.GetTime() < nextGrenadeTime)
+				return;
+
 			if (world.GetListener())
 				world.GetListener()->PlayerPulledGrenadePin(*this);
 
