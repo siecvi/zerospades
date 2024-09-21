@@ -1032,20 +1032,14 @@ namespace spades {
 
 			Player& p = GetWorld()->GetLocalPlayer().value();
 
-			std::string msg;
-			int secs = (int)roundf(p.GetTimeToRespawn());
-			if (secs > 0) {
-				msg = _Tr("Client", "You will respawn in: {0}", secs);
-			} else {
-				msg = _Tr("Client", "Waiting for respawn");
-			}
+			std::string msg = (lastRespawnCount > 0)
+				? _Tr("Client", "You will respawn in: {0}", lastRespawnCount)
+				: _Tr("Client", "Waiting for respawn");
 
-			if (!msg.empty()) {
-				IFont& font = fontManager->GetGuiFont();
-				Vector2 size = font.Measure(msg);
-				Vector2 pos = MakeVector2((sw - size.x) * 0.5F, sh / 2.5F);
-				font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.5));
-			}
+			IFont& font = fontManager->GetGuiFont();
+			Vector2 size = font.Measure(msg);
+			Vector2 pos = MakeVector2((sw - size.x) * 0.5F, sh / 2.5F);
+			font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.5));
 		}
 
 		void Client::DrawSpectateHUD() {
