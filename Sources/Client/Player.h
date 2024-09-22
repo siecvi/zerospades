@@ -240,8 +240,8 @@ namespace spades {
 			float GetGrenadeCookTime();
 			bool IsCookingGrenade() { return cookingGrenade; }
 			
-			float GetToolPrimaryDelay();
-			float GetToolSecondaryDelay();
+			float GetToolPrimaryDelay(ToolType);
+			float GetToolSecondaryDelay(ToolType);
 			bool IsFirstDig() const { return firstDig; }
 
 			float GetWalkAnimationProgress();

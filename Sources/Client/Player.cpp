@@ -128,8 +128,8 @@ namespace spades {
 
 			bool isLocal = this->IsLocalPlayer();
 
-			const float primaryDelay = GetToolPrimaryDelay();
-			const float secondaryDelay = GetToolSecondaryDelay();
+			const float primaryDelay = GetToolPrimaryDelay(tool);
+			const float secondaryDelay = GetToolSecondaryDelay(tool);
 
 			if (tool == ToolSpade) {
 				if (newInput.primary)
@@ -350,8 +350,8 @@ namespace spades {
 
 			bool isLocal = this->IsLocalPlayer();
 
-			const float primaryDelay = GetToolPrimaryDelay();
-			const float secondaryDelay = GetToolSecondaryDelay();
+			const float primaryDelay = GetToolPrimaryDelay(tool);
+			const float secondaryDelay = GetToolSecondaryDelay(tool);
 
 			MovePlayer(dt);
 
@@ -800,7 +800,7 @@ namespace spades {
 			}
 
 			cookingGrenade = false;
-			nextGrenadeTime = world.GetTime() + GetToolPrimaryDelay();
+			nextGrenadeTime = world.GetTime() + GetToolPrimaryDelay(tool);
 		}
 
 		void Player::UseSpade(bool dig) {
@@ -1234,24 +1234,24 @@ namespace spades {
 		float Player::GetTimeToNextGrenade() { return nextGrenadeTime - world.GetTime(); }
 		float Player::GetGrenadeCookTime() { return world.GetTime() - grenadeTime; }
 
-		float Player::GetToolPrimaryDelay() {
+		float Player::GetToolPrimaryDelay(ToolType type) {
 			SPADES_MARK_FUNCTION_DEBUG();
-			switch (tool) {
+			switch (type) {
 				case ToolSpade: return 0.2F;
 				case ToolBlock:
 				case ToolGrenade: return 0.5F;
 				case ToolWeapon: return weapon->GetDelay();
-				default: SPInvalidEnum("tool", tool);
+				default: SPInvalidEnum("tool", type);
 			}
 		}
-		float Player::GetToolSecondaryDelay() {
+		float Player::GetToolSecondaryDelay(ToolType type) {
 			SPADES_MARK_FUNCTION_DEBUG();
-			switch (tool) {
+			switch (type) {
 				case ToolSpade: return 1.0F;
 				case ToolGrenade:
 				case ToolWeapon:
-				case ToolBlock: return GetToolPrimaryDelay();
-				default: SPInvalidEnum("tool", tool);
+				case ToolBlock: return GetToolPrimaryDelay(type);
+				default: SPInvalidEnum("tool", type);
 			}
 		}
 

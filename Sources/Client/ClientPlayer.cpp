@@ -529,8 +529,8 @@ namespace spades {
 
 			WeaponInput actualWeapInput = p.GetWeaponInput();
 
-			const float primaryDelay = p.GetToolPrimaryDelay();
-			const float secondaryDelay = p.GetToolSecondaryDelay();
+			const float primaryDelay = p.GetToolPrimaryDelay(type);
+			const float secondaryDelay = p.GetToolSecondaryDelay(type);
 
 			if (type == Player::ToolSpade) {
 				ScriptISpadeSkin interface(skin);
@@ -692,8 +692,8 @@ namespace spades {
 				const float nextBlockTime = p.GetTimeToNextBlock();
 				const float nextFireTime = w.GetTimeToNextFire();
 
-				const float primaryDelay = p.GetToolPrimaryDelay();
-				const float secondaryDelay = p.GetToolSecondaryDelay();
+				const float primaryDelay = p.GetToolPrimaryDelay(currentTool);
+				const float secondaryDelay = p.GetToolSecondaryDelay(currentTool);
 
 				const float cookGrenadeTime = p.GetGrenadeCookTime();
 				const float reloadProgress = 1.0F - w.GetReloadProgress();
@@ -1023,8 +1023,8 @@ namespace spades {
 			// breaking compatibility with existing scripts.
 			WeaponInput actualWeapInput = p.GetWeaponInput();
 
-			const float primaryDelay = p.GetToolPrimaryDelay();
-			const float secondaryDelay = p.GetToolSecondaryDelay();
+			const float primaryDelay = p.GetToolPrimaryDelay(currentTool);
+			const float secondaryDelay = p.GetToolSecondaryDelay(currentTool);
 
 			if (currentTool == Player::ToolSpade) {
 				const float nextSpadeTime = p.GetTimeToNextSpade();
