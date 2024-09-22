@@ -449,15 +449,16 @@ namespace spades {
 			} else if (tool == ToolBlock) {
 				if (weapInput.primary && world.GetTime() > nextBlockTime)
 					nextBlockTime = world.GetTime() + primaryDelay;
-			} else if (tool == ToolGrenade && isLocal) {
+			} else if (tool == ToolGrenade) {
 				if (GetGrenadeCookTime() >= 3.0F)
 					ThrowGrenade();
-			} else if (tool == ToolGrenade) {
-				if (weapInput.primary) {
-					CookGrenade();
-				} else {
-					// grenade throw is sent by the server
-					cookingGrenade = false;
+
+				if (!isLocal) {
+					if (weapInput.primary) {
+						CookGrenade();
+					} else {
+						ThrowGrenade();
+					}
 				}
 			} else if (tool == ToolWeapon && !isLocal) {
 				weapon->SetShooting(weapInput.primary);

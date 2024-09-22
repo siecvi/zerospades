@@ -136,6 +136,9 @@ namespace spades {
 			void UseSpade(bool dig);
 			void FireWeapon();
 
+			void CookGrenade();
+			void ThrowGrenade();
+
 		public:
 			Player(World&, int pId, WeaponType wType, 
 				int tId, Vector3 pos, IntVector3 col);
@@ -181,8 +184,6 @@ namespace spades {
 			void Restock();
 			void GotBlock() { blockStocks = std::min(blockStocks + 1, 50); }
 			void UseBlocks(int c) { blockStocks = std::max(blockStocks - c, 0); }
-			void CookGrenade();
-			void ThrowGrenade();
 
 			bool IsToolSpade() { return tool == ToolSpade; }
 			bool IsToolBlock() { return tool == ToolBlock; }
