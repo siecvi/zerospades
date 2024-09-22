@@ -122,6 +122,11 @@
 					leftHand = Mix(leftHand, pinOffset, pin);
 				else
 					leftHand = Mix(pinOffset, throwPos, pin - 1.0F);
+					
+				ModelRenderParam param;
+				param.depthHack = true;
+				param.matrix = eyeMatrix * mat;
+				renderer.AddModel(model, param);
 			} else { // throwing
 				float per = Min(readyState * 3.0F, 1.0F);
 
@@ -132,11 +137,6 @@
 				p2 = 0.9F - p2 * p2 * 2.5F;
 				rightHand = Vector3(-0.2F, p2, -0.9F + per * 1.8F);
 			}
-			
-			ModelRenderParam param;
-			param.depthHack = true;
-			param.matrix = eyeMatrix * mat;
-			renderer.AddModel(model, param);
 		}
 
 		void Draw2D() {

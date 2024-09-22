@@ -553,7 +553,7 @@ namespace spades {
 			} else if (type == Player::ToolGrenade) {
 				ScriptIGrenadeSkin interface(skin);
 				interface.SetReadyState(1.0F - (p.GetTimeToNextGrenade() / primaryDelay));
-				interface.SetCookTime(actualWeapInput.primary ? p.GetGrenadeCookTime() : 0.0F);
+				interface.SetCookTime(p.IsCookingGrenade() ? p.GetGrenadeCookTime() : 0.0F);
 			} else if (type == Player::ToolWeapon) {
 				Weapon& w = p.GetWeapon();
 				ScriptIWeaponSkin interface(skin);
