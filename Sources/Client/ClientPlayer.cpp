@@ -861,7 +861,7 @@ namespace spades {
 
 			float const legsPosY = inp.crouch ? 1.25F : 1.0F;
 			float const legsPosZ = inp.crouch ? 0.05F : 0.1F;
-			float const torsoPosZ = inp.crouch ? 0.55F : 1.0F;
+			float const torsoPosZ = inp.crouch ? 0.5F : 1.0F;
 
 			Vector2 legsRot;
 			legsRot.x = Vector3::Dot(vel, p.GetFront2D());
