@@ -690,6 +690,7 @@ namespace spades {
 				const float nextSpadeTime = p.GetTimeToNextSpade();
 				const float nextDigTime = p.GetTimeToNextDig();
 				const float nextBlockTime = p.GetTimeToNextBlock();
+				const float nextGrenadeTime = p.GetTimeToNextGrenade();
 				const float nextFireTime = w.GetTimeToNextFire();
 
 				const float primaryDelay = p.GetToolPrimaryDelay(currentTool);
@@ -731,7 +732,7 @@ namespace spades {
 						param.customColor = ConvertColorRGB(p.GetBlockColor());
 						model = renderer.RegisterModel("Models/Weapons/Block/Block.kv6");
 						if (nextBlockTime > 0.0F) {
-							float f = nextBlockTime * 8;
+							float f = nextBlockTime * 5;
 							trans.x -= f;
 							trans.z += f;
 						}
@@ -741,6 +742,11 @@ namespace spades {
 						if (p.IsCookingGrenade() && cookGrenadeTime > 0.0F) {
 							trans.x -= cookGrenadeTime;
 							trans.z -= cookGrenadeTime;
+						}
+						if (nextGrenadeTime > 0.0F) {
+							float f = nextGrenadeTime * 5;
+							trans.x -= f;
+							trans.z += f;
 						}
 						break;
 					case Player::ToolWeapon: {
@@ -761,7 +767,7 @@ namespace spades {
 						}
 
 						if (reloadProgress > 0.0F && !w.IsReloadSlow()) {
-							float f = reloadProgress * 8;
+							float f = reloadProgress * 10;
 							trans.x -= f;
 							trans.z += f;
 						}
