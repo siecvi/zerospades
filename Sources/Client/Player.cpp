@@ -925,6 +925,7 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			bool climb = false;
+			float size = 0.45F;
 			float offset, m;
 			if (input.crouch) {
 				offset = 0.45F;
@@ -944,18 +945,18 @@ namespace spades {
 			SPAssert(map);
 
 			z = m;
-			float bx = nx + ((velocity.x < 0.0F) ? -0.45F : 0.45F);
+			float bx = nx + ((velocity.x < 0.0F) ? -size : size);
 			while (z >= -1.36F
-				&& !map->ClipBox(bx, position.y - 0.45F, nz + z)
-				&& !map->ClipBox(bx, position.y + 0.45F, nz + z))
+				&& !map->ClipBox(bx, position.y - size, nz + z)
+				&& !map->ClipBox(bx, position.y + size, nz + z))
 				z -= 0.9F;
 			if (z < -1.36F) {
 				position.x = nx;
 			} else if (!input.crouch && orientation.z < 0.5F && !input.sprint) {
 				z = 0.35F;
 				while (z >= -2.36F
-					&& !map->ClipBox(bx, position.y - 0.45F, nz + z)
-					&& !map->ClipBox(bx, position.y + 0.45F, nz + z))
+					&& !map->ClipBox(bx, position.y - size, nz + z)
+					&& !map->ClipBox(bx, position.y + size, nz + z))
 					z -= 0.9F;
 				if (z < -2.36F) {
 					position.x = nx;
@@ -968,18 +969,18 @@ namespace spades {
 			}
 
 			z = m;
-			float by = ny + ((velocity.y < 0.0F) ? -0.45F : 0.45F);
+			float by = ny + ((velocity.y < 0.0F) ? -size : size);
 			while (z >= -1.36F
-				&& !map->ClipBox(position.x - 0.45F, by, nz + z)
-				&& !map->ClipBox(position.x + 0.45F, by, nz + z))
+				&& !map->ClipBox(position.x - size, by, nz + z)
+				&& !map->ClipBox(position.x + size, by, nz + z))
 				z -= 0.9F;
 			if (z < -1.36F) {
 				position.y = ny;
 			} else if (!input.crouch && orientation.z < 0.5F && !input.sprint && !climb) {
 				z = 0.35F;
 				while (z >= -2.36F
-					&& !map->ClipBox(position.x - 0.45F, by, nz + z)
-					&& !map->ClipBox(position.x + 0.45F, by, nz + z))
+					&& !map->ClipBox(position.x - size, by, nz + z)
+					&& !map->ClipBox(position.x + size, by, nz + z))
 					z -= 0.9F;
 				if (z < -2.36F) {
 					position.y = ny;
@@ -1005,10 +1006,14 @@ namespace spades {
 			}
 
 			airborne = true;
-			if (map->ClipBox(position.x - 0.45F, position.y - 0.45F, nz + m) ||
-			    map->ClipBox(position.x - 0.45F, position.y + 0.45F, nz + m) ||
-			    map->ClipBox(position.x + 0.45F, position.y - 0.45F, nz + m) ||
-			    map->ClipBox(position.x + 0.45F, position.y + 0.45F, nz + m)) {
+			float x1 = position.x + size;
+			float x2 = position.x - size;
+			float y1 = position.y + size;
+			float y2 = position.y - size;
+			if (map->ClipBox(x2, y2, nz + m) ||
+			    map->ClipBox(x2, y1, nz + m) ||
+			    map->ClipBox(x1, y2, nz + m) ||
+			    map->ClipBox(x1, y1, nz + m)) {
 				if (velocity.z >= 0.0F) {
 					wade = position.z > 61.0F;
 					airborne = false;
@@ -1163,11 +1168,13 @@ namespace spades {
 
 		bool Player::TryUncrouch() {
 			SPADES_MARK_FUNCTION();
+			
+			float size = 0.45F;
 
-			float x1 = position.x + 0.45F;
-			float x2 = position.x - 0.45F;
-			float y1 = position.y + 0.45F;
-			float y2 = position.y - 0.45F;
+			float x1 = position.x + size;
+			float x2 = position.x - size;
+			float y1 = position.y + size;
+			float y2 = position.y - size;
 			float z1 = position.z + 2.25F;
 			float z2 = position.z - 1.35F;
 
@@ -1351,8 +1358,8 @@ namespace spades {
 			this->weaponType = weap;
 		}
 
-		bool Player::OverlapsWith(const spades::AABB3& box) {
-			SPADES_MARK_FUNCTION_DEBUG();
+		AABB3 Player::GetBox() {
+			float size = 0.45F;
 			float offset, m;
 			if (input.crouch) {
 				offset = 0.45F;
@@ -1361,9 +1368,13 @@ namespace spades {
 				offset = 0.9F;
 				m = 1.35F;
 			}
-			m -= 0.5F;
-			AABB3 playerBox(eye.x - 0.45F, eye.y - 0.45F, eye.z, 0.9F, 0.9F, offset + m);
-			return box.Intersects(playerBox);
+			return AABB3(eye.x - size, eye.y - size, eye.z - size,
+				0.9F, 0.9F, offset + m + size);
+		}
+
+		bool Player::OverlapsWith(const spades::AABB3& box) {
+			SPADES_MARK_FUNCTION_DEBUG();
+			return box.Intersects(GetBox());
 		}
 
 		bool Player::OverlapsWithBlock(const spades::IntVector3& v) {
