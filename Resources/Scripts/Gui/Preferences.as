@@ -1429,12 +1429,14 @@ namespace spades {
 			layouter.AddControl(_Tr("Preferences", "Sprint"), "cg_keySprint");
 
 			layouter.AddHeading(_Tr("Preferences", "Misc"));
+			layouter.AddControl(_Tr("Preferences", "Scoreboard"), "cg_keyScoreboard");
 			layouter.AddToggleField(_Tr("Preferences", "Hold Large Map"), "cg_holdMapZoom");
 			layouter.AddControl(_Tr("Preferences", "Minimap Scale"), "cg_keyChangeMapScale");
 			layouter.AddControl(_Tr("Preferences", "Toggle Map"), "cg_keyToggleMapZoom");
 			layouter.AddControl(_Tr("Preferences", "Flashlight"), "cg_keyFlashlight");
 			layouter.AddControl(_Tr("Preferences", "Global Chat"), "cg_keyGlobalChat");
 			layouter.AddControl(_Tr("Preferences", "Team Chat"), "cg_keyTeamChat");
+			layouter.AddControl(_Tr("Preferences", "Chat Zoom"), "cg_keyZoomChatLog");
 			layouter.AddControl(_Tr("Preferences", "Limbo Menu"), "cg_keyLimbo");
 			layouter.AddControl(_Tr("Preferences", "Save Map"), "cg_keySaveMap");
 			layouter.AddControl(_Tr("Preferences", "Save Sceneshot"), "cg_keySceneshot");

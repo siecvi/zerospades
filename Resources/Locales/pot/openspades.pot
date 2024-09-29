@@ -2248,6 +2248,16 @@ msgctxt "Preferences"
 msgid "Scope Type"
 msgstr ""
 
+#: Resources/Scripts/Gui/Preferences.as:1432
+msgctxt "Preferences"
+msgid "Scoreboard"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1439
+msgctxt "Preferences"
+msgid "Chat Zoom"
+msgstr ""
+
 #: Resources/Scripts/Gui/Preferences.as:1377
 msgctxt "Preferences"
 msgid "Hold Large Map"
