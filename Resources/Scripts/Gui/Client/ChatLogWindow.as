@@ -78,7 +78,7 @@ namespace spades {
 			{
 				spades::ui::Button button(Manager);
 				button.Caption = _Tr("Client", "Close");
-				button.HotKeyText = "[Esc]";
+				button.HotKeyText = _Tr("Client", "[Esc]");
 				button.Bounds = AABB2(contentsLeft + contentsWidth - 150.0F,
 					ContentsTop + ContentsHeight - 30.0F, 150.0F, 30.0F);
 				@button.Activated = spades::ui::EventHandler(this.OnOkPressed);

@@ -55,7 +55,7 @@ namespace spades {
 			{
 				spades::ui::Button button(Manager);
 				button.Caption = _Tr("StartupScreen", "Start");
-				button.HotKeyText = "[Enter]";
+				button.HotKeyText = _Tr("Client", "[Enter]");
 				button.Bounds = AABB2(sw - 170.0F, 20.0F, 150.0F, 30.0F);
 				@button.Activated = spades::ui::EventHandler(this.OnStartPressed);
 				AddChild(button);

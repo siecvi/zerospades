@@ -2471,3 +2471,15 @@ msgctxt "Client"
 msgid "Volume: {0}%"
 msgstr "Volumen: {0}%"
 
+msgctxt "Client"
+msgid "[Enter]"
+msgstr "[Intro]"
+
+msgctxt "Client"
+msgid "[Esc]"
+msgstr "[Esc]"
+
+#: Sources/Client/Client_Draw.cpp:131
+msgctxt "Client"
+msgid "SPACE"
+msgstr "ESPACIO"

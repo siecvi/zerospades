@@ -114,7 +114,7 @@ namespace spades {
 			{
 				spades::ui::Button button(Manager);
 				button.Caption = _Tr("MainScreen", "Connect");
-				button.HotKeyText = "[Enter]";
+				button.HotKeyText = _Tr("Client", "[Enter]");
 				button.Bounds = AABB2(contentsLeft + contentsWidth - 150.0F, 200.0F, 150.0F, 30.0F);
 				@button.Activated = spades::ui::EventHandler(this.OnConnectPressed);
 				AddChild(button);
@@ -154,7 +154,7 @@ namespace spades {
 			{
 				spades::ui::Button button(Manager);
 				button.Caption = _Tr("MainScreen", "Quit");
-				button.HotKeyText = "[Esc]";
+				button.HotKeyText = _Tr("Client", "[Esc]");
 				button.Bounds = AABB2(contentsLeft + contentsWidth - 100.0F, footerPos, 100.0F, 30.0F);
 				@button.Activated = spades::ui::EventHandler(this.OnQuitPressed);
 				AddChild(button);
