@@ -71,8 +71,11 @@
 			}
 			mat = CreateTranslateMatrix(Vector3(-0.1F, -0.3F, 0.2F) * (1.0F - raiseState)) * mat;
 
-			if (readyState < 0.99F)
-				mat = CreateTranslateMatrix(Vector3(-0.25F, 0.0F, 0.4F) * (1.0F - readyState)) * mat;
+			if (readyState < 0.99F) {
+				float per = 1.0F - readyState;
+				mat = CreateRotateMatrix(Vector3(1.0F, 0.0F, 0.0F), per * 0.8F) * mat;
+				mat = CreateTranslateMatrix(Vector3(0.0F, 0.1F, 0.2F) * per) * mat;
+			}
 			
 			// add weapon offset and sway
 			Vector3 trans(0.0F, 0.0F, 0.0F);
