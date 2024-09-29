@@ -217,9 +217,9 @@ namespace spades {
 				float x2 = winW + 16.0F;
 				float y2 = winH + 16.0F - y;
 
-				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.5F));
+				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.8F));
 				renderer->DrawFilledRect(x1 + 1, y1 + 1, x2 + x1 - 1, y2 + y1 - 1);
-				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.75F));
+				renderer->SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) * 0.07F);
 				renderer->DrawOutlinedRect(x1, y1, x2 + x1, y2 + y1);
 			}
 
