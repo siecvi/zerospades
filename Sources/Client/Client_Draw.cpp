@@ -463,6 +463,10 @@ namespace spades {
 				scrPos.x -= size.x * 0.5F;
 				scrPos.y -= size.y;
 
+				// rounded for better pixel alignment
+				scrPos.x = floorf(scrPos.x);
+				scrPos.y = floorf(scrPos.y);
+
 				float luminosity = color.x + color.y + color.z;
 				Vector4 shadowColor = (luminosity > 0.9F)
 					? MakeVector4(0, 0, 0, 0.8F)
@@ -583,6 +587,7 @@ namespace spades {
 			float safeZoneX = Clamp((float)cg_hudSafezoneX, safeZoneXMin, 1.0F);
 			float safeZoneY = Clamp((float)cg_hudSafezoneY, 0.85F, 1.0F);
 
+			// rounded for better pixel alignment
 			float x = floorf((sw - 16.0F) * safeZoneX);
 			float y = floorf((sh - 16.0F) * safeZoneY);
 
@@ -723,6 +728,8 @@ namespace spades {
 				}
 
 				Vector2 iconPos = MakeVector2((sw - totalWidth) * 0.5F, sh * 0.6F);
+
+				// rounded for better pixel alignment
 				iconPos.x = floorf(iconPos.x);
 				iconPos.y = floorf(iconPos.y);
 
@@ -1036,8 +1043,11 @@ namespace spades {
 					int damage = dmg.damage;
 					auto damageStr = "-" + ToString(damage);
 					Vector2 size = font.Measure(damageStr);
-					scrPos.x -= size.x * 0.5F;
-					scrPos.y -= size.y;
+					scrPos -= size * 0.5F;
+
+					// rounded for better pixel alignment
+					scrPos.x = floorf(scrPos.x);
+					scrPos.y = floorf(scrPos.y);
 
 					float per = 1.0F - (damage / 100.0F);
 					font.Draw(damageStr, scrPos + MakeVector2(1, 1), 1.0F,
