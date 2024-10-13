@@ -2494,7 +2494,23 @@ msgctxt "Client"
 msgid "[Esc]"
 msgstr "[Esc]"
 
-#: Sources/Client/Client_Draw.cpp:131
+#: Sources/Client/Client_Draw.cpp:132
+msgctxt "Client"
+msgid "LEFT CTRL"
+msgstr "CTRL IZQ"
+
+msgctxt "Client"
+msgid "RIGHT CTRL"
+msgstr "CTRL DER"
+
+msgctxt "Client"
+msgid "CAPSLOCK"
+msgstr "BLOQ MAYÚS"
+
+msgctxt "Client"
+msgid "HOME"
+msgstr "INICIO"
+
 msgctxt "Client"
 msgid "SPACE"
 msgstr "ESPACIO"

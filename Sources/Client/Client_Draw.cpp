@@ -128,12 +128,10 @@ namespace spades {
 					return "RMB";
 				else if (name == "Control")
 					return "CTRL";
-				else if (name == "Space")
-					return _Tr("Client", "SPACE");
 				else if (name.empty())
 					return _Tr("Client", "Unbound");
 				else
-					return ToUpperCase(name);
+					return _Tr("Client", ToUpperCase(name));
 			}
 		} // namespace
 
