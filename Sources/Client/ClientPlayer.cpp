@@ -899,18 +899,21 @@ namespace spades {
 			}
 
 			// Arms
-			if (!cg_hideArms && leftHand.GetSquaredLength() > 0.01F && rightHand.GetSquaredLength() > 0.01F) {
+			float leftHandSqr = leftHand.GetSquaredLength();
+			float rightHandSqr = rightHand.GetSquaredLength();
+			if (!cg_hideArms && (leftHandSqr > 0.01F || rightHandSqr > 0.01F)) {
 				Handle<IModel> armModel = renderer.RegisterModel((modelPath + "Arm.kv6").c_str());
 				Handle<IModel> upperModel = renderer.RegisterModel((modelPath + "UpperArm.kv6").c_str());
 
 				const float armlen = 0.5F;
+				const float armlenSqr = armlen * armlen;
 				const Matrix4 armsScale = Matrix4::Scale(0.05F);
 
 				Vector3 shoulders[] = {{0.4F, 0.0F, 0.25F}, {-0.4F, 0.0F, 0.25F}};
 				Vector3 hands[] = {leftHand, rightHand};
 				Vector3 benddirs[] = {{0.5F, 0.2F, 0.0F}, {-0.5F, 0.2F, 0.0F}};
 
-				auto addModel = [&](IModel& model, Vector3 v1, Vector3 v2) {
+				auto addModel = [&](IModel& model, const Vector3& v1, const Vector3& v2) {
 					Vector3 axises[3];
 					axises[2] = (v1 - v2).Normalize();
 					axises[1] = Vector3::Cross(axises[2], MakeVector3(0, 0, 1)).Normalize();
@@ -921,22 +924,27 @@ namespace spades {
 					renderer.RenderModel(model, param);
 				};
 
-				for (int i = 0; i < 2; i++) {
-					Vector3 shoulder = shoulders[i] + viewWeaponOffset;
-					Vector3 hand = hands[i];
-					Vector3 benddir = benddirs[i];
+				auto renderArm = [&](int i) {
+					const Vector3& shoulder = shoulders[i] + viewWeaponOffset;
+					const Vector3& hand = hands[i];
+					const Vector3& benddir = benddirs[i];
 
-					Vector3 bend = Vector3::Cross(benddir, hand - shoulder).Normalize();
-					if (bend.z < 0.0F)
-						bend.z = -bend.z;
+					const Vector3 shoulderToHand = hand - shoulder;
+					Vector3 bend = Vector3::Cross(benddir, shoulderToHand).Normalize();
+					bend.z = fabsf(bend.z);
 
-					float const distSqr = (hand - shoulder).GetSquaredLength();
-					float const bendlen = sqrtf(std::max(armlen * armlen - distSqr * 0.25F, 0.0F));
-					Vector3 const elbow = ((hand + shoulder) * 0.5F) + (bend * bendlen);
+					const float distSqr = shoulderToHand.GetSquaredLength();
+					const float bendlen = sqrtf(std::max(armlenSqr - distSqr * 0.25F, 0.0F));
+					const Vector3 elbow = ((hand + shoulder) * 0.5F) + (bend * bendlen);
 
 					addModel(*armModel, hand, elbow);
 					addModel(*upperModel, elbow, shoulder);
-				}
+				};
+
+				if (leftHandSqr > 0.01F)
+					renderArm(0);
+				if (rightHandSqr > 0.01F)
+					renderArm(1);
 			}
 
 			// --- local view ends
