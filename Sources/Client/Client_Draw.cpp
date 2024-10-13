@@ -33,6 +33,7 @@
 #include "IAudioChunk.h"
 #include "IAudioDevice.h"
 
+#include "CTFGameMode.h"
 #include "CenterMessageView.h"
 #include "ChatWindow.h"
 #include "ClientPlayer.h"
@@ -216,11 +217,13 @@ namespace spades {
 			renderer->DrawImage(nullptr, AABB2(0, 0, sw, sh));
 
 			Handle<IImage> img = renderer->RegisterImage("Gfx/Title/Logo.png");
-			float scale = fabsf(sinf(time));
+			
 			Vector2 size = {img->GetWidth(), img->GetHeight()};
 			size *= std::min(1.0F, sw / size.x);
 			size *= std::min(1.0F, sh / size.y);
-			size *= 1.0F - (scale * (scale * 0.25F));
+
+			float pulse = fabsf(sinf(time));
+			size *= 1.0F - (pulse * (pulse * 0.25F));
 
 			Vector2 pos = (MakeVector2(sw, sh) - size) * 0.5F;
 
@@ -759,6 +762,26 @@ namespace spades {
 					renderer->DrawImage(icon, pos);
 
 					iconPos.x += iconWidth + iconSpacing;
+				}
+			}
+
+			// if the player has the intel, display an intel icon
+			stmp::optional<IGameMode&> mode = world->GetMode();
+			if (mode && mode->ModeType() == IGameMode::m_CTF) {
+				auto& ctf = static_cast<CTFGameMode&>(mode.value());
+				if (ctf.PlayerHasIntel(p)) {
+					Handle<IImage> img = renderer->RegisterImage("Gfx/Intel.png");
+					Vector2 pos = MakeVector2((sw * 0.5F) - 90.0F, y - 45.0F);
+
+					// Strobe
+					float pulse = fabsf(sinf(time * 2.0F));
+					pulse *= pulse;
+
+					renderer->SetColorAlphaPremultiplied(shadowP * pulse);
+					renderer->DrawImage(img, pos + MakeVector2(1, 1));
+
+					renderer->SetColorAlphaPremultiplied(color * pulse);
+					renderer->DrawImage(img, pos);
 				}
 			}
 
