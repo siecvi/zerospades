@@ -38,7 +38,7 @@ namespace spades {
 				GlobalFontInfo() {
 					SPLog("Loading built-in fonts");
 					LoadFontSet(squareFontSet, "Gfx/Fonts/SquareFont.ttf", "SquareFont");
-					LoadFontSet(guiFontSet, "Gfx/Fonts/AlteDIN1451.ttf", "Alte DIN 1451");
+					LoadFontSet(guiFontSet, "Gfx/Fonts/OpenSans.ttf", "Open Sans");
 					LoadFontSet(sysFontSet, "Gfx/Fonts/smallfnt68.ttf", "SmallFont");
 
 					// Preliminary custom font support

@@ -16,8 +16,7 @@ Based on Ace of Spades 0.75
 
 SquareFont was created by Agustín Bou and is authorized to use for personal and commercial use.
 
-### Alte DIN 1451 Mittelschrift Font Family
+### Open Sans Font Family
 
-Alte DIN 1451 was created by Peter Wiegel, based on DIN 1451 German standard font.
-Licensed under the SIL Open Font License.
+Open Sans was created by Steve Matteson and is licensed under the SIL Open Font License.
 
