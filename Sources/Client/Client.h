@@ -226,6 +226,7 @@ namespace spades {
 			float grenadeVibration;
 			float grenadeVibrationSlow;
 			bool scoreboardVisible;
+			bool hudVisible;
 			bool flashlightOn;
 			float flashlightOnTime;
 			CoherentNoiseSampler1D coherentNoiseSamplers[3];

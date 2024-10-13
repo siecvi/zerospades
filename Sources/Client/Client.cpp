@@ -108,6 +108,7 @@ namespace spades {
 		      grenadeVibrationSlow(0.0F),
 		      reloadKeyPressed(false),
 		      scoreboardVisible(false),
+		      hudVisible(true),
 		      flashlightOn(false),
 		      hitFeedbackIconState(0.0F),
 		      hitFeedbackFriendly(false),

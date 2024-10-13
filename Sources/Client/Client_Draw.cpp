@@ -1230,6 +1230,8 @@ namespace spades {
 		void Client::Draw2DWithWorld() {
 			SPADES_MARK_FUNCTION();
 
+			bool shouldDrawHUD = hudVisible && !cg_hideHud;
+
 			for (const auto& ent : localEntities)
 				ent->Render2D();
 
@@ -1265,13 +1267,14 @@ namespace spades {
 						DrawPubOVL();
 				}
 
-				if (!cg_hideHud) {
+				if (IsFirstPerson(GetCameraMode()))
+					DrawFirstPersonHUD();
+
+				if (shouldDrawHUD) {
 					tcView->Draw();
 
 					if (cg_hudPlayerCount)
 						DrawAlivePlayersCount();
-					if (IsFirstPerson(GetCameraMode()))
-						DrawFirstPersonHUD();
 
 					// draw map
 					bool largeMap = largeMapView->IsZoomed();
@@ -1296,7 +1299,6 @@ namespace spades {
 
 					chatWindow->Draw();
 					killfeedWindow->Draw();
-					DrawAlert();
 
 					if (debugHitTestZoom)
 						DrawHitTestDebugger();
@@ -1309,6 +1311,7 @@ namespace spades {
 					chatWindow->Draw();
 				}
 
+				DrawAlert();
 				centerMessageView->Draw();
 				if (scoreboardVisible) {
 					scoreboard->Draw();
@@ -1328,7 +1331,7 @@ namespace spades {
 			if (IsLimboViewActive())
 				limbo->Draw();
 
-			if (cg_stats && !cg_hideHud)
+			if (cg_stats && shouldDrawHUD)
 				DrawStats();
 		}
 

@@ -68,7 +68,7 @@ msgstr "Recargando"
 #: Sources/Client/Client_Draw.cpp:539
 msgctxt "Client"
 msgid "Press [{0}] to Reload"
-msgstr "Presiona [{0}] para recargar"
+msgstr "Presione [{0}] para recargar"
 
 #: Sources/Client/Client_Draw.cpp:586
 msgctxt "Client"
@@ -94,6 +94,11 @@ msgstr "Sin munición"
 msgctxt "Client"
 msgid "Out of Grenades"
 msgstr "Sin granadas"
+
+#: Sources/Client/Client_Input.cpp:599
+msgctxt "Client"
+msgid "Press [{0}] to enable HUD"
+msgstr "Presione [{0}] para activar el HUD"
 
 #: Sources/Client/Client_NetHandler.cpp:89
 msgctxt "Client"

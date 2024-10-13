@@ -78,6 +78,7 @@ DEFINE_SPADES_SETTING(cg_keyZoomChatLog, "h");
 DEFINE_SPADES_SETTING(cg_keyChangeMapScale, "m");
 DEFINE_SPADES_SETTING(cg_keyToggleMapZoom, "n");
 DEFINE_SPADES_SETTING(cg_keyToggleHitTestZoom, "g");
+DEFINE_SPADES_SETTING(cg_keyToggleHud, "Home");
 DEFINE_SPADES_SETTING(cg_keyScoreboard, "Tab");
 DEFINE_SPADES_SETTING(cg_keyLimbo, "l");
 
@@ -591,6 +592,14 @@ namespace spades {
 					}
 				} else if (CheckKey(cg_keyScoreboard, name)) {
 					scoreboardVisible = down;
+				} else if (CheckKey(cg_keyToggleHud, name) && down) {
+					hudVisible = !hudVisible;
+
+					if (!hudVisible) {
+						ShowAlert(_Tr("Client", "Press [{0}] to enable HUD",
+							_Tr("Client", ToUpperCase(name))),
+							AlertType::Notice);
+					}
 				} else if (CheckKey(cg_keyLimbo, name) && down) {
 					inGameLimbo = true;
 					limbo->SetSelectedTeam(p.GetTeamId());

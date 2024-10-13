@@ -96,6 +96,11 @@ msgctxt "Client"
 msgid "Out of Grenades"
 msgstr ""
 
+#: Sources/Client/Client_Draw.cpp:599
+msgctxt "Client"
+msgid "Press [{0}] to enable HUD"
+msgstr ""
+
 #: Sources/Client/Client_NetHandler.cpp:89
 msgctxt "Client"
 msgid "{0} captured {1}'s territory"
