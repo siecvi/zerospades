@@ -68,7 +68,7 @@ namespace spades {
 			inline bool IsValidMapCoord(const int x, const int y, const int z) const {
 				return x >= 0 && y >= 0 && z >= 0 && x < Width() && y < Height() && z < Depth();
 			}
-			inline bool IsValidBuildCoord(const IntVector3 v) const {
+			inline bool IsValidBuildCoord(const IntVector3& v) const {
 				return IsValidMapCoord(v.x, v.y, v.z) && v.z < GroundDepth();
 			}
 
@@ -88,6 +88,18 @@ namespace spades {
 				if (z >= Depth())
 					return true;
 				return ((GetSolidMapWrapped(x, y) >> (uint64_t)z) & 1ULL) != 0;
+			}
+
+			inline bool HasNeighbors(int x, int y, int z) const {
+				return IsSolidWrapped(x + 1, y, z) 
+					|| IsSolidWrapped(x - 1, y, z) 
+					|| IsSolidWrapped(x, y + 1, z) 
+					|| IsSolidWrapped(x, y - 1, z) 
+					|| IsSolidWrapped(x, y, z + 1) 
+					|| IsSolidWrapped(x, y, z - 1);
+			}
+			inline bool HasNeighbors(const IntVector3& v) const {
+				return HasNeighbors(v.x, v.y, v.z);
 			}
 
 			inline bool IsSurface(int x, int y, int z) const {

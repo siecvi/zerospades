@@ -384,13 +384,7 @@ namespace spades {
 				canPending = false;
 				if (blockCursorDragging) {
 					// check the starting point is not floating
-					auto start = blockCursorDragPos;
-					if (!map->IsSolidWrapped(start.x, start.y, start.z + 1) &&
-					    !map->IsSolidWrapped(start.x, start.y, start.z - 1) &&
-					    !map->IsSolidWrapped(start.x, start.y + 1, start.z) &&
-					    !map->IsSolidWrapped(start.x, start.y - 1, start.z) &&
-					    !map->IsSolidWrapped(start.x + 1, start.y, start.z) &&
-					    !map->IsSolidWrapped(start.x - 1, start.y, start.z)) {
+					if (!map->HasNeighbors(blockCursorDragPos)) {
 						if (listener) // cannot build; floating
 							listener->LocalPlayerBuildError(BuildFailureReason::InvalidPosition);
 						blockCursorDragging = false;
