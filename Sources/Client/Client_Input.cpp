@@ -78,7 +78,6 @@ DEFINE_SPADES_SETTING(cg_keyZoomChatLog, "h");
 DEFINE_SPADES_SETTING(cg_keyChangeMapScale, "m");
 DEFINE_SPADES_SETTING(cg_keyToggleMapZoom, "n");
 DEFINE_SPADES_SETTING(cg_keyToggleHitTestZoom, "g");
-DEFINE_SPADES_SETTING(cg_keyToggleHud, "Home");
 DEFINE_SPADES_SETTING(cg_keyScoreboard, "Tab");
 DEFINE_SPADES_SETTING(cg_keyLimbo, "l");
 
@@ -97,6 +96,9 @@ DEFINE_SPADES_SETTING(cg_keySpectatorZoom, "e");
 
 SPADES_SETTING(s_volume);
 SPADES_SETTING(cg_debugHitTest);
+
+DEFINE_SPADES_SETTING(cg_keyToggleHud, "Home");
+SPADES_SETTING(cg_hideHud);
 
 namespace spades {
 	namespace client {
@@ -593,13 +595,21 @@ namespace spades {
 				} else if (CheckKey(cg_keyScoreboard, name)) {
 					scoreboardVisible = down;
 				} else if (CheckKey(cg_keyToggleHud, name) && down) {
-					hudVisible = !hudVisible;
+					if (cg_hideHud) {
+						cg_hideHud = 0;
+						hudVisible = true;
+					} else {
+						hudVisible = !hudVisible;
+					}
 
 					if (!hudVisible) {
 						ShowAlert(_Tr("Client", "Press [{0}] to enable HUD",
-							_Tr("Client", ToUpperCase(name))),
-							AlertType::Notice);
+							_Tr("Client", ToUpperCase(name))), AlertType::Notice);
 					}
+
+					Handle<IAudioChunk> c =
+					  audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
+					audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 				} else if (CheckKey(cg_keyLimbo, name) && down) {
 					inGameLimbo = true;
 					limbo->SetSelectedTeam(p.GetTeamId());
