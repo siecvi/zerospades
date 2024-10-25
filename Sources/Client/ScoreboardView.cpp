@@ -40,6 +40,7 @@
 #include <Core/Strings.h>
 
 SPADES_SETTING(cg_minimapPlayerColor);
+SPADES_SETTING(cg_hudPlayerCount);
 
 namespace spades {
 	namespace client {
@@ -87,6 +88,16 @@ namespace spades {
 			}
 		}
 
+		int ScoreboardView::GetCaptureLimit() const {
+			if (ctf) {
+				return ctf->GetCaptureLimit();
+			} else if (tc) {
+				return tc->GetNumTerritories();
+			} else {
+				return -1;
+			}
+		}
+
 		Vector4 ScoreboardView::GetTeamColor(int team) {
 			return ConvertColorRGBA(world->GetTeamColor(team));
 		}
@@ -115,6 +126,8 @@ namespace spades {
 
 			float sw = renderer.ScreenWidth();
 			float sh = renderer.ScreenHeight();
+
+			Vector2 scrCenter = MakeVector2(sw, sh) * 0.5F;
 
 			float contentsWidth = sw + 8.0F;
 			float maxContentsWidth = 800.0F;
@@ -147,9 +160,9 @@ namespace spades {
 			// draw team bar
 			img = renderer.RegisterImage("Gfx/White.tga");
 			renderer.SetColorAlphaPremultiplied(AdjustColor(GetTeamColor(0), 0.8F, 0.3F));
-			renderer.DrawImage(img, AABB2(0, teamBarTop, sw * 0.5F, teamBarHeight));
+			renderer.DrawImage(img, AABB2(0, teamBarTop, scrCenter.x, teamBarHeight));
 			renderer.SetColorAlphaPremultiplied(AdjustColor(GetTeamColor(1), 0.8F, 0.3F));
-			renderer.DrawImage(img, AABB2(sw * 0.5F, teamBarTop, sw * 0.5F, teamBarHeight));
+			renderer.DrawImage(img, AABB2(scrCenter.x, teamBarTop, scrCenter.x, teamBarHeight));
 
 			img = renderer.RegisterImage("Gfx/Scoreboard/Grunt.png");
 			size.x = 120.0F;
@@ -157,6 +170,7 @@ namespace spades {
 			renderer.DrawImage(img, AABB2(contentsLeft, playersTop - size.y, size.x, size.y));
 			renderer.DrawImage(img, AABB2(contentsRight, playersTop - size.y, -size.x, size.y));
 
+			// draw team name
 			str = world->GetTeamName(0);
 			pos.x = contentsLeft + 120.0F;
 			pos.y = teamBarTop + 5.0F;
@@ -164,29 +178,54 @@ namespace spades {
 			font.Draw(str, pos, 1.0F, white);
 
 			str = world->GetTeamName(1);
-			pos.x = contentsRight - 120.0F - font.Measure(str).x;
+			pos.x = contentsRight - font.Measure(str).x - 120.0F;
 			pos.y = teamBarTop + 5.0F;
 			font.Draw(str, pos + MakeVector2(1, 2), 1.0F, MakeVector4(0, 0, 0, 0.5));
 			font.Draw(str, pos, 1.0F, white);
 
-			// draw scores
-			int capLimit;
-			if (ctf)
-				capLimit = ctf->GetCaptureLimit();
-			else if (tc)
-				capLimit = tc->GetNumTerritories();
-			else
-				capLimit = -1;
+			// draw alive player count
+			if ((int)cg_hudPlayerCount >= 3) {
+				img = renderer.RegisterImage("Gfx/User.png");
 
+				IFont& guiFont = client->fontManager->GetGuiFont();
+
+				float iconSize = 12.0F;
+				float counterTop = playersTop - 10.0F;
+
+				// team 1
+				str = ToString(world->GetNumPlayersAlive(0));
+				size = guiFont.Measure(str);
+				pos.x = scrCenter.x - 5.0F - iconSize;
+				pos.y = counterTop - 2.0F - (size.y - iconSize) * 0.5F;
+				renderer.SetColorAlphaPremultiplied(white * 0.5F);
+				renderer.DrawImage(img, pos);
+
+				pos.x -= size.x + 2.0F;
+				pos.y = counterTop - size.y * 0.5F;
+				guiFont.Draw(str, pos, 1.0F, MakeVector4(1, 1, 1, 0.5));
+
+				// team 2
+				str = ToString(world->GetNumPlayersAlive(1));
+				pos.x = scrCenter.x + 5.0F;
+				pos.y = counterTop - 2.0F - (size.y - iconSize) * 0.5F;
+				renderer.SetColorAlphaPremultiplied(white * 0.5F);
+				renderer.DrawImage(img, pos);
+
+				pos.x += iconSize + 2.0F;
+				pos.y = counterTop - size.y * 0.5F;
+				guiFont.Draw(str, pos, 1.0F, MakeVector4(1, 1, 1, 0.5));
+			}
+
+			// draw scores
+			int capLimit = GetCaptureLimit();
 			if (capLimit != -1) {
 				str = Format("{0}-{1}", GetTeamScore(0), capLimit);
-				pos.x = sw * 0.5F - font.Measure(str).x - 15.0F;
+				pos.x = scrCenter.x - font.Measure(str).x - 15.0F;
 				pos.y = teamBarTop + 5.0F;
 				font.Draw(str, pos, 1.0F, MakeVector4(1, 1, 1, 0.5));
 
 				str = Format("{0}-{1}", GetTeamScore(1), capLimit);
-				pos.x = sw * 0.5F + 15.0F;
-				pos.y = teamBarTop + 5.0F;
+				pos.x = scrCenter.x + 15.0F;
 				font.Draw(str, pos, 1.0F, MakeVector4(1, 1, 1, 0.5));
 			}
 
@@ -197,9 +236,9 @@ namespace spades {
 
 			// draw players
 			DrawPlayers(0, contentsLeft, playersTop, (contentsRight - contentsLeft) * 0.5F, playersHeight);
-			DrawPlayers(1, (sw - 8.0F) * 0.5F, playersTop, (contentsRight - contentsLeft) * 0.5F, playersHeight);
+			DrawPlayers(1, scrCenter.x - 8.0F, playersTop, (contentsRight - contentsLeft) * 0.5F, playersHeight);
 			if (areSpectatorsPr)
-				DrawSpectators(playersBottom, sw * 0.5F);
+				DrawSpectators(playersBottom, scrCenter.x);
 		}
 
 		struct ScoreboardEntry {

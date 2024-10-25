@@ -41,6 +41,7 @@ namespace spades {
 			Handle<IFont> spectatorFont;
 			Handle<IImage> intelIcon;
 
+			int GetCaptureLimit() const;
 			int GetTeamScore(int) const;
 			Vector4 GetTeamColor(int);
 			void DrawPlayers(int team, float left, float top, float width, float height);

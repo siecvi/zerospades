@@ -258,6 +258,9 @@ namespace spades {
 
 		void Client::DrawAlivePlayersCount() {
 			int playerCountStyle = cg_hudPlayerCount;
+			if (playerCountStyle >= 3)
+				return; // draw on scoreboard
+
 			int statsStyle = cg_stats;
 			bool isSmallFont = cg_statsSmallFont;
 
@@ -265,7 +268,7 @@ namespace spades {
 			float sh = renderer->ScreenHeight();
 
 			float teamBarW = 30.0F;
-			float teamBarH = 45.0F;
+			float teamBarH = 40.0F;
 
 			float spacing = isSmallFont ? 40.0F : 50.0F;
 
@@ -280,7 +283,7 @@ namespace spades {
 			float teamBarY = (playerCountStyle < 2) ? y : ((sh - y) - teamBarH);
 
 			Handle<IImage> img;
-			IFont& font = fontManager->GetMediumFont();
+			IFont& font = fontManager->GetHeadingFont();
 			Vector2 pos, size;
 			std::string str;
 
@@ -300,25 +303,25 @@ namespace spades {
 			}
 
 			// draw team bar
-			renderer->SetColorAlphaPremultiplied(col1);
+			renderer->SetColorAlphaPremultiplied(brightCol1);
 			renderer->DrawImage(img, AABB2(x - teamBarW, teamBarY, teamBarW, 2));
-			renderer->SetColorAlphaPremultiplied(col2);
+			renderer->SetColorAlphaPremultiplied(brightCol2);
 			renderer->DrawImage(img, AABB2(x, teamBarY, teamBarW, 2));
 
 			// draw player icon
 			img = renderer->RegisterImage("Gfx/User.png");
-			Vector2 iconSize = MakeVector2(12.0F, 10.0F);
+
+			float iconSize = 12.0F;
 			float iconSpacing = 5.0F;
-			
-			pos.x = x - (teamBarW * 0.5F) - (iconSize.x * 0.5F);
-			pos.y = teamBarY + iconSize.y - iconSpacing;
+
+			pos.x = x - (teamBarW * 0.5F) - (iconSize * 0.5F);
+			pos.y = (teamBarY - 2.0F) + iconSize - iconSpacing;
 			renderer->SetColorAlphaPremultiplied(shadowColor);
 			renderer->DrawImage(img, pos + MakeVector2(1, 1));
 			renderer->SetColorAlphaPremultiplied(brightCol1);
 			renderer->DrawImage(img, pos);
 
-			pos.x = x + (teamBarW * 0.5F) - (iconSize.x * 0.5F);
-			pos.y = teamBarY + iconSize.y - iconSpacing;
+			pos.x = x + (teamBarW * 0.5F) - (iconSize * 0.5F);
 			renderer->SetColorAlphaPremultiplied(shadowColor);
 			renderer->DrawImage(img, pos + MakeVector2(1, 1));
 			renderer->SetColorAlphaPremultiplied(brightCol2);
@@ -327,15 +330,14 @@ namespace spades {
 			// draw player count
 			str = ToString(world->GetNumPlayersAlive(0));
 			size = font.Measure(str);
-			pos.x = x - (teamBarW * 0.5F) - size.x * 0.5F;
-			pos.y = teamBarY + iconSize.y + iconSpacing;
+			pos.x = x - (teamBarW * 0.5F) - (size.x * 0.5F);
+			pos.y = (teamBarY - 2.0F) + iconSize + iconSpacing;
 			font.Draw(str, pos + MakeVector2(1, 1), 1.0F, shadowColor);
 			font.Draw(str, pos, 1.0F, brightCol1);
 
 			str = ToString(world->GetNumPlayersAlive(1));
 			size = font.Measure(str);
-			pos.x = x + (teamBarW * 0.5F) - size.x * 0.5F;
-			pos.y = teamBarY + iconSize.y + iconSpacing;
+			pos.x = x + (teamBarW * 0.5F) - (size.x * 0.5F);
 			font.Draw(str, pos + MakeVector2(1, 1), 1.0F, shadowColor);
 			font.Draw(str, pos, 1.0F, brightCol2);
 		}
