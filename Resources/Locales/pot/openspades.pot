@@ -614,34 +614,9 @@ msgctxt "Preferences"
 msgid "Press Key to Bind or [Escape] to Cancel..."
 msgstr ""
 
-#: Resources/Scripts/Gui/Preferences.as:418
-msgctxt "Preferences"
-msgid "Space"
-msgstr ""
-
 #: Resources/Scripts/Gui/Preferences.as:420
 msgctxt "Preferences"
 msgid "Unbound"
-msgstr ""
-
-#: Resources/Scripts/Gui/Preferences.as:423
-msgctxt "Preferences"
-msgid "Shift"
-msgstr ""
-
-#: Resources/Scripts/Gui/Preferences.as:425
-msgctxt "Preferences"
-msgid "Control"
-msgstr ""
-
-#: Resources/Scripts/Gui/Preferences.as:427
-msgctxt "Preferences"
-msgid "Meta"
-msgstr ""
-
-#: Resources/Scripts/Gui/Preferences.as:429
-msgctxt "Preferences"
-msgid "Alt"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:431
@@ -2422,6 +2397,14 @@ msgstr ""
 
 msgctxt "Client"
 msgid "RIGHT CTRL"
+msgstr ""
+
+msgctxt "Client"
+msgid "LEFT ALT"
+msgstr ""
+
+msgctxt "Client"
+msgid "RIGHT ALT"
 msgstr ""
 
 msgctxt "Client"

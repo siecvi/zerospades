@@ -622,35 +622,10 @@ msgctxt "Preferences"
 msgid "Press Key to Bind or [Escape] to Cancel..."
 msgstr "Presione la tecla para asignar o [Escape] para Cancelar..."
 
-#: Resources/Scripts/Gui/Preferences.as:418
-msgctxt "Preferences"
-msgid "Space"
-msgstr "Espacio"
-
 #: Resources/Scripts/Gui/Preferences.as:420
 msgctxt "Preferences"
 msgid "Unbound"
 msgstr "Sin Asignar"
-
-#: Resources/Scripts/Gui/Preferences.as:423
-msgctxt "Preferences"
-msgid "Shift"
-msgstr "Shift"
-
-#: Resources/Scripts/Gui/Preferences.as:425
-msgctxt "Preferences"
-msgid "Control"
-msgstr "Control"
-
-#: Resources/Scripts/Gui/Preferences.as:427
-msgctxt "Preferences"
-msgid "Meta"
-msgstr "Meta"
-
-#: Resources/Scripts/Gui/Preferences.as:429
-msgctxt "Preferences"
-msgid "Alt"
-msgstr "Alt"
 
 #: Resources/Scripts/Gui/Preferences.as:431
 msgctxt "Preferences"
@@ -732,7 +707,7 @@ msgid "MORE"
 msgstr "Más"
 
 #: Resources/Scripts/Gui/Preferences.as:648
-#: Resources/Scripts/Gui/Preferences.as:651
+#: Resources/Scripts/Gui/Preferences.as:1176
 msgctxt "Preferences"
 msgid "NORMAL"
 msgstr "Normal"
@@ -2494,7 +2469,6 @@ msgctxt "Client"
 msgid "[Esc]"
 msgstr "[Esc]"
 
-#: Sources/Client/Client_Draw.cpp:132
 msgctxt "Client"
 msgid "LEFT CTRL"
 msgstr "CTRL IZQ"
@@ -2502,6 +2476,14 @@ msgstr "CTRL IZQ"
 msgctxt "Client"
 msgid "RIGHT CTRL"
 msgstr "CTRL DER"
+
+msgctxt "Client"
+msgid "LEFT ALT"
+msgstr "ALT IZQ"
+
+msgctxt "Client"
+msgid "RIGHT ALT"
+msgstr "ALT DER"
 
 msgctxt "Client"
 msgid "CAPSLOCK"

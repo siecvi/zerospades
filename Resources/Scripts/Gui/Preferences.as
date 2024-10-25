@@ -507,19 +507,9 @@ namespace spades {
 				AcceptsFocus = false;
 			}
 
-			if (text == " " or text == "Space") {
-				text = _Tr("Preferences", "Space");
-			} else if (text.length == 0) {
+			if (text.length == 0) {
 				text = _Tr("Preferences", "Unbound");
 				color.w *= 0.3F;
-			} else if (text == "Shift") {
-				text = _Tr("Preferences", "Shift");
-			} else if (text == "Control") {
-				text = _Tr("Preferences", "Control");
-			} else if (text == "Meta") {
-				text = _Tr("Preferences", "Meta");
-			} else if (text == "Alt") {
-				text = _Tr("Preferences", "Alt");
 			} else if (text == "LeftMouseButton") {
 				text = _Tr("Preferences", "Left Mouse Button");
 			} else if (text == "RightMouseButton") {
@@ -533,6 +523,7 @@ namespace spades {
 			} else if (!IsFocused) {
 				for (uint i = 0, len = text.length; i < len; i++)
 					text[i] = ToUpper(text[i]);
+				text = _Tr("Client", text);
 			}
 
 			Vector2 txtSize = font.Measure(text);

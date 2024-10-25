@@ -122,16 +122,15 @@ namespace spades {
 			}
 
 			std::string TrKey(const std::string& name) {
-				if (name == "LeftMouseButton")
-					return "LMB";
-				else if (name == "RightMouseButton")
-					return "RMB";
-				else if (name == "Control")
-					return "CTRL";
-				else if (name.empty())
+				if (name.empty()) {
 					return _Tr("Client", "Unbound");
-				else
+				} else if (name == "LeftMouseButton") {
+					return "LMB";
+				} else if (name == "RightMouseButton") {
+					return "RMB";
+				} else {
 					return _Tr("Client", ToUpperCase(name));
+				}
 			}
 		} // namespace
 
