@@ -464,9 +464,8 @@ namespace spades {
 			if (weapon->GetReloadProgress() < 1.0F) {
 				lastReloadingTime = world.GetTime();
 			} else if (weapon->IsReloading()) {
-				// for some reason a server didn't return
-				// WeaponReload packet.
-				if (world.GetTime() - lastReloadingTime > 5.0F)
+				// for some reason server didn't return a WeaponReload packet.
+				if (world.GetTime() - lastReloadingTime > 1.0F)
 					weapon->ForceReloadDone();
 			}
 
