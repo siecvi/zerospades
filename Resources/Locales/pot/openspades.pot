@@ -704,6 +704,11 @@ msgctxt "Preferences"
 msgid "NORMAL"
 msgstr ""
 
+#: Resources/Scripts/Gui/Preferences.as:1176
+msgctxt "Preferences"
+msgid "SMALL"
+msgstr ""
+
 #: Resources/Scripts/Gui/Preferences.as:650
 msgctxt "Preferences"
 msgid "Particles"
@@ -1586,7 +1591,7 @@ msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:634
 msgctxt "Preferences"
-msgid "Center Messages Scale"
+msgid "Center Messages Size"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:636

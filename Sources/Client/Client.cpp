@@ -64,6 +64,7 @@ DEFINE_SPADES_SETTING(cg_ignoreChatMessages, "0");
 DEFINE_SPADES_SETTING(cg_smallFont, "0");
 
 SPADES_SETTING(cg_playerName);
+SPADES_SETTING(cg_centerMessageSmallFont);
 
 namespace spades {
 	namespace client {
@@ -135,7 +136,7 @@ namespace spades {
 			renderer->SetFogDistance(128.0F);
 
 			auto* chatFont = cg_smallFont ? &fontManager->GetSmallFont() : &fontManager->GetGuiFont();
-			auto* centerFont = cg_smallFont ? &fontManager->GetMediumFont() : &fontManager->GetLargeFont();
+			auto* centerFont = cg_centerMessageSmallFont ? &fontManager->GetMediumFont() : &fontManager->GetLargeFont();
 
 			chatWindow = stmp::make_unique<ChatWindow>(this, &GetRenderer(), chatFont, false);
 			killfeedWindow = stmp::make_unique<ChatWindow>(this, &GetRenderer(), chatFont, true);

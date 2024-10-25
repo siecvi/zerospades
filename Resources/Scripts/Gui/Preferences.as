@@ -1171,8 +1171,10 @@ namespace spades {
 									array<string> = {_Tr("Preferences", "NORMAL"),
 													 _Tr("Preferences", "LESS")},
 									array<int> = {2, 0});
-			layouter.AddSliderField(_Tr("Preferences", "Center Messages Scale"), "cg_centerMessageScale",
-			0.75, 1, 0.01, ConfigNumberFormatter(2, ""));
+			layouter.AddChoiceField(_Tr("Preferences", "Center Messages Size"), "cg_centerMessageSmallFont",
+									array<string> = {_Tr("Preferences", "NORMAL"),
+													 _Tr("Preferences", "SMALL")},
+									array<int> = {0, 1}, not options.GameActive);
 			layouter.AddToggleField(_Tr("Preferences", "Ignore Chat Messages"), "cg_ignoreChatMessages");
 			layouter.AddToggleField(_Tr("Preferences", "Ignore Private Messages"), "cg_ignorePrivateMessages");
 			layouter.AddSliderField(_Tr("Preferences",	"Master Volume"), "s_volume",

@@ -22,12 +22,10 @@
 #include "Client.h"
 #include "IFont.h"
 #include "IRenderer.h"
-#include <Core/Settings.h>
 #include <Core/Debug.h>
+#include <Core/Settings.h>
 
-DEFINE_SPADES_SETTING(cg_centerMessageScale, "1");
-
-SPADES_SETTING(cg_smallFont);
+DEFINE_SPADES_SETTING(cg_centerMessageSmallFont, "0");
 
 namespace spades {
 	namespace client {
@@ -52,7 +50,9 @@ namespace spades {
 			return l;
 		}
 
-		float CenterMessageView::GetLineHeight() { return cg_smallFont ? 24.0F : 34.0F; }
+		float CenterMessageView::GetLineHeight() {
+			return cg_centerMessageSmallFont ? 24.0F : 34.0F;
+		}
 
 		void CenterMessageView::AddMessage(const std::string& msg) {
 			SPADES_MARK_FUNCTION();
@@ -85,8 +85,7 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			float sw = renderer.ScreenWidth();
-			float lh = GetLineHeight();
-			float scale = Clamp((float)cg_centerMessageScale, 0.75F, 1.0F);
+			float lh = GetLineHeight() + 4.0F;
 
 			for (const auto& ent : entries) {
 				const auto& msg = ent.msg;
@@ -95,7 +94,7 @@ namespace spades {
 				if (fade > 1.0F)
 					fade = 1.0F;
 
-				Vector2 size = font->Measure(msg) * scale;
+				Vector2 size = font->Measure(msg);
 
 				float x = (sw - size.x) * 0.5F;
 				float y = 100.0F + lh * (float)ent.line;
@@ -103,7 +102,7 @@ namespace spades {
 				Vector4 shadow = {0, 0, 0, fade * 0.5F};
 				Vector4 color = {1, 1, 1, fade};
 
-				font->DrawShadow(msg, MakeVector2(x, y), scale, color, shadow);
+				font->DrawShadow(msg, MakeVector2(x, y), 1.0F, color, shadow);
 			}
 		}
 	} // namespace client
