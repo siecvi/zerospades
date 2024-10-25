@@ -30,9 +30,6 @@
 #include <Core/Settings.h>
 #include <Core/Strings.h>
 
-#include "IAudioChunk.h"
-#include "IAudioDevice.h"
-
 #include "CTFGameMode.h"
 #include "CenterMessageView.h"
 #include "ChatWindow.h"
@@ -161,8 +158,7 @@ namespace spades {
 					: _Tr("Client", "Screenshot saved: {0}", name);
 				ShowAlert(msg, AlertType::Notice);
 
-				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Feedback/Screenshot.opus");
-				audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+				PlayScreenshotSound();
 			} catch (const Exception& ex) {
 				auto msg = _Tr("Client", "Screenshot failed: ");
 				msg += ex.GetShortMessage();

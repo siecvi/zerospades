@@ -390,6 +390,7 @@ namespace spades {
 			void ShowAlert(const std::string& contents, AlertType type, 
 				float timeout, bool quiet = false);
 			void PlayAlertSound();
+			void PlayScreenshotSound();
 
 			void UpdateWorld(float dt);
 			void UpdateLocalSpectator(float dt);

@@ -587,6 +587,11 @@ namespace spades {
 			audioDevice->PlayLocal(c.GetPointerOrNull(), params);
 		}
 
+		void Client::PlayScreenshotSound() {
+			Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Misc/SwitchMapZoom.opus");
+			audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+		}
+
 		/** Records chat message/game events to the log file. */
 		void Client::NetLog(const char* format, ...) {
 			char buf[4096];
