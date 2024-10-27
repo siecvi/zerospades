@@ -715,9 +715,10 @@ namespace spades {
 					cg_keyToolWeapon, cg_keyToolGrenade
 				};
 
+				const float iconHeight = 20.0F;
 				const float iconSpacing = 10.0F;
-				float totalWidth = 0.0F;
 
+				float totalWidth = 0.0F;
 				for (int i = 0; i < toolCount; i++) {
 					if (!p.IsToolSelectable(static_cast<Player::ToolType>(i)))
 						continue;
@@ -735,16 +736,11 @@ namespace spades {
 					if (!p.IsToolSelectable(tool))
 						continue;
 
+					// draw icon
 					Handle<IImage> icon = toolIcons[i];
 					float iconWidth = icon->GetWidth();
 					Vector2 pos = iconPos;
 
-					// draw hotkey
-					Vector2 hotkeyPos = pos + MakeVector2(iconWidth + 1, 16.0F);
-					font.DrawShadow(hotKeys[i], hotkeyPos, 1.0F,
-						MakeVector4(1, 1, 1, 0.8F), MakeVector4(0, 0, 0, 0.25F));
-
-					// draw icon
 					Vector4 iconColor = color;
 					Vector4 iconShadow = shadowP;
 
@@ -753,8 +749,8 @@ namespace spades {
 						iconColor *= 0.25F;
 						iconShadow *= 0.25F;
 					} else {
-						// move selected icon upwards slightly
-						pos.y -= 5;
+						// move selected icon upwards
+						pos.y -= 5.0F;
 					}
 
 					renderer->SetColorAlphaPremultiplied(iconShadow);
@@ -762,6 +758,12 @@ namespace spades {
 
 					renderer->SetColorAlphaPremultiplied(iconColor);
 					renderer->DrawImage(icon, pos);
+
+					// draw hotkey
+					std::string hotkeyStr = hotKeys[i];
+					Vector2 hotkeyPos = iconPos + MakeVector2(iconWidth - 1.0F, iconHeight - 1.0F);
+					font.Draw(hotkeyStr, hotkeyPos + MakeVector2(1, 1), 1.0F, MakeVector4(0, 0, 0, 0.25F));
+					font.Draw(hotkeyStr, hotkeyPos, 1.0F, MakeVector4(1, 1, 1, 1));
 
 					iconPos.x += iconWidth + iconSpacing;
 				}
@@ -1176,22 +1178,20 @@ namespace spades {
 			// add margin
 			const float margin = 4.0F;
 			contentsSize += margin * 2.0F;
-			contentsSize = contentsSize.Floor();
+			contentsSize = contentsSize.Floor(); // rounded
 
 			Vector2 pos = MakeVector2(sw, sh) - contentsSize;
 			pos *= MakeVector2(0.5F, 0.7F);
 			pos.y += 40.0F;
-			pos = pos.Floor();
+			pos = pos.Floor(); // rounded
 
-			Vector4 color;
+			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.5F);
+			Vector4 color = MakeVector4(0, 0, 0, 1);
 			switch (alertType) {
 				case AlertType::Notice: color = MakeVector4(0, 0, 0, 1); break;
 				case AlertType::Warning: color = MakeVector4(1, 1, 0, 1); break;
 				case AlertType::Error: color = MakeVector4(1, 0, 0, 1); break;
-				default: color = MakeVector4(0, 0, 0, 1); break;
 			}
-
-			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.5F);
 
 			float x = pos.x - margin;
 			float y = pos.y;
@@ -1207,9 +1207,11 @@ namespace spades {
 			renderer->DrawOutlinedRect(x, y, w, h);
 
 			// draw fading border
-			float scale = 8.0F * (1.0F - borderFade);
-			renderer->SetColorAlphaPremultiplied(color * borderFade);
-			renderer->DrawOutlinedRect(x - scale, y - scale, w + scale, h + scale);
+			if (borderFade > 0.0F) {
+				float scale = 8.0F * (1.0F - borderFade);
+				renderer->SetColorAlphaPremultiplied(color * borderFade);
+				renderer->DrawOutlinedRect(x - scale, y - scale, w + scale, h + scale);
+			}
 
 			// draw alert icon
 			if (alertType != AlertType::Notice) {
