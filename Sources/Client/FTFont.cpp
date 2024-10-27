@@ -338,7 +338,12 @@ namespace spades {
 				SPAssert(result);
 			}
 
-			AABB2 bounds((*result).x, (*result).y, spbmp->GetWidth() - 1, spbmp->GetHeight() - 1);
+			AABB2 bounds(
+				(float)(*result).x,
+				(float)(*result).y,
+				(float)spbmp->GetWidth() - 1,
+				(float)spbmp->GetHeight() - 1
+			);
 
 			Vector2 offs(g.face->glyph->bitmap_left, baselineY - g.face->glyph->bitmap_top);
 
@@ -425,7 +430,12 @@ namespace spades {
 				SPAssert(result);
 			}
 
-			AABB2 bounds((*result).x, (*result).y, newbmp->GetWidth(), newbmp->GetHeight());
+			AABB2 bounds(
+				(float)(*result).x,
+				(float)(*result).y,
+				(float)newbmp->GetWidth() - 1,
+				(float)newbmp->GetHeight() - 1
+			);
 
 			Vector2 offs = (*g.image).offset - Vector2(1, 1) * (KernelSize * 0.5F);
 
