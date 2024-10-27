@@ -50,8 +50,8 @@ DEFINE_SPADES_SETTING(cg_thirdperson, "0");
 DEFINE_SPADES_SETTING(cg_manualFocus, "0");
 DEFINE_SPADES_SETTING(cg_depthOfFieldAmount, "1");
 DEFINE_SPADES_SETTING(cg_shake, "1");
-DEFINE_SPADES_SETTING(cg_playerHitboxes, "1");
 DEFINE_SPADES_SETTING(cg_debugBlockCursor, "0");
+DEFINE_SPADES_SETTING(cg_debugPlayerHitboxes, "0");
 
 SPADES_SETTING(cg_ragdoll);
 SPADES_SETTING(cg_hurtScreenEffects);
@@ -661,7 +661,7 @@ namespace spades {
 
 			// draw player hottrack
 			// FIXME: don't use debug line
-			if (cg_playerHitboxes) {
+			if (cg_debugPlayerHitboxes) {
 				auto hottracked = HotTrackedPlayer();
 				if (hottracked) {
 					Player& player = std::get<0>(*hottracked);
