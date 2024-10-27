@@ -58,6 +58,7 @@ DEFINE_SPADES_SETTING(cg_tracers, "1");
 DEFINE_SPADES_SETTING(cg_tracersFirstPerson, "1");
 DEFINE_SPADES_SETTING(cg_hitAnalyze, "0");
 DEFINE_SPADES_SETTING(cg_killfeedIcons, "1");
+DEFINE_SPADES_SETTING(cg_classicSprinting, "0");
 
 SPADES_SETTING(cg_smallFont);
 SPADES_SETTING(cg_centerMessage);
@@ -454,8 +455,9 @@ namespace spades {
 			bool isPlayerAlive = health > 0;
 			bool isToolWeapon = player.IsToolWeapon();
 
+			// stop sprinting if player is moving too slow
 			Vector3 vel = player.GetVelocity();
-			if (vel.GetSquaredLength2D() < 0.01F)
+			if (vel.GetSquaredLength2D() < 0.01F && !cg_classicSprinting)
 				inp.sprint = false;
 
 			// don't allow jumping in the air
