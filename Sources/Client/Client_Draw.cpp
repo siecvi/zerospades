@@ -922,40 +922,41 @@ namespace spades {
 				debugHitTestImage.Set(img.GetPointerOrNull());
 			}
 
-			if (debugHitTestImage) {
-				float sw = renderer->ScreenWidth();
-				float sh = renderer->ScreenHeight();
+			if (!debugHitTestImage)
+				return;
 
-				float cfgWndSize = cg_dbgHitTestSize;
-				Vector2 wndSize = {cfgWndSize, cfgWndSize};
+			float sw = renderer->ScreenWidth();
+			float sh = renderer->ScreenHeight();
 
-				Vector2 zoomedSize = {512, 512};
-				if (sw < zoomedSize.x || sh < zoomedSize.y)
-					zoomedSize *= 0.75F;
+			float cfgWndSize = cg_dbgHitTestSize;
+			Vector2 wndSize = {cfgWndSize, cfgWndSize};
 
-				if (debugHitTestZoom) {
-					float per = debugHitTestZoomState;
-					per = 1.0F - per;
-					per *= per;
-					per = 1.0F - per;
-					per = Mix(0.75F, 1.0F, per);
-					zoomedSize = Mix(MakeVector2(0, 0), zoomedSize, per);
-					wndSize = zoomedSize;
-				}
+			Vector2 zoomedSize = {512, 512};
+			if (sw < zoomedSize.x || sh < zoomedSize.y)
+				zoomedSize *= 0.75F;
 
-				AABB2 outRect((sw - wndSize.x) - 8.0F, (sh - wndSize.y) - 80.0F, wndSize.x, wndSize.y);
-				if (debugHitTestZoom) {
-					outRect.min = MakeVector2((sw - zoomedSize.x) * 0.5F, (sh - zoomedSize.y) * 0.5F);
-					outRect.max = MakeVector2((sw + zoomedSize.x) * 0.5F, (sh + zoomedSize.y) * 0.5F);
-				}
-
-				float alpha = debugHitTestZoom ? debugHitTestZoomState : 1.0F;
-				renderer->SetColorAlphaPremultiplied(MakeVector4(alpha, alpha, alpha, alpha));
-				renderer->DrawImage(debugHitTestImage, outRect, AABB2(128, 512 - 128, 256, 256 - 512)); // flip Y axis
-
-				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, alpha));
-				renderer->DrawOutlinedRect(outRect.min.x - 1, outRect.min.y - 1, outRect.max.x + 1, outRect.max.y + 1);
+			if (debugHitTestZoom) {
+				float per = debugHitTestZoomState;
+				per = 1.0F - per;
+				per *= per;
+				per = 1.0F - per;
+				per = Mix(0.75F, 1.0F, per);
+				zoomedSize = Mix(MakeVector2(0, 0), zoomedSize, per);
+				wndSize = zoomedSize;
 			}
+
+			AABB2 outRect((sw - wndSize.x) - 8.0F, (sh - wndSize.y) - 80.0F, wndSize.x, wndSize.y);
+			if (debugHitTestZoom) {
+				outRect.min = MakeVector2((sw - zoomedSize.x) * 0.5F, (sh - zoomedSize.y) * 0.5F);
+				outRect.max = MakeVector2((sw + zoomedSize.x) * 0.5F, (sh + zoomedSize.y) * 0.5F);
+			}
+
+			float alpha = debugHitTestZoom ? debugHitTestZoomState : 1.0F;
+			renderer->SetColorAlphaPremultiplied(MakeVector4(alpha, alpha, alpha, alpha));
+			renderer->DrawImage(debugHitTestImage, outRect, AABB2(128, 512 - 128, 256, 256 - 512)); // flip Y axis
+
+			renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, alpha));
+			renderer->DrawOutlinedRect(outRect.min.x - 1, outRect.min.y - 1, outRect.max.x + 1, outRect.max.y + 1);
 		}
 
 		void Client::DrawPlayerStats() {

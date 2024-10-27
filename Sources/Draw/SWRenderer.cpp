@@ -702,78 +702,79 @@ namespace spades {
 			EnsureSceneStarted();
 
 			// clear scene
-			std::fill(fb->GetPixels(), fb->GetPixels() + fb->GetWidth() * fb->GetHeight(),
-			          ConvertColor32(MakeVector4(fogColor.x, fogColor.y, fogColor.z, 1.0F)));
-			std::fill(fb->GetPixels(), fb->GetPixels() + fb->GetWidth() * fb->GetHeight(),
-			          0x7F7F7F);
+			auto* px = this->fb->GetPixels();
+			std::fill(px, px + fb->GetWidth() * fb->GetHeight(),
+				ConvertColor32(MakeVector4(fogColor.x, fogColor.y, fogColor.z, 1.0F)));
 
-			// draw map
-			if (mapRenderer) {
-				// flat map renderer sends 'Update RLE' to map renderer.
-				// rendering map before this leads to the corrupted renderer image.
-				flatMapRenderer->Update();
-				mapRenderer->Render(sceneDef, *fb, depthBuffer.data());
-			}
+			if (!sceneDef.skipWorld) {
+				// draw map
+				if (mapRenderer) {
+					// flat map renderer sends 'Update RLE' to map renderer.
+					// rendering map before this leads to the corrupted renderer image.
+					flatMapRenderer->Update();
+					mapRenderer->Render(sceneDef, *fb, depthBuffer.data());
+				}
 
-			// draw models
-			for (const auto& m : models)
-				modelRenderer->Render(*m.model, m.param);
-			models.clear();
+				// draw models
+				for (const auto& m : models)
+					modelRenderer->Render(*m.model, m.param);
+				models.clear();
 
-			// deferred lighting
-			for (const auto& light : lights)
-				ApplyDynamicLight<SWFeatureLevel::None>(light);
-			lights.clear();
+				// deferred lighting
+				for (const auto& light : lights)
+					ApplyDynamicLight<SWFeatureLevel::None>(light);
+				lights.clear();
 
 #if ENABLE_SSE2
-			if (static_cast<int>(featureLevel) >= static_cast<int>(SWFeatureLevel::SSE2))
-				ApplyFog<SWFeatureLevel::SSE2>();
-			else
+				if (static_cast<int>(featureLevel) >= static_cast<int>(SWFeatureLevel::SSE2))
+					ApplyFog<SWFeatureLevel::SSE2>();
+				else
 #endif
-				ApplyFog<SWFeatureLevel::None>();
+					ApplyFog<SWFeatureLevel::None>();
 
-			// render sprites
-			{
-				imageRenderer->SetShaderType(SWImageRenderer::ShaderType::Sprite);
-				imageRenderer->SetMatrix(projectionViewMatrix);
-				imageRenderer->SetZRange(sceneDef.zNear, sceneDef.zFar);
+				// render sprites
+				{
+					imageRenderer->SetShaderType(SWImageRenderer::ShaderType::Sprite);
+					imageRenderer->SetMatrix(projectionViewMatrix);
+					imageRenderer->SetZRange(sceneDef.zNear, sceneDef.zFar);
 
-				auto right = sceneDef.viewAxis[0];
-				auto up = sceneDef.viewAxis[1];
-				for (std::size_t i = 0; i < sprites.size(); i++) {
-					auto& spr = sprites[i];
-					float s = sinf(spr.rotation) * (spr.radius * 0.5F);
-					float c = cosf(spr.rotation) * (spr.radius * 0.5F);
-					auto trans = [s, c, &spr, right, up](float x, float y) {
-						auto v = spr.center;
-						v += right * (c * x - s * y);
-						v += up * (s * x + c * y);
-						return MakeVector4(v.x, v.y, v.z, 1.0F);
-					};
+					auto right = sceneDef.viewAxis[0];
+					auto up = sceneDef.viewAxis[1];
+					for (std::size_t i = 0; i < sprites.size(); i++) {
+						auto& spr = sprites[i];
+						float s = sinf(spr.rotation) * (spr.radius * 0.5F);
+						float c = cosf(spr.rotation) * (spr.radius * 0.5F);
+						auto trans = [s, c, &spr, right, up](float x, float y) {
+							auto v = spr.center;
+							v += right * (c * x - s * y);
+							v += up * (s * x + c * y);
+							return MakeVector4(v.x, v.y, v.z, 1.0F);
+						};
 
-					auto x1 = trans(-1, -1);
-					auto x2 = trans(1, -1);
-					auto x3 = trans(-1, 1);
-					auto x4 = trans(1, 1);
+						auto x1 = trans(-1, -1);
+						auto x2 = trans(1, -1);
+						auto x3 = trans(-1, 1);
+						auto x4 = trans(1, 1);
 
-					SWImageRenderer::Vertex v1, v2, v3;
-					v1.color = v2.color = v3.color = spr.color;
-					v1.uv = MakeVector2(0, 0);
-					v1.position = x1;
-					v2.uv = MakeVector2(1, 0);
-					v2.position = x2;
-					v3.uv = MakeVector2(0, 1);
-					v3.position = x3;
-					imageRenderer->DrawPolygon(spr.img.GetPointerOrNull(), v1, v2, v3);
-					v1.uv = MakeVector2(1, 0);
-					v1.position = x2;
-					v2.uv = MakeVector2(1, 1);
-					v2.position = x4;
-					v3.uv = MakeVector2(0, 1);
-					v3.position = x3;
-					imageRenderer->DrawPolygon(spr.img.GetPointerOrNull(), v1, v2, v3);
+						SWImageRenderer::Vertex v1, v2, v3;
+						v1.color = v2.color = v3.color = spr.color;
+						v1.uv = MakeVector2(0, 0);
+						v1.position = x1;
+						v2.uv = MakeVector2(1, 0);
+						v2.position = x2;
+						v3.uv = MakeVector2(0, 1);
+						v3.position = x3;
+						imageRenderer->DrawPolygon(spr.img.GetPointerOrNull(), v1, v2, v3);
+						v1.uv = MakeVector2(1, 0);
+						v1.position = x2;
+						v2.uv = MakeVector2(1, 1);
+						v2.position = x4;
+						v3.uv = MakeVector2(0, 1);
+						v3.position = x3;
+						imageRenderer->DrawPolygon(spr.img.GetPointerOrNull(), v1, v2, v3);
+					}
+					sprites.clear();
 				}
-				sprites.clear();
 			}
 
 			// render debug lines
@@ -806,14 +807,15 @@ namespace spades {
 					int fw = this->fb->GetWidth();
 					int fh = this->fb->GetHeight();
 
-					uint32_t col;
-					col = ToFixed8(l.color.z) | (ToFixed8(l.color.y) << 8) |
-					      (ToFixed8(l.color.x) << 16);
+					uint32_t col = ToFixed8(l.color.z)
+								| (ToFixed8(l.color.y) << 8)
+								| (ToFixed8(l.color.x) << 16);
 
 					if (x1 == x2 && y1 == y2) {
 						if (x1 >= 0 && y1 >= 0 && x1 < fw && y1 < fh) {
 							d1 = fastRcp(d1);
-							if (d1 < db[x1 + y1 * fw])
+							// skip depth check if world rendering is skipped
+							if (sceneDef.skipWorld || d1 < db[x1 + y1 * fw])
 								fb[x1 + y1 * fw] = col;
 						}
 						continue;
@@ -845,7 +847,8 @@ namespace spades {
 						for (int x = minX; x <= maxX; x++) {
 							if (cy >= 0 && cy < fh) {
 								float d = fastRcp(depth);
-								if (d < db[fw * cy])
+								// skip depth check if world rendering is skipped
+								if (sceneDef.skipWorld || d < db[fw * cy])
 									fb[fw * cy] = col;
 							}
 							fract += dy;
@@ -883,7 +886,8 @@ namespace spades {
 						for (int y = minY; y <= maxY; y++) {
 							if (cx >= 0 && cx < fw) {
 								float d = fastRcp(depth);
-								if (d < db[cx])
+								// skip depth check if world rendering is skipped
+								if (sceneDef.skipWorld || d < db[cx])
 									fb[cx] = col;
 							}
 							fract += dx;

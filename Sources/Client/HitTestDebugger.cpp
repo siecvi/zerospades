@@ -47,10 +47,6 @@ namespace spades {
 			port = Handle<Port>::New();
 			renderer = Handle<draw::SWRenderer>::New(port.Cast<draw::SWPort>()).Cast<IRenderer>();
 			renderer->Init();
-
-			GameMap* map = world->GetMap().GetPointerOrNull();
-			if (map != nullptr)
-				renderer->SetGameMap(map);
 		}
 
 		HitTestDebugger::~HitTestDebugger() {
@@ -64,10 +60,9 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			renderer->SetFogColor(MakeVector3(0, 0, 0));
-			renderer->SetFogDistance(128.0F);
+			renderer->SetFogDistance(0.0F);
 
 			stmp::optional<Player&> localPlayer = world->GetLocalPlayer();
-
 			if (!localPlayer) {
 				SPLog("HitTestDebugger failure: Local player is null");
 				return;
@@ -105,12 +100,9 @@ namespace spades {
 
 			def.zNear = 0.05F;
 			def.zFar = 200.0F;
-			def.skipWorld = false;
+			def.skipWorld = true;
 
 			// start rendering
-			const Handle<GameMap>& map = world->GetMap();
-			if (!def.skipWorld)
-				renderer->SetGameMap(&*map);
 			renderer->StartScene(def);
 
 			auto drawBox = [&](const OBB3& box, Vector4 color) {
