@@ -576,10 +576,10 @@ namespace spades {
 			if (!isPlayerAlive) {
 				int count = (int)roundf(player.GetTimeToRespawn());
 				if (count != lastRespawnCount) {
-					if (count <= 3) {
-						Handle<IAudioChunk> c = (count > 1)
-							? audioDevice->RegisterSound("Sounds/Feedback/Beep2.opus")
-							: audioDevice->RegisterSound("Sounds/Feedback/Beep1.opus");
+					if (count > 0 && count <= 3) {
+						Handle<IAudioChunk> c = (count == 1)
+							? audioDevice->RegisterSound("Sounds/Feedback/Beep1.opus")
+							: audioDevice->RegisterSound("Sounds/Feedback/Beep2.opus");
 						AudioParam param;
 						param.volume = cg_respawnSoundGain;
 						audioDevice->PlayLocal(c.GetPointerOrNull(), param);
