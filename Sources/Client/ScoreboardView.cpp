@@ -143,19 +143,52 @@ namespace spades {
 			float teamBarHeight = 60.0F;
 			float contentsLeft = (sw - contentsWidth) * 0.5F;
 			float contentsRight = contentsLeft + contentsWidth;
-			float playersHeight = 300.0F - teamBarHeight;
+			float contentsHalf = (contentsRight - contentsLeft) * 0.5F;
+
+			int numPlayers = 0;
+			int numSpectators = 0;
+			int numAliveTeam1 = 0;
+			int numAliveTeam2 = 0;
+			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
+				auto maybePlayer = world->GetPlayer(static_cast<unsigned int>(i));
+				if (!maybePlayer)
+					continue;
+				Player& player = maybePlayer.value();
+
+				// count total players
+				numPlayers++;
+
+				// count spectators
+				int teamId = player.GetTeamId();
+				if (teamId == spectatorTeamId) {
+					numSpectators++; 
+					continue;
+				}
+
+				// count alive players
+				if (!player.IsAlive())
+					continue;
+				if (teamId == 0)
+					numAliveTeam1++;
+				else if (teamId == 1)
+					numAliveTeam2++;
+			}
+
+			bool manyPlayers = numPlayers > 32;
+			float playersHeight = (manyPlayers ? 335 : 300.0F) - teamBarHeight;
 			float playersTop = teamBarTop + teamBarHeight;
 			float playersBottom = playersTop + playersHeight;
-			
-			bool areSpectatorsPr = AreSpectatorsPresent();
-			float spectatorsHeight = areSpectatorsPr ? 78.0F : 0.0F;
+
+			bool areSpectatorsPresent = numSpectators > 0;
+			float spectatorsHeight = areSpectatorsPresent ? 75.0F : 0.0F;
+			float spectatorsBottom = playersBottom + spectatorsHeight;
 
 			// draw shadow
 			img = renderer.RegisterImage("Gfx/Scoreboard/TopShadow.tga");
 			size.y = 32.0F;
 			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.2F));
 			renderer.DrawImage(img, AABB2(0, teamBarTop - size.y, sw, size.y));
-			renderer.DrawImage(img, AABB2(0, playersBottom + spectatorsHeight + size.y, sw, -size.y));
+			renderer.DrawImage(img, AABB2(0, spectatorsBottom + size.y, sw, -size.y));
 
 			// draw team bar
 			img = renderer.RegisterImage("Gfx/White.tga");
@@ -186,14 +219,13 @@ namespace spades {
 			// draw alive player count
 			if ((int)cg_hudPlayerCount >= 3) {
 				img = renderer.RegisterImage("Gfx/User.png");
-
 				IFont& guiFont = client->fontManager->GetGuiFont();
 
 				float iconSize = 12.0F;
 				float counterTop = playersTop - 10.0F;
 
 				// team 1
-				str = ToString(world->GetNumPlayersAlive(0));
+				str = ToString(numAliveTeam1);
 				size = guiFont.Measure(str);
 				pos.x = scrCenter.x - 5.0F - iconSize;
 				pos.y = counterTop - 2.0F - (size.y - iconSize) * 0.5F;
@@ -205,7 +237,7 @@ namespace spades {
 				guiFont.Draw(str, pos, 1.0F, MakeVector4(1, 1, 1, 0.5));
 
 				// team 2
-				str = ToString(world->GetNumPlayersAlive(1));
+				str = ToString(numAliveTeam2);
 				pos.x = scrCenter.x + 5.0F;
 				pos.y = counterTop - 2.0F - (size.y - iconSize) * 0.5F;
 				renderer.SetColorAlphaPremultiplied(white * 0.5F);
@@ -235,9 +267,9 @@ namespace spades {
 			renderer.DrawImage(img, AABB2(0, playersTop, sw, playersHeight + spectatorsHeight));
 
 			// draw players
-			DrawPlayers(0, contentsLeft, playersTop, (contentsRight - contentsLeft) * 0.5F, playersHeight);
-			DrawPlayers(1, scrCenter.x - 8.0F, playersTop, (contentsRight - contentsLeft) * 0.5F, playersHeight);
-			if (areSpectatorsPr)
+			DrawPlayers(0, contentsLeft, playersTop, contentsHalf, playersHeight);
+			DrawPlayers(1, (contentsLeft + contentsHalf) - 4.0F, playersTop, contentsHalf, playersHeight);
+			if (areSpectatorsPresent)
 				DrawSpectators(playersBottom, scrCenter.x);
 		}
 
@@ -252,8 +284,6 @@ namespace spades {
 		extern int palette[32][3];
 
 		void ScoreboardView::DrawPlayers(int team, float left, float top, float width, float height) {
-			IFont& font = client->fontManager->GetGuiFont();
-			float rowHeight = 24.0F;
 			char buf[256];
 			Vector2 size;
 			
@@ -276,7 +306,16 @@ namespace spades {
 				numPlayers++;
 			}
 
+			if (numPlayers == 0)
+				return;
+
 			std::sort(entries.begin(), entries.end());
+
+			bool manyPlayers = numPlayers > 32;
+			IFont& font = manyPlayers
+				? client->fontManager->GetSmallFont()
+				: client->fontManager->GetGuiFont();
+			float rowHeight = manyPlayers ? 12.0F : 24.0F;
 
 			int maxRows = (int)floorf(height / rowHeight);
 			int cols = std::max(1, (numPlayers + maxRows - 1) / maxRows);
@@ -296,7 +335,7 @@ namespace spades {
 				size = font.Measure(buf);
 				if (colorMode) {
 					IntVector3 colorplayer = MakeIntVector3(palette[ent.id][0], palette[ent.id][1], palette[ent.id][2]);
-					Vector4 colorplayerF = ModifyColor(colorplayer);
+					Vector4 colorplayerF = (ent.id > 32) ? white : ModifyColor(colorplayer);
 					font.Draw(buf, MakeVector2(colX + 35.0F - size.x, rowY), 1.0F, colorplayerF);
 				} else {
 					font.Draw(buf, MakeVector2(colX + 35.0F - size.x, rowY), 1.0F, white);
@@ -317,14 +356,17 @@ namespace spades {
 				// draw player score
 				sprintf(buf, "%d", ent.score);
 				size = font.Measure(buf);
-				font.Draw(buf, MakeVector2(colX + colWidth - 10.0F - size.x, rowY), 1.0F, white);
+				font.Draw(buf, MakeVector2(colX + colWidth - 5.0F - size.x, rowY), 1.0F, white);
 
 				// draw intel icon
-				if (ctf && ctf->PlayerHasIntel(world->GetPlayer(ent.id).value())) {
-					float pulse = std::max(0.5F, fabsf(sinf(world->GetTime() * 4.0F)));
-					renderer.SetColorAlphaPremultiplied(white * pulse);
-					renderer.DrawImage(intelIcon, AABB2(floorf(colX + colWidth - 30.0F - size.x),
-					                                    rowY + 1.0F, 18.0F, 18.0F));
+				if (ctf) {
+					stmp::optional<Player&> maybePlayer = world->GetPlayer(ent.id);
+					if (maybePlayer && ctf->PlayerHasIntel(maybePlayer.value())) {
+						Vector2 pos = MakeVector2(colX + colWidth - 25.0F - size.x, rowY + 1.0F);
+						float pulse = std::max(0.5F, fabsf(sinf(world->GetTime() * 4.0F)));
+						renderer.SetColorAlphaPremultiplied(white * pulse);
+						renderer.DrawImage(intelIcon, pos.Floor());
+					}
 				}
 
 				row++;
@@ -389,16 +431,6 @@ namespace spades {
 
 				currentXoffset += sizeID.x + sizeName.x + xPixelSpectatorOffset;
 			}
-		}
-
-		bool ScoreboardView::AreSpectatorsPresent() const {
-			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
-				auto p = world->GetPlayer(static_cast<unsigned int>(i));
-				if (p && p.value().GetTeamId() == spectatorTeamId)
-					return true;
-			}
-
-			return false;
 		}
 	} // namespace client
 } // namespace spades

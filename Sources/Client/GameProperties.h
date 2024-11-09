@@ -62,7 +62,7 @@ namespace spades {
 			 *
 			 * Reserved for a future extension.
 			 */
-			bool manyPlayers = false;
+			bool manyPlayers = true;
 
 			int GetMaxNumPlayerSlots() const { return manyPlayers ? 256 : 32; }
 		};

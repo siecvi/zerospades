@@ -101,7 +101,9 @@ namespace spades {
 			std::unordered_map<uint8_t, uint8_t> extensions;
 			/** Extensions implemented in this client (map of extension id → version) */
 			std::unordered_map<uint8_t, uint8_t> implementedExtensions{
-			  {ExtensionTypePlayerProperties, 1}, {ExtensionTypeKickReason, 1}};
+			  {ExtensionTypePlayerProperties, 1},
+			  {ExtensionTypePlayerLimit, 1},
+			  {ExtensionTypeKickReason, 1}};
 
 			class BandwidthMonitor {
 				ENetHost* host;

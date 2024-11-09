@@ -55,6 +55,7 @@ DEFINE_SPADES_SETTING(cg_debugPlayerHitboxes, "0");
 
 SPADES_SETTING(cg_ragdoll);
 SPADES_SETTING(cg_hurtScreenEffects);
+SPADES_SETTING(cg_orientationSmoothing);
 
 namespace spades {
 	namespace client {
@@ -577,7 +578,7 @@ namespace spades {
 			renderer->StartScene(lastSceneDef);
 
 			if (world) {
-				stmp::optional<Player&> p = world->GetLocalPlayer();
+				stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
 
 				for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
 					if (world->GetPlayer(static_cast<unsigned int>(i))) {
@@ -603,23 +604,25 @@ namespace spades {
 
 				bloodMarks->Draw();
 
-				// Draw block cursor
-				if (p && p->IsAlive()) {
-					if (p->IsToolBlock() && p->IsReadyToUseTool() && CanLocalPlayerUseTool()) {
-						bool blockCursorActive = p->IsBlockCursorActive();
-						bool blockCursorDragging = p->IsBlockCursorDragging();
+				if (maybePlayer) { // localplayer exists
+					Player& p = maybePlayer.value();
+
+					// draw block cursor
+					if (p.IsToolBlock() && p.IsReadyToUseTool() && CanLocalPlayerUseTool()) {
+						bool blockCursorActive = p.IsBlockCursorActive();
+						bool blockCursorDragging = p.IsBlockCursorDragging();
 
 						if (blockCursorActive || blockCursorDragging) {
 							std::vector<IntVector3> cells;
-							IntVector3 curPos = p->GetBlockCursorPos();
-							IntVector3 dragPos = p->GetBlockCursorDragPos();
+							IntVector3 curPos = p.GetBlockCursorPos();
+							IntVector3 dragPos = p.GetBlockCursorDragPos();
 							if (blockCursorDragging)
 								cells = world->CubeLine(dragPos, curPos, 64);
 							else
 								cells.push_back(curPos);
 
 							int blocks = static_cast<int>(cells.size());
-							bool valid = blocks <= p->GetNumBlocks();
+							bool valid = blocks <= p.GetNumBlocks();
 							bool active = blockCursorActive && valid;
 							bool debugCursor = cg_debugBlockCursor;
 
@@ -670,7 +673,7 @@ namespace spades {
 					Vector4 col = MakeVector4(1, 1, 1, 1);
 					Vector4 col2 = ConvertColorRGBA(player.GetColor());
 
-					Player::HitBoxes hb = player.GetHitBoxes();
+					Player::HitBoxes hb = player.GetHitBoxes(cg_orientationSmoothing); // interpolated
 					AddDebugObjectToScene(hb.head, (tag & hit_Head) ? col : col2);
 					AddDebugObjectToScene(hb.torso, (tag & hit_Torso) ? col : col2);
 					AddDebugObjectToScene(hb.limbs[0], (tag & hit_Legs) ? col : col2);

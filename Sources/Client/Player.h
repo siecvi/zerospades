@@ -248,7 +248,7 @@ namespace spades {
 			float GetWalkAnimationProgress();
 
 			// hit tests
-			HitBoxes GetHitBoxes();
+			HitBoxes GetHitBoxes(bool interpolate);
 
 			/** Does approximated ray casting.
 			 * @param dir normalized direction vector.

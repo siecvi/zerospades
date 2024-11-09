@@ -327,15 +327,31 @@ namespace spades {
 			renderer->SetColorAlphaPremultiplied(brightCol2);
 			renderer->DrawImage(img, pos);
 
+			// count alive players
+			int numAliveTeam1 = 0, numAliveTeam2 = 0;
+			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
+				auto maybePlayer = world->GetPlayer(static_cast<unsigned int>(i));
+				if (!maybePlayer)
+					continue;
+				Player& player = maybePlayer.value();
+				if (!player.IsAlive())
+					continue;
+				int teamId = player.GetTeamId();
+				if (teamId == 0)
+					numAliveTeam1++;
+				else if (teamId == 1)
+					numAliveTeam2++;
+			}
+
 			// draw player count
-			str = ToString(world->GetNumPlayersAlive(0));
+			str = ToString(numAliveTeam1);
 			size = font.Measure(str);
 			pos.x = x - (teamBarW * 0.5F) - (size.x * 0.5F);
 			pos.y = (teamBarY - 2.0F) + iconSize + iconSpacing;
 			font.Draw(str, pos + MakeVector2(1, 1), 1.0F, shadowColor);
 			font.Draw(str, pos, 1.0F, brightCol1);
 
-			str = ToString(world->GetNumPlayersAlive(1));
+			str = ToString(numAliveTeam2);
 			size = font.Measure(str);
 			pos.x = x + (teamBarW * 0.5F) - (size.x * 0.5F);
 			font.Draw(str, pos + MakeVector2(1, 1), 1.0F, shadowColor);

@@ -48,7 +48,7 @@ namespace spades {
 		class HitTestDebugger;
 		struct GameProperties;
 
-		constexpr std::size_t NumPlayerSlots = 32; // 256
+		constexpr std::size_t NumPlayerSlots = 256;
 
 		class World {
 			friend class Client; // FIXME: for debug
@@ -162,7 +162,6 @@ namespace spades {
 
 			size_t GetNumPlayerSlots() { return players.size(); }
 			size_t GetNumPlayers();
-			size_t GetNumPlayersAlive(int team);
 
 			stmp::optional<int> GetLocalPlayerIndex() { return localPlayerIndex; }
 			void SetLocalPlayerIndex(stmp::optional<int> p) { localPlayerIndex = p; }

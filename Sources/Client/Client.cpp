@@ -193,8 +193,9 @@ namespace spades {
 				SPLog("World set");
 
 				// initialize player view objects
-				clientPlayers.resize(world->GetNumPlayerSlots());
-				for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
+				auto slots = world->GetNumPlayerSlots();
+				clientPlayers.resize(slots);
+				for (size_t i = 0; i < slots; i++) {
 					auto p = world->GetPlayer(static_cast<unsigned int>(i));
 					if (p)
 						clientPlayers[i] = Handle<ClientPlayer>::New(*p, *this);
@@ -803,13 +804,15 @@ namespace spades {
 			int localPlayerId = localPlayer.GetId();
 			int nextId = FollowsNonLocalPlayer(GetCameraMode()) ? followedPlayerId : localPlayerId;
 
+			auto slots = world->GetNumPlayerSlots();
+
 			do {
 				reverse ? --nextId : ++nextId;
 
-				if (nextId >= static_cast<int>(world->GetNumPlayerSlots()))
+				if (nextId >= static_cast<int>(slots))
 					nextId = 0;
 				if (nextId < 0)
-					nextId = static_cast<int>(world->GetNumPlayerSlots() - 1);
+					nextId = static_cast<int>(slots - 1);
 
 				stmp::optional<Player&> p = world->GetPlayer(nextId);
 				if (!p || p->IsSpectator())

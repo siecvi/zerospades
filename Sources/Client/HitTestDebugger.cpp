@@ -24,9 +24,12 @@
 #include "Player.h"
 #include "Weapon.h"
 #include "World.h"
+#include <Core/Settings.h>
 #include <Core/Strings.h>
 #include <Draw/SWPort.h>
 #include <Draw/SWRenderer.h>
+
+SPADES_SETTING(cg_orientationSmoothing);
 
 namespace spades {
 	namespace client {
@@ -152,6 +155,7 @@ namespace spades {
 				}
 			};
 
+			bool interp = cg_orientationSmoothing;
 			for (std::size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
 				auto p = world->GetPlayer(static_cast<unsigned int>(i));
 				if (!p || p == localPlayer)
@@ -171,7 +175,7 @@ namespace spades {
 					numHits += hit.numLimbHits[j];
 
 				if (numHits > 0) {
-					auto hb = p->GetHitBoxes();
+					auto hb = p->GetHitBoxes(interp); // interpolated
 					drawBox(hb.head, getColor(hit.numHeadHits));
 					drawBox(hb.torso, getColor(hit.numTorsoHits));
 					for (int j = 0; j < 3; j++)

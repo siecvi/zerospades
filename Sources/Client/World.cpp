@@ -40,6 +40,8 @@
 
 DEFINE_SPADES_SETTING(cg_debugHitTest, "0");
 
+SPADES_SETTING(cg_orientationSmoothing);
+
 namespace spades {
 	namespace client {
 
@@ -54,18 +56,6 @@ namespace spades {
 			for (const auto& p : players) {
 				if (p)
 					++numPlayers;
-			}
-			return numPlayers;
-		}
-
-		size_t World::GetNumPlayersAlive(int team) {
-			size_t numPlayers = 0;
-			for (const auto& p : players) {
-				if (!p || !p->IsAlive() || team >= 2)
-					continue;
-				if (p->GetTeamId() != team)
-					continue;
-				++numPlayers;
 			}
 			return numPlayers;
 		}
@@ -391,6 +381,8 @@ namespace spades {
 			float hitPlayerDist = 0.0F;
 			hitTag_t hitFlag = hit_None;
 
+			bool interp = cg_orientationSmoothing;
+
 			for (int i = 0; i < (int)players.size(); i++) {
 				const auto& p = players[i];
 				if (!p || (excludePlayerId && *excludePlayerId == i))
@@ -402,7 +394,7 @@ namespace spades {
 					continue; // quickly reject players unlikely to be hit
 
 				Vector3 hitPos;
-				Player::HitBoxes hb = p->GetHitBoxes();
+				Player::HitBoxes hb = p->GetHitBoxes(interp); // interpolated
 				if (hb.head.RayCast(startPos, dir, &hitPos)) {
 					float const dist = (hitPos - startPos).GetSquaredLength();
 					if (!hitPlayerId || dist < hitPlayerDist) {

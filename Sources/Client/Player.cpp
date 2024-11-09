@@ -510,6 +510,7 @@ namespace spades {
 			auto* listener = world.GetListener();
 
 			bool isLocal = this->IsLocalPlayer();
+			bool interp = cg_orientationSmoothing;
 
 			Vector3 dir = GetFront();
 			Vector3 muzzle = GetEye() + (dir * 0.01F);
@@ -569,7 +570,7 @@ namespace spades {
 					}
 
 					Vector3 hitPos;
-					HitBoxes hb = other.GetHitBoxes();
+					HitBoxes hb = other.GetHitBoxes(interp); // interpolated
 					if (hb.head.RayCast(muzzle, dir, &hitPos)) {
 						float const dist = (hitPos - muzzle).GetLength2D();
 						if (!hitPlayer || dist < hitPlayerDist2D || hitPart == HitBodyPart::Arms) {
@@ -1292,12 +1293,12 @@ namespace spades {
 			return IsSpectator() ? MakeIntVector3(200, 200, 200) : world.GetTeamColor(teamId);
 		}
 
-		Player::HitBoxes Player::GetHitBoxes() {
+		Player::HitBoxes Player::GetHitBoxes(bool interpolate) {
 			SPADES_MARK_FUNCTION_DEBUG();
 
 			Player::HitBoxes hb;
 
-			Vector3 o = GetFront(cg_orientationSmoothing); // interpolated
+			Vector3 o = GetFront(interpolate);
 
 			float yaw = atan2f(o.y, o.x) + M_PI_F * 0.5F;
 			float pitch = -atan2f(o.z, o.GetLength2D());

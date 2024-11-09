@@ -392,9 +392,10 @@ namespace spades {
 			lastPlayerInput = 0;
 			lastWeaponInput = 0;
 
-			savedPlayerPos.resize(32);
-			savedPlayerFront.resize(32);
-			savedPlayerTeam.resize(32);
+			const int slots = 256;
+			savedPlayerPos.resize(slots);
+			savedPlayerFront.resize(slots);
+			savedPlayerTeam.resize(slots);
 
 			std::fill(savedPlayerTeam.begin(), savedPlayerTeam.end(), -1);
 
