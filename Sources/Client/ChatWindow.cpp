@@ -237,7 +237,9 @@ namespace spades {
 					fade = ent.bufferFade;
 				} else {
 					if (ent.timeFade < 1.0F)
-						fade *= ent.timeFade;
+						fade *= killfeed
+							? std::min(ent.timeFade * 2.0F, 1.0F)
+							: ent.timeFade;
 				}
 
 				if (fade < 0.01F)
@@ -245,6 +247,13 @@ namespace spades {
 
 				brightShadowColor.w = shadowColor.w = (killfeed ? 0.4F : 0.8F) * fade;
 				color.w = fade;
+
+				// animation for killfeed
+				float curPosX = winX;
+				if (killfeed) {
+					float easeOutFactor = 1.0F - powf(1.0F - fade, 3.0F);
+					curPosX -= floorf(300.0F * (1.0F - easeOutFactor));
+				}
 
 				for (size_t i = 0; i < msg.size(); i++) {
 					if (msg[i] == '\r' || msg[i] == '\n') {
@@ -259,8 +268,7 @@ namespace spades {
 								colorP.y *= colorP.w;
 								colorP.z *= colorP.w;
 								renderer->SetColorAlphaPremultiplied(colorP);
-								renderer->DrawImage(
-								  img, MakeVector2(floorf(tx + winX), floorf(ty + winY)));
+								renderer->DrawImage(img, MakeVector2(tx + curPosX, ty + winY).Floor());
 								tx += img->GetWidth();
 								++i;
 							}
@@ -276,9 +284,9 @@ namespace spades {
 							ch[k] = msg[i + k];
 						i += ln - 1;
 
-						Vector2 pos = MakeVector2(tx + winX, ty + winY);
 						float luminosity = color.x + color.y + color.z;
 						Vector4 shadow = (luminosity > 0.9F) ? shadowColor : brightShadowColor;
+						Vector2 pos = MakeVector2(tx + curPosX, ty + winY).Floor();
 
 						if (killfeed) {
 							font->DrawShadow(ch, pos + MakeVector2(1, 1), 1.0F, shadow, shadow);
