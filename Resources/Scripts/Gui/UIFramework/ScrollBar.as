@@ -296,6 +296,9 @@ namespace spades {
 			}
 
 			void Render() {
+				if (TrackBarMovementRange < 0.0001F)
+					return; // immobile
+			
 				Layout();
 				ScrollBarBase::Render();
 			}
