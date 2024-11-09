@@ -206,18 +206,29 @@ namespace spades {
 		void MainScreen::DrawStartupScreen() {
 			SPADES_MARK_FUNCTION();
 			Handle<client::IImage> img;
-			Vector2 scrSize = {renderer->ScreenWidth(), renderer->ScreenHeight()};
+			Vector2 pos, size;
 
-			renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1.));
+			float sw = renderer->ScreenWidth();
+			float sh = renderer->ScreenHeight();
+
 			img = renderer->RegisterImage("Gfx/White.tga");
-			renderer->DrawImage(img, AABB2(0, 0, scrSize.x, scrSize.y));
+			renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1));
+			renderer->DrawImage(img, AABB2(0, 0, sw, sh));
+
+			img = renderer->RegisterImage("Gfx/Title/Logo.png");
+			size = {img->GetWidth(), img->GetHeight()};
+			size *= std::min(1.0F, sw / size.x);
+			size *= std::min(1.0F, sh / size.y);
+			pos = (MakeVector2(sw, sh) - size) * 0.5F;
+			renderer->SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1));
+			renderer->DrawImage(img, AABB2(pos.x, pos.y, size.x, size.y));
 
 			std::string str = _Tr("MainScreen", "NOW LOADING");
 			client::IFont& font = fontManager->GetGuiFont();
-			Vector2 size = font.Measure(str);
-			Vector2 pos = MakeVector2(scrSize.x - 16.f, scrSize.y - 16.f);
+			size = font.Measure(str);
+			pos = MakeVector2(sw - 16.0F, sh - 16.0F);
 			pos -= size;
-			font.DrawShadow(str, pos, 1.f, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.5));
+			font.DrawShadow(str, pos, 1.0F, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.5));
 
 			renderer->FrameDone();
 			renderer->Flip();
