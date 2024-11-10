@@ -46,6 +46,7 @@ namespace spades {
 	namespace client {
 
 		static const Vector4 white = {1, 1, 1, 1};
+		static const Vector4 gray = {0.5, 0.5, 0.5, 1};
 		static const Vector4 spectatorIdColor = {210.0F / 255, 210.0F / 255, 210.0F / 255, 1}; // Grey
 		static const Vector4 spectatorTextColor = {220.0F / 255, 220.0F / 255, 0, 1}; // Goldish yellow
 		static const int spectatorTeamId = 255; // Spectators have a team id of 255
@@ -334,15 +335,20 @@ namespace spades {
 				sprintf(buf, "#%d", ent.id); // FIXME: 1-base?
 				size = font.Measure(buf);
 				if (colorMode) {
-					IntVector3 colorplayer = MakeIntVector3(palette[ent.id][0], palette[ent.id][1], palette[ent.id][2]);
-					Vector4 colorplayerF = (ent.id > 32) ? white : ModifyColor(colorplayer);
+					int colorIndex = ent.id % 32;
+					IntVector3 colorplayer = MakeIntVector3(
+						palette[colorIndex][0],
+						palette[colorIndex][1],
+						palette[colorIndex][2]
+					);
+					Vector4 colorplayerF = ModifyColor(colorplayer);
 					font.Draw(buf, MakeVector2(colX + 35.0F - size.x, rowY), 1.0F, colorplayerF);
 				} else {
 					font.Draw(buf, MakeVector2(colX + 35.0F - size.x, rowY), 1.0F, white);
 				}
 
 				// draw player name
-				Vector4 color = ent.alive ? white : MakeVector4(0.5, 0.5, 0.5, 1);
+				Vector4 color = ent.alive ? white : gray;
 				if (stmp::make_optional(ent.id) == world->GetLocalPlayerIndex()) {
 					color = GetTeamColor(team);
 

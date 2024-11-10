@@ -480,10 +480,16 @@ namespace spades {
 					continue; // don't draw enemies when not spectating a player
 
 				IntVector3 iconColor = p.GetColor();
-				if (&p == &localPlayer && !localPlayerIsSpectator)
+				if (&p == &localPlayer && !localPlayerIsSpectator) {
 					iconColor = MakeIntVector3(0, 255, 255);
-				else if (colorMode)
-					iconColor = MakeIntVector3(palette[i][0], palette[i][1], palette[i][2]);
+				} else if (colorMode) {
+					int colorIndex = i % 32;
+					iconColor = MakeIntVector3(
+						palette[colorIndex][0],
+						palette[colorIndex][1],
+						palette[colorIndex][2]
+					);
+				}
 				Vector4 iconColorF = ModifyColor(iconColor) * alpha;
 
 				if (iconMode) {
