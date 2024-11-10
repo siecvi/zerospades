@@ -230,6 +230,7 @@ namespace spades {
 				const auto& msg = ent.msg;
 				Vector4 color = GetColor(MsgColorRestore);
 
+				float curPosX = winX;
 				float tx = 0.0F, ty = y;
 				float fade = ent.fade;
 
@@ -249,7 +250,6 @@ namespace spades {
 				color.w = fade;
 
 				// animation for killfeed
-				float curPosX = winX;
 				if (killfeed) {
 					float easeOutFactor = 1.0F - powf(1.0F - fade, 3.0F);
 					curPosX -= floorf(300.0F * (1.0F - easeOutFactor));
