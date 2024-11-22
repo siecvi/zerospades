@@ -34,6 +34,7 @@ DEFINE_SPADES_SETTING(cg_keyPaletteLeft, "Left");
 DEFINE_SPADES_SETTING(cg_keyPaletteRight, "Right");
 DEFINE_SPADES_SETTING(cg_keyPaletteUp, "Up");
 DEFINE_SPADES_SETTING(cg_keyPaletteDown, "Down");
+DEFINE_SPADES_SETTING(cg_paletteSize, "128");
 
 namespace spades {
 	namespace client {
@@ -133,6 +134,12 @@ namespace spades {
 			float sw = renderer.ScreenWidth();
 			float sh = renderer.ScreenHeight();
 
+			float wndSize = cg_paletteSize;
+			float rectSize = wndSize / PALETTE_SIZE;
+
+			float winX = (sw - wndSize) - 8.0F;
+			float winY = (sh - wndSize) - 64.0F;
+
 			int sel = GetSelectedIndex();
 			for (size_t phase = 0; phase < 2; phase++) {
 				for (size_t i = 0; i < colors.size(); i++) {
@@ -142,16 +149,18 @@ namespace spades {
 					int row = static_cast<int>(i / PALETTE_SIZE);
 					int col = static_cast<int>(i % PALETTE_SIZE);
 
-					float x = sw - 135.0F + 8.0F * col;
-					float y = sh - 155.0F + 8.0F * row - 40.0F;
+					float x = winX + rectSize * col;
+					float y = winY + rectSize * row;
+					float w = x + rectSize;
+					float h = y + rectSize;
 
 					renderer.SetColorAlphaPremultiplied(ConvertColorRGBA(colors[i]));
-					renderer.DrawFilledRect(x, y, x + 6, y + 6);
+					renderer.DrawFilledRect(x + 1, y + 1, w - 1, h - 1);
 
 					if (sel == i) {
 						float p = float((int(client->GetTime() * 4.0F)) & 1);
 						renderer.SetColorAlphaPremultiplied(MakeVector4(p, p, p, 1));
-						renderer.DrawOutlinedRect(x - 1, y - 1, x + 7, y + 7);
+						renderer.DrawOutlinedRect(x, y, w, h);
 					}
 				}
 			}
