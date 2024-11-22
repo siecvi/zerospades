@@ -272,6 +272,23 @@ namespace spades {
 			renderer->RegisterImage("Gfx/Bullet/7.62mm.png");
 			renderer->RegisterImage("Gfx/Bullet/9mm.png");
 			renderer->RegisterImage("Gfx/Bullet/12gauge.png");
+			renderer->RegisterImage("Gfx/Hotbar/Block.png");
+			renderer->RegisterImage("Gfx/Hotbar/Grenade.png");
+			renderer->RegisterImage("Gfx/Hotbar/Spade.png");
+			renderer->RegisterImage("Gfx/Hotbar/Rifle.png");
+			renderer->RegisterImage("Gfx/Hotbar/SMG.png");
+			renderer->RegisterImage("Gfx/Hotbar/Shotgun.png");
+			renderer->RegisterImage("Gfx/Killfeed/a-Rifle.png");
+			renderer->RegisterImage("Gfx/Killfeed/b-SMG.png");
+			renderer->RegisterImage("Gfx/Killfeed/c-Shotgun.png");
+			renderer->RegisterImage("Gfx/Killfeed/d-Headshot.png");
+			renderer->RegisterImage("Gfx/Killfeed/e-Melee.png");
+			renderer->RegisterImage("Gfx/Killfeed/f-Grenade.png");
+			renderer->RegisterImage("Gfx/Killfeed/g-Falling.png");
+			renderer->RegisterImage("Gfx/Killfeed/h-Teamchange.png");
+			renderer->RegisterImage("Gfx/Killfeed/i-Classchange.png");
+			renderer->RegisterImage("Gfx/Killfeed/j-Airborne.png");
+			renderer->RegisterImage("Gfx/Killfeed/k-Noscope.png");
 			renderer->RegisterImage("Gfx/Ball.png");
 			renderer->RegisterImage("Gfx/HurtRing.png");
 			renderer->RegisterImage("Gfx/HurtSprite.png");
@@ -281,13 +298,20 @@ namespace spades {
 			renderer->RegisterImage("Textures/WaterExpl.png");
 
 			// load sounds
+			audioDevice->RegisterSound("Sounds/Feedback/HeadshotFeedback.opus");
+			audioDevice->RegisterSound("Sounds/Feedback/HitFeedback.opus");
 			audioDevice->RegisterSound("Sounds/Feedback/Chat.opus");
+			audioDevice->RegisterSound("Sounds/Feedback/Alert.opus");
+			audioDevice->RegisterSound("Sounds/Feedback/Beep1.opus");
+			audioDevice->RegisterSound("Sounds/Feedback/Beep2.opus");
 			audioDevice->RegisterSound("Sounds/Misc/SwitchMapZoom.opus");
 			audioDevice->RegisterSound("Sounds/Misc/OpenMap.opus");
 			audioDevice->RegisterSound("Sounds/Misc/CloseMap.opus");
 			audioDevice->RegisterSound("Sounds/Misc/BlockFall.opus");
 			audioDevice->RegisterSound("Sounds/Misc/BlockDestroy.opus");
 			audioDevice->RegisterSound("Sounds/Misc/BlockBounce.opus");
+			audioDevice->RegisterSound("Sounds/Player/Death.opus");
+			audioDevice->RegisterSound("Sounds/Player/FallHurt.opus");
 			audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
 			audioDevice->RegisterSound("Sounds/Player/Footstep1.opus");
 			audioDevice->RegisterSound("Sounds/Player/Footstep2.opus");
