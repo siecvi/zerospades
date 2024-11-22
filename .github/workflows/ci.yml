@@ -43,7 +43,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Release
+          name: Release-Windows
           path: |
             ${{ runner.workspace }}\openspades.mk\bin\Release
             !${{ runner.workspace }}\**\*.lib
@@ -78,13 +78,22 @@ jobs:
         uses: ashutoshvarma/action-cmake-build@master
         with:
           build-dir: ${{ runner.workspace }}/openspades.mk
-          build-type: RelWithDebInfo
+          build-type: Release
           configure-options: >
-            -D CMAKE_BUILD_TYPE=RelWithDebInfo
+            -D CMAKE_BUILD_TYPE=Release
             -D CMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
             -D VCPKG_TARGET_TRIPLET=x64-osx
             -D CMAKE_OSX_ARCHITECTURES=x86_64
+            -D CMAKE_CXX_STANDARD=17
           parallel: 8
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Release-macOS
+          path: |
+            ${{ runner.workspace }}/openspades.mk/bin
+          if-no-files-found: warn
   
   build-nix:
     name: Build (Linux + Nix)
