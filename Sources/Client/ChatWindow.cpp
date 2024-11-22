@@ -268,7 +268,7 @@ namespace spades {
 								colorP.y *= colorP.w;
 								colorP.z *= colorP.w;
 								renderer->SetColorAlphaPremultiplied(colorP);
-								renderer->DrawImage(img, MakeVector2(tx + curPosX, ty + winY).Floor());
+								renderer->DrawImage(img, MakeVector2(tx + curPosX + 1, ty + winY).Floor());
 								tx += img->GetWidth();
 								++i;
 							}
