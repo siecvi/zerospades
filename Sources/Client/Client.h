@@ -232,6 +232,8 @@ namespace spades {
 			CoherentNoiseSampler1D coherentNoiseSamplers[3];
 			void KickCamera(float strength);
 
+			float hotBarIconState;
+
 			float hitFeedbackIconState;
 			bool hitFeedbackFriendly;
 

@@ -189,7 +189,7 @@ namespace spades {
 				return;
 			lastTool = world->GetLocalPlayer()->GetTool();
 			hasLastTool = true;
-
+			hotBarIconState = 1.0F;
 			world->GetLocalPlayer()->SetTool(type);
 
 			if (!quiet) {
@@ -309,6 +309,12 @@ namespace spades {
 				grenadeVibrationSlow -= dt;
 				if (grenadeVibrationSlow < 0.0F)
 					grenadeVibrationSlow = 0.0F;
+			}
+
+			if (hotBarIconState > 0.0F) {
+				hotBarIconState -= dt * 10.0F;
+				if (hotBarIconState < 0.0F)
+					hotBarIconState = 0.0F;
 			}
 
 			if (hitFeedbackIconState > 0.0F) {

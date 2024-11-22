@@ -765,8 +765,8 @@ namespace spades {
 						iconColor *= 0.25F;
 						iconShadow *= 0.25F;
 					} else {
-						// move selected icon upwards
-						pos.y -= 5.0F;
+						float state = 1.0F - hotBarIconState;
+						pos.y -= floorf(10.0F * state);
 					}
 
 					renderer->SetColorAlphaPremultiplied(iconShadow);

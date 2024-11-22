@@ -111,6 +111,7 @@ namespace spades {
 		      scoreboardVisible(false),
 		      hudVisible(true),
 		      flashlightOn(false),
+		      hotBarIconState(0.0F),
 		      hitFeedbackIconState(0.0F),
 		      hitFeedbackFriendly(false),
 		      debugHitTestZoomState(0.0F),
