@@ -1802,7 +1802,7 @@ msgstr "VSync"
 #: Resources/Scripts/Gui/Preferences.as:702
 msgctxt "Preferences"
 msgid "Adaptive"
-msgstr "Adaptativo"
+msgstr "Adaptable"
 
 #: Resources/Scripts/Gui/Preferences.as:707
 msgctxt "Preferences"
@@ -2331,7 +2331,7 @@ msgid ""
 "On|Adaptive"
 msgstr ""
 "Sincronización vertical:Sincroniza las actualizaciones de la pantalla con la "
-"frecuencia de actualización del monitor.|Off|On|Adaptativo"
+"frecuencia de actualización del monitor.|Apagado|Encendido|Adaptable"
 
 #: Sources/Client/Client_Draw.cpp:860
 msgctxt "Client"
