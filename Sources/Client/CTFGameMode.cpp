@@ -41,13 +41,14 @@ namespace spades {
 			if (teamId >= 2) // spectator
 				return false;
 
-			auto& team = teams[teamId];
+			const auto& team = teams[teamId];
 			return team.hasIntel && static_cast<int>(team.carrierId) == player.GetId();
 		}
 
-		void CTFGameMode::ResetIntelHoldingStatus() {
+		void CTFGameMode::ResetIntelHoldingStatus(bool resetScore) {
 			for (Team& team : teams) {
-				//team.score = 0;
+				if (resetScore)
+					team.score = 0;
 				team.hasIntel = false;
 			}
 		}

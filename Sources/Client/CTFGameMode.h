@@ -57,11 +57,12 @@ namespace spades {
 
 			/**
 			 * Resets holding status of both flags.
+			 * If specified, both scores will also be reset.
 			 *
 			 * This is what the vanilla client does upon receiving a winning
 			 * `IntelCapture`.
 			 */
-			void ResetIntelHoldingStatus();
+			void ResetIntelHoldingStatus(bool resetScore);
 		};
 	} // namespace client
 } // namespace spades
