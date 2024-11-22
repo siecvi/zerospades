@@ -345,6 +345,8 @@ namespace spades {
 			audioDevice->RegisterSound("Sounds/Weapons/Grenade/ExplodeFar.opus");
 			audioDevice->RegisterSound("Sounds/Weapons/Grenade/Debris.opus");
 
+			LoadKillSounds();
+
 			// load models
 			renderer->RegisterModel("Models/MapObjects/Intel.kv6");
 			renderer->RegisterModel("Models/MapObjects/CheckPoint.kv6");
@@ -617,6 +619,25 @@ namespace spades {
 		void Client::PlayScreenshotSound() {
 			Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Misc/SwitchMapZoom.opus");
 			audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+		}
+
+		void Client::LoadKillSounds() {
+			// list available sounds in the directory
+			auto files = FileManager::EnumFiles("Sounds/Feedback/Killstreak");
+			for (const auto& file : files) {
+				// check extension
+				if (file.size() < 5 || file.rfind(".opus") != file.size() - 5)
+					continue;
+
+				auto fullPath = "Sounds/Feedback/Killstreak/" + file;
+
+				// register sound
+				killSounds.push_back(audioDevice->RegisterSound(fullPath.c_str()));
+			}
+
+			int soundsNum = static_cast<int>(killSounds.size());
+			if (soundsNum > 0)
+				SPLog("Loaded %d killstreak sounds", soundsNum);
 		}
 
 		/** Records chat message/game events to the log file. */

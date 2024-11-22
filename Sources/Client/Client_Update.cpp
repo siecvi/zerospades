@@ -54,6 +54,9 @@ DEFINE_SPADES_SETTING(cg_hitFeedbackSoundGain, "0.2");
 DEFINE_SPADES_SETTING(cg_headshotFeedbackSoundGain, "0.2");
 DEFINE_SPADES_SETTING(cg_deathSoundGain, "0.2");
 DEFINE_SPADES_SETTING(cg_respawnSoundGain, "1");
+DEFINE_SPADES_SETTING(cg_killSounds, "0");
+DEFINE_SPADES_SETTING(cg_killSoundsPitch, "1");
+DEFINE_SPADES_SETTING(cg_killSoundsGain, "0.2");
 DEFINE_SPADES_SETTING(cg_tracers, "1");
 DEFINE_SPADES_SETTING(cg_tracersFirstPerson, "1");
 DEFINE_SPADES_SETTING(cg_hitAnalyze, "0");
@@ -892,6 +895,18 @@ namespace spades {
 						meleeKills++;
 					else if (kt == KillTypeGrenade)
 						grenadeKills++;
+
+					if (cg_killSounds && curStreak >= 2) {
+						AudioParam param;
+						param.pitch = (float)cg_killSoundsPitch;
+						param.volume = (float)cg_killSoundsGain;
+
+						int sndIndex = curStreak - 2;
+						if (sndIndex < static_cast<int>(killSounds.size())) {
+							Handle<IAudioChunk> c = killSounds[sndIndex];
+							audioDevice->PlayLocal(c.GetPointerOrNull(), param);
+						}
+					}
 				}
 			}
 

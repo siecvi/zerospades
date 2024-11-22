@@ -394,6 +394,10 @@ namespace spades {
 			void PlayAlertSound();
 			void PlayScreenshotSound();
 
+			// Killsteak sounds
+			std::vector<Handle<IAudioChunk>> killSounds;
+			void LoadKillSounds();
+
 			void UpdateWorld(float dt);
 			void UpdateLocalSpectator(float dt);
 			void UpdateLocalPlayer(float dt);
