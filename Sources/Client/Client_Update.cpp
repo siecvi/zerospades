@@ -91,14 +91,14 @@ namespace spades {
 			if (!p || !p->IsAlive())
 				return false;
 
-			stmp::optional<ClientPlayer&> clentPlayer = GetLocalClientPlayer();
+			stmp::optional<ClientPlayer&> clientPlayer = GetLocalClientPlayer();
 
 			// Player is unable to use a tool while/soon after sprinting
-			if (clentPlayer->GetSprintState() > 0 || p->GetInput().sprint)
+			if (clientPlayer->GetSprintState() > 0 || p->GetInput().sprint)
 				return false;
 
 			// Player is unable to use a tool while switching to another tool
-			if (clentPlayer->IsChangingTool())
+			if (clientPlayer->IsChangingTool())
 				return false;
 
 			return true;
