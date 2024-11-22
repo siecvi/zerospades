@@ -366,8 +366,8 @@ namespace spades {
 
 				// draw intel icon
 				if (ctf) {
-					stmp::optional<Player&> maybePlayer = world->GetPlayer(ent.id);
-					if (maybePlayer && ctf->PlayerHasIntel(maybePlayer.value())) {
+					const auto& t = ctf->GetTeam(team);
+					if (t.hasIntel && ent.id == static_cast<int>(t.carrierId)) {
 						Vector2 pos = MakeVector2(colX + colWidth - 25.0F - size.x, rowY + 1.0F);
 						float pulse = std::max(0.5F, fabsf(sinf(world->GetTime() * 4.0F)));
 						renderer.SetColorAlphaPremultiplied(white * pulse);
