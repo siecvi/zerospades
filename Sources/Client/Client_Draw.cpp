@@ -1081,14 +1081,42 @@ namespace spades {
 
 			Player& p = GetWorld()->GetLocalPlayer().value();
 
+			// draw respawn time
 			std::string msg = (lastRespawnCount > 0)
 				? _Tr("Client", "You will respawn in: {0}", lastRespawnCount)
 				: _Tr("Client", "Waiting for respawn");
 
+			Vector4 color = MakeVector4(1, 1, 1, 1);
+			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.5F);
+
 			IFont& font = fontManager->GetGuiFont();
 			Vector2 size = font.Measure(msg);
 			Vector2 pos = MakeVector2((sw - size.x) * 0.5F, sh / 2.5F);
-			font.DrawShadow(msg, pos, 1.0F, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.5));
+			font.DrawShadow(msg, pos, 1.0F, color, shadowColor);
+
+			// draw deaths count
+			if (time >= lastAliveTime) {
+				const float fadeOutTime = 1.3F;
+				float timeSinceDeath = time - lastAliveTime;
+
+				float fade = 1.0F;
+				if (timeSinceDeath > fadeOutTime) { // start fading out
+					fade = 1.0F - (timeSinceDeath - fadeOutTime) / fadeOutTime;
+					fade = std::max(0.0F, fade);
+				}
+
+				if (fade > 0.0F) {
+					color.w = fade;
+					shadowColor.w = 0.5F * fade;
+
+					msg = ToString(curDeaths);
+					IFont& bigFont = fontManager->GetLargeFont();
+					size = bigFont.Measure(msg);
+					pos.x = (sw - size.x) * 0.5F;
+					pos.y += 30.0F;
+					bigFont.DrawShadow(msg, pos, 1.0F, color, shadowColor);
+				}
+			}
 		}
 
 		void Client::DrawSpectateHUD() {
