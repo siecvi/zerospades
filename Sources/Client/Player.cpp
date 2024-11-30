@@ -328,6 +328,11 @@ namespace spades {
 		}
 
 		void Player::SetHP(int hp, HurtType type, spades::Vector3 p) {
+			SPADES_MARK_FUNCTION();
+
+			if (!IsAlive())
+				return; // already dead
+
 			lastHealth = health;
 			health = hp;
 			if (world.GetListener())
@@ -1264,10 +1269,15 @@ namespace spades {
 		void Player::KilledBy(KillType type, Player& killer, int respawnTime) {
 			SPADES_MARK_FUNCTION();
 
+			if (!IsAlive())
+				return; // already dead
+
 			health = 0;
 			weapon->SetShooting(false);
 
 			if (IsLocalPlayer()) {
+				localPlayerHealth = 0;
+
 				// drop the live grenade (though it won't do any damage?)
 				if (tool == ToolGrenade)
 					ThrowGrenade();
