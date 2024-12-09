@@ -269,7 +269,7 @@ namespace spades {
 								colorP.z *= colorP.w;
 								renderer->SetColorAlphaPremultiplied(colorP);
 								renderer->DrawImage(img, MakeVector2(tx + curPosX + 1, ty + winY).Floor());
-								tx += img->GetWidth();
+								tx += (int)roundf(img->GetWidth());
 								++i;
 							}
 						} else {
@@ -295,7 +295,7 @@ namespace spades {
 							font->DrawShadow(ch, pos, 1.0F, color, shadow);
 						}
 
-						tx += font->Measure(ch).x;
+						tx += (int)roundf(font->Measure(ch).x);
 					}
 				}
 
