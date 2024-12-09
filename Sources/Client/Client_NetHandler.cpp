@@ -55,6 +55,7 @@ namespace spades {
 		void Client::LocalPlayerCreated() {
 			renderer->UpdateFlatGameMap();
 
+			hotBarIconState = 1.0F;
 			freeCameraState.position = lastSceneDef.viewOrigin;
 			playerInput.jump = PlayerInput().jump;
 			weapInput = WeaponInput();
