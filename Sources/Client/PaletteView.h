@@ -32,6 +32,13 @@ namespace spades {
 			Client* client;
 			IRenderer& renderer;
 
+			struct PaletteInput {
+				bool left, right, up, down;
+				PaletteInput() : left(false), right(false), up(false), down(false) {}
+			};
+			PaletteInput paletteInput;
+			float time;
+
 			int defaultColor;
 			std::vector<IntVector3> colors;
 			int GetSelectedIndex();
@@ -41,9 +48,9 @@ namespace spades {
 			PaletteView(Client*);
 			~PaletteView();
 
-			bool KeyInput(const std::string);
+			bool KeyInput(const std::string&, bool down);
 
-			void Update();
+			void Update(float dt);
 			void Draw();
 		};
 	} // namespace client

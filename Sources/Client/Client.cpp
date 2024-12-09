@@ -481,6 +481,7 @@ namespace spades {
 			centerMessageView->Update(dt);
 			mapView->Update(dt);
 			largeMapView->Update(dt);
+			paletteView->Update(dt);
 
 			UpdateDamageIndicators(dt);
 			UpdateAutoFocus(dt);

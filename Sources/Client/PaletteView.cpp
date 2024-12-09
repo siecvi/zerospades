@@ -61,6 +61,7 @@ namespace spades {
 					colors.push_back(col + (((def - col) * j) / PALETTE_SIZE - 1));
 			}
 
+			time = 0.0F;
 			defaultColor = 3;
 		}
 
@@ -90,45 +91,76 @@ namespace spades {
 				return c;
 		}
 
-		bool PaletteView::KeyInput(const std::string name) {
+		bool PaletteView::KeyInput(const std::string& name, bool down) {
 			if (EqualsIgnoringCase(name, cg_keyPaletteLeft)) {
-				int c = GetSelectedOrDefaultIndex();
-				if (c == 0)
-					c = (int)colors.size() - 1;
-				else
-					c--;
-				client->SetBlockColor(colors[c]);
+				paletteInput.left = down;
 				return true;
 			} else if (EqualsIgnoringCase(name, cg_keyPaletteRight)) {
-				int c = GetSelectedOrDefaultIndex();
-				if (c == (int)colors.size() - 1)
-					c = 0;
-				else
-					c++;
-				client->SetBlockColor(colors[c]);
+				paletteInput.right = down;
 				return true;
 			} else if (EqualsIgnoringCase(name, cg_keyPaletteUp)) {
-				int c = GetSelectedOrDefaultIndex();
-				if (c < PALETTE_SIZE)
-					c += (int)colors.size() - PALETTE_SIZE;
-				else
-					c -= PALETTE_SIZE;
-				client->SetBlockColor(colors[c]);
+				paletteInput.up = down;
 				return true;
 			} else if (EqualsIgnoringCase(name, cg_keyPaletteDown)) {
-				int c = GetSelectedOrDefaultIndex();
-				if (c >= (int)colors.size() - PALETTE_SIZE)
-					c -= (int)colors.size() - PALETTE_SIZE;
-				else
-					c += PALETTE_SIZE;
-				client->SetBlockColor(colors[c]);
+				paletteInput.down = down;
 				return true;
-			} else {
-				return false;
 			}
+			return false;
 		}
 
-		void PaletteView::Update() {}
+		void PaletteView::Update(float dt) {
+			time += dt;
+
+			if (time < 0.1F)
+				return;
+
+			if (paletteInput.left || paletteInput.right || paletteInput.up || paletteInput.down) {
+				int c = GetSelectedOrDefaultIndex();
+				int cols = static_cast<int>(colors.size());
+
+				bool changed = false;
+
+				// handle horizontal navigation
+				if (paletteInput.left || paletteInput.right) {
+					if (paletteInput.left) {
+						if (c == 0)
+							c = cols - 1;
+						else
+							c--;
+					} else if (paletteInput.right) {
+						if (c == cols - 1)
+							c = 0;
+						else
+							c++;
+					}
+
+					changed = true;
+				}
+
+				// handle vertical navigation
+				if (paletteInput.up || paletteInput.down) {
+					if (paletteInput.up) {
+						if (c < PALETTE_SIZE)
+							c += cols - PALETTE_SIZE;
+						else
+							c -= PALETTE_SIZE;
+					} else if (paletteInput.down) {
+						if (c >= cols - PALETTE_SIZE)
+							c -= cols - PALETTE_SIZE;
+						else
+							c += PALETTE_SIZE;
+					}
+
+					changed = true;
+				}
+
+				// apply changes if any
+				if (changed) {
+					client->SetBlockColor(colors[c]);
+					time = 0.0F; // reset
+				}
+			}
+		}
 
 		void PaletteView::Draw() {
 			float sw = renderer.ScreenWidth();

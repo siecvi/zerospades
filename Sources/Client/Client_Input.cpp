@@ -450,8 +450,8 @@ namespace spades {
 
 					// player is alive and not spectating
 					if (p.IsAlive()) {
-						if (p.IsToolBlock() && down) {
-							if (paletteView->KeyInput(name))
+						if (p.IsToolBlock()) {
+							if (paletteView->KeyInput(name, down))
 								return;
 						}
 
