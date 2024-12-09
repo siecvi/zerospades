@@ -469,6 +469,10 @@ namespace spades {
 			if (vel.GetSquaredLength2D() < 0.01F && !cg_classicSprinting)
 				inp.sprint = false;
 
+			// stop sprinting when crouching or sneaking
+			if (inp.crouch || inp.sneak)
+				inp.sprint = false;
+
 			// don't allow jumping in the air
 			if (inp.jump && !player.IsOnGroundOrWade())
 				inp.jump = false;
