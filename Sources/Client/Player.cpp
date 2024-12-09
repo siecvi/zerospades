@@ -65,6 +65,8 @@ namespace spades {
 
 			health = 100;
 			lastHealth = health;
+			localPlayerHealth = health;
+
 			grenades = 3;
 			blockStocks = 50;
 			blockColor = MakeIntVector3(111, 111, 111);
@@ -83,6 +85,7 @@ namespace spades {
 			blockCursorDragging = false;
 			pendingPlaceBlock = false;
 			pendingRestock = false;
+			pendingRestockHealth = false;
 			canPending = false;
 
 			respawnTime = 0.0F;
@@ -254,6 +257,7 @@ namespace spades {
 			pendingRestock = true;
 		}
 
+		// currently only used for localplayer
 		void Player::Restock() {
 			SPADES_MARK_FUNCTION();
 
@@ -265,6 +269,24 @@ namespace spades {
 
 			if (world.GetListener())
 				world.GetListener()->PlayerRestocked(*this);
+		}
+
+		// currently only used for localplayer
+		void Player::SetHP(int hp, HurtType type, spades::Vector3 p) {
+			SPADES_MARK_FUNCTION();
+
+			if (!IsAlive())
+				return; // already dead
+
+			lastHealth = localPlayerHealth;
+			localPlayerHealth = hp;
+			pendingRestockHealth = true;
+
+			if (localPlayerHealth >= lastHealth)
+				return;
+
+			if (world.GetListener())
+				world.GetListener()->LocalPlayerHurt(type, p);
 		}
 
 		void Player::SetTool(ToolType t) {
@@ -325,18 +347,6 @@ namespace spades {
 			o.z = -sinf(pitch);
 
 			SetOrientation(o);
-		}
-
-		void Player::SetHP(int hp, HurtType type, spades::Vector3 p) {
-			SPADES_MARK_FUNCTION();
-
-			if (!IsAlive())
-				return; // already dead
-
-			lastHealth = health;
-			health = hp;
-			if (world.GetListener())
-				world.GetListener()->LocalPlayerHurt(type, p);
 		}
 
 		void Player::UpdateSmooth(float dt) {
@@ -474,12 +484,20 @@ namespace spades {
 					weapon->ForceReloadDone();
 			}
 
+			// perform restock for local
 			if (isLocal && pendingRestock) {
 				lastHealth = health;
 				health = localPlayerHealth;
 				grenades = localPlayerGrenades;
 				blockStocks = localPlayerBlocks;
 				pendingRestock = false;
+			}
+
+			// perform health updates for local
+			if (isLocal && pendingRestockHealth) {
+				lastHealth = health;
+				health = localPlayerHealth;
+				pendingRestockHealth = false;
 			}
 		}
 

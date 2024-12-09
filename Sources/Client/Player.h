@@ -93,6 +93,7 @@ namespace spades {
 			int localPlayerGrenades;
 			int localPlayerBlocks;
 			bool pendingRestock;
+			bool pendingRestockHealth;
 
 			int health;
 			int grenades;
