@@ -1080,7 +1080,10 @@ namespace spades {
 				return;
 			}
 
-			if (input.jump && !lastJump && IsOnGroundOrWade()) {
+			bool isZoomed = tool == ToolWeapon && weapInput.secondary;
+			bool isOnGround = IsOnGroundOrWade();
+
+			if (input.jump && !lastJump && isOnGround) {
 				PlayerJump();
 			} else if (!input.jump) {
 				lastJump = false;
@@ -1091,7 +1094,7 @@ namespace spades {
 				f *= 0.1F;
 			else if (input.crouch)
 				f *= 0.3F;
-			else if (IsZoomed() || input.sneak)
+			else if (isZoomed || input.sneak)
 				f *= 0.5F;
 			else if (input.sprint)
 				f *= 1.3F;
@@ -1147,8 +1150,9 @@ namespace spades {
 
 			float vel2D = velocity.GetSquaredLength2D();
 			if (vel2D > 0.0F) {
-				// count move distance, not based on velocity but on sprint state
-				moveDistance += input.sprint ? 0.045F : 0.035F;
+				// count move distance, based on sprint state
+				float dist = 1.0F / (input.sprint ? 0.386F : 0.512F);
+				moveDistance += dist * fsynctics;
 
 				bool madeFootstep = false;
 				while (moveDistance > 1.0F) {
@@ -1156,8 +1160,8 @@ namespace spades {
 					moveDistance -= 1.0F;
 
 					if (world.GetListener() && !madeFootstep) {
-						if (vel2D > 0.01F && IsOnGroundOrWade() &&
-						    !input.crouch && !input.sneak && !IsZoomed())
+						if (vel2D > 0.01F && isOnGround
+							&& !input.crouch && !input.sneak && !isZoomed)
 							world.GetListener()->PlayerMadeFootstep(*this);
 						madeFootstep = true;
 					}
