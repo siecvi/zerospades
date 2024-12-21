@@ -354,11 +354,9 @@ namespace spades {
 
 		void Client::GrenadeExplosion(spades::Vector3 pos) {
 			// distance cull
-			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
-			if (distSqr > FOG_DISTANCE_SQ)
+			float dist = (pos - lastSceneDef.viewOrigin).GetLength();
+			if (dist > FOG_DISTANCE + 16.0F)
 				return;
-
-			KickCamera(2.0F / (distSqr + 5.0F));
 
 			DynamicLightParam l;
 			l.origin = pos;
@@ -368,8 +366,11 @@ namespace spades {
 			l.useLensFlare = true;
 			flashDlights.push_back(l);
 
-			int particleMode = cg_particles;
-			if (!particleMode)
+			if (dist <= FOG_DISTANCE)
+				KickCamera(2.0F / (dist + 5.0F));
+
+			int particleLevel = cg_particles;
+			if (!particleLevel)
 				return;
 
 			// determines free space around for SetTrajectory
@@ -403,12 +404,12 @@ namespace spades {
 				ent->SetTrajectory(pos + dir * 0.2F, dir * 20.0F, 0.1F + radius * 3.0F);
 				ent->SetRadius(radius);
 				ent->SetLifeTime(3.5F + SampleRandomFloat() * 2.0F, 0.0F, 1.0F);
-				if (distSqr < 16.0F * 16.0F)
+				if (dist < 16.0F)
 					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}
 
-			if (particleMode < 2)
+			if (particleLevel < 2)
 				return;
 
 			// rapid smoke
@@ -432,7 +433,7 @@ namespace spades {
 				               (SampleRandomFloat() - SampleRandomFloat()) * 0.2F)) * 2.0F, 1.0F, 0.0F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 				ent->SetRadius(1.5F + SampleRandomFloat() * SampleRandomFloat() * 0.8F, 0.2F);
-				switch (particleMode) {
+				switch (particleLevel) {
 					case 1: ent->SetLifeTime(0.8F + SampleRandomFloat() * 1.0F, 0.1F, 8.0F); break;
 					case 2: ent->SetLifeTime(1.5F + SampleRandomFloat() * 2.0F, 0.1F, 8.0F); break;
 					case 3:
@@ -458,13 +459,15 @@ namespace spades {
 
 		void Client::GrenadeExplosionUnderwater(spades::Vector3 pos) {
 			// distance cull
-			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
-			if (distSqr > FOG_DISTANCE_SQ)
+			float dist = (pos - lastSceneDef.viewOrigin).GetLength();
+			if (dist > FOG_DISTANCE + 16.0F)
 				return;
 
-			KickCamera(1.5F / (distSqr + 5.0F));
+			if (dist <= FOG_DISTANCE)
+				KickCamera(1.0F / (dist + 5.0F));
 
-			if (!cg_particles)
+			int particleLevel = cg_particles;
+			if (!particleLevel)
 				return;
 
 			Vector3 velBias = {0, 0, -1.0F};
@@ -486,12 +489,12 @@ namespace spades {
 				ent->SetTrajectory(pos + dir * 0.2F, dir * 16.0F, 0.1F + radius * 3.0F);
 				ent->SetRadius(radius);
 				ent->SetLifeTime(3.5F + SampleRandomFloat() * 2.0F, 0.0F, 1.0F);
-				if (distSqr < 16.0F * 16.0F)
+				if (dist < 16.0F)
 					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}
 
-			if ((int)cg_particles < 2)
+			if (particleLevel < 2)
 				return;
 
 			// water1
