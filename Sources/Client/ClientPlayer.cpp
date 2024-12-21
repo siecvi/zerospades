@@ -616,14 +616,15 @@ namespace spades {
 			if (!cg_classicPlayerModels)
 				modelPath += w.GetName() + "/";
 
-			// Configure the clipping region for the localplayer view in case of overdraw
-			{
-				Vector3 const origin = eyeMatrix.GetOrigin();
-				Vector3 const outset(20.0F, 20.0F, 20.0F);
+			const Vector3 origin = eyeMatrix.GetOrigin();
 
-				sandboxedRenderer->SetClipBox(AABB3(origin - outset, origin + outset));
-				sandboxedRenderer->SetAllowDepthHack(true);
-			}
+			// set clipping box to prevent drawing models that are too large
+			AABB3 clip = AABB3(
+				origin - Vector3(20.0F, 20.0F, 20.0F),
+				origin + Vector3(20.0F, 20.0F, 20.0F)
+			);
+			sandboxedRenderer->SetClipBox(clip);
+			sandboxedRenderer->SetAllowDepthHack(true); // allow depthhack
 
 			// no flashlight if spectating other players while dead
 			if (client.flashlightOn && p.IsLocalPlayer()) {
@@ -980,15 +981,15 @@ namespace spades {
 				return;
 			}
 
-			Vector3 const origin = p.GetOrigin();
+			const Vector3 origin = p.GetOrigin();
 
-			// Set clipping region to prevent overdraw
-			{
-				Vector3 const outset(2.0F, 2.0F, 4.0F);
-
-				sandboxedRenderer->SetClipBox(AABB3(origin - outset, origin + outset));
-				sandboxedRenderer->SetAllowDepthHack(false);
-			}
+			// set clipping box to prevent drawing models that are too large
+			AABB3 clip = AABB3(
+				origin - Vector3(2.0F, 2.0F, 4.0F),
+				origin + Vector3(2.0F, 2.0F, 2.0F)
+			);
+			sandboxedRenderer->SetClipBox(clip);
+			sandboxedRenderer->SetAllowDepthHack(false); // disable depthhack
 
 			// ready for tool rendering
 			asIScriptObject* curSkin = GetCurrentSkin(false);
@@ -1235,8 +1236,11 @@ namespace spades {
 				Vector3 muzzle = interface.GetMuzzlePosition();
 
 				// The skin should return a legit position. Return the default position if it didn't.
-				Vector3 const origin = player.GetOrigin();
-				AABB3 clip = AABB3(origin - Vector3(2.0F, 2.0F, 4.0F), origin + Vector3(2.0F, 2.0F, 2.0F));
+				const Vector3 origin = player.GetOrigin();
+				AABB3 clip = AABB3(
+					origin - Vector3(2.0F, 2.0F, 4.0F),
+					origin + Vector3(2.0F, 2.0F, 2.0F)
+				);
 				if (clip.Contains(muzzle))
 					return muzzle;
 			}
@@ -1258,8 +1262,11 @@ namespace spades {
 				Vector3 caseEject = interface.GetCaseEjectPosition();
 
 				// The skin should return a legit position. Return the default position if it didn't.
-				Vector3 const origin = player.GetOrigin();
-				AABB3 clip = AABB3(origin - Vector3(2.0F, 2.0F, 4.0F), origin + Vector3(2.0F, 2.0F, 2.0F));
+				const Vector3 origin = player.GetOrigin();
+				AABB3 clip = AABB3(
+					origin - Vector3(2.0F, 2.0F, 4.0F),
+					origin + Vector3(2.0F, 2.0F, 2.0F)
+				);
 				if (clip.Contains(caseEject))
 					return caseEject;
 			}
