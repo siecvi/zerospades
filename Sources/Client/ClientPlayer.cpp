@@ -635,7 +635,7 @@ namespace spades {
 				// add flash light
 				DynamicLightParam light;
 				Handle<IImage> img = renderer.RegisterImage("Gfx/Spotlight.jpg");
-				light.origin = (eyeMatrix * MakeVector3(0, 0.3F, -0.3F)).GetXYZ();
+				light.origin = (eyeMatrix * MakeVector3(0.0F, 0.0F, 0.0F)).GetXYZ();
 				light.color = MakeVector3(1.0F, 0.7F, 0.5F) * brightness;
 				light.radius = 60.0F;
 				light.type = DynamicLightTypeSpotlight;
