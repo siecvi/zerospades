@@ -46,6 +46,8 @@
 
 DEFINE_SPADES_SETTING(cg_blood, "2");
 DEFINE_SPADES_SETTING(cg_particles, "2");
+DEFINE_SPADES_SETTING(cg_particlesBloodNum, "4");
+DEFINE_SPADES_SETTING(cg_particlesGrenadeNum, "64");
 DEFINE_SPADES_SETTING(cg_waterImpact, "1");
 DEFINE_SPADES_SETTING(cg_muzzleFire, "0");
 SPADES_SETTING(cg_manualFocus);
@@ -141,7 +143,9 @@ namespace spades {
 
 			if (!cg_blood)
 				return;
-			if (!cg_particles)
+
+			int particleLevel = cg_particles;
+			if (!particleLevel)
 				return;
 			
 			// distance cull
@@ -156,19 +160,21 @@ namespace spades {
 
 			uint32_t col = IntVectorToColor(MakeIntVector3(127, 0, 0));
 			col = map->GetColorJit(col); // jit the colour
+
 			Vector4 color = ConvertColorRGBA(IntVectorFromColor(col));
 
-			for (int i = 0; i < 4; i++) {
+			int particlesNum = cg_particlesBloodNum;
+			for (int i = 0; i < particlesNum; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				ent->SetTrajectory(pos, (RandomAxis() + velBias * 0.5F) * 8.0F);
 				ent->SetRadius(0.4F);
 				ent->SetLifeTime(3.0F, 0.0F, 1.0F);
-				if (distSqr < 16.0F * 16.0F || bounce)
+				if (distSqr < PARTICLE_BOUNCE_DIST_SQ || bounce)
 					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}
 
-			if ((int)cg_particles < 2)
+			if (particleLevel < 2)
 				return;
 
 			color = MakeVector4(0.7F, 0.35F, 0.37F, 0.6F);
@@ -198,7 +204,8 @@ namespace spades {
 		void Client::EmitBlockFragments(spades::Vector3 pos, IntVector3 col) {
 			SPADES_MARK_FUNCTION();
 
-			if (!cg_particles)
+			int particleLevel = cg_particles;
+			if (!particleLevel)
 				return;
 
 			// distance cull
@@ -234,12 +241,12 @@ namespace spades {
 				ent->SetTrajectory(pos + dir * 0.2F, dir * 8.0F);
 				ent->SetRadius(0.4F);
 				ent->SetLifeTime(3.0F, 0.0F, 1.0F);
-				if (distSqr < 16.0F * 16.0F)
+				if (distSqr < PARTICLE_BOUNCE_DIST_SQ)
 					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}
 
-			if ((int)cg_particles < 2)
+			if (particleLevel < 2)
 				return;
 
 			if (distSqr < 32.0F * 32.0F) {
@@ -249,8 +256,7 @@ namespace spades {
 					ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 					ent->SetRadius(0.2F + SampleRandomFloat() * SampleRandomFloat() * 0.25F);
 					ent->SetLifeTime(3.0F, 0.0F, 1.0F);
-					if (distSqr < 16.0F * 16.0F)
-						ent->SetBlockHitAction(BlockHitAction::BounceWeak);
+					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 					localEntities.emplace_back(std::move(ent));
 				}
 			}
@@ -293,7 +299,7 @@ namespace spades {
 				ent->SetTrajectory(origin, RandomAxis() * 8.0F);
 				ent->SetRadius(0.4F);
 				ent->SetLifeTime(3.0F, 0.0F, 1.0F);
-				if (distSqr < 16.0F * 16.0F)
+				if (distSqr < PARTICLE_BOUNCE_DIST_SQ)
 					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}
@@ -397,14 +403,15 @@ namespace spades {
 			col = map->GetColorJit(col); // jit the colour
 			Vector4 color = ConvertColorRGBA(IntVectorFromColor(col));
 
-			for (int i = 0; i < 64; i++) {
+			int particlesNum = cg_particlesGrenadeNum;
+			for (int i = 0; i < particlesNum; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				Vector3 dir = RandomAxis() + velBias * 0.5F;
 				float radius = 0.3F + SampleRandomFloat() * SampleRandomFloat() * 0.3F;
 				ent->SetTrajectory(pos + dir * 0.2F, dir * 20.0F, 0.1F + radius * 3.0F);
 				ent->SetRadius(radius);
 				ent->SetLifeTime(3.5F + SampleRandomFloat() * 2.0F, 0.0F, 1.0F);
-				if (dist < 16.0F)
+				if (dist < PARTICLE_BOUNCE_DIST)
 					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}
@@ -482,14 +489,15 @@ namespace spades {
 			col = map->GetColorJit(col); // jit the colour
 			Vector4 color = ConvertColorRGBA(IntVectorFromColor(col));
 
-			for (int i = 0; i < 64; i++) {
+			int particlesNum = cg_particlesGrenadeNum;
+			for (int i = 0; i < particlesNum; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				Vector3 dir = RandomAxis() + velBias * 0.5F;
 				float radius = 0.3F + SampleRandomFloat() * SampleRandomFloat() * 0.3F;
 				ent->SetTrajectory(pos + dir * 0.2F, dir * 16.0F, 0.1F + radius * 3.0F);
 				ent->SetRadius(radius);
 				ent->SetLifeTime(3.5F + SampleRandomFloat() * 2.0F, 0.0F, 1.0F);
-				if (dist < 16.0F)
+				if (dist < PARTICLE_BOUNCE_DIST)
 					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}
@@ -562,7 +570,7 @@ namespace spades {
 				ent->SetTrajectory(pos, (RandomAxis() + velBias * 0.5F) * 8.0F);
 				ent->SetRadius(0.4F);
 				ent->SetLifeTime(3.0F, 0.0F, 1.0F);
-				if (distSqr < 16.0F * 16.0F)
+				if (distSqr < PARTICLE_BOUNCE_DIST_SQ)
 					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}

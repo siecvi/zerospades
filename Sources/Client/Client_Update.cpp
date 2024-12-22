@@ -1303,9 +1303,8 @@ namespace spades {
 				return;
 
 			// distance cull
-			float tracerCullDist = FOG_DISTANCE + 10.0F;
 			float distSqr = (muzzlePos - lastSceneDef.viewOrigin).GetSquaredLength2D();
-			if (distSqr > tracerCullDist * tracerCullDist)
+			if (distSqr > TRACER_CULL_DIST_SQ)
 				return;
 
 			// If disabled, do not display tracers for bullets fired by the local player
@@ -1318,9 +1317,8 @@ namespace spades {
 			// displaying it as-is would make it seem like it was fired from a skull gun. Rewrite
 			// the starting point with the visual muzzle point of the current weapon skin.
 			Handle<ClientPlayer> clientPlayer = clientPlayers[player.GetId()];
-			muzzlePos = clientPlayer->ShouldRenderInThirdPersonView()
-			              ? clientPlayer->GetMuzzlePosition()
-			              : clientPlayer->GetMuzzlePositionInFirstPersonView();
+			muzzlePos = isFirstPerson ? clientPlayer->GetMuzzlePositionInFirstPersonView()
+			                          : clientPlayer->GetMuzzlePosition();
 
 			float vel;
 			bool shotgun = false;
