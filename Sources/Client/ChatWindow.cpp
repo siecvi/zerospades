@@ -256,7 +256,7 @@ namespace spades {
 				}
 
 				for (size_t i = 0; i < msg.size(); i++) {
-					if (msg[i] == '\r' || msg[i] == '\n') {
+					if ((msg[i] == '\r' || msg[i] == '\n') && !killfeed) {
 						tx = 0.0F;
 						ty += lh;
 					} else if (msg[i] >= 1 && msg[i] <= MsgColorMax) {
