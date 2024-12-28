@@ -348,7 +348,7 @@ namespace spades {
 			void GrenadeExplosion(Vector3);
 			void GrenadeExplosionUnderwater(Vector3);
 			void MuzzleFire(Vector3);
-			void BulletHitWaterSurface(Vector3, IntVector3 color);
+			void BulletHitWaterSurface(Vector3);
 
 			// drawings
 			Handle<FontManager> fontManager;

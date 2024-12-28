@@ -482,12 +482,7 @@ namespace spades {
 			// fragments
 			Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
 
-			IntVector3 p = pos.Floor();
-			uint32_t col = IntVectorToColor(MakeIntVector3(70, 70, 70));
-			if (map->IsSolid(p.x, p.y, p.z))
-				col = map->GetColor(p.x, p.y, p.z);
-			col = map->GetColorJit(col); // jit the colour
-			Vector4 color = ConvertColorRGBA(IntVectorFromColor(col));
+			Vector4 color = MakeVector4(1, 1, 1, 0.6F);
 
 			int particlesNum = cg_particlesGrenadeNum;
 			for (int i = 0; i < particlesNum; i++) {
@@ -549,8 +544,9 @@ namespace spades {
 			// TODO: wave?
 		}
 
-		void Client::BulletHitWaterSurface(spades::Vector3 pos, IntVector3 col) {
-			if (!cg_particles)
+		void Client::BulletHitWaterSurface(spades::Vector3 pos) {
+			int particleLevel = cg_particles;
+			if (!particleLevel)
 				return;
 
 			// distance cull
@@ -563,21 +559,19 @@ namespace spades {
 			// fragments
 			Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
 
-			Vector4 color = ConvertColorRGBA(col);
+			Vector4 color = MakeVector4(1, 1, 1, 0.6F);
 
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				ent->SetTrajectory(pos, (RandomAxis() + velBias * 0.5F) * 8.0F);
-				ent->SetRadius(0.4F);
+				ent->SetRadius(0.3F);
 				ent->SetLifeTime(3.0F, 0.0F, 1.0F);
 				if (distSqr < PARTICLE_BOUNCE_DIST_SQ)
 					ent->SetBlockHitAction(BlockHitAction::BounceWeak);
 				localEntities.emplace_back(std::move(ent));
 			}
 
-			if ((int)cg_particles < 2)
-				return;
-			if (!cg_waterImpact)
+			if (particleLevel < 2 || !cg_waterImpact)
 				return;
 
 			// water1
