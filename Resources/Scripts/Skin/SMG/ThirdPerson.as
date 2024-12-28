@@ -57,10 +57,6 @@ namespace spades {
         }
         Vector3 SoundOrigin { set { soundOrigin = value; } }
 
-		// IWeaponSkin3
-        Vector3 MuzzlePosition { get { return originMatrix * Vector3(0.35F, -1.4F, -0.125F); } }
-        Vector3 CaseEjectPosition { get { return originMatrix * Vector3(0.35F, -0.75F, -0.125F); } }
-
         private Renderer@ renderer;
         private AudioDevice@ audioDevice;
         private Model@ model;
@@ -115,7 +111,7 @@ namespace spades {
                 audioDevice.Play(fireStereoSound, origin, param);
             }
         }
-		
+
         void ReloadingWeapon() {
             if (!muted) {
                 Vector3 origin = soundOrigin;
@@ -127,12 +123,15 @@ namespace spades {
 
         void ReloadedWeapon() {}
 
+		// IWeaponSkin3
+        Vector3 MuzzlePosition { get { return originMatrix * (Vector3(0.4F, -0.9F, 0.0F) - Vector3(0.0F, 0.4F, 0.125F)); } }
+        Vector3 CaseEjectPosition { get { return originMatrix * (Vector3(0.4F, -0.9F, 0.0F) - Vector3(0.0F, -0.25F, 0.125F)); } }
+
         void AddToScene() {
-            Matrix4 mat = CreateScaleMatrix(0.05F);
+            Matrix4 mat = CreateScaleMatrix(0.05F + 0.001F); // make model a little bigger to stop z-fighting
 			mat = mat * CreateScaleMatrix(-1, -1, 1);
-			
+
 			Vector3 trans = Vector3(0.4F, -0.9F, 0.0F);
-			trans -= 0.01F; // stop z-fighting		
 			mat = CreateTranslateMatrix(trans) * mat;
 
             ModelRenderParam param;

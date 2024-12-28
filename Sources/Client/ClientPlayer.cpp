@@ -250,6 +250,7 @@ namespace spades {
 			viewWeaponOffset = MakeVector3(0, 0, 0);
 			lastFront = MakeVector3(0, 0, 0);
 			flashlightOrientation = p.GetFront();
+			classicViewWeaponOrigin = MakeVector3(0, 0, 0);
 
 			ScriptContextHandle ctx;
 			IAudioDevice& audio = client.GetAudioDevice();
@@ -655,19 +656,25 @@ namespace spades {
 			leftHand = MakeVector3(0, 0, 0);
 			rightHand = MakeVector3(0, 0, 0);
 
-			// view weapon
-			Vector3 viewWeaponOffset = this->viewWeaponOffset;
-
 			Handle<IModel> model;
 			ModelRenderParam param;
 			param.depthHack = true;
 			param.customColor = ConvertColorRGB(p.GetColor());
 
+			asIScriptObject* curSkin = GetCurrentSkin(true);
+			SetSkinParameterForTool(currentTool, curSkin);
+			SetCommonSkinParameter(curSkin);
+
 			// Moving this to the scripting environment means
 			// breaking compatibility with existing scripts.
 			if (cg_classicViewWeapon) {
+				// Disable depth hack when `cg_debugToolSkinAnchors` is set
+				// so that the drawn debug lines intersect with the weapon model
+				if (cg_debugToolSkinAnchors)
+					param.depthHack = false;
+
 				Matrix4 mat = Matrix4::Scale(0.033F);
-				Vector3 trans(0.0F, 0.0F, 0.0F);
+				Vector3 trans = MakeVector3(0, 0, 0);
 
 				float bob = std::max(fabsf(vel.x), fabsf(vel.y)) / 1000;
 				int timer = (int)(time * 1000);
@@ -788,11 +795,16 @@ namespace spades {
 				trans += viewWeaponOffset;
 
 				param.matrix = Matrix4::Translate(trans) * mat;
+				classicViewWeaponOrigin = param.matrix.GetOrigin();
+
 				param.matrix = eyeMatrix * param.matrix;
 				renderer.RenderModel(*model, param);
 
 				return;
 			}
+
+			// view weapon
+			Vector3 viewWeaponOffset = this->viewWeaponOffset;
 
 			// bobbing
 			{
@@ -817,19 +829,6 @@ namespace spades {
 				viewWeaponOffset.y += vl * 0.0007F * sp;
 				viewWeaponOffset.z += vl * 0.003F * sp;
 			}
-
-			// manual adjustment
-			{
-				float sp = 1.0F - aimDownState;
-
-				viewWeaponOffset.x += (float)cg_viewWeaponX * sp;
-				viewWeaponOffset.y += (float)cg_viewWeaponY * sp;
-				viewWeaponOffset.z += (float)cg_viewWeaponZ * sp;
-			}
-
-			asIScriptObject* curSkin = GetCurrentSkin(true);
-			SetSkinParameterForTool(currentTool, curSkin);
-			SetCommonSkinParameter(curSkin);
 
 			// common process
 			{
@@ -924,6 +923,15 @@ namespace spades {
 					param.matrix = eyeMatrix * param.matrix * armsScale;
 					renderer.RenderModel(model, param);
 				};
+
+				// manual adjustment
+				{
+					float sp = 1.0F - aimDownState;
+
+					viewWeaponOffset.x += (float)cg_viewWeaponX * sp;
+					viewWeaponOffset.y += (float)cg_viewWeaponY * sp;
+					viewWeaponOffset.z += (float)cg_viewWeaponZ * sp;
+				}
 
 				auto renderArm = [&](int i) {
 					const Vector3& shoulder = shoulders[i] + viewWeaponOffset;
@@ -1189,7 +1197,9 @@ namespace spades {
 			else
 				AddToSceneThirdPersonView();
 
-			if (cg_debugToolSkinAnchors && currentTool == Player::ToolWeapon && p.IsLocalPlayer()) {
+			if (cg_debugToolSkinAnchors
+				&& p.IsLocalPlayer() && p.IsAlive()
+				&& currentTool == Player::ToolWeapon) {
 				IRenderer& renderer = client.GetRenderer();
 
 				auto drawAxes = [&renderer](Vector3 p) {
@@ -1212,14 +1222,10 @@ namespace spades {
 		void ClientPlayer::Draw2D() {
 			if (!ShouldRenderInThirdPersonView() && player.IsAlive()) {
 				asIScriptObject* curSkin = GetCurrentSkin(true);
-				SetSkinParameterForTool(currentTool, curSkin);
-				SetCommonSkinParameter(curSkin);
 
 				// common process
 				{
 					ScriptIViewToolSkin interface(curSkin);
-					interface.SetEyeMatrix(GetEyeMatrix());
-					interface.SetSwing(viewWeaponOffset);
 					interface.Draw2D();
 				}
 			}
@@ -1233,7 +1239,7 @@ namespace spades {
 		Vector3 ClientPlayer::GetMuzzlePosition() {
 			ScriptIWeaponSkin3 interface(weaponSkin);
 			if (interface.ImplementsInterface()) {
-				Vector3 muzzle = interface.GetMuzzlePosition();
+				const Vector3 muzzle = interface.GetMuzzlePosition();
 
 				// The skin should return a legit position. Return the default position if it didn't.
 				const Vector3 origin = player.GetOrigin();
@@ -1249,9 +1255,22 @@ namespace spades {
 		}
 
 		Vector3 ClientPlayer::GetMuzzlePositionInFirstPersonView() {
+			if (cg_classicViewWeapon) {
+				const Vector3 origin = classicViewWeaponOrigin;
+
+				Vector3 muzzle = MakeVector3(0.0F, 0.0F, 0.0F);
+				switch (player.GetWeaponType()) {
+					case RIFLE_WEAPON: muzzle = MakeVector3(0.0F, -0.55F, 0.075F); break;
+					case SMG_WEAPON: muzzle = MakeVector3(0.0F, -0.25F, 0.075F); break;
+					case SHOTGUN_WEAPON: muzzle = MakeVector3(0.0F, -0.4F, 0.075F); break;
+				}
+
+				return (GetEyeMatrix() * (origin - muzzle)).GetXYZ();
+			}
+
 			ScriptIWeaponSkin3 interface(weaponViewSkin);
 			if (interface.ImplementsInterface())
-				return interface.GetMuzzlePosition();
+				return (GetEyeMatrix() * interface.GetMuzzlePosition()).GetXYZ();
 
 			return (GetEyeMatrix() * MakeVector3(-0.13F, 1.5F, 0.2F)).GetXYZ();
 		}
@@ -1259,7 +1278,7 @@ namespace spades {
 		Vector3 ClientPlayer::GetCaseEjectPosition() {
 			ScriptIWeaponSkin3 interface(weaponSkin);
 			if (interface.ImplementsInterface()) {
-				Vector3 caseEject = interface.GetCaseEjectPosition();
+				const Vector3 caseEject = interface.GetCaseEjectPosition();
 
 				// The skin should return a legit position. Return the default position if it didn't.
 				const Vector3 origin = player.GetOrigin();
@@ -1275,9 +1294,23 @@ namespace spades {
 		}
 
 		Vector3 ClientPlayer::GetCaseEjectPositionInFirstPersonView() {
+			if (cg_classicViewWeapon) {
+				const Vector3 origin = classicViewWeaponOrigin;
+
+				Vector3 caseEject = MakeVector3(0.0F, 0.0F, 0.0F);
+				switch (player.GetWeaponType()) {
+					case RIFLE_WEAPON: caseEject = MakeVector3(0.0F, 0.125F, 0.1F); break;
+					case SMG_WEAPON: caseEject = MakeVector3(0.0F, 0.2F, 0.1F); break;
+					case SHOTGUN_WEAPON: caseEject = MakeVector3(0.0F, 0.0F, 0.1F); break;
+				}
+
+				return (GetEyeMatrix() * (origin - caseEject)).GetXYZ();
+			}
+
 			ScriptIWeaponSkin3 interface(weaponViewSkin);
 			if (interface.ImplementsInterface())
-				return interface.GetCaseEjectPosition();
+				return (GetEyeMatrix() * interface.GetCaseEjectPosition()).GetXYZ();
+
 			return (GetEyeMatrix() * MakeVector3(-0.13F, 0.5F, 0.2F)).GetXYZ();
 		}
 

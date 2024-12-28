@@ -184,14 +184,18 @@ namespace spades {
 		Vector3 SoundOrigin { set {} }
 
 		// IWeaponSkin3
-		Vector3 MuzzlePosition { get { return eyeMatrix * GetViewWeaponMatrix() * Vector3(0.0F, 0.35F, -0.05F); } }
-		Vector3 CaseEjectPosition { get { return eyeMatrix * GetViewWeaponMatrix() * Vector3(0.0F, -0.1F, -0.05F); } }
+		Vector3 MuzzlePosition { get { return GetViewWeaponMatrix() * Vector3(0.0F, 0.35F, -0.05F); } }
+		Vector3 CaseEjectPosition { get { return GetViewWeaponMatrix() * Vector3(0.0F, -0.1F, -0.05F); } }
 
 		protected Renderer@ renderer;
 
 		protected Image@ sightImage;
 		protected Image@ scopeImage;
 		protected Image@ dotSightImage;
+
+		protected ConfigItem cg_viewWeaponX("cg_viewWeaponX");
+		protected ConfigItem cg_viewWeaponY("cg_viewWeaponY");
+		protected ConfigItem cg_viewWeaponZ("cg_viewWeaponZ");
 
 		protected ConfigItem cg_target("cg_target", "1");
 		protected ConfigItem cg_targetLines("cg_targetLines", "1");
@@ -316,6 +320,12 @@ namespace spades {
 			Vector3 trans(0.0F, 0.0F, 0.0F);
 			trans += Vector3(-0.13F * sp, 0.5F, GetZPos());
 			trans += swing * GetMotionGain();
+
+			// manual adjustment
+			trans.x += cg_viewWeaponX.FloatValue * sp;
+			trans.y += cg_viewWeaponY.FloatValue * sp;
+			trans.z += cg_viewWeaponZ.FloatValue * sp;
+
 			mat = CreateTranslateMatrix(trans) * mat;
 
 			return mat;

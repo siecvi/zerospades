@@ -321,6 +321,12 @@ namespace spades {
 			Vector3 trans(0, 0, 0);
 			trans += Vector3(-0.13F * sp, 0.5F, GetZPos());
 			trans += swing * sp;
+
+			// manual adjustment
+			trans.x += cg_viewWeaponX.FloatValue * sp;
+			trans.y += cg_viewWeaponY.FloatValue * sp;
+			trans.z += cg_viewWeaponZ.FloatValue * sp;
+
 			mat = CreateTranslateMatrix(trans) * mat;
 
 			// twist the gun when strafing
@@ -338,8 +344,8 @@ namespace spades {
 		}
 
 		// IWeaponSkin3 (override BasicViewWeapon::{get_MuzzlePosition, get_CaseEjectPosition})
-		Vector3 MuzzlePosition { get { return eyeMatrix * GetViewWeaponMatrix() * Vector3(0.0F, 0.4F, -0.1F); } }
-		Vector3 CaseEjectPosition { get { return eyeMatrix * GetViewWeaponMatrix() * Vector3(0.0F, -0.1F, -0.1F); } }
+		Vector3 MuzzlePosition { get { return GetViewWeaponMatrix() * Vector3(0.0F, 0.4F, -0.1F); } }
+		Vector3 CaseEjectPosition { get { return GetViewWeaponMatrix() * Vector3(-0.025F, -0.1F, -0.1F); } }
 
 		void Draw2D() {
 			BasicViewWeapon::Draw2D();

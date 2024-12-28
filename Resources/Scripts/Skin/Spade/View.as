@@ -49,6 +49,10 @@
 		private Model@ model;
 		private Image@ sightImage;
 
+		protected ConfigItem cg_viewWeaponX("cg_viewWeaponX");
+		protected ConfigItem cg_viewWeaponY("cg_viewWeaponY");
+		protected ConfigItem cg_viewWeaponZ("cg_viewWeaponZ");
+
 		ViewSpadeSkin(Renderer@ r, AudioDevice@ dev) {
 			@renderer = r;
 			@audioDevice = dev;
@@ -127,11 +131,17 @@
 
 				mat = CreateTranslateMatrix(side, front, front * 0.2F) * mat;
 			}
-			
+
 			// add weapon offset and sway
 			Vector3 trans(0.0F, 0.0F, 0.0F);
 			trans += Vector3(-0.3F, 0.7F, 0.3F);
 			trans += swing;
+
+			// manual adjustment
+			trans.x += cg_viewWeaponX.FloatValue;
+			trans.y += cg_viewWeaponY.FloatValue;
+			trans.z += cg_viewWeaponZ.FloatValue;
+
 			mat = CreateTranslateMatrix(trans) * mat;
 
 			// hands offset

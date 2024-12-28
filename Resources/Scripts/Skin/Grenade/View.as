@@ -47,6 +47,10 @@
 		private Model@ model;
 		private Image@ sightImage;
 
+		protected ConfigItem cg_viewWeaponX("cg_viewWeaponX");
+		protected ConfigItem cg_viewWeaponY("cg_viewWeaponY");
+		protected ConfigItem cg_viewWeaponZ("cg_viewWeaponZ");
+
 		ViewGrenadeSkin(Renderer@ r, AudioDevice@ dev) {
 			@renderer = r;
 			@audioDevice = dev;
@@ -96,11 +100,17 @@
 						bring -= (pin - 1.0F) * 2.0F;
 					}
 				}
-				
+
 				// add weapon offset and sway
 				Vector3 trans(0.0F, 0.0F, 0.0F);
 				trans += Vector3(-0.3F, 0.7F, 0.2F);
 				trans += swing;
+
+				// manual adjustment
+				trans.x += cg_viewWeaponX.FloatValue;
+				trans.y += cg_viewWeaponY.FloatValue;
+				trans.z += cg_viewWeaponZ.FloatValue;
+
 				mat = CreateTranslateMatrix(trans) * mat;
 
 				Matrix4 leftHandMat = mat;
@@ -122,7 +132,7 @@
 					leftHand = Mix(leftHand, pinOffset, pin);
 				else
 					leftHand = Mix(pinOffset, throwPos, pin - 1.0F);
-					
+
 				ModelRenderParam param;
 				param.depthHack = true;
 				param.matrix = eyeMatrix * mat;

@@ -49,11 +49,10 @@
 		void Update(float dt) {}
 
 		void AddToScene() {
-			Matrix4 mat = CreateScaleMatrix(0.05F);
+			Matrix4 mat = CreateScaleMatrix(0.05F + 0.001F); // make model a little bigger to stop z-fighting
 			mat = mat * CreateScaleMatrix(-1, -1, 1);
-			
+
 			Vector3 trans = Vector3(0.4F, -0.9F, 0.0F);
-			trans -= 0.01F; // stop z-fighting		
 			mat = CreateTranslateMatrix(trans) * mat;
 
 			ModelRenderParam param;

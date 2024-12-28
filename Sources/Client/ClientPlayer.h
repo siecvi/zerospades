@@ -58,6 +58,7 @@ namespace spades {
 			Vector3 viewWeaponOffset;
 			Vector3 lastFront;
 			Vector3 flashlightOrientation;
+			Vector3 classicViewWeaponOrigin;
 
 			asIScriptObject* spadeSkin;
 			asIScriptObject* blockSkin;
