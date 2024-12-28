@@ -205,8 +205,9 @@ namespace spades {
 					case ClientCameraMode::FirstPersonFollow: {
 						int playerId = GetCameraTargetPlayerId();
 						Player& p = world->GetPlayer(playerId).value();
+						Handle<ClientPlayer> clientPlayer = clientPlayers[playerId];
 
-						Matrix4 eyeMatrix = clientPlayers[playerId]->GetEyeMatrix();
+						Matrix4 eyeMatrix = clientPlayer->GetEyeMatrix();
 						def.viewOrigin = eyeMatrix.GetOrigin();
 						def.viewAxis[0] = -eyeMatrix.GetAxis(0);
 						def.viewAxis[1] = -eyeMatrix.GetAxis(2);
@@ -228,7 +229,7 @@ namespace spades {
 
 							// sprint bob
 							{
-								float sp = SmoothStep(GetSprintState());
+								float sp = SmoothStep(clientPlayer->GetSprintState());
 								float walkPrg = p.GetWalkAnimationProgress();
 								float walkAng = walkPrg * M_PI_F * 2.0F;
 
@@ -245,7 +246,7 @@ namespace spades {
 									vibYaw += coherentNoiseSamplers[0].Sample(walkPrg * 2.5F) * 0.005F * sp;
 									vibPitch += coherentNoiseSamplers[1].Sample(walkPrg * 2.5F) * 0.01F * sp;
 									roll += coherentNoiseSamplers[2].Sample(walkPrg * 2.5F) * 0.008F * sp;
-									scale += sp * 0.1F;
+									scale += 0.1F * sp;
 								}
 							}
 						}
