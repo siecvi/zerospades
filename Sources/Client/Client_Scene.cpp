@@ -255,7 +255,7 @@ namespace spades {
 						def.denyCameraBlur = false;
 
 						// DoF when doing ADS
-						float per = GetAimDownState();
+						float per = clientPlayer->GetAimDownState();
 						per *= per * per;
 						def.depthOfFieldFocalLength = per * 13.0F + 0.054F;
 
@@ -367,9 +367,15 @@ namespace spades {
 						def.viewAxis[1] = -Vector3::Cross(front, def.viewAxis[0]);
 						def.viewAxis[2] = front;
 
+						// DoF when zooming
+						float zoomState = spectatorZoomState;
+
+						float per = zoomState;
+						per *= per * per;
+						def.depthOfFieldFocalLength = per * 13.0F + 0.054F;
+
 						// Apply spectator zoom
-						scale /= Mix(1.0F, cg_spectatorZoomScale,
-							SmoothStep(spectatorZoomState));
+						scale /= Mix(1.0F, cg_spectatorZoomScale, SmoothStep(zoomState));
 
 						def.denyCameraBlur = false;
 						break;
