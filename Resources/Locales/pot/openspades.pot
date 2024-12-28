@@ -704,6 +704,11 @@ msgctxt "Preferences"
 msgid "NORMAL"
 msgstr ""
 
+#: Resources/Scripts/Gui/Preferences.as:1157
+msgctxt "Preferences"
+msgid "FAST"
+msgstr ""
+
 #: Resources/Scripts/Gui/Preferences.as:1176
 msgctxt "Preferences"
 msgid "SMALL"

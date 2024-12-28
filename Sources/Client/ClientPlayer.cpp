@@ -345,17 +345,19 @@ namespace spades {
 			PlayerInput actualInput = player.GetInput();
 			WeaponInput actualWeapInput = player.GetWeaponInput();
 
+			int zoomAnimation = cg_animations;
+			float speed = (zoomAnimation >= 2) ? 2.0F : 1.0F;
 			if (player.IsToolWeapon() && actualWeapInput.secondary) {
-				if (cg_animations && isLocalPlayer) {
-					aimDownState += dt * 8.0F;
+				if (zoomAnimation && isLocalPlayer) {
+					aimDownState += dt * 8.0F * speed;
 					if (aimDownState > 1.0F)
 						aimDownState = 1.0F;
 				} else {
 					aimDownState = 1.0F;
 				}
 			} else {
-				if (cg_animations && isLocalPlayer) {
-					aimDownState -= dt * 3.0F;
+				if (zoomAnimation && isLocalPlayer) {
+					aimDownState -= dt * 3.0F * speed;
 					if (aimDownState < 0.0F)
 						aimDownState = 0.0F;
 				} else {
