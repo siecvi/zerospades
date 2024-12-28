@@ -527,9 +527,10 @@ namespace spades {
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
+			float aimDownState = clientPlayers[p.GetId()]->GetAimDownState();
+
 			float spread = p.GetWeapon().GetSpread();
-			if (GetAimDownZoomScale() == 1)
-				spread *= 2;
+			spread *= 2.0F - aimDownState;
 
 			float fovY = tanf(lastSceneDef.fovY * 0.5F);
 			float spreadDistance = spread * (sh * 0.5F) / fovY;
@@ -550,10 +551,10 @@ namespace spades {
 			p2.x += (int)ceilf(boundary.max.x);
 			p2.y += (int)ceilf(boundary.max.y);
 
-			renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1));
+			renderer->SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1));
 			renderer->DrawOutlinedRect(p1.x, p1.y, p2.x, p2.y);
 
-			renderer->SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1));
+			renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1));
 			renderer->DrawOutlinedRect(p1.x + 1, p1.y + 1, p2.x - 1, p2.y - 1);
 		}
 

@@ -131,7 +131,8 @@ namespace spades {
 			if (!p.IsAlive() || !p.IsToolWeapon())
 				return 1.0F;
 
-			float adsState = clientPlayers[playerId]->GetAimDownState();
+			float aimDownState = clientPlayers[playerId]->GetAimDownState();
+
 			float delta = 0.8F;
 			switch (p.GetWeapon().GetWeaponType()) {
 				case SMG_WEAPON: delta = 0.8F; break;
@@ -142,7 +143,7 @@ namespace spades {
 			if (cg_classicZoom)
 				delta = 1.0F;
 
-			return 1.0F + (3.0F - 2.0F * powf(adsState, 1.5F)) * powf(adsState, 3.0F) * adsState;
+			return 1.0F + (3.0F - 2.0F * powf(aimDownState, 1.5F)) * powf(aimDownState, 3.0F) * delta;
 		}
 
 		SceneDefinition Client::CreateSceneDefinition() {

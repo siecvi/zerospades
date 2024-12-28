@@ -106,6 +106,8 @@ namespace spades {
 			void ReloadedWeapon();
 
 			float GetSprintState() { return sprintState; }
+
+			/** 0 = normal, 1 = aiming down the sight. */
 			float GetAimDownState() { return aimDownState; }
 
 			bool ShouldRenderInThirdPersonView();
