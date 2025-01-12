@@ -20,7 +20,6 @@
 
 uniform sampler2D depthTexture;
 uniform sampler2D mainTexture;
-
 uniform vec3 sRGBFogColor;
 uniform vec2 zNearFar;
 
@@ -68,15 +67,25 @@ void main() {
 	computedColor.xyz += emission;
 
 	gl_FragColor = texture2D(mainTexture, texCoord.xy);
+
+	// linearize
 #if LINEAR_FRAMEBUFFER
 	gl_FragColor.xyz *= gl_FragColor.xyz;
 #endif
+
 	gl_FragColor.xyz *= gl_FragColor.w; // premultiplied alpha
 	gl_FragColor *= computedColor;
 
-	vec3 fogColorPremuld = sRGBFogColor;
-	fogColorPremuld *= gl_FragColor.w;
-	gl_FragColor.xyz = mix(gl_FragColor.xyz, fogColorPremuld, fogDensity.xyz);
+	vec4 fogColorP = vec4(fogColor, 1.0);
+
+	// linearize
+#if LINEAR_FRAMEBUFFER
+	fogColorP.xyz *= fogColorP.xyz;
+#endif
+
+	fogColorP *= gl_FragColor.w; // premultiplied alpha
+
+	gl_FragColor = mix(gl_FragColor, fogColorP, fogDensity);
 
 	float soft = depth * depthRange.z + depthRange.x;
 	soft = smoothstep(0.0, 1.0, soft);

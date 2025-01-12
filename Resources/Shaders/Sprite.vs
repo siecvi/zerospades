@@ -53,7 +53,8 @@ void main() {
 	gl_Position = projectionViewMatrix * vec4(pos, 1.0);
 
 	color = colorAttribute;
-
+	
+	// sprite texture coord
 	texCoord = spritePosAttribute.xy * 0.5 + 0.5;
 
 	// fog.

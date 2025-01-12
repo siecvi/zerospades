@@ -23,7 +23,7 @@
 #include "GLProgram.h"
 #include "GLRenderer.h"
 #include "IGLDevice.h"
-#include "SWFeatureLevel.h"
+#include "SWFeatureLevel.h" // for fastRcp
 #include <Core/Debug.h>
 #include <Core/Settings.h>
 
@@ -111,6 +111,7 @@ namespace spades {
 			viewOriginVector.SetValue(viewOrigin.x, viewOrigin.y, viewOrigin.z);
 
 			Vector3 fogCol = renderer.GetFogColor();
+			//fogCol *= fogCol; // linearize
 			fogColor.SetValue(fogCol.x, fogCol.y, fogCol.z);
 
 			const client::SceneDefinition &def = renderer.GetSceneDef();

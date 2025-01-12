@@ -27,15 +27,25 @@ varying vec4 fogDensity;
 
 void main() {
 	gl_FragColor = texture2D(mainTexture, texCoord);
+
+	// linearize
 #if LINEAR_FRAMEBUFFER
 	gl_FragColor.xyz *= gl_FragColor.xyz;
 #endif
+
 	gl_FragColor.xyz *= gl_FragColor.w; // premultiplied alpha
 	gl_FragColor *= color;
 
-	vec3 fogColorPremuld = fogColor;
-	fogColorPremuld *= gl_FragColor.w;
-	gl_FragColor.xyz = mix(gl_FragColor.xyz, fogColorPremuld, fogDensity.xyz);
+	vec4 fogColorP = vec4(fogColor, 1.0);
+
+	// linearize
+#if LINEAR_FRAMEBUFFER
+	fogColorP.xyz *= fogColorP.xyz;
+#endif
+
+	fogColorP *= gl_FragColor.w; // premultiplied alpha
+
+	gl_FragColor = mix(gl_FragColor, fogColorP, fogDensity);
 
 	if (dot(gl_FragColor, vec4(1.0)) < 0.002)
 		discard;
