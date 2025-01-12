@@ -334,7 +334,9 @@ namespace spades {
 			void CaptureColor();
 
 			bool inGameLimbo;
+			bool HasLocalPlayer();
 			bool IsLimboViewActive();
+			void CloseLimboView();
 			void SpawnPressed();
 
 			stmp::optional<std::tuple<Player&, hitTag_t>> HotTrackedPlayer();

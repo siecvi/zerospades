@@ -38,7 +38,8 @@ namespace spades {
 				MenuWeaponRifle,
 				MenuWeaponSMG,
 				MenuWeaponShotgun,
-				MenuSpawn
+				MenuSpawn,
+				MenuClose
 			};
 			struct MenuItem {
 				MenuType type;

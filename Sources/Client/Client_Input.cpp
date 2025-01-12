@@ -108,6 +108,7 @@ namespace spades {
 
 		bool Client::NeedsAbsoluteMouseCoordinate() {
 			SPADES_MARK_FUNCTION();
+
 			if (scriptedUI->NeedsInput())
 				return true;
 			if (!world)
@@ -612,8 +613,6 @@ namespace spades {
 					audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 				} else if (CheckKey(cg_keyLimbo, name) && down) {
 					inGameLimbo = true;
-					limbo->SetSelectedTeam(p.GetTeamId());
-					limbo->SetSelectedWeapon(p.GetWeapon().GetWeaponType());
 				} else if (CheckKey(cg_keySceneshot, name) && down) {
 					TakeScreenShot(true);
 				} else if (CheckKey(cg_keyScreenshot, name) && down) {

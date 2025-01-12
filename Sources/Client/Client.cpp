@@ -216,11 +216,11 @@ namespace spades {
 
 			limbo->SetSelectedTeam(2);
 			limbo->SetSelectedWeapon(RIFLE_WEAPON);
+			inGameLimbo = false;
 
 			worldSubFrame = 0.0F;
 			worldSubFrameFast = 0.0F;
 			worldSetTime = time;
-			inGameLimbo = false;
 		}
 
 		Client::~Client() {
@@ -546,15 +546,18 @@ namespace spades {
 			renderer->Flip();
 		}
 
-		bool Client::IsLimboViewActive() {
-			if (world) {
-				if (!world->GetLocalPlayer())
-					return true;
-				else if (inGameLimbo)
-					return true;
-			}
+		bool Client::HasLocalPlayer() {
+			return world && world->GetLocalPlayer();
+		}
 
-			return false;
+		bool Client::IsLimboViewActive() {
+			return !HasLocalPlayer() || inGameLimbo;
+		}
+
+		void Client::CloseLimboView() {
+			if (!IsLimboViewActive())
+				return;
+			inGameLimbo = false;
 		}
 
 		void Client::SpawnPressed() {
@@ -573,12 +576,19 @@ namespace spades {
 				net->SendJoin(team, weap, playerName, lastScore);
 			} else { // localplayer has joined
 				Player& p = maybePlayer.value();
-				if (p.GetTeamId() != team)
+
+				const auto curTeam = p.GetTeamId();
+				const auto curWeap = p.GetWeapon().GetWeaponType();
+
+				if (team != curTeam)
 					net->SendTeamChange(team);
-				if (team != 255 && p.GetWeapon().GetWeaponType() != weap)
+				if (team != 255 && weap != curWeap)
 					net->SendWeaponChange(weap);
 			}
 
+			// set loadout
+			limbo->SetSelectedTeam(team);
+			limbo->SetSelectedWeapon(weap);
 			inGameLimbo = false;
 		}
 

@@ -40,29 +40,42 @@ namespace spades {
 		}
 		void Render() {
 			float maxNameLen = 0.0F;
-			float maxDescLen = 20.0F;
+			float maxDescLen = 0.0F;
 			Font@ font = this.Font;
 			Renderer@ r = this.Manager.Renderer;
-			float rowHeight = 25.0F;
+			float rowHeight = 24.0F;
 
 			for (uint i = 0, len = candidates.length; i < len; i++) {
 				maxNameLen = Max(maxNameLen, font.Measure(candidates[i].Name).x);
 				maxDescLen = Max(maxDescLen, font.Measure(candidates[i].Description).x);
 			}
 
+			float w = maxNameLen + maxDescLen + 20.0F;
 			float h = float(candidates.length) * rowHeight;
-			Vector2 pos = this.ScreenPosition;
 
+			Vector2 pos = this.ScreenPosition;
+			pos.y += 2.0F;
+
+			// draw background
 			r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 0.75F);
-			r.DrawImage(null, AABB2(pos.x, pos.y - 10.0F, maxNameLen + maxDescLen + 20.0F, h));
+			r.DrawFilledRect(pos.x + 1, pos.y - 10.0F + 1, pos.x + w - 1, pos.y - 10.0F + h - 1);
+
+			r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.1F);
+			r.DrawOutlinedRect(pos.x, pos.y - 10.0F, pos.x + w, pos.y - 10.0F + h);
+
+			// draw cvar list
+			Vector4 nameColor = Vector4(1.0F, 1.0F, 1.0F, 0.7F);
+			Vector4 nameShadow = Vector4(0.0F, 0.0F, 0.0F, 0.3F);
+			Vector4 descColor = Vector4(1.0F, 1.0F, 1.0F, 1.0F);
+			Vector4 descShadow = Vector4(0.0F, 0.0F, 0.0F, 0.4F);
 
 			for (uint i = 0, len = candidates.length; i < len; i++) {
-				font.DrawShadow(candidates[i].Name,
-					pos + Vector2(5.0F, (float(i) * rowHeight) - 10.0F), 1.0F,
-						Vector4(1.0F, 1.0F, 1.0F, 0.7F), Vector4(0.0F, 0.0F, 0.0F, 0.3F));
-				font.DrawShadow(candidates[i].Description,
-					pos + Vector2(15.0F + maxNameLen, (float(i) * rowHeight) - 10.0F), 1.0F,
-						Vector4(1.0F, 1.0F, 1.0F, 1.0F), Vector4(0.0F, 0.0F, 0.0F, 0.4F));
+				float y = float(i) * rowHeight - 10.0F;
+				Vector2 namePos = pos + Vector2(5.0F, y);
+				Vector2 descPos = pos + Vector2(15.0F + maxNameLen, y);
+
+				font.DrawShadow(candidates[i].Name, namePos, 1.0F, nameColor, nameShadow);
+				font.DrawShadow(candidates[i].Description, descPos, 1.0F, descColor, descShadow);
 			}
 		}
 	}

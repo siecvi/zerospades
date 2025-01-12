@@ -404,7 +404,7 @@ namespace spades {
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
-			Player& p = GetWorld()->GetLocalPlayer().value();
+			Player& p = world->GetLocalPlayer().value();
 
 			float hpper = p.GetHealth() / 100.0F;
 
@@ -605,7 +605,7 @@ namespace spades {
 			float x = floorf((sw - 16.0F) * safeZoneX);
 			float y = floorf((sh - 16.0F) * safeZoneY);
 
-			Player& p = GetWorld()->GetLocalPlayer().value();
+			Player& p = world->GetLocalPlayer().value();
 			Weapon& weapon = p.GetWeapon();
 
 			Player::ToolType curToolType = p.GetTool();
@@ -979,7 +979,7 @@ namespace spades {
 		void Client::DrawPlayerStats() {
 			SPADES_MARK_FUNCTION();
 
-			Player& p = GetWorld()->GetLocalPlayer().value();
+			Player& p = world->GetLocalPlayer().value();
 
 			IFont& font = cg_smallFont
 				? fontManager->GetSmallFont()
@@ -1080,7 +1080,7 @@ namespace spades {
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
-			Player& p = GetWorld()->GetLocalPlayer().value();
+			Player& p = world->GetLocalPlayer().value();
 
 			// draw respawn time
 			std::string msg = (lastRespawnCount > 0)
@@ -1194,7 +1194,7 @@ namespace spades {
 
 			y += lh * 0.5F;
 
-			if (localPlayerIsSpectator && !inGameLimbo)
+			if (!inGameLimbo)
 				addLine(_Tr("Client", "[{0}] Select Team/Weapon", TrKey(cg_keyLimbo)));
 		}
 
@@ -1299,7 +1299,7 @@ namespace spades {
 				renderer->DrawImage(nullptr, AABB2(0, 0, sw, sh));
 			}
 
-			stmp::optional<Player&> maybePlayer = GetWorld()->GetLocalPlayer();
+			stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
 
 			if (maybePlayer) { // joined local player
 				Player& player = maybePlayer.value();
@@ -1381,11 +1381,12 @@ namespace spades {
 				DrawAlert();
 			}
 
-			if (IsLimboViewActive())
-				limbo->Draw();
-
 			if (cg_stats && shouldDrawHUD)
 				DrawStats();
+
+			// draw limbo view (above everything)
+			if (IsLimboViewActive() && !scriptedUI->NeedsInput())
+				limbo->Draw();
 		}
 
 		void Client::Draw2DWithoutWorld() {

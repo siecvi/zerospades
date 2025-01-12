@@ -36,16 +36,15 @@ namespace spades {
 			float sw = Manager.ScreenWidth;
 			float sh = Manager.ScreenHeight;
 
-			float spacing = 16.0F;
-			float contentsWidth = sw - spacing;
-			float maxContentsWidth = 800.0F - spacing;
-			if (contentsWidth >= maxContentsWidth)
+			float contentsWidth = sw - 16.0F;
+			float maxContentsWidth = 800.0F;
+			if (contentsWidth > maxContentsWidth)
 				contentsWidth = maxContentsWidth;
 
 			float contentsLeft = (sw - contentsWidth) * 0.5F;
 			ContentsHeight = height;
 			ContentsTop = (sh - ContentsHeight) * 0.5F;
-			
+
 			{
 				spades::ui::Label label(Manager);
 				label.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.9F);
@@ -100,7 +99,7 @@ namespace spades {
 			Renderer@ r = Manager.Renderer;
 			Vector2 pos = ScreenPosition;
 			Vector2 size = Size;
-			
+
 			r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.07F);
 			r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop - 14.0F, size.x, 1.0F));
 			r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop + ContentsHeight + 14.0F, size.x, 1.0F));

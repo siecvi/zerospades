@@ -37,6 +37,7 @@
 #include "CenterMessageView.h"
 #include "ChatWindow.h"
 #include "ClientUI.h"
+#include "LimboView.h"
 
 #include "GameMap.h"
 #include "World.h"
@@ -60,6 +61,12 @@ namespace spades {
 			// reset input
 			playerInput.jump = PlayerInput().jump;
 			weapInput = WeaponInput();
+
+			// set loadout
+			Player& p = world->GetLocalPlayer().value();
+			limbo->SetSelectedTeam(p.GetTeamId());
+			limbo->SetSelectedWeapon(p.GetWeaponType());
+			inGameLimbo = false;
 		}
 
 		void Client::JoinedGame() {

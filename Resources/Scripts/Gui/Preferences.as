@@ -1015,11 +1015,11 @@ namespace spades {
 			label.Bounds = AABB2(10.0F, 0.0F, FieldX + FieldWidth - 10.0F, 32.0F);
 			container.AddChild(label);
 
-			float width = FieldWidth / labels.length;
+			float width = (FieldWidth - (labels.length - 1)) / labels.length;
 			for (uint i = 0; i < labels.length; ++i) {
 				ConfigSlider slider(Parent.Manager, labels[i], minRange, maxRange, step,
 					ConfigNumberFormatter(digits, "", prefix[i]));
-				slider.Bounds = AABB2(FieldX + width * i, 4.0F, width, 24.0F);
+				slider.Bounds = AABB2(FieldX + float(i) * (width + 1.0F), 4.0F, width, 24.0F);
 				slider.Enable = enabled;
 				container.AddChild(slider);
 			}
@@ -1057,10 +1057,10 @@ namespace spades {
 			label.Bounds = AABB2(10.0F, 0.0F, FieldX + FieldWidth - 10.0F, 32.0F);
 			container.AddChild(label);
 
-			float width = FieldWidth / labels.length;
+			float width = (FieldWidth - (labels.length - 1)) / labels.length;
 			for (uint i = 0; i < labels.length; ++i) {
 				ConfigSimpleToggleButton field(Parent.Manager, labels[i], configName, values[i]);
-				field.Bounds = AABB2(FieldX + width * i, 1.0F, width, 30.0F);
+				field.Bounds = AABB2(FieldX + float(i) * (width + 1.0F), 1.0F, width, 30.0F);
 				field.Enable = enabled;
 				container.AddChild(field);
 			}
@@ -1090,13 +1090,13 @@ namespace spades {
 
 			spades::ui::SimpleButton resetButton(Parent.Manager);
 			resetButton.Caption = _Tr("Preferences", "Reset");
-			resetButton.Bounds = AABB2(10.0F, 0.0F, 50.0F, 20.0F);
+			resetButton.Bounds = AABB2(10.0F + 2.0F, 2.0F, 50.0F, 20.0F);
 			@resetButton.Activated = spades::ui::EventHandler(field.OnResetPressed);
 			container.AddChild(resetButton);
 
 			spades::ui::SimpleButton randomizeButton(Parent.Manager);
 			randomizeButton.Caption = _Tr("Preferences", "Randomize");
-			randomizeButton.Bounds = AABB2(FieldX + FieldWidth - 80.0F, 0.0F, 80.0F, 20.0F);
+			randomizeButton.Bounds = AABB2(FieldX + FieldWidth - 80.0F - 2.0F, 2.0F, 80.0F, 20.0F);
 			@randomizeButton.Activated = spades::ui::EventHandler(field.OnRandomizePressed);
 			container.AddChild(randomizeButton);
 		}
@@ -1110,13 +1110,13 @@ namespace spades {
 
 			spades::ui::SimpleButton resetButton(Parent.Manager);
 			resetButton.Caption = _Tr("Preferences", "Reset");
-			resetButton.Bounds = AABB2(10.0F, 0.0F, 50.0F, 20.0F);
+			resetButton.Bounds = AABB2(10.0F + 2.0F, 2.0F, 50.0F, 20.0F);
 			@resetButton.Activated = spades::ui::EventHandler(field.OnResetPressed);
 			container.AddChild(resetButton);
 
 			spades::ui::SimpleButton randomizeButton(Parent.Manager);
 			randomizeButton.Caption = _Tr("Preferences", "Randomize");
-			randomizeButton.Bounds = AABB2(FieldX + FieldWidth - 80.0F, 0.0F, 80.0F, 20.0F);
+			randomizeButton.Bounds = AABB2(FieldX + FieldWidth - 80.0F - 2.0F, 2.0F, 80.0F, 20.0F);
 			@randomizeButton.Activated = spades::ui::EventHandler(field.OnRandomizePressed);
 			container.AddChild(randomizeButton);
 		}
@@ -1136,6 +1136,7 @@ namespace spades {
 			super(manager);
 
 			StandardPreferenceLayouter layouter(this, fontManager);
+
 			layouter.AddHeading(_Tr("Preferences", "Player Information"));
 			ConfigField@ nameField = layouter.AddInputField(_Tr("Preferences", "Player Name"),
 				"cg_playerName", not options.GameActive);
@@ -1348,6 +1349,7 @@ namespace spades {
 			super(manager);
 
 			StandardPreferenceLayouter layouter(this, fontManager);
+
 			layouter.AddHeading(_Tr("Preferences", "General"));
 			layouter.AddSliderField(_Tr("Preferences", "Render Scale"), "r_scale",
 			0.2, 1, 0.01, ConfigNumberFormatter(0, "%", "", 100));
@@ -1392,6 +1394,7 @@ namespace spades {
 			super(manager);
 
 			StandardPreferenceLayouter layouter(this, fontManager);
+
 			layouter.AddHeading(_Tr("Preferences", "Weapons/Tools"));
 			layouter.AddControl(_Tr("Preferences", "Attack"), "cg_keyAttack");
 			layouter.AddControl(_Tr("Preferences", "Alt. Attack"), "cg_keyAltAttack");

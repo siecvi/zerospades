@@ -35,31 +35,43 @@ namespace spades {
 		}
 		void Render() {
 			float maxNameLen = 0.0F;
-			float maxDescLen = 20.0F;
+			float maxDescLen = 0.0F;
 			Font@ font = this.Font;
 			Renderer@ r = this.Manager.Renderer;
-			float rowHeight = 25.0F;
+			float rowHeight = 24.0F;
 
 			for (uint i = 0, len = configNames.length; i < len; i++) {
 				maxNameLen = Max(maxNameLen, font.Measure(configNames[i]).x);
 				maxDescLen = Max(maxDescLen, font.Measure(configValues[i]).x);
 			}
 
+			float w = maxNameLen + maxDescLen + 20.0F;
 			float h = float(configNames.length) * rowHeight + 10.0F;
 
 			Vector2 pos = this.ScreenPosition;
 			pos.y -= h;
+			pos.y += rowHeight - 10.0F;
 
-			r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 0.5F);
-			r.DrawImage(null, AABB2(pos.x, pos.y, maxNameLen + maxDescLen + 20.0F, h));
+			// draw background
+			r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 0.75F);
+			r.DrawFilledRect(pos.x + 1, pos.y + 1, pos.x + w - 1, pos.y + h - 1);
+
+			r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.1F);
+			r.DrawOutlinedRect(pos.x, pos.y, pos.x + w, pos.y + h);
+
+			// draw cvar list
+			Vector4 nameColor = Vector4(1.0F, 1.0F, 1.0F, 0.7F);
+			Vector4 nameShadow = Vector4(0.0F, 0.0F, 0.0F, 0.3F);
+			Vector4 descColor = Vector4(1.0F, 1.0F, 1.0F, 1.0F);
+			Vector4 descShadow = Vector4(0.0F, 0.0F, 0.0F, 0.4F);
 
 			for (uint i = 0, len = configNames.length; i < len; i++) {
-				font.DrawShadow(configNames[i],
-					pos + Vector2(5.0F, 8.0F + float(i) * rowHeight), 1.0F,
-						Vector4(1.0F, 1.0F, 1.0F, 0.7F), Vector4(0.0F, 0.0F, 0.0F, 0.3F));
-				font.DrawShadow(configValues[i],
-					pos + Vector2(15.0F + maxNameLen, 8.0F + float(i) * rowHeight), 1.0F,
-						Vector4(1.0F, 1.0F, 1.0F, 1.0F), Vector4(0.0F, 0.0F, 0.0F, 0.4F));
+				float y = 8.0F + float(i) * rowHeight;
+				Vector2 namePos = pos + Vector2(5.0F, y - 2.0F);
+				Vector2 descPos = pos + Vector2(15.0F + maxNameLen, y - 2.0F);
+
+				font.DrawShadow(configNames[i], namePos, 1.0F, nameColor, nameShadow);
+				font.DrawShadow(configValues[i], descPos, 1.0F, descColor, descShadow);
 			}
 		}
 	}
@@ -205,11 +217,11 @@ namespace spades {
 				teamButton.Toggle = true;
 				teamButton.Toggled = (isTeamChat == true);
 				teamButton.Caption = _Tr("Client", "Team");
-				teamButton.Bounds = AABB2(winX + 70.0F, winY + 36.0F, 70.0F, 30.0F);
+				teamButton.Bounds = AABB2(winX + 70.0F + 1.0F, winY + 36.0F, 70.0F, 30.0F);
 				@teamButton.Activated = spades::ui::EventHandler(this.OnSetTeam);
 				AddChild(teamButton);
 			}
-			
+
 			UpdateState();
 		}
 

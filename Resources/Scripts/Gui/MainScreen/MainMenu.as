@@ -76,10 +76,10 @@ namespace spades {
 		MainScreenServerListLoadingView@ loadingView;
 		MainScreenServerListErrorView@ errorView;
 		bool loading = false, loaded = false;
-		
+
 		ServerListModel@ currentServerListModel;
 		int serverListUpdateTimer = 5;
-		
+
 		private ConfigItem cg_protocolVersion("cg_protocolVersion", "3");
 		private ConfigItem cg_lastQuickConnectHost("cg_lastQuickConnectHost", "127.0.0.1");
 		private ConfigItem cg_serverlistSort("cg_serverlistSort", "16385");
@@ -88,29 +88,28 @@ namespace spades {
 			super(ui.manager);
 			@this.ui = ui;
 			@this.helper = ui.helper;
-			
-			float sw = Manager.ScreenWidth;
-            float sh = Manager.ScreenHeight;
 
-            float contentsWidth = sw - 16.0F;
-            float maxContentsWidth = 750.0F;
-            if (contentsWidth > maxContentsWidth)
-                contentsWidth = maxContentsWidth;
-				
+			float sw = Manager.ScreenWidth;
+			float sh = Manager.ScreenHeight;
+
+			float contentsWidth = sw - 16.0F;
+			float maxContentsWidth = 750.0F;
+			if (contentsWidth > maxContentsWidth)
+				contentsWidth = maxContentsWidth;
+
 			float contentsLeft = (sw - contentsWidth) * 0.5F;
 			float footerPos = sh - 50.0F;
 			float headerPos = 246.0F;
 			float headerHeight = 24.0F;
-			
+
 			// adjust based on screen width
 			float scaleF = Min(sw / maxContentsWidth, 1.0F);
-			float itemOffsetX = 2.0F;
 			float slotsOffsetX = 300.0F * scaleF;
 			float mapNameOffsetX = 370.0F * scaleF;
 			float gameModeOffsetX = 520.0F * scaleF;
 			float protocolOffsetX = 640.0F * scaleF;
 			float pingOffsetX = 680.0F * scaleF;
-			
+
 			{
 				spades::ui::Button button(Manager);
 				button.Caption = _Tr("MainScreen", "Connect");
@@ -214,7 +213,7 @@ namespace spades {
 			}
 			{
 				@filterField = spades::ui::Field(Manager);
-				filterField.Bounds = AABB2(contentsLeft + 260.0F, footerPos, contentsWidth - 570.0F, 30.0F);
+				filterField.Bounds = AABB2(contentsLeft + 260.0F, footerPos, contentsWidth - 567.0F, 30.0F);
 				filterField.Placeholder = _Tr("MainScreen", "Filter");
 				@filterField.Changed = spades::ui::EventHandler(this.OnFilterTextChanged);
 				AddChild(filterField);
@@ -224,10 +223,10 @@ namespace spades {
 				serverList.Bounds = AABB2(contentsLeft, 270.0F, contentsWidth, footerPos - 284.0F);
 				AddChild(serverList);
 			}
-			
+
 			{
 				ServerListHeader header(Manager);
-				header.Bounds = AABB2(contentsLeft + itemOffsetX, headerPos, slotsOffsetX - itemOffsetX, headerHeight);
+				header.Bounds = AABB2(contentsLeft, headerPos, slotsOffsetX, headerHeight);
 				header.Text = _Tr("MainScreen", "Server Name");
 				@header.Activated = spades::ui::EventHandler(this.SortServerListByName);
 				AddChild(header);
@@ -236,6 +235,7 @@ namespace spades {
 				ServerListHeader header(Manager);
 				header.Bounds = AABB2(contentsLeft + slotsOffsetX, headerPos, mapNameOffsetX - slotsOffsetX, headerHeight);
 				header.Text = _Tr("MainScreen", "Slots");
+				header.Alignment = Vector2(0.5F, 0.5F);
 				@header.Activated = spades::ui::EventHandler(this.SortServerListByNumPlayers);
 				AddChild(header);
 			}
@@ -250,6 +250,7 @@ namespace spades {
 				ServerListHeader header(Manager);
 				header.Bounds = AABB2(contentsLeft + gameModeOffsetX, headerPos, protocolOffsetX - gameModeOffsetX, headerHeight);
 				header.Text = _Tr("MainScreen", "Game Mode");
+				header.Alignment = Vector2(0.5F, 0.5F);
 				@header.Activated = spades::ui::EventHandler(this.SortServerListByGameMode);
 				AddChild(header);
 			}
@@ -257,13 +258,15 @@ namespace spades {
 				ServerListHeader header(Manager);
 				header.Bounds = AABB2(contentsLeft + protocolOffsetX, headerPos, pingOffsetX - protocolOffsetX, headerHeight);
 				header.Text = _Tr("MainScreen", "Ver.");
+				header.Alignment = Vector2(0.5F, 0.5F);
 				@header.Activated = spades::ui::EventHandler(this.SortServerListByProtocol);
 				AddChild(header);
 			}
 			{
 				ServerListHeader header(Manager);
-				header.Bounds = AABB2(contentsLeft + pingOffsetX, headerPos, contentsWidth - pingOffsetX + itemOffsetX, headerHeight);
+				header.Bounds = AABB2(contentsLeft + pingOffsetX, headerPos, contentsWidth - pingOffsetX, headerHeight);
 				header.Text = _Tr("MainScreen", "Ping");
+				header.Alignment = Vector2(0.5F, 0.5F);
 				@header.Activated = spades::ui::EventHandler(this.SortServerListByPing);
 				AddChild(header);
 			}
@@ -279,7 +282,7 @@ namespace spades {
 				errorView.Visible = false;
 				AddChild(errorView);
 			}
-			
+
 			LoadServerList();
 		}
 
@@ -393,7 +396,7 @@ namespace spades {
 			@model.ItemActivated = ServerListItemEventHandler(this.ServerListItemActivated);
 			@model.ItemDoubleClicked = ServerListItemEventHandler(this.ServerListItemDoubleClicked);
 			@model.ItemRightClicked = ServerListItemEventHandler(this.ServerListItemRightClicked);
-			
+
 			@currentServerListModel = model;
 
 			if (refresh)
@@ -458,15 +461,15 @@ namespace spades {
 		private void OnFilterEmptyPressed(spades::ui::UIElement@ sender) {
 			filterFullButton.Toggled = false;
 			UpdateServerList();
-		}		
-		private void OnFilterTextChanged(spades::ui::UIElement@ sender) { 
+		}
+		private void OnFilterTextChanged(spades::ui::UIElement@ sender) {
 			UpdateServerList();
 		}
-		
+
 		private void OnRefreshServerListPressed(spades::ui::UIElement@ sender) { LoadServerList(); }
 		private void OnQuitPressed(spades::ui::UIElement@ sender) { ui.shouldExit = true; }
 		private void OnCreditsPressed(spades::ui::UIElement@ sender) {
-			AlertScreen al(this, ui.helper.Credits, Min(500.0F, Manager.Renderer.ScreenHeight - 100.0F));
+			AlertScreen al(this, ui.helper.Credits, Min(500.0F, Manager.ScreenHeight - 100.0F));
 			al.Run();
 		}
 

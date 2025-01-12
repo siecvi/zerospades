@@ -38,27 +38,26 @@ namespace spades {
 			float sh = Manager.ScreenHeight;
 
 			float height = floor(sh * 0.4F);
-			
+
 			{
 				spades::ui::Label label(Manager);
 				label.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.9F);
 				label.Bounds = AABB2(0.0F, 0.0F, sw, height);
 				AddChild(label);
 			}
-			
+
 			{
 				spades::ui::Label label(Manager);
-				label.BackgroundColor = Vector4(1.0F, 1.0F, 1.0F, 0.07F);
+				label.BackgroundColor = Vector4(1.0F, 1.0F, 1.0F, 0.1F);
 				label.Bounds = AABB2(0.0F, height, sw, 1.0F);
 				AddChild(label);
 			}
-			
+
 			{
 				@field = ConsoleCommandField(Manager, this.history, helper);
-				field.Bounds = AABB2(10.0F, height - 35.0F, sw - 20.0F, 24.0F);
+				field.Bounds = AABB2(10.0F, (height - 30.0F) - 8.0F, sw - 20.0F, 30.0F);
 				field.Placeholder = _Tr("Console", "Command");
 				field.MaxLength = 50;
-				field.TextOrigin.y *= 0.5F;
 				@field.Changed = spades::ui::EventHandler(this.OnFieldChanged);
 				AddChild(field);
 			}

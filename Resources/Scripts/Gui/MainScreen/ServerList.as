@@ -45,10 +45,10 @@ namespace spades {
 			float itemOffsetY = 2.0F;
 			float flagIconOffsetX = (itemOffsetX + 12.0F) * scaleF;
 			float nameOffsetX = (itemOffsetX + 24.0F) * scaleF;
-			float slotsOffsetX = 330.0F * scaleF;
-			float mapNameOffsetX = 370.0F * scaleF;
+			float slotsOffsetX = 335.0F * scaleF;
+			float mapNameOffsetX = 372.0F * scaleF;
 			float gameModeOffsetX = 580.0F * scaleF;
-			float protocolOffsetX = 640.0F * scaleF;
+			float protocolOffsetX = 658.0F * scaleF;
 			float pingOffsetX = size.x - itemOffsetX;
 
 			Vector4 bgcolor = Vector4(1.0F, 1.0F, 1.0F, 0.0F);
@@ -99,7 +99,7 @@ namespace spades {
 			Font.Draw(item.GameMode, pos + Vector2(gameModeOffsetX - Font.Measure(item.GameMode).x * 0.5F, itemOffsetY), 1.0F, col);
 
 			// Draw server protocol
-			Font.Draw(item.Protocol, pos + Vector2(protocolOffsetX, itemOffsetY), 1.0F, col);
+			Font.Draw(item.Protocol, pos + Vector2(protocolOffsetX - Font.Measure(item.Protocol).x * 0.5F, itemOffsetY), 1.0F, col);
 
 			// Draw server ping
 			int ping = helper.GetServerPing(item.Address);
@@ -186,12 +186,20 @@ namespace spades {
 
 	class ServerListHeader : spades::ui::ButtonBase {
 		string Text;
+		Vector2 Alignment = Vector2(0.0F, 0.5F);
 		ServerListHeader(spades::ui::UIManager@ manager) { super(manager); }
 		void OnActivated() { ButtonBase::OnActivated(); }
 		void Render() {
 			Renderer@ r = Manager.Renderer;
 			Vector2 pos = ScreenPosition;
 			Vector2 size = Size;
+			Font@ font = this.Font;
+
+			Vector2 txtSize = font.Measure(Text);
+			Vector2 txtPos = pos + (size - txtSize) * Alignment;
+
+			if (Alignment.x == 0.0F)
+				txtPos.x += 2.0F;
 
 			if (Pressed and Hover)
 				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.3F);
@@ -199,9 +207,9 @@ namespace spades {
 				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.15F);
 			else
 				r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.0F);
-			r.DrawImage(null, AABB2(pos.x - 2.0F, pos.y, size.x, size.y));
+			r.DrawImage(null, AABB2(pos.x, pos.y, size.x, size.y));
 
-			Font.Draw(Text, pos + Vector2(0.0F, 2.0F), 1.0F, Vector4(1.0F, 1.0F, 1.0F, 1.0F));
+			Font.Draw(Text, txtPos, 1.0F, Vector4(1.0F, 1.0F, 1.0F, 1.0F));
 		}
 	}
 
@@ -213,6 +221,7 @@ namespace spades {
 			Vector2 size = Size;
 			Font@ font = this.Font;
 			string text = _Tr("MainScreen", "Fetching server list...");
+
 			Vector2 txtSize = font.Measure(text);
 			Vector2 txtPos = pos + (size - txtSize) * 0.5F;
 
@@ -228,6 +237,7 @@ namespace spades {
 			Vector2 size = Size;
 			Font@ font = this.Font;
 			string text = _Tr("MainScreen", "Failed to fetch the server list.");
+
 			Vector2 txtSize = font.Measure(text);
 			Vector2 txtPos = pos + (size - txtSize) * 0.5F;
 
