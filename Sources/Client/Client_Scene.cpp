@@ -215,22 +215,25 @@ namespace spades {
 						def.viewAxis[2] = eyeMatrix.GetAxis(1);
 
 						if (shakeLevel >= 1) {
-							float fireVibration = GetLocalFireVibration();
-							fireVibration *= fireVibration;
+							float fireVib = GetLocalFireVibration();
+							fireVib *= fireVib;
 
 							if (p.IsToolSpade())
-								fireVibration *= 0.4F;
+								fireVib *= 0.4F;
 
-							roll += (SampleRandomFloat() - SampleRandomFloat()) * 0.03F * fireVibration;
-							scale += SampleRandomFloat() * 0.04F * fireVibration;
-							vibPitch += fireVibration * (1.0F - fireVibration) * 0.01F;
-							vibYaw += sinf(fireVibration * M_PI_F * 2.0F) * 0.001F;
+							roll += (SampleRandomFloat() - SampleRandomFloat()) * 0.03F * fireVib;
+							scale += SampleRandomFloat() * 0.04F * fireVib;
+							vibPitch += fireVib * (1.0F - fireVib) * 0.01F;
+							vibYaw += sinf(fireVib * M_PI_F * 2.0F) * 0.001F;
 
-							def.radialBlur += fireVibration * 0.05F;
+							def.radialBlur += fireVib * 0.05F;
 
 							// sprint bob
 							{
 								float sp = SmoothStep(clientPlayer->GetSprintState());
+								float vel2D = p.GetVelocity().GetSquaredLength2D();
+								sp *= std::min(1.0F, (vel2D * 5.0F) / 0.1F);
+
 								float walkPrg = p.GetWalkAnimationProgress();
 								float walkAng = walkPrg * M_PI_F * 2.0F;
 
@@ -252,15 +255,7 @@ namespace spades {
 							}
 						}
 
-						// for 1st view, camera blur can be used
-						def.denyCameraBlur = false;
-
-						// DoF when doing ADS
-						float per = clientPlayer->GetAimDownState();
-						per *= per * per;
-						def.depthOfFieldFocalLength = per * 13.0F + 0.054F;
-
-						// Hurt effect
+						// hurt effect
 						if (cg_hurtScreenEffects) {
 							float hpper = p.GetHealth() / 100.0F;
 							float timeSinceLastHurt = time - lastHurtTime;
@@ -276,14 +271,24 @@ namespace spades {
 							}
 						}
 
-						// Apply ADS zoom
-						scale /= GetAimDownZoomScale();
+						// apply ADS zoom
+						float zoomState = clientPlayer->GetAimDownState();
+						float zoomScale = GetAimDownZoomScale();
+						scale /= zoomScale;
 
-						// Update initial floating camera pos
+						// DoF when doing ADS
+						float per = zoomState;
+						per *= per * per;
+						def.depthOfFieldFocalLength = per * 13.0F + 0.054F;
+
+						// for 1st view, camera blur can be used
+						def.denyCameraBlur = false;
+
+						// update initial floating camera pos
 						freeState.position = def.viewOrigin;
 						freeState.velocity = MakeVector3(0, 0, 0);
 
-						// Update initial floating camera angle
+						// update initial floating camera angle
 						Vector3 o = -def.viewAxis[2];
 						sharedState.yaw = atan2f(o.y, o.x);
 						sharedState.pitch = -atan2f(o.z, o.GetLength2D());
@@ -368,15 +373,15 @@ namespace spades {
 						def.viewAxis[1] = -Vector3::Cross(front, def.viewAxis[0]);
 						def.viewAxis[2] = front;
 
-						// DoF when zooming
+						// apply spectator zoom
 						float zoomState = spectatorZoomState;
+						float zoomScale = cg_spectatorZoomScale;
+						scale /= Mix(1.0F, zoomScale, SmoothStep(zoomState));
 
+						// DoF when zooming
 						float per = zoomState;
 						per *= per * per;
 						def.depthOfFieldFocalLength = per * 13.0F + 0.054F;
-
-						// Apply spectator zoom
-						scale /= Mix(1.0F, cg_spectatorZoomScale, SmoothStep(zoomState));
 
 						def.denyCameraBlur = false;
 						break;

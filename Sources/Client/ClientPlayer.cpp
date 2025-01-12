@@ -515,13 +515,17 @@ namespace spades {
 		Matrix4 ClientPlayer::GetEyeMatrix() {
 			Vector3 eye = player.GetEye();
 
-			if ((int)cg_shake >= 2) {
+			if ((int)cg_shake >= 2 && !player.GetWade()) {
+				float sp = SmoothStep(sprintState);
+				float vel2D = player.GetVelocity().GetSquaredLength2D();
+				sp *= std::min(1.0F, (vel2D * 5.0F) / 0.1F);
+
 				float p = cosf(player.GetWalkAnimationProgress() * M_PI_F * 2.0F - 0.8F);
 				p = p * p;
 				p *= p;
 				p *= p;
 				p *= p;
-				eye.z -= p * 0.06F * SmoothStep(sprintState);
+				eye.z -= p * 0.06F * sp;
 			}
 
 			return Matrix4::FromAxis(-player.GetRight(), player.GetFront(), -player.GetUp(), eye);
@@ -812,7 +816,9 @@ namespace spades {
 			{
 				float sp = 1.0F - aimDownState;
 				sp *= 0.3F;
-				sp *= std::min(1.0F, vel.GetLength() * 5.0F);
+
+				float vel2D = vel.GetSquaredLength2D();
+				sp *= std::min(1.0F, (vel2D * 5.0F) / 0.1F);
 
 				float walkAng = p.GetWalkAnimationProgress() * M_PI_F * 2.0F;
 				float vl = cosf(walkAng);

@@ -465,8 +465,8 @@ namespace spades {
 			bool isToolWeapon = player.IsToolWeapon();
 
 			// stop sprinting if player is moving too slow
-			Vector3 vel = player.GetVelocity();
-			if (vel.GetSquaredLength2D() < 0.01F && !cg_classicSprinting)
+			float vel2D = player.GetVelocity().GetSquaredLength2D();
+			if (vel2D < 0.01F && !cg_classicSprinting)
 				inp.sprint = false;
 
 			// stop sprinting when crouching or sneaking
