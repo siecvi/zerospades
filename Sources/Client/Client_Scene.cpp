@@ -463,7 +463,7 @@ namespace spades {
 				SPAssert(GetCameraMode() == ClientCameraMode::None);
 
 				// Let there be darkness
-				def.viewOrigin = MakeVector3(0, 0, 0);
+				def.viewOrigin = MakeVector3(256, 256, 4);
 				def.viewAxis[0] = MakeVector3(1, 0, 0);
 				def.viewAxis[1] = MakeVector3(0, 0, -1);
 				def.viewAxis[2] = MakeVector3(0, 0, 1);

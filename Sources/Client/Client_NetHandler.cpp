@@ -56,7 +56,8 @@ namespace spades {
 			renderer->UpdateFlatGameMap();
 
 			hotBarIconState = 1.0F;
-			freeCameraState.position = lastSceneDef.viewOrigin;
+
+			// reset input
 			playerInput.jump = PlayerInput().jump;
 			weapInput = WeaponInput();
 		}
@@ -70,7 +71,7 @@ namespace spades {
 
 			// prepare the spectator view
 			followCameraState.enabled = false;
-			freeCameraState.position = lastSceneDef.viewOrigin;
+			freeCameraState.position = MakeVector3(256, 256, 4);
 			freeCameraState.velocity = MakeVector3(0, 0, 0);
 			followAndFreeCameraState.yaw = -DEG2RAD(90);
 			followAndFreeCameraState.pitch = DEG2RAD(89);
