@@ -80,7 +80,7 @@ namespace spades {
 			followCameraState.enabled = false;
 			freeCameraState.position = MakeVector3(256, 256, 4);
 			freeCameraState.velocity = MakeVector3(0, 0, 0);
-			followAndFreeCameraState.yaw = -DEG2RAD(90);
+			followAndFreeCameraState.yaw = DEG2RAD(90);
 			followAndFreeCameraState.pitch = DEG2RAD(89);
 
 			// welcome players
