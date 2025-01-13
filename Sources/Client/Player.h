@@ -171,6 +171,7 @@ namespace spades {
 			void PlayerJump();
 			bool IsBlockCursorActive() { return blockCursorActive; }
 			bool IsBlockCursorDragging() { return blockCursorDragging; }
+			void SetBlockCursorDragging(bool value) { blockCursorDragging = value; }
 			IntVector3 GetBlockCursorPos() { return blockCursorPos; }
 			IntVector3 GetBlockCursorDragPos() { return blockCursorDragPos; }
 			bool IsReadyToUseTool();

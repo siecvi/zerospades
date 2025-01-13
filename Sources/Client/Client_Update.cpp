@@ -481,6 +481,8 @@ namespace spades {
 			if (!CanLocalPlayerUseTool()) {
 				winp.primary = false;
 				winp.secondary = false;
+
+				player.SetBlockCursorDragging(false);
 			}
 
 			// disable weapon while reloading (except shotgun)

@@ -164,8 +164,8 @@ namespace spades {
 					newInput.secondary = false;
 				}
 
-				if (newInput.primary)
-					newInput.secondary = false;
+				if (newInput.secondary)
+					newInput.primary = false;
 				if (newInput.secondary != weapInput.secondary) {
 					if (newInput.secondary) {
 						if (blockCursorActive) {
