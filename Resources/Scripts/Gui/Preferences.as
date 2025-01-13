@@ -1410,7 +1410,6 @@ namespace spades {
 			0.5, 1.5, 0.02, ConfigNumberFormatter(2, "", "^"));
 			layouter.AddToggleField(_Tr("Preferences", "Invert Y-axis Mouse Input"), "cg_invertMouseY");
 			layouter.AddControl(_Tr("Preferences", "Reload"), "cg_keyReloadWeapon");
-			layouter.AddControl(_Tr("Preferences", "Capture Color"), "cg_keyCaptureColor");
 			layouter.AddControl(_Tr("Preferences", "Equip Spade"), "cg_keyToolSpade");
 			layouter.AddControl(_Tr("Preferences", "Equip Block"), "cg_keyToolBlock");
 			layouter.AddControl(_Tr("Preferences", "Equip Weapon"), "cg_keyToolWeapon");
@@ -1427,6 +1426,13 @@ namespace spades {
 			layouter.AddControl(_Tr("Preferences", "Sneak"), "cg_keySneak");
 			layouter.AddControl(_Tr("Preferences", "Jump"), "cg_keyJump");
 			layouter.AddControl(_Tr("Preferences", "Sprint"), "cg_keySprint");
+
+			layouter.AddHeading(_Tr("Preferences", "Color Palette"));
+			layouter.AddControl(_Tr("Preferences", "Capture Color"), "cg_keyCaptureColor");
+			layouter.AddControl(_Tr("Preferences", "Navigate up"), "cg_keyPaletteUp");
+			layouter.AddControl(_Tr("Preferences", "Navigate down"), "cg_keyPaletteDown");
+			layouter.AddControl(_Tr("Preferences", "Navigate left"), "cg_keyPaletteLeft");
+			layouter.AddControl(_Tr("Preferences", "Navigate right"), "cg_keyPaletteRight");
 
 			layouter.AddHeading(_Tr("Preferences", "Misc"));
 			layouter.AddControl(_Tr("Preferences", "Scoreboard"), "cg_keyScoreboard");

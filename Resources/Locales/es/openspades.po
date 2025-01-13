@@ -822,10 +822,35 @@ msgctxt "Preferences"
 msgid "Reload"
 msgstr "Recargar"
 
-#: Resources/Scripts/Gui/Preferences.as:690
+#: Resources/Scripts/Gui/Preferences.as:1420
+msgctxt "Preferences"
+msgid "Color Palette"
+msgstr "Paleta de colores"
+
+#: Resources/Scripts/Gui/Preferences.as:1421
 msgctxt "Preferences"
 msgid "Capture Color"
 msgstr "Capturar color"
+
+#: Resources/Scripts/Gui/Preferences.as:1422
+msgctxt "Preferences"
+msgid "Navigate up"
+msgstr "Navegar hacia arriba"
+
+#: Resources/Scripts/Gui/Preferences.as:1423
+msgctxt "Preferences"
+msgid "Navigate down"
+msgstr "Navegar hacia abajo"
+
+#: Resources/Scripts/Gui/Preferences.as:1424
+msgctxt "Preferences"
+msgid "Navigate left"
+msgstr "Navegar a la izquierda"
+
+#: Resources/Scripts/Gui/Preferences.as:1425
+msgctxt "Preferences"
+msgid "Navigate right"
+msgstr "Navegar a la derecha"
 
 #: Resources/Scripts/Gui/Preferences.as:691
 msgctxt "Preferences"

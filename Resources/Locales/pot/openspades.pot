@@ -814,9 +814,34 @@ msgctxt "Preferences"
 msgid "Reload"
 msgstr ""
 
-#: Resources/Scripts/Gui/Preferences.as:690
+#: Resources/Scripts/Gui/Preferences.as:1420
+msgctxt "Preferences"
+msgid "Color Palette"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1421
 msgctxt "Preferences"
 msgid "Capture Color"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1422
+msgctxt "Preferences"
+msgid "Navigate up"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1423
+msgctxt "Preferences"
+msgid "Navigate down"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1424
+msgctxt "Preferences"
+msgid "Navigate left"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1425
+msgctxt "Preferences"
+msgid "Navigate right"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:691
