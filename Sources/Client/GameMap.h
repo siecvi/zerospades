@@ -64,6 +64,7 @@ namespace spades {
 			int Height() const { return DefaultHeight; }
 			int Depth() const { return DefaultDepth; }
 			int GroundDepth() const { return DefaultDepth - 2; }
+			int GetTop(int x, int y) const;
 
 			inline bool IsValidMapCoord(const int x, const int y, const int z) const {
 				return x >= 0 && y >= 0 && z >= 0 && x < Width() && y < Height() && z < Depth();

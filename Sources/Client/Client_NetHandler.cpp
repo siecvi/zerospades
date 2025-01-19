@@ -78,7 +78,16 @@ namespace spades {
 
 			// prepare the spectator view
 			followCameraState.enabled = false;
-			freeCameraState.position = MakeVector3(256, 256, 4);
+
+			// get highest solid block at map's center
+			IntVector3 mapPos;
+			mapPos.x = map->Width() / 2;
+			mapPos.y = map->Height() / 2;
+			mapPos.z = map->GetTop(mapPos.x, mapPos.y) - map->Depth();
+
+			freeCameraState.position.x = static_cast<float>(mapPos.x);
+			freeCameraState.position.y = static_cast<float>(mapPos.y);
+			freeCameraState.position.z = static_cast<float>(mapPos.z);
 			freeCameraState.velocity = MakeVector3(0, 0, 0);
 			followAndFreeCameraState.yaw = DEG2RAD(90);
 			followAndFreeCameraState.pitch = DEG2RAD(89);

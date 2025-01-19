@@ -146,6 +146,16 @@ namespace spades {
 			stream->Write(buffer.data(), buffer.size());
 		}
 
+		int GameMap::GetTop(int x, int y) const {
+			if (x < 0 || x >= DefaultWidth || y < 0 || y >= DefaultHeight)
+				return 0;
+			for (int z = 0; z < DefaultDepth; z++) {
+				if (IsSolid(x, y, z))
+					return z;
+			}
+			return 0;
+		}
+
 		bool GameMap::ClipBox(int x, int y, int z) const {
 			if (x < 0 || x >= DefaultWidth || y < 0 || y >= DefaultHeight)
 				return true;

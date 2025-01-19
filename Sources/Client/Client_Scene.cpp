@@ -193,7 +193,15 @@ namespace spades {
 				switch (GetCameraMode()) {
 					case ClientCameraMode::None: SPUnreachable();
 					case ClientCameraMode::NotJoined: {
-						def.viewOrigin = MakeVector3(256, 256, 4);
+						// get highest solid block at map's center
+						IntVector3 mapPos;
+						mapPos.x = map->Width() / 2;
+						mapPos.y = map->Height() / 2;
+						mapPos.z = map->GetTop(mapPos.x, mapPos.y) - map->Depth();
+
+						def.viewOrigin.x = static_cast<float>(mapPos.x);
+						def.viewOrigin.y = static_cast<float>(mapPos.y);
+						def.viewOrigin.z = static_cast<float>(mapPos.z);
 						def.viewAxis[0] = MakeVector3(1, 0, 0);
 						def.viewAxis[1] = MakeVector3(0, -1, 0);
 						def.viewAxis[2] = MakeVector3(0, 0, 1);
@@ -468,7 +476,7 @@ namespace spades {
 				SPAssert(GetCameraMode() == ClientCameraMode::None);
 
 				// Let there be darkness
-				def.viewOrigin = MakeVector3(256, 256, 4);
+				def.viewOrigin = MakeVector3(0, 0, 0);
 				def.viewAxis[0] = MakeVector3(1, 0, 0);
 				def.viewAxis[1] = MakeVector3(0, 0, -1);
 				def.viewAxis[2] = MakeVector3(0, 0, 1);
