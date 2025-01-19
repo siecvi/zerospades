@@ -318,36 +318,40 @@ namespace spades {
 				outRect.max = MakeVector2((sw + zoomedSize.x) * 0.5F, (sh + zoomedSize.y) * 0.5F);
 			}
 
+			this->inRect = inRect;
+			this->outRect = outRect;
+
 			float alpha = largeMap ? zoomState : 1.0F;
 
 			// draw map
 			renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) * alpha);
 			renderer.DrawFlatGameMap(outRect, inRect);
 
-			this->inRect = inRect;
-			this->outRect = outRect;
-
-			Vector4 gridCol = MakeVector4(0.8F, 0.8F, 0.8F, 0.8F) * alpha;
+			// draw map border
+			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1) * alpha);
+			renderer.DrawOutlinedRect(outRect.GetMinX() - 1, outRect.GetMinY() - 1,
+			                          outRect.GetMaxX() + 1, outRect.GetMaxY() + 1);
 
 			// draw grid lines
 			Vector2 gridSize = mapSize / 8.0F;
+			Vector4 gridCol = MakeVector4(0, 0, 0, 0.8F) * alpha;
 			renderer.SetColorAlphaPremultiplied(gridCol);
-			for (float x = gridSize.x; x < mapSize.x; x += gridSize.x) {
+			for (float x = gridSize.x; x < inRect.GetMaxX() - 1; x += gridSize.x) {
 				float wx = (x - inRect.GetMinX()) / inRect.GetWidth();
 				if (wx < 0.0F || wx >= 1.0F)
 					continue;
 				wx = (wx * outRect.GetWidth()) + outRect.GetMinX();
-				for (float dx = 0; dx < outRect.GetHeight(); dx += 3) {
+				for (float dx = 0; dx < outRect.GetHeight(); dx += 4) {
 					renderer.DrawImage(nullptr, MakeVector2(wx, outRect.GetMinY() + dx),
 					                   AABB2(0, 0, 1, 2));
 				}
 			}
-			for (float y = gridSize.y; y < mapSize.y; y += gridSize.y) {
+			for (float y = gridSize.y; y < inRect.GetMaxY() - 1; y += gridSize.y) {
 				float wy = (y - inRect.GetMinY()) / inRect.GetHeight();
 				if (wy < 0.0F || wy >= 1.0F)
 					continue;
 				wy = (wy * outRect.GetHeight()) + outRect.GetMinY();
-				for (float dy = 0; dy < outRect.GetWidth(); dy += 3) {
+				for (float dy = 0; dy < outRect.GetWidth(); dy += 4) {
 					renderer.DrawImage(nullptr, MakeVector2(outRect.GetMinX() + dy, wy),
 					                   AABB2(0, 0, 2, 1));
 				}
@@ -355,6 +359,7 @@ namespace spades {
 
 			// draw grid label
 			Handle<IImage> mapFont = renderer.RegisterImage("Gfx/Fonts/MapFont.tga");
+			Vector4 labelCol = MakeVector4(0.8F, 0.8F, 0.8F, 0.8F) * alpha;
 			for (int i = 0; i < 8; i++) {
 				float startX = (float)i * gridSize.x;
 				float endX = startX + gridSize.x;
@@ -366,7 +371,7 @@ namespace spades {
 					  - std::max(startX, inRect.GetMinX()))
 					  / (endX - startX) * 2.0F, 1.0F);
 
-				renderer.SetColorAlphaPremultiplied(gridCol * fade);
+				renderer.SetColorAlphaPremultiplied(labelCol * fade);
 
 				float center = std::max(startX, inRect.GetMinX());
 				center = 0.5F * (center + std::min(endX, inRect.GetMaxX()));
@@ -391,7 +396,7 @@ namespace spades {
 					- std::max(startY, inRect.GetMinY()))
 					/ (endY - startY) * 2.0F, 1.0F);
 
-				renderer.SetColorAlphaPremultiplied(gridCol * fade);
+				renderer.SetColorAlphaPremultiplied(labelCol * fade);
 
 				float center = std::max(startY, inRect.GetMinY());
 				center = 0.5F * (center + std::min(endY, inRect.GetMaxY()));
@@ -405,11 +410,6 @@ namespace spades {
 				renderer.DrawImage(mapFont, MakeVector2(outRect.GetMinX() + 4, wy - 4),
 				                   AABB2(fntX, fntY, 8, 8));
 			}
-
-			// draw map border
-			renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 1) * alpha);
-			renderer.DrawOutlinedRect(outRect.GetMinX() - 1, outRect.GetMinY() - 1,
-			                          outRect.GetMaxX() + 1, outRect.GetMaxY() + 1);
 
 			// draw bullet tracers
 			Handle<IImage> tracerImg = renderer.RegisterImage("Gfx/White.tga");
