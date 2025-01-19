@@ -1229,6 +1229,7 @@ namespace spades {
 			layouter.AddToggleField(_Tr("Preferences", "Debug Weapon Spread"), "cg_debugAim");
 			layouter.AddSliderField(_Tr("Preferences", "Viewmodel Alignment"), "cg_viewWeaponSide",
 			-1, 1, 0.1, ConfigViewmodelSideFormatter());
+			layouter.AddControl(_Tr("Preferences", "Switch Viewmodel Handedness"), "cg_keyToggleLeftHand");
 			layouter.AddToggleField(_Tr("Preferences", "Classic Viewmodel"), "cg_classicViewWeapon");
 			layouter.AddToggleField(_Tr("Preferences", "Classic Player Model"), "cg_classicPlayerModels");
 

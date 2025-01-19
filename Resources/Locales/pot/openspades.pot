@@ -1703,6 +1703,12 @@ msgstr ""
 msgctxt "Preferences"
 msgid "Viewmodel Alignment"
 msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1232
+msgctxt "Preferences"
+msgid "Switch Viewmodel Handedness"
+msgstr ""
+
 #: Resources/Scripts/Gui/Preferences.as:1232
 msgctxt "Preferences"
 msgid "Classic Viewmodel"

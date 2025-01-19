@@ -100,6 +100,9 @@ SPADES_SETTING(cg_debugHitTest);
 DEFINE_SPADES_SETTING(cg_keyToggleHud, "Home");
 SPADES_SETTING(cg_hideHud);
 
+DEFINE_SPADES_SETTING(cg_keyToggleLeftHand, "c");
+SPADES_SETTING(cg_viewWeaponSide);
+
 namespace spades {
 	namespace client {
 
@@ -610,6 +613,12 @@ namespace spades {
 
 					Handle<IAudioChunk> c =
 					  audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
+					audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+				} else if (CheckKey(cg_keyToggleLeftHand, name) && down) {
+					cg_viewWeaponSide = (cg_viewWeaponSide == 1) ? -1 : 1;
+
+					// TODO: use a better sound
+					Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Misc/OpenMap.opus");
 					audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 				} else if (CheckKey(cg_keyLimbo, name) && down) {
 					inGameLimbo = true;
