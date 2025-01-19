@@ -28,23 +28,25 @@
 
 namespace spades {
 	namespace client {
+		class IRenderer;
 		class Client;
 		class IModel;
+		class IAudioChunk;
 		class FallingBlock : public ILocalEntity {
 			Client* client;
+			IRenderer& renderer;
 			IModel* model;
 			VoxelModel* vmodel;
 			Matrix4 matrix;
 			Vector3 velocity;
-			int rotation;
+			int rotDir;
 			float time;
 			int numBlocks;
 
-			/** @return non-zero if bounced, 2 when sound should be played. */
-			int MoveBlock(float fsynctics);
+			IAudioChunk* bounceSound;
 
 		public:
-			FallingBlock(Client*, std::vector<IntVector3> blocks);
+			FallingBlock(Client*, IAudioChunk* bounceSound, std::vector<IntVector3> blocks);
 			~FallingBlock();
 
 			bool Update(float dt) override;

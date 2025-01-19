@@ -1363,7 +1363,8 @@ namespace spades {
 			if (blocks.empty())
 				return;
 
-			AddLocalEntity(stmp::make_unique<FallingBlock>(this, blocks));
+			Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Misc/BlockBounce.opus");
+			AddLocalEntity(stmp::make_unique<FallingBlock>(this, c.GetPointerOrNull(), blocks));
 
 			if (!IsMuted()) {
 				Vector3 origin = MakeVector3(blocks[0]) + 0.5F;

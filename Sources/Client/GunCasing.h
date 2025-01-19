@@ -35,8 +35,7 @@ namespace spades {
 			IModel* model;
 			Matrix4 matrix;
 			Vector3 velocity;
-			Vector3 rotAxis;
-			float rotSpeed;
+			int rotDir;
 			float time;
 
 			IAudioChunk* dropSound;

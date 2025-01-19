@@ -38,10 +38,14 @@ SPADES_SETTING(cg_particles);
 
 namespace spades {
 	namespace client {
-
-		FallingBlock::FallingBlock(Client* client, std::vector<IntVector3> blocks) : client(client) {
+		FallingBlock::FallingBlock(Client* client, IAudioChunk* bounceSound,
+		                           std::vector<IntVector3> blocks)
+		    : client(client), renderer(client->GetRenderer()), bounceSound(bounceSound) {
 			if (blocks.empty())
 				SPRaise("No block given");
+
+			if (bounceSound)
+				bounceSound->AddRef();
 
 			// find min/max
 			int maxX, maxY, maxZ;
@@ -88,21 +92,24 @@ namespace spades {
 			vmodel->SetOrigin(origin);
 
 			// build renderer model
-			model = client->GetRenderer().CreateModel(*vmodel).Unmanage();
+			model = renderer.CreateModel(*vmodel).Unmanage();
 
 			Vector3 matTrans = MakeVector3((float)minX, (float)minY, (float)minZ);
 			matTrans += 0.5F; // voxelmodel's (0,0,0) origins on block center
 			matTrans -= origin; // cancel origin
-			matrix = Matrix4::Translate(matTrans);
 
+			matrix = Matrix4::Translate(matTrans);
 			velocity = {0.0F, 0.0F, 0.0F};
-			rotation = SampleRandom() & 3;
+			rotDir = SampleRandom() & 3; // random initial dir
 			time = 1.0F;
 		}
 
 		FallingBlock::~FallingBlock() {
 			model->Release();
 			vmodel->Release();
+
+			if (bounceSound)
+				bounceSound->Release();
 		}
 
 		bool FallingBlock::Update(float dt) {
@@ -112,18 +119,6 @@ namespace spades {
 			float distSqr = (viewOrigin - matrix.GetOrigin()).GetSquaredLength2D();
 			if (distSqr > FOG_DISTANCE_SQ)
 				return false;
-
-			bool usePrecisePhysics = false;
-			if (distSqr < 16.0F * 16.0F && numBlocks < 512)
-				usePrecisePhysics = true;
-
-			if (MoveBlock(dt) == 2) {
-				if (!client->IsMuted() && distSqr < 16.0F * 16.0F) {
-					IAudioDevice& dev = client->GetAudioDevice();
-					Handle<IAudioChunk> c = dev.RegisterSound("Sounds/Misc/BlockBounce.opus");
-					dev.Play(c.GetPointerOrNull(), matrix.GetOrigin(), AudioParam());
-				}
-			}
 
 			// destroy
 			if (time <= 0.0F) {
@@ -139,16 +134,22 @@ namespace spades {
 				Vector3 vmAxis2 = vmat.GetAxis(1);
 				Vector3 vmAxis3 = vmat.GetAxis(2);
 
-				// this could get annoying with some server scripts..
+				// play sound
 				client->PlayBlockDestroySound(vmOrigin);
 
 				int particleMode = cg_particles;
 				if (!particleMode)
 					return false;
 
-				Handle<IImage> img = client->GetRenderer().RegisterImage("Gfx/White.tga");
+				bool usePrecisePhysics = false;
+				if (distSqr < PARTICLE_BOUNCE_DIST_SQ && numBlocks < 512)
+					usePrecisePhysics = true;
+
+				Handle<IImage> img = renderer.RegisterImage("Gfx/White.tga");
 
 				auto* getRandom = SampleRandomFloat;
+
+				Vector3 velBias = {0, 0, -1.0F};
 
 				for (int x = 0; x < w; x++) {
 					Vector3 p1 = vmOrigin + vmAxis1 * (float)x;
@@ -157,11 +158,16 @@ namespace spades {
 						for (int z = 0; z < d; z++) {
 							if (!vmodel->IsSolid(x, y, z))
 								continue;
+
 							// inner voxel?
-							if (x > 0 && y > 0 && z > 0 && x < w - 1 && y < h - 1 && z < d - 1 &&
-							    vmodel->IsSolid(x - 1, y, z) && vmodel->IsSolid(x + 1, y, z) &&
-							    vmodel->IsSolid(x, y - 1, z) && vmodel->IsSolid(x, y + 1, z) &&
-							    vmodel->IsSolid(x, y, z - 1) && vmodel->IsSolid(x, y, z + 1))
+							if (x > 0 && y > 0 && z > 0 &&
+								x < (w - 1) && y < (h - 1) && z < (d - 1) &&
+							    vmodel->IsSolid(x + 1, y, z) &&
+								vmodel->IsSolid(x - 1, y, z) &&
+							    vmodel->IsSolid(x, y + 1, z) &&
+								vmodel->IsSolid(x, y - 1, z) &&
+							    vmodel->IsSolid(x, y, z + 1) &&
+								vmodel->IsSolid(x, y, z - 1))
 								continue;
 
 							uint32_t col = vmodel->GetColor(x, y, z);
@@ -170,9 +176,8 @@ namespace spades {
 							Vector3 p3 = p2 + vmAxis3 * (float)z;
 
 							for (int i = 0; i < 4; i++) {
-								auto ent = stmp::make_unique<ParticleSpriteEntity>(
-									*client, img.GetPointerOrNull(), color);
-								ent->SetTrajectory(p3, RandomAxis() * 4.0F, 1.0F, 0.6F);
+								auto ent = stmp::make_unique<ParticleSpriteEntity>(*client, img, color);
+								ent->SetTrajectory(p3, (RandomAxis() + velBias * 0.5F) * 8.0F, 1.0F, 0.6F);
 								ent->SetRadius(0.4F + getRandom() * getRandom() * 0.1F);
 								ent->SetLifeTime(2.0F, 0.0F, 1.0F);
 								if (usePrecisePhysics)
@@ -196,57 +201,44 @@ namespace spades {
 				return false;
 			}
 
-			return true;
-		}
-
-		int FallingBlock::MoveBlock(float fsynctics) {
-			SPADES_MARK_FUNCTION();
-
 			Matrix4 lastMat = matrix;
 
 			matrix = matrix * Matrix4::Rotate(MakeVector3(1, 0, 0),
-				((rotation & 1) ? 1 : -1) * fsynctics * DEG2RAD(45));
+				((rotDir & 1) ? 1.0F : -1.0F) * dt);
 			matrix = matrix * Matrix4::Rotate(MakeVector3(0, 1, 0),
-				((rotation & 2) ? 1 : -1) * fsynctics * DEG2RAD(45));
-			matrix = Matrix4::Translate(velocity * fsynctics) * matrix;
-			velocity.z += fsynctics * 32.0F;
-
-			// Collision
-			IntVector3 lp = matrix.GetOrigin().Floor();
+				((rotDir & 2) ? 1.0F : -1.0F) * dt);
+			matrix = Matrix4::Translate(velocity * dt) * matrix;
+			velocity.z += dt * 32.0F;
 
 			const Handle<GameMap>& map = client->GetWorld()->GetMap();
 			SPAssert(map);
 
-			int ret = 0;
-			if (map->ClipWorld(lp.x, lp.y, lp.z)) {
-				ret = 1; // hit a wall
-				if (fabsf(velocity.x) > BOUNCE_SOUND_THRESHOLD ||
-				    fabsf(velocity.y) > BOUNCE_SOUND_THRESHOLD ||
-				    fabsf(velocity.z) > BOUNCE_SOUND_THRESHOLD)
-					ret = 2; // play sound
+			// Collision
+			IntVector3 lp = matrix.GetOrigin().Floor();
+
+			if (map->ClipWorld(lp.x, lp.y, lp.z)) { // hit a wall
+				if (fabsf(velocity.z) > BOUNCE_SOUND_THRESHOLD) {
+					if (bounceSound && !client->IsMuted()) {
+						IAudioDevice& dev = client->GetAudioDevice();
+						dev.Play(bounceSound, matrix.GetOrigin(), AudioParam());
+					}
+				}
 
 				IntVector3 lp2 = lastMat.GetOrigin().Floor();
-				if (lp.z != lp2.z && ((lp.x == lp2.x && lp.y == lp2.y)
-					|| !map->ClipWorld(lp.x, lp.y, lp2.z)))
+				if (lp.z != lp2.z &&
+				    ((lp.x == lp2.x && lp.y == lp2.y) || !map->ClipWorld(lp.x, lp.y, lp2.z))) {
 					velocity.z = -velocity.z;
-				else if (lp.x != lp2.x && ((lp.y == lp2.y && lp.z == lp2.z)
-					|| !map->ClipWorld(lp2.x, lp.y, lp.z)))
-					velocity.x = -velocity.x;
-				else if (lp.y != lp2.y && ((lp.x == lp2.x && lp.z == lp2.z)
-					|| !map->ClipWorld(lp.x, lp2.y, lp.z)))
-					velocity.y = -velocity.y;
+				} else {
+					return false;
+				}
 
-				matrix = lastMat; // set back to old position
+				matrix = lastMat;
 				velocity *= 0.46F; // lose some velocity due to friction
-				rotation++;
-				rotation &= 3;
+				rotDir = (rotDir + 1) % 4;
 				time -= 0.36F;
 			}
 
-			if (time <= 0.0F)
-				ret = 2; // play sound
-
-			return ret;
+			return true;
 		}
 
 		void FallingBlock::Render3D() {
@@ -254,7 +246,7 @@ namespace spades {
 			param.ghost = true;
 			param.opacity = std::max(0.25F, time);
 			param.matrix = matrix;
-			client->GetRenderer().RenderModel(*model, param);
+			renderer.RenderModel(*model, param);
 		}
 	} // namespace client
 } // namespace spades
