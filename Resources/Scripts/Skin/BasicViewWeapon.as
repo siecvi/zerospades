@@ -196,6 +196,7 @@ namespace spades {
 		protected ConfigItem cg_viewWeaponX("cg_viewWeaponX");
 		protected ConfigItem cg_viewWeaponY("cg_viewWeaponY");
 		protected ConfigItem cg_viewWeaponZ("cg_viewWeaponZ");
+		protected ConfigItem cg_viewWeaponSide("cg_viewWeaponSide");
 
 		protected ConfigItem cg_target("cg_target", "1");
 		protected ConfigItem cg_targetLines("cg_targetLines", "1");

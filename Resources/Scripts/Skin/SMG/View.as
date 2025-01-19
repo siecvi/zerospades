@@ -290,6 +290,7 @@ namespace spades {
 		Matrix4 GetViewWeaponMatrix() {
 			Matrix4 mat;
 
+			float weapSide = Clamp(cg_viewWeaponSide.FloatValue, -1.0F, 1.0F);
 			float sp = 1.0F - AimDownSightStateSmooth;
 
 			// sprint animation
@@ -311,15 +312,18 @@ namespace spades {
 			mat = CreateEulerAnglesMatrix(recoilRot * sp) * mat;
 			mat = mat * CreateTranslateMatrix(recoilOffset);
 
-			// add weapon offset and sway
+			// add weapon offset
 			Vector3 trans(0, 0, 0);
 			trans += Vector3(-0.13F * sp, 0.5F, GetZPos());
-			trans += swing * sp;
 
 			// manual adjustment
 			trans.x += cg_viewWeaponX.FloatValue * sp;
 			trans.y += cg_viewWeaponY.FloatValue * sp;
 			trans.z += cg_viewWeaponZ.FloatValue * sp;
+			trans.x *= weapSide;
+
+			// add weapon sway
+			trans += swing * sp;
 
 			mat = CreateTranslateMatrix(trans) * mat;
 

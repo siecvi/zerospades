@@ -60,6 +60,7 @@ DEFINE_SPADES_SETTING(cg_classicViewWeapon, "0");
 DEFINE_SPADES_SETTING(cg_viewWeaponX, "0");
 DEFINE_SPADES_SETTING(cg_viewWeaponY, "0");
 DEFINE_SPADES_SETTING(cg_viewWeaponZ, "0");
+DEFINE_SPADES_SETTING(cg_viewWeaponSide, "1");
 DEFINE_SPADES_SETTING(cg_hideBody, "0");
 DEFINE_SPADES_SETTING(cg_hideArms, "0");
 DEFINE_SPADES_SETTING(cg_debugToolSkinAnchors, "0");
@@ -671,6 +672,8 @@ namespace spades {
 			SetSkinParameterForTool(currentTool, curSkin);
 			SetCommonSkinParameter(curSkin);
 
+			float weapSide = Clamp((float)cg_viewWeaponSide, -1.0F, 1.0F);
+
 			// Moving this to the scripting environment means
 			// breaking compatibility with existing scripts.
 			if (cg_classicViewWeapon) {
@@ -737,9 +740,9 @@ namespace spades {
 								f *= 4;
 							}
 
-							mat = Matrix4::Translate(MakeVector3(f2 * 0.5F, f * 0.25F, -f2 * 1.25F)) * mat;
+							mat = Matrix4::Translate(MakeVector3(f2 * 0.5F * weapSide, f * 0.25F, -f2 * 1.25F)) * mat;
 							mat = Matrix4::Rotate(MakeVector3(1, 0, 0), f / 0.32F) * mat;
-							mat = Matrix4::Rotate(MakeVector3(0, -1, 0), f) * mat;
+							mat = Matrix4::Rotate(MakeVector3(0, 1, 0), -f * weapSide) * mat;
 						}
 						break;
 					case Player::ToolBlock:
@@ -798,6 +801,9 @@ namespace spades {
 
 				trans += Vector3(-0.33F, 0.66F, 0.4F);
 				trans += 0.015F; // adjust to match voxlap
+				trans.x *= weapSide;
+
+				// add weapon sway
 				trans += viewWeaponOffset;
 
 				param.matrix = Matrix4::Translate(trans) * mat;
@@ -932,17 +938,20 @@ namespace spades {
 					renderer.RenderModel(model, param);
 				};
 
-				// manual adjustment
-				{
-					float sp = 1.0F - aimDownState;
+				Vector3 trans = MakeVector3(0, 0, 0);
 
-					viewWeaponOffset.x += (float)cg_viewWeaponX * sp;
-					viewWeaponOffset.y += (float)cg_viewWeaponY * sp;
-					viewWeaponOffset.z += (float)cg_viewWeaponZ * sp;
-				}
+				// manual adjustment
+				float sp = 1.0F - aimDownState;
+				trans.x += (float)cg_viewWeaponX * sp;
+				trans.y += (float)cg_viewWeaponY * sp;
+				trans.z += (float)cg_viewWeaponZ * sp;
+				trans.x *= weapSide;
+
+				// add weapon sway
+				trans += viewWeaponOffset;
 
 				auto renderArm = [&](int i) {
-					const Vector3& shoulder = shoulders[i] + viewWeaponOffset;
+					const Vector3& shoulder = shoulders[i] + trans;
 					const Vector3& hand = hands[i];
 					const Vector3& benddir = benddirs[i];
 
@@ -979,7 +988,8 @@ namespace spades {
 
 			Vector3 o = p.GetFront(cg_orientationSmoothing); // interpolated
 			Vector3 front2D = MakeVector3(o.x, o.y, 0).Normalize();
-			Vector3 right = -Vector3::Cross(MakeVector3(0, 0, -1), front2D).Normalize();
+			Vector3 up = MakeVector3(0, 0, -1);
+			Vector3 right = -Vector3::Cross(up, front2D).Normalize();
 
 			Handle<IModel> model;
 			ModelRenderParam param;
@@ -988,8 +998,7 @@ namespace spades {
 			if (!p.IsAlive()) {
 				if (!cg_ragdoll) {
 					model = renderer.RegisterModel((modelPath + "Dead.kv6").c_str());
-					param.matrix = Matrix4::FromAxis(-right, front2D,
-						MakeVector3(0, 0, 1), p.GetEye());
+					param.matrix = Matrix4::FromAxis(-right, front2D, -up, p.GetEye());
 					param.matrix = param.matrix * Matrix4::Scale(0.1F);
 					renderer.RenderModel(*model, param);
 				}

@@ -1749,6 +1749,26 @@ msgctxt "Preferences"
 msgid "Debug Weapon Spread"
 msgstr "Depurar dispersión del arma"
 
+#: Resources/Scripts/Gui/Preferences.as:249
+msgctxt "Preferences"
+msgid "Left"
+msgstr "Izquierda"
+
+#: Resources/Scripts/Gui/Preferences.as:251
+msgctxt "Preferences"
+msgid "Center"
+msgstr "Centro"
+
+#: Resources/Scripts/Gui/Preferences.as:253
+msgctxt "Preferences"
+msgid "Right"
+msgstr "Derecha"
+
+#: Resources/Scripts/Gui/Preferences.as:1230
+msgctxt "Preferences"
+msgid "Viewmodel Alignment"
+msgstr "Alineación del viewmodel"
+
 #: Resources/Scripts/Gui/Preferences.as:663
 msgctxt "Preferences"
 msgid "Classic Viewmodel"

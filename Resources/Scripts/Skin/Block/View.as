@@ -50,6 +50,7 @@
 		protected ConfigItem cg_viewWeaponX("cg_viewWeaponX");
 		protected ConfigItem cg_viewWeaponY("cg_viewWeaponY");
 		protected ConfigItem cg_viewWeaponZ("cg_viewWeaponZ");
+		protected ConfigItem cg_viewWeaponSide("cg_viewWeaponSide");
 
 		ViewBlockSkin(Renderer@ r, AudioDevice@ dev) {
 			@renderer = r;
@@ -69,6 +70,8 @@
 		void AddToScene() {
 			Matrix4 mat = CreateScaleMatrix(0.033F);
 
+			float weapSide = Clamp(cg_viewWeaponSide.FloatValue, -1.0F, 1.0F);
+
 			if (sprintStateSmooth > 0.0F) {
 				mat = CreateRotateMatrix(Vector3(0.0F, 0.0F, 1.0F), sprintStateSmooth * -0.3F) * mat;
 				mat = CreateTranslateMatrix(Vector3(0.1F, -0.4F, -0.05F) * sprintStateSmooth) * mat;
@@ -81,15 +84,18 @@
 				mat = CreateTranslateMatrix(Vector3(0.0F, 0.1F, 0.2F) * per) * mat;
 			}
 
-			// add weapon offset and sway
+			// add weapon offset
 			Vector3 trans(0.0F, 0.0F, 0.0F);
 			trans += Vector3(-0.3F, 0.7F, 0.3F);
-			trans += swing;
 
 			// manual adjustment
 			trans.x += cg_viewWeaponX.FloatValue;
 			trans.y += cg_viewWeaponY.FloatValue;
 			trans.z += cg_viewWeaponZ.FloatValue;
+			trans.x *= weapSide;
+
+			// add weapon sway
+			trans += swing;
 
 			mat = CreateTranslateMatrix(trans) * mat;
 

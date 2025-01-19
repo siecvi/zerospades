@@ -1684,7 +1684,26 @@ msgctxt "Preferences"
 msgid "Debug Weapon Spread"
 msgstr ""
 
-#: Resources/Scripts/Gui/Preferences.as:663
+#: Resources/Scripts/Gui/Preferences.as:249
+msgctxt "Preferences"
+msgid "Left"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:251
+msgctxt "Preferences"
+msgid "Center"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:253
+msgctxt "Preferences"
+msgid "Right"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1230
+msgctxt "Preferences"
+msgid "Viewmodel Alignment"
+msgstr ""
+#: Resources/Scripts/Gui/Preferences.as:1232
 msgctxt "Preferences"
 msgid "Classic Viewmodel"
 msgstr ""

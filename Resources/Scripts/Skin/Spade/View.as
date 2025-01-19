@@ -52,6 +52,7 @@
 		protected ConfigItem cg_viewWeaponX("cg_viewWeaponX");
 		protected ConfigItem cg_viewWeaponY("cg_viewWeaponY");
 		protected ConfigItem cg_viewWeaponZ("cg_viewWeaponZ");
+		protected ConfigItem cg_viewWeaponSide("cg_viewWeaponSide");
 
 		ViewSpadeSkin(Renderer@ r, AudioDevice@ dev) {
 			@renderer = r;
@@ -73,6 +74,8 @@
 		void AddToScene() {
 			Matrix4 mat = CreateScaleMatrix(0.033F);
 
+			float weapSide = Clamp(cg_viewWeaponSide.FloatValue, -1.0F, 1.0F);
+
 			if (sprintStateSmooth > 0.0F or raiseState < 1.0F) {
 				float per = Max(sprintStateSmooth, 1.0F - raiseState);
 				mat = CreateRotateMatrix(Vector3(0.0F, 1.0F, 0.0F), per * 1.3F) * mat;
@@ -83,64 +86,45 @@
 			if (actionType == spades::SpadeActionType::Bash) {
 				@model = @pickaxeModel;
 
-				float per = 1.0F - actionProgress;
+				float per = SmoothStep(1.0F - actionProgress);
 				mat = CreateRotateMatrix(Vector3(1, 0, 0), per * 1.7F) * mat;
-				mat = CreateTranslateMatrix(0.0F, per * 0.3F, 0.0F) * mat;
+				mat = CreateTranslateMatrix(per * 0.2F * weapSide, per * 0.3F, 0.0F) * mat;
 			} else if (actionType == spades::SpadeActionType::DigStart or actionType == spades::SpadeActionType::Dig) {
 				@model = @spadeModel;
 
-				float per = actionProgress;
-
-				// some tunes
-				const float readyFront = -1.2F;
-				const float digAngle = 0.6F;
-				const float readyAngle = 0.6F;
-
-				float angle;
-				float front = readyFront;
-				float side = 1.0F;
-
-				if (per < 0.5F) {
-					if (actionType == spades::SpadeActionType::DigStart) {
-						// bringing to the dig position
-						per = 4.0F * per * per;
-						angle = per * readyAngle;
-						side = per;
-						front = per * readyFront;
-					} else {
-						// soon after digging
-						angle = readyAngle;
-						per = (0.5F - per) / 0.5F;
-						per *= per;
-						per *= per;
-						angle += per * digAngle;
-						front += per * 2.0F;
-					}
+				float f = SmoothStep(1.0F - actionProgress);
+				float f2;
+				if (f >= 0.6F) {
+					f2 = 0.0F;
+					f = 1.0F - f;
+				} else if (f >= 0.3F) {
+					f2 = 0.6F - f;
+					f = 0.4F;
+				} else if (f >= 0.1F) {
+					f2 = 0.3F;
+					f = 0.4F;
 				} else {
-					per = (per - 0.5F) / 0.5F;
-					per = 1.0F - (1.0F - per) * (1.0F - per);
-					angle = readyAngle + per * digAngle;
-					front += per * 2.0F;
+					f2 = f * 3.0F;
+					f *= 4.0F;
 				}
 
-				mat = CreateRotateMatrix(Vector3(1, 0, 0), angle) * mat;
-				mat = CreateRotateMatrix(Vector3(0, 0, 1), front * 0.125F) * mat;
-
-				side *= 0.3F;
-				front *= 0.1F;
-
-				mat = CreateTranslateMatrix(side, front, front * 0.2F) * mat;
+				mat = CreateTranslateMatrix(Vector3(f2 * weapSide, f * -0.2F, -f2 * 0.25F)) * mat;
+				mat = CreateRotateMatrix(Vector3(1, 0, 0), f / 0.32F) * mat;
+				mat = CreateRotateMatrix(Vector3(0, 1, 0), -f * weapSide) * mat;
 			}
 
-			// add weapon offset and sway
+			// add weapon offset
 			Vector3 trans(0.0F, 0.0F, 0.0F);
 			trans += Vector3(-0.3F, 0.7F, 0.3F);
-			trans += swing;
 
 			// manual adjustment
 			trans.x += cg_viewWeaponX.FloatValue;
 			trans.y += cg_viewWeaponY.FloatValue;
 			trans.z += cg_viewWeaponZ.FloatValue;
+			trans.x *= weapSide;
+
+			// add weapon sway
+			trans += swing;
 
 			mat = CreateTranslateMatrix(trans) * mat;
 

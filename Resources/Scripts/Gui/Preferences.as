@@ -239,6 +239,23 @@ namespace spades {
 		string Format(float value) { return prefix + FormatInternal(value); }
 	}
 
+	class ConfigViewmodelSideFormatter : ConfigNumberFormatter {
+		ConfigViewmodelSideFormatter() {
+			super(1, "");
+		}
+
+		string Format(float value) {
+			if (value == -1)
+				return _Tr("Preferences", "Left");
+			else if (value == 0)
+				return _Tr("Preferences", "Center");
+			else if (value == 1)
+				return _Tr("Preferences", "Right");
+			else
+				return ConfigNumberFormatter::Format(value);
+		}
+	}
+
 	class ConfigFOVFormatter : ConfigNumberFormatter {
 		ConfigFOVFormatter() {
 			super(0, "");
@@ -1210,6 +1227,8 @@ namespace spades {
 			64, 256, 8, ConfigNumberFormatter(0, "px"));
 			layouter.AddControl(_Tr("Preferences", "Toggle Hit Test Zoom"), "cg_keyToggleHitTestZoom");
 			layouter.AddToggleField(_Tr("Preferences", "Debug Weapon Spread"), "cg_debugAim");
+			layouter.AddSliderField(_Tr("Preferences", "Viewmodel Alignment"), "cg_viewWeaponSide",
+			-1, 1, 0.1, ConfigViewmodelSideFormatter());
 			layouter.AddToggleField(_Tr("Preferences", "Classic Viewmodel"), "cg_classicViewWeapon");
 			layouter.AddToggleField(_Tr("Preferences", "Classic Player Model"), "cg_classicPlayerModels");
 
