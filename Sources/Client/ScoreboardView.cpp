@@ -176,7 +176,7 @@ namespace spades {
 			}
 
 			bool manyPlayers = numPlayers > 32;
-			float playersHeight = (manyPlayers ? 335 : 300.0F) - teamBarHeight;
+			float playersHeight = (manyPlayers ? 335.0F : 315.0F) - teamBarHeight;
 			float playersTop = teamBarTop + teamBarHeight;
 			float playersBottom = playersTop + playersHeight;
 
