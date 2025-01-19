@@ -93,8 +93,16 @@ SPADES_SETTING(cg_keyToolBlock);
 SPADES_SETTING(cg_keyToolWeapon);
 SPADES_SETTING(cg_keyToolGrenade);
 
+DEFINE_SPADES_SETTING(cg_paletteHud, "1");
+SPADES_SETTING(cg_keyCaptureColor);
+SPADES_SETTING(cg_keyPaletteLeft);
+SPADES_SETTING(cg_keyPaletteRight);
+SPADES_SETTING(cg_keyPaletteUp);
+SPADES_SETTING(cg_keyPaletteDown);
+
 SPADES_SETTING(cg_smallFont);
 SPADES_SETTING(cg_minimapSize);
+SPADES_SETTING(cg_paletteSize);
 
 namespace spades {
 	namespace client {
@@ -698,8 +706,12 @@ namespace spades {
 			hurtRingView->Draw();
 
 			// draw color palette
-			if (curToolType == Player::ToolBlock)
+			if (curToolType == Player::ToolBlock) {
 				paletteView->Draw();
+
+				if (cg_paletteHud)
+					DrawBlockPaletteHUD();
+			}
 
 			// draw hotbar when unable to use tool
 			if ((!CanLocalPlayerUseTool() || (isToolWeapon && isReloading)) && cg_hudHotbar) {
@@ -1130,7 +1142,7 @@ namespace spades {
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
-			Player& p = GetWorld()->GetLocalPlayer().value();
+			Player& p = world->GetLocalPlayer().value();
 			bool localPlayerIsSpectator = p.IsSpectator();
 
 			float x = sw - 8.0F;
@@ -1196,6 +1208,53 @@ namespace spades {
 
 			if (!inGameLimbo)
 				addLine(_Tr("Client", "[{0}] Select Team/Weapon", TrKey(cg_keyLimbo)));
+		}
+
+		void Client::DrawBlockPaletteHUD() {
+			SPADES_MARK_FUNCTION();
+
+			IFont& font = cg_smallFont
+				? fontManager->GetSmallFont()
+				: fontManager->GetGuiFont();
+
+			float sw = renderer->ScreenWidth();
+			float sh = renderer->ScreenHeight();
+
+			float wndSize = cg_paletteSize;
+			float winY = (sh - wndSize) - 64.0F;
+
+			float lh = cg_smallFont ? 12.0F : 20.0F;
+
+			float x = sw - 8.0F;
+			float y = (winY - lh) - 8.0F;
+
+			auto addLine = [&](const std::string& text) {
+				Vector2 pos = MakeVector2(x, y);
+				pos.x -= font.Measure(text).x;
+				y -= lh;
+				font.DrawShadow(text, pos, 1.0F, MakeVector4(1, 1, 1, 1),
+				                MakeVector4(0, 0, 0, 0.5));
+			};
+
+			// draw color
+			if ((int)cg_paletteHud >= 2) {
+				IntVector3 color = world->GetLocalPlayer()->GetBlockColor();
+
+				addLine(_Tr("Client", "({0}, {1}, {2}) RGB", color.x, color.y, color.z));
+
+				char buf[8];
+				sprintf(buf, "#%02X%02X%02X", color.x, color.y, color.z);
+				addLine(_Tr("Client", "({0}) HEX", std::string(buf)));
+
+				y -= lh * 0.5F;
+			}
+
+			// draw controls
+			addLine(_Tr("Client", "[{0}/{1}] Navigate left/right",
+				TrKey(cg_keyPaletteLeft), TrKey(cg_keyPaletteRight)));
+			addLine(_Tr("Client", "[{0}/{1}] Navigate up/down",
+				TrKey(cg_keyPaletteUp), TrKey(cg_keyPaletteDown)));
+			addLine(_Tr("Client", "[{0}] Grab color", TrKey(cg_keyCaptureColor)));
 		}
 
 		void Client::DrawAlert() {

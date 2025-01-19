@@ -2531,3 +2531,18 @@ msgstr "INICIO"
 msgctxt "Client"
 msgid "SPACE"
 msgstr "ESPACIO"
+
+#: Sources/Client/Client_Draw.cpp:1260
+msgctxt "Client"
+msgid "[{0}] Grab color"
+msgstr "[{0}] Capturar color"
+
+#: Sources/Client/Client_Draw.cpp:1258
+msgctxt "Client"
+msgid "[{0}/{1}] Navigate up/down"
+msgstr "[{0}/{1}] Navegar arriba/abajo"
+
+#: Sources/Client/Client_Draw.cpp:1256
+msgctxt "Client"
+msgid "[{0}/{1}] Navigate left/right"
+msgstr "[{0}/{1}] Navegar izq./derecha"
