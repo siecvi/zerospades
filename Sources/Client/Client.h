@@ -455,7 +455,7 @@ namespace spades {
 			SceneDefinition CreateSceneDefinition();
 
 			std::string ScreenShotPath();
-			void TakeScreenShot(bool sceneOnly);
+			void TakeScreenShot(bool sceneOnly, bool scoreboardOnly = false);
 
 			std::string MapShotPath();
 			void TakeMapShot();

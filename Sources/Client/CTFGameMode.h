@@ -62,7 +62,7 @@ namespace spades {
 			 * This is what the vanilla client does upon receiving a winning
 			 * `IntelCapture`.
 			 */
-			void ResetIntelHoldingStatus(bool resetScore);
+			void ResetIntelHoldingStatus(bool resetScore = true);
 		};
 	} // namespace client
 } // namespace spades

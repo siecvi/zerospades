@@ -139,7 +139,7 @@ namespace spades {
 			}
 		} // namespace
 
-		void Client::TakeScreenShot(bool sceneOnly) {
+		void Client::TakeScreenShot(bool sceneOnly, bool scoreboardOnly) {
 			SceneDefinition sceneDef = CreateSceneDefinition();
 			lastSceneDef = sceneDef;
 			UpdateMatrices();
@@ -148,9 +148,12 @@ namespace spades {
 			flashDlights = flashDlightsOld;
 			DrawScene();
 
-			// draw 2d
-			if (!sceneOnly)
+			if (scoreboardOnly) {
+				scoreboard->Draw();
+			} else if (!sceneOnly) {
+				// draw 2d
 				Draw2D();
+			}
 
 			// Well done!
 			renderer->FrameDone();

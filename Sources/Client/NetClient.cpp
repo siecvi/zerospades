@@ -51,7 +51,6 @@ DEFINE_SPADES_SETTING(cg_unicode, "1");
 DEFINE_SPADES_SETTING(cg_defaultBlockColorR, "111");
 DEFINE_SPADES_SETTING(cg_defaultBlockColorG, "111");
 DEFINE_SPADES_SETTING(cg_defaultBlockColorB, "111");
-DEFINE_SPADES_SETTING(cg_resetTeamScore, "1");
 
 namespace spades {
 	namespace client {
@@ -1330,8 +1329,8 @@ namespace spades {
 
 					bool winning = r.ReadByte() != 0;
 					if (winning) {
-						ctf.ResetIntelHoldingStatus(cg_resetTeamScore);
 						client->TeamWon(teamId);
+						ctf.ResetIntelHoldingStatus();
 					}
 				} break;
 				case PacketTypeIntelPickup: {

@@ -46,6 +46,8 @@
 
 DEFINE_SPADES_SETTING(cg_clearCorpseOnRespawn, "0");
 DEFINE_SPADES_SETTING(cg_centerMessage, "2");
+DEFINE_SPADES_SETTING(cg_autoScreenshot, "0");
+
 SPADES_SETTING(cg_playerName);
 
 namespace spades {
@@ -322,6 +324,10 @@ namespace spades {
 		}
 
 		void Client::TeamWon(int teamId) {
+			// take a screenshot of the scoreboard
+			if (cg_autoScreenshot)
+				TakeScreenShot(false, true);
+			
 			std::string msg;
 			std::string teamName = world->GetTeamName(teamId);
 
@@ -340,8 +346,8 @@ namespace spades {
 			stmp::optional<Player&> localplayer = world->GetLocalPlayer();
 			if (localplayer) {
 				Handle<IAudioChunk> c = (teamId == localplayer->GetTeamId())
-				                          ? audioDevice->RegisterSound("Sounds/Feedback/Win.opus")
-				                          : audioDevice->RegisterSound("Sounds/Feedback/Lose.opus");
+					? audioDevice->RegisterSound("Sounds/Feedback/Win.opus")
+					: audioDevice->RegisterSound("Sounds/Feedback/Lose.opus");
 				audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 			}
 		}
