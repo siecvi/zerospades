@@ -886,7 +886,7 @@ namespace spades {
 						int tool = r.ReadByte();
 						int score = r.ReadInt();
 						IntVector3 color = r.ReadIntColor();
-						std::string name = r.ReadRemainingString();
+						std::string name = TrimSpaces(r.ReadRemainingString());
 						// TODO: decode name?
 
 						WeaponType wType;
@@ -967,7 +967,7 @@ namespace spades {
 					int team = r.ReadByte();
 					Vector3 pos = r.ReadVector3();
 					pos.z -= 2.4F;
-					std::string name = r.ReadRemainingString();
+					std::string name = TrimSpaces(r.ReadRemainingString());
 					// TODO: decode name?
 
 					if (pId < 0 || pId >= properties->GetMaxNumPlayerSlots()) {
