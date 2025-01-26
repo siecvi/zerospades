@@ -807,13 +807,13 @@ namespace spades {
 			stmp::optional<const Grenade&> g) {
 			SPADES_MARK_FUNCTION();
 
+			if (g && p.IsLocalPlayer())
+				net->SendGrenade(*g);
+
 			if (!IsMuted()) {
 				Handle<IAudioChunk> c =
 				  audioDevice->RegisterSound("Sounds/Weapons/Grenade/Throw.opus");
 				if (IsInFirstPersonView(p.GetId())) {
-					if (g && p.IsLocalPlayer())
-						net->SendGrenade(*g);
-
 					audioDevice->PlayLocal(c.GetPointerOrNull(),
 						MakeVector3(0.4F, 0.1F, 0.3F), AudioParam());
 				} else {
