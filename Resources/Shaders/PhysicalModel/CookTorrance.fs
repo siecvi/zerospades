@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -26,18 +26,15 @@ float GGXDistribution(float m, float dotHalf) {
 
 // http://en.wikipedia.org/wiki/Specular_highlight#Cook.E2.80.93Torrance_model
 float CookTorrance(vec3 eyeVec, vec3 lightVec, vec3 normal) {
-	float dotNL = max(dot(normal, lightVec), 0.0);
-	if (dotNL <= 0.0) 
-		return 0.0;
-
 	vec3 halfVec = lightVec + eyeVec;
-	halfVec = (dot(halfVec, halfVec) < 0.00000000001) 
+	halfVec = (dot(halfVec, halfVec) < 0.00000000001)
 		? vec3(1.0, 0.0, 0.0) : normalize(halfVec);
-	
-	float dotNV = max(dot(normal, eyeVec), 0.0);
-	float dotNH = max(dot(normal, halfVec), 0.0);
-	float dotVH = max(dot(eyeVec, halfVec), 0.0);
-	
+
+	float dotNL = max(dot(normal, lightVec), 0.001);
+	float dotNV = max(dot(normal, eyeVec), 0.001);
+	float dotNH = max(dot(normal, halfVec), 0.001);
+	float dotVH = max(dot(eyeVec, halfVec), 0.001);
+
 	// distribution term
 	float m = 0.3; // roughness
 	float distribution = GGXDistribution(m, dotNH);
@@ -48,11 +45,11 @@ float CookTorrance(vec3 eyeVec, vec3 lightVec, vec3 normal) {
 	float fresnel = 0.03 + 0.1 * fresnel2 * fresnel2;
 
 	// visibility term (Schlick-Beckmann)
-	float a = m * 0.797884560802865, ia = 1.0 - a;
+	float a = m * 0.7978, ia = 1.0 - a;
 	float visibility = (dotNL * ia + a) * (dotNV * ia + a);
 	visibility = 0.25 / visibility;
 
 	float specular = distribution * fresnel * visibility;
-	
+
 	return specular;
 }

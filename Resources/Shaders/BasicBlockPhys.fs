@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -47,28 +47,29 @@ void main() {
 	float shadowing = VisibilityOfSunLight() * 0.6;
 
 	vec3 eyeVec = -normalize(viewSpaceCoord);
-	float dotNV = dot(viewSpaceNormal, eyeVec);
+	float dotNL = max(color.w, 0.001);
+	float dotNV = max(dot(viewSpaceNormal, eyeVec), 0.001);
 
-	// Fresnel term
+	// fresnel term
 	// FIXME: use split-sum approximation from UE4
 	float fresnel2 = 1.0 - dotNV;
 	float fresnel = 0.03 + 0.1 * fresnel2 * fresnel2;
 
-	// Specular shading (blurred reflections, assuming roughness is high)
+	// specular shading (blurred reflections, assuming roughness is high)
 	vec3 reflectWS = normalize(reflectionDir);
 	vec3 specularShading = EvaluateDirectionalAmbientLight(ao, reflectWS);
 
-	// Diffuse/specular shading for sunlight
-	if (shadowing > 0.0 && color.w > 0.0) {
-		// Diffuse shading
-		float sunDiffuseShading = OrenNayar(0.8, color.w, dotNV);
+	// diffuse/specular shading for sunlight
+	if (shadowing > 0.0 && dotNL > 0.0) {
+		// diffuse shading
+		float sunDiffuseShading = OrenNayar(0.8, dotNL, dotNV);
 		diffuseShading += sunDiffuseShading * shadowing;
 
-		// Specular shading
+		// specular shading
 		float sunSpecularShading = CookTorrance(eyeVec, viewSpaceLight, viewSpaceNormal);
 		gl_FragColor.xyz += sunSpecularShading * shadowing;
 	}
-	
+
 	// apply diffuse/specular shading
 	gl_FragColor.xyz = mix(diffuseShading * gl_FragColor.xyz, specularShading, fresnel);
 
