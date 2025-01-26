@@ -1127,12 +1127,13 @@ namespace spades {
 					bloodMarks->Spatter(hitPos, dir * -backSpeed, byLocalPlayer);
 			}
 
-			// don't bleed local player
-			if (!IsInFirstPersonView(hurtPlayer.GetId()))
-				Bleed(hitPos, byLocalPlayer);
+			// don't spawn blood when in firstperson view
+			int focusedPlayerId = GetCameraTargetPlayerId();
+			if (!IsFirstPerson(GetCameraMode()) || focusedPlayerId != hurtPlayer.GetId())
+				Bleed(hitPos, focusedPlayerId == by.GetId());
 
 			if (hurtPlayer.IsLocalPlayer()) {
-				// don't player hit sound now;
+				// don't play hit sound now;
 				// local bullet impact sound is
 				// played by checking the decrease of HP
 				return;
@@ -1340,7 +1341,7 @@ namespace spades {
 			if (distSqr > TRACER_CULL_DIST_SQ)
 				return;
 
-			// If disabled, do not display tracers for bullets fired by the local player
+			// If disabled, do not display bullet tracers when in firstperson perspective
 			bool isFirstPerson = IsInFirstPersonView(player.GetId());
 			if (!cg_tracersFirstPerson && isFirstPerson)
 				return;
