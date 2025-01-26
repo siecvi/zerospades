@@ -773,16 +773,32 @@ namespace spades {
 		void Client::PlayerRestocked(spades::client::Player& p) {
 			if (!IsMuted()) {
 				Handle<IAudioChunk> c;
-				if (p.IsLocalPlayer()) {
+				if (IsInFirstPersonView(p.GetId())) {
 					c = audioDevice->RegisterSound("Sounds/Weapons/RestockLocal.opus");
-					audioDevice->PlayLocal(c.GetPointerOrNull(), MakeVector3(0.4F, -0.3F, 0.5F),
-					                       AudioParam());
+					audioDevice->PlayLocal(c.GetPointerOrNull(),
+						MakeVector3(0.4F, -0.3F, 0.5F), AudioParam());
 				} else {
 					c = audioDevice->RegisterSound("Sounds/Weapons/Restock.opus");
 					audioDevice->Play(c.GetPointerOrNull(),
-					                  p.GetEye() + p.GetFront() * 0.5F - p.GetUp() * 0.3F +
-					                    p.GetRight() * 0.4F,
-					                  AudioParam());
+						p.GetEye() + p.GetFront() * 0.5F - p.GetUp() * 0.3F +
+						p.GetRight() * 0.4F, AudioParam());
+				}
+			}
+		}
+
+		void Client::PlayerPulledGrenadePin(spades::client::Player& p) {
+			SPADES_MARK_FUNCTION();
+
+			if (!IsMuted()) {
+				Handle<IAudioChunk> c =
+				  audioDevice->RegisterSound("Sounds/Weapons/Grenade/Fire.opus");
+				if (IsInFirstPersonView(p.GetId())) {
+					audioDevice->PlayLocal(c.GetPointerOrNull(),
+						MakeVector3(0.4F, -0.3F, 0.5F), AudioParam());
+				} else {
+					audioDevice->Play(c.GetPointerOrNull(),
+						p.GetEye() + p.GetFront() * 0.9F - p.GetUp() * 0.2F +
+						p.GetRight() * 0.3F, AudioParam());
 				}
 			}
 		}
@@ -794,17 +810,16 @@ namespace spades {
 			if (!IsMuted()) {
 				Handle<IAudioChunk> c =
 				  audioDevice->RegisterSound("Sounds/Weapons/Grenade/Throw.opus");
-				if (p.IsLocalPlayer()) {
-					if (g)
+				if (IsInFirstPersonView(p.GetId())) {
+					if (g && p.IsLocalPlayer())
 						net->SendGrenade(*g);
 
 					audioDevice->PlayLocal(c.GetPointerOrNull(),
 						MakeVector3(0.4F, 0.1F, 0.3F), AudioParam());
 				} else {
 					audioDevice->Play(c.GetPointerOrNull(),
-					                  p.GetEye() + p.GetFront() * 0.9F - p.GetUp() * 0.2F +
-					                    p.GetRight() * 0.3F,
-					                  AudioParam());
+						p.GetEye() + p.GetFront() * 0.9F - p.GetUp() * 0.2F +
+						p.GetRight() * 0.3F, AudioParam());
 				}
 			}
 		}
@@ -815,13 +830,14 @@ namespace spades {
 			if (!IsMuted()) {
 				Handle<IAudioChunk> c =
 				  audioDevice->RegisterSound("Sounds/Weapons/Spade/Miss.opus");
-				if (p.IsLocalPlayer())
-					audioDevice->PlayLocal(c.GetPointerOrNull(), MakeVector3(0.2F, -0.1F, 0.7F),
-					                       AudioParam());
-				else
+				if (IsInFirstPersonView(p.GetId())) {
+					audioDevice->PlayLocal(c.GetPointerOrNull(),
+						MakeVector3(0.2F, -0.1F, 0.7F), AudioParam());
+				} else {
 					audioDevice->Play(c.GetPointerOrNull(),
-					                  p.GetOrigin() + p.GetFront() * 0.9F + p.GetUp() * 1.25F,
-					                  AudioParam());
+						p.GetOrigin() + p.GetFront() * 0.9F +
+						p.GetUp() * 1.25F, AudioParam());
+				}
 			}
 		}
 
@@ -1461,22 +1477,6 @@ namespace spades {
 					if (world->GetMap()->CastRay(soundPos, MakeVector3(0, 0, 1), 8.0F, outPos))
 						soundPos.z = (float)outPos.z - 0.2F;
 					audioDevice->Play(c.GetPointerOrNull(), soundPos, param);
-				}
-			}
-		}
-
-		void Client::PlayerPulledGrenadePin(spades::client::Player& p) {
-			SPADES_MARK_FUNCTION();
-
-			if (!IsMuted()) {
-				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Weapons/Grenade/Fire.opus");
-				if (p.IsLocalPlayer()) {
-					audioDevice->PlayLocal(c.GetPointerOrNull(), MakeVector3(0.4F, -0.3F, 0.5F), AudioParam());
-				} else {
-					audioDevice->Play(c.GetPointerOrNull(),
-					                  p.GetEye() + p.GetFront() * 0.9F - p.GetUp() * 0.2F +
-					                    p.GetRight() * 0.3F,
-					                  AudioParam());
 				}
 			}
 		}
