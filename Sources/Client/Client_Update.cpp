@@ -712,7 +712,7 @@ namespace spades {
 		void Client::PlayerFiredWeapon(spades::client::Player& p) {
 			SPADES_MARK_FUNCTION();
 
-			if (p.IsLocalPlayer())
+			if (IsInFirstPersonView(p.GetId()))
 				localFireVibrationTime = time;
 
 			clientPlayers.at(p.GetId())->FiredWeapon();
@@ -845,7 +845,7 @@ namespace spades {
 		                                     IntVector3 blockPos, IntVector3 normal) {
 			SPADES_MARK_FUNCTION();
 
-			if (p.IsLocalPlayer())
+			if (IsInFirstPersonView(p.GetId()))
 				localFireVibrationTime = time;
 
 			if (blockPos.z >= 63) {
