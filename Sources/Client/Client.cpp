@@ -551,7 +551,7 @@ namespace spades {
 		}
 
 		bool Client::IsLimboViewActive() {
-			return !HasLocalPlayer() || inGameLimbo;
+			return world && (!world->GetLocalPlayer() || inGameLimbo);
 		}
 
 		void Client::CloseLimboView() {

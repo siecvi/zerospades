@@ -211,8 +211,6 @@ namespace spades {
 				font.DrawShadow(str, pos, 1.0F, color, shadowColor);
 			}
 
-			bool hasLocal = client->HasLocalPlayer();
-
 			for (const auto& item : items) {
 				if (!item.visible)
 					continue;
