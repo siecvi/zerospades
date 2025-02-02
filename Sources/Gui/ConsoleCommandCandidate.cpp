@@ -20,6 +20,7 @@
 #include <utility>
 
 #include <Core/Debug.h>
+#include <Core/Strings.h>
 
 #include "ConsoleCommandCandidate.h"
 
@@ -90,17 +91,6 @@ namespace spades {
 		}
 
 		namespace {
-			/** Equivalent to `std::string::starts_with` (since C++20) */
-			bool StartsWith(const std::string& subject, const std::string& prefix) {
-				// FIXME: Code duplicate (see `ConfigConsoleResponder.cpp`)
-				if (subject.size() < prefix.size())
-					return false;
-				for (std::size_t i = 0; i < prefix.size(); ++i) {
-					if (subject[i] != prefix[i])
-						return false;
-				}
-				return true;
-			}
 
 			class MapIterator : public ConsoleCommandCandidateIterator {
 				const std::map<std::string, std::string>& items;

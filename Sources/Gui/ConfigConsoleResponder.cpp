@@ -30,17 +30,6 @@ namespace spades {
 		namespace {
 			std::string EscapeQuotes(std::string s) { return Replace(s, "\"", "\\\""); }
 
-			/** Equivalent to `std::string::starts_with` (since C++20) */
-			bool StartsWith(const std::string& subject, const std::string& prefix) {
-				if (subject.size() < prefix.size())
-					return false;
-				for (std::size_t i = 0; i < prefix.size(); ++i) {
-					if (subject[i] != prefix[i])
-						return false;
-				}
-				return true;
-			}
-
 			class ConfigNameIterator : public ConsoleCommandCandidateIterator {
 				std::vector<std::string> const names;
 				std::string query;

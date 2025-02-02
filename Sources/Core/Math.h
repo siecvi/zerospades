@@ -991,10 +991,12 @@ namespace spades {
 	bool PlaneCullTest(const Plane3&, const AABB3&);
 
 	bool EqualsIgnoringCase(const std::string&, const std::string&);
+	bool StartsWith(const std::string&, const std::string&);
 	std::vector<std::string> Split(const std::string&, const std::string&);
 	std::vector<std::string> SplitIntoLines(const std::string&);
 	std::string Replace(const std::string&, const std::string&, const std::string&);
 	std::string TrimSpaces(const std::string&);
+	std::string ToLowerCase(const std::string&);
 	std::string ToUpperCase(const std::string&);
 	std::string EscapeControlCharacters(const std::string&);
 

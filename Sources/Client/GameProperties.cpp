@@ -18,8 +18,10 @@
 
  */
 
-#include "GameProperties.h"
 #include <Core/Debug.h>
+#include <Core/Strings.h>
+
+#include "GameProperties.h"
 
 namespace spades {
 	namespace client {
@@ -27,9 +29,16 @@ namespace spades {
 			if (!useHeuristics)
 				return;
 
-			if (msg == "Game mode: Arena by Yourself" || msg == "Game mode: arena") {
-				isGameModeArena = true;
-				SPLog("Current Game Mode : Arena, based on a server message heuristics");
+			const auto& lowerMsg = ToLowerCase(msg);
+
+			// detect game mode
+			const std::string gameModeMsg = "game mode: ";
+			if (StartsWith(lowerMsg, gameModeMsg)) {
+				std::string modeStr = lowerMsg.substr(gameModeMsg.size());
+				if (modeStr.find("arena") != std::string::npos)
+					isGameModeArena = true;
+				
+				SPLog("Game mode: %s, based on server message heuristics", modeStr.c_str());
 			}
 		}
 	} // namespace client

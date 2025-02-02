@@ -523,6 +523,17 @@ namespace spades {
 		return true;
 	}
 
+	/** Equivalent to `std::string::starts_with` (since C++20) */
+	bool StartsWith(const std::string& subject, const std::string& prefix) {
+		if (subject.size() < prefix.size())
+			return false;
+		for (std::size_t i = 0; i < prefix.size(); ++i) {
+			if (subject[i] != prefix[i])
+				return false;
+		}
+		return true;
+	}
+
 	std::vector<std::string> Split(const std::string& str, const std::string& sep) {
 		std::vector<std::string> strs;
 		size_t pos = 0;
@@ -592,6 +603,15 @@ namespace spades {
 		output.resize(str.size());
 
 		::std::transform(str.begin(), str.end(), output.begin(), ::toupper);
+
+		return output;
+	}
+
+	std::string ToLowerCase(const std::string& str) {
+		std::string output;
+		output.resize(str.size());
+
+		::std::transform(str.begin(), str.end(), output.begin(), ::tolower);
 
 		return output;
 	}
