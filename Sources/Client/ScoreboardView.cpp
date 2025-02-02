@@ -354,7 +354,9 @@ namespace spades {
 
 					// make it brighter for darker colors
 					float luminosity = color.x + color.y + color.z;
-					if (luminosity <= 0.9F)
+					if (luminosity <= 0.1F)
+						color = MakeVector4(0, 1, 1, 1);
+					else if (luminosity <= 0.9F)
 						color += (white - color) * 0.5F;
 				}
 				font.Draw(ent.name, MakeVector2(colX + 40.0F, rowY), 1.0F, color);
