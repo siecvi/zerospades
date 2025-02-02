@@ -469,15 +469,17 @@ namespace spades {
 				scrPos.x += (int)cg_playerNameX;
 				scrPos.y += (int)cg_playerNameY;
 
+				Vector3 diff = origin - lastSceneDef.viewOrigin;
+				float dist = diff.GetLength2D();
+
+				// draw player name
 				char buf[64];
 				auto nameStr = player.GetName();
 				sprintf(buf, "%s", nameStr.c_str());
-				if ((int)cg_playerNames < 2) {
-					Vector3 diff = origin - lastSceneDef.viewOrigin;
-					float dist = diff.GetLength2D();
-					if (dist <= FOG_DISTANCE)
-						sprintf(buf, "%s [%.1f]", nameStr.c_str(), dist);
-				}
+
+				// draw distance
+				if ((int)cg_playerNames < 2 && dist <= FOG_DISTANCE)
+					sprintf(buf, "%s [%.1f]", nameStr.c_str(), dist);
 
 				IFont& font = cg_smallFont
 					? fontManager->GetSmallFont()
@@ -491,12 +493,20 @@ namespace spades {
 				scrPos.x = floorf(scrPos.x);
 				scrPos.y = floorf(scrPos.y);
 
+				float fadeStart = FOG_DISTANCE + 10.0F;
+				float fadeEnd = fadeStart + 10.0F;
+				float fade = (dist - fadeStart) / (fadeEnd - fadeStart);
+				float alpha = Clamp(1.0F - fade, 0.1F, 1.0F);
+
 				float luminosity = color.x + color.y + color.z;
 				Vector4 shadowColor = (luminosity > 0.9F)
-					? MakeVector4(0, 0, 0, 0.8F)
-					: MakeVector4(1, 1, 1, 0.8F);
+					? MakeVector4(0, 0, 0, 0.8F * alpha)
+					: MakeVector4(1, 1, 1, 0.8F * alpha);
 
-				font.DrawShadow(buf, scrPos, 1.0F, color, shadowColor);
+				Vector4 col = color;
+				col.w = alpha;
+
+				font.DrawShadow(buf, scrPos, 1.0F, col, shadowColor);
 			}
 		}
 
