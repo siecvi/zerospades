@@ -48,8 +48,6 @@ DEFINE_SPADES_SETTING(cg_clearCorpseOnRespawn, "0");
 DEFINE_SPADES_SETTING(cg_centerMessage, "2");
 DEFINE_SPADES_SETTING(cg_autoScreenshot, "0");
 
-SPADES_SETTING(cg_playerName);
-
 namespace spades {
 	namespace client {
 
@@ -95,8 +93,7 @@ namespace spades {
 			followAndFreeCameraState.pitch = DEG2RAD(89);
 
 			// welcome players
-			centerMessageView->AddMessage(
-			  _Tr("Client", "Welcome to the server, {0}!", cg_playerName.CString()));
+			centerMessageView->AddMessage(_Tr("Client", "Welcome to the server, {0}!", playerName));
 
 			// play intro sound
 			Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Feedback/Intro.opus");

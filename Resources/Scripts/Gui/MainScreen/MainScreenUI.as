@@ -37,7 +37,7 @@ namespace spades {
 
 		private float time = -1.0F;
 
-		private ConfigItem cg_playerName("cg_playerName", "Deuce");
+		private ConfigItem cg_playerName("cg_playerName"); // defined in Gui/Mainscreen.cpp
 		private ConfigItem cg_playerNameIsSet("cg_playerNameIsSet", "0");
 
 		MainScreenUI(Renderer@ renderer, AudioDevice@ audioDevice, FontManager@ fontManager, MainScreenHelper@ helper) {
