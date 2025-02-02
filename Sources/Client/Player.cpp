@@ -699,8 +699,29 @@ namespace spades {
 				} else if (hitPlayer) {
 					finalHitPos = muzzle + dir * hitPlayerDist3D;
 
-					if (isLocal)
+					// save player hits (currently only for localplayer)
+					if (isLocal) {
 						bulletVectors.push_back(finalHitPos);
+
+						switch (hitPart) {
+							case HitBodyPart::Head:
+								playerHits[hitPlayer->playerId].numHeadHits++;
+								break;
+							case HitBodyPart::Torso:
+								playerHits[hitPlayer->playerId].numTorsoHits++;
+								break;
+							case HitBodyPart::Leg1:
+								playerHits[hitPlayer->playerId].numLimbHits[0]++;
+								break;
+							case HitBodyPart::Leg2:
+								playerHits[hitPlayer->playerId].numLimbHits[1]++;
+								break;
+							case HitBodyPart::Arms:
+								playerHits[hitPlayer->playerId].numLimbHits[2]++;
+								break;
+							case HitBodyPart::None: SPAssert(false); break;
+						}
+					}
 
 					HitType hitType;
 					if (hitFlag & hit_Head || hitFlag & hit_Torso) {
@@ -712,25 +733,6 @@ namespace spades {
 						hitType = HitTypeArms;
 					} else {
 						hitType = HitTypeLegs;
-					}
-
-					switch (hitPart) {
-						case HitBodyPart::Head:
-							playerHits[hitPlayer->playerId].numHeadHits++;
-							break;
-						case HitBodyPart::Torso:
-							playerHits[hitPlayer->playerId].numTorsoHits++;
-							break;
-						case HitBodyPart::Leg1:
-							playerHits[hitPlayer->playerId].numLimbHits[0]++;
-							break;
-						case HitBodyPart::Leg2:
-							playerHits[hitPlayer->playerId].numLimbHits[1]++;
-							break;
-						case HitBodyPart::Arms:
-							playerHits[hitPlayer->playerId].numLimbHits[2]++;
-							break;
-						case HitBodyPart::None: SPAssert(false); break;
 					}
 
 					if (listener)
