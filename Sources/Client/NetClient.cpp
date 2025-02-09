@@ -765,7 +765,14 @@ namespace spades {
 				} break;
 				case PacketTypeOrientationData: {
 					Player& p = GetLocalPlayer();
-					p.SetOrientation(r.ReadVector3());
+
+					// ignore invalid orientation
+					Vector3 o = r.ReadVector3();
+					if (o.GetSquaredLength() < 0.01F)
+						break;
+
+					o = o.Normalize();
+					p.SetOrientation(o);
 				} break;
 				case PacketTypeWorldUpdate: {
 					int bytesPerEntry = 24;
