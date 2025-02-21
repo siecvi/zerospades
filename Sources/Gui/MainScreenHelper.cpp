@@ -88,7 +88,7 @@ namespace spades {
 			std::string name, ip, map, gameMode, country, version;
 			int ping = 0, players = 0, maxPlayers = 0;
 
-			name = val["name"].asString();
+			name = TrimSpaces(val["name"].asString());
 			ip = val["identifier"].asString();
 			map = val["map"].asString();
 			gameMode = val["game_mode"].asString();
