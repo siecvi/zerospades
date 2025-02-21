@@ -772,6 +772,11 @@ msgctxt "Preferences"
 msgid "Minimap size"
 msgstr "Tamaño del minimapa"
 
+#: Resources/Scripts/Gui/Preferences.as:1274
+msgctxt "Preferences"
+msgid "Minimap Opacity"
+msgstr "Opacidad del minimapa"
+
 #: Resources/Scripts/Gui/Preferences.as:668
 msgctxt "Preferences"
 msgid "Show Statistics"

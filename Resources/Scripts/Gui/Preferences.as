@@ -1273,6 +1273,8 @@ namespace spades {
 			layouter.AddHeading(_Tr("Preferences", "Minimap"));
 			layouter.AddSliderField(_Tr("Preferences", "Minimap Size"), "cg_minimapSize",
 			128, 256, 8, ConfigNumberFormatter(0, "px"));
+			layouter.AddSliderField(_Tr("Preferences", "Minimap Opacity"), "cg_minimapOpacity",
+			0.1, 1, 0.1, ConfigNumberFormatter(1, ""));
 			layouter.AddToggleField(_Tr("Preferences", "Use Weapon Icons"),	 "cg_minimapPlayerIcon");
 			layouter.AddToggleField(_Tr("Preferences", "Use Random Colors"), "cg_minimapPlayerColor");
 			layouter.AddChoiceField(_Tr("Preferences", "Show Map Location"), "cg_minimapCoords",

@@ -35,6 +35,7 @@
 #include <Core/Settings.h>
 #include <Core/TMPUtils.h>
 
+DEFINE_SPADES_SETTING(cg_minimapOpacity, "1");
 DEFINE_SPADES_SETTING(cg_minimapSize, "128");
 DEFINE_SPADES_SETTING(cg_minimapCoords, "1");
 DEFINE_SPADES_SETTING(cg_minimapPlayerIcon, "1");
@@ -321,7 +322,7 @@ namespace spades {
 			this->inRect = inRect;
 			this->outRect = outRect;
 
-			float alpha = largeMap ? zoomState : 1.0F;
+			float alpha = largeMap ? zoomState : Clamp((float)cg_minimapOpacity, 0.1F, 1.0F);
 
 			// draw map
 			renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) * alpha);
@@ -416,7 +417,7 @@ namespace spades {
 			const float tracerW = 0.5F;
 			const AABB2 tracerInRect{0.0F, 0.0F, tracerImg->GetWidth(), tracerImg->GetHeight()};
 
-			renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 0, 1) * alpha);
+			renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 0, 1));
 			for (const auto& localEntity : client->localEntities) {
 				auto* const tracer = dynamic_cast<MapViewTracer*>(localEntity.get());
 				if (!tracer)
@@ -490,7 +491,7 @@ namespace spades {
 						palette[colorIndex][2]
 					);
 				}
-				Vector4 iconColorF = ModifyColor(iconColor) * alpha;
+				Vector4 iconColorF = ModifyColor(iconColor);
 
 				if (iconMode) {
 					switch (p.GetWeaponType()) {
@@ -515,7 +516,7 @@ namespace spades {
 
 				// draw player names
 				if (namesMode == 1 || (namesMode >= 2 && largeMap))
-					DrawText(p.GetName(), pos, MakeVector4(1, 1, 1, 0.75F * alpha));
+					DrawText(p.GetName(), pos, MakeVector4(1, 1, 1, 0.75F));
 			}
 
 			// draw map objects
@@ -529,7 +530,7 @@ namespace spades {
 					CTFGameMode::Team& team2 = ctf.GetTeam(1 - tId);
 
 					// draw base
-					Vector4 teamColorF = ModifyColor(world->GetTeamColor(tId)) * alpha;
+					Vector4 teamColorF = ModifyColor(world->GetTeamColor(tId));
 					DrawIcon(team1.basePos, *baseIcon, teamColorF);
 
 					// draw both flags
@@ -551,7 +552,7 @@ namespace spades {
 					                         ? MakeIntVector3(128, 128, 128)
 					                         : world->GetTeamColor(t.ownerTeamId);
 
-					Vector4 teamColorF = ModifyColor(teamColor) * alpha;
+					Vector4 teamColorF = ModifyColor(teamColor);
 					DrawIcon(t.pos, *baseIcon, teamColorF);
 				}
 			}

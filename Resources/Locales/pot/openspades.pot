@@ -764,9 +764,9 @@ msgctxt "Preferences"
 msgid "Minimap size"
 msgstr ""
 
-#: Resources/Scripts/Gui/Preferences.as:668
+#: Resources/Scripts/Gui/Preferences.as:1274
 msgctxt "Preferences"
-msgid "Show Statistics"
+msgid "Minimap Opacity"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:678
