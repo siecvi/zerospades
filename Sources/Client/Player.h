@@ -85,7 +85,6 @@ namespace spades {
 			std::unique_ptr<Weapon> weapon;
 			int playerId;
 			int teamId;
-			IntVector3 color; // obsolete
 
 			int lastHealth;
 

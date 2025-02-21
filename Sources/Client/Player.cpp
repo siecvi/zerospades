@@ -61,7 +61,6 @@ namespace spades {
 			weaponType = wType;
 			teamId = tId;
 			weapon->Reset();
-			color = col;
 
 			health = 100;
 			lastHealth = health;
@@ -69,7 +68,7 @@ namespace spades {
 
 			grenades = 3;
 			blockStocks = 50;
-			blockColor = MakeIntVector3(111, 111, 111);
+			blockColor = col;
 
 			nextSpadeTime = 0.0F;
 			nextDigTime = 0.0F;

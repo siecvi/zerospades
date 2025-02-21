@@ -891,7 +891,7 @@ namespace spades {
 						int weapon = r.ReadByte();
 						int tool = r.ReadByte();
 						int score = r.ReadInt();
-						IntVector3 color = r.ReadIntColor();
+						IntVector3 color = r.ReadIntColor(); // block color
 						std::string name = TrimSpaces(r.ReadRemainingString());
 						// TODO: decode name?
 
@@ -903,9 +903,10 @@ namespace spades {
 							default: SPRaise("Received invalid weapon: %d", weapon);
 						}
 
-						auto p = stmp::make_unique<Player>(*GetWorld(), pId, wType, team,
-							savedPlayerPos[pId], GetWorld()->GetTeamColor(team));
+						auto p = stmp::make_unique<Player>(*GetWorld(),
+							pId, wType, team, savedPlayerPos[pId], color);
 
+						// set tool
 						switch (tool) {
 							case 0: p->SetTool(Player::ToolSpade); break;
 							case 1: p->SetTool(Player::ToolBlock); break;
@@ -914,9 +915,9 @@ namespace spades {
 							default: SPRaise("Received invalid tool type: %d", tool);
 						}
 
-						p->SetHeldBlockColor(color);
 						GetWorld()->SetPlayer(pId, std::move(p));
 
+						// set name and score
 						auto& pers = GetWorld()->GetPlayerPersistent(pId);
 						pers.name = name;
 						pers.score = score;
@@ -989,18 +990,22 @@ namespace spades {
 						default: SPRaise("Received invalid weapon: %d", weapon);
 					}
 
-					auto p = stmp::make_unique<Player>(*GetWorld(), pId, wType, team,
-						savedPlayerPos[pId], GetWorld()->GetTeamColor(team));
+					auto p = stmp::make_unique<Player>(*GetWorld(),
+						pId, wType, team, pos, MakeIntVector3(111, 111, 111));
+
+					// set position
 					p->SetPosition(pos);
+
 					GetWorld()->SetPlayer(pId, std::move(p));
 
-					Player& pRef = GetWorld()->GetPlayer(pId).value();
-
+					// set name
 					if (!name.empty()) // sometimes becomes empty
 						GetWorld()->GetPlayerPersistent(pId).name = name;
 
+					Player& pRef = GetWorld()->GetPlayer(pId).value();
+
 					if (pId == GetWorld()->GetLocalPlayerIndex()) {
-						// override default block color for localplayer
+						// override default block color for local player
 						IntVector3 blockColor;
 						blockColor.x = Clamp((int)cg_defaultBlockColorR, 0, 255);
 						blockColor.y = Clamp((int)cg_defaultBlockColorG, 0, 255);
@@ -1010,13 +1015,14 @@ namespace spades {
 						client->LocalPlayerCreated();
 						lastPlayerInput = 0xFFFFFFFF;
 						lastWeaponInput = 0xFFFFFFFF;
-						SendHeldBlockColor(); // ensure block color synchronized
+						SendHeldBlockColor(); // ensure block color is synchronized
 					} else {
 						if (savedPlayerTeam[pId] != team) {
 							client->PlayerJoinedTeam(pRef);
 							savedPlayerTeam[pId] = team;
 						}
 					}
+
 					client->PlayerSpawned(pRef);
 				} break;
 				case PacketTypeBlockAction: {
