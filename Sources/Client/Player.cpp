@@ -698,30 +698,6 @@ namespace spades {
 				} else if (hitPlayer) {
 					finalHitPos = muzzle + dir * hitPlayerDist3D;
 
-					// save player hits (currently only for localplayer)
-					if (isLocal) {
-						bulletVectors.push_back(finalHitPos);
-
-						switch (hitPart) {
-							case HitBodyPart::Head:
-								playerHits[hitPlayer->playerId].numHeadHits++;
-								break;
-							case HitBodyPart::Torso:
-								playerHits[hitPlayer->playerId].numTorsoHits++;
-								break;
-							case HitBodyPart::Leg1:
-								playerHits[hitPlayer->playerId].numLimbHits[0]++;
-								break;
-							case HitBodyPart::Leg2:
-								playerHits[hitPlayer->playerId].numLimbHits[1]++;
-								break;
-							case HitBodyPart::Arms:
-								playerHits[hitPlayer->playerId].numLimbHits[2]++;
-								break;
-							case HitBodyPart::None: SPAssert(false); break;
-						}
-					}
-
 					HitType hitType;
 					if (hitFlag & hit_Head || hitFlag & hit_Torso) {
 						if (hitFlag & hit_Head)
@@ -732,6 +708,29 @@ namespace spades {
 						hitType = HitTypeArms;
 					} else {
 						hitType = HitTypeLegs;
+					}
+
+					// save player hits (currently only for localplayer)
+					if (isLocal) {
+						bulletVectors.push_back(finalHitPos);
+
+						switch (hitType) {
+							case HitTypeHead:
+								playerHits[hitPlayer->playerId].numHeadHits++;
+								break;
+							case HitTypeTorso:
+								playerHits[hitPlayer->playerId].numTorsoHits++;
+								break;
+							case HitTypeArms:
+								playerHits[hitPlayer->playerId].numLimbHits[2]++;
+								break;
+							case HitTypeLegs:
+								if (hitPart == HitBodyPart::Leg1)
+									playerHits[hitPlayer->playerId].numLimbHits[0]++;
+								else if (hitPart == HitBodyPart::Leg2)
+									playerHits[hitPlayer->playerId].numLimbHits[1]++;
+								break;
+						}
 					}
 
 					if (listener)
@@ -747,13 +746,15 @@ namespace spades {
 					listener->AddBulletTracer(*this, muzzle, finalHitPos);
 			} // one pellet done
 
-			if (isLocal) {
-				// do hit test debugging
+			// do hit test debugging
+			if (isLocal && !playerHits.empty()) {
 				auto* debugger = world.GetHitTestDebugger();
-				if (debugger && !playerHits.empty())
+				if (debugger)
 					debugger->SaveImage(playerHits, bulletVectors);
+			}
 
-				// do weapon recoil
+			// do weapon recoil
+			if (isLocal) {
 				Vector2 rec = weapon->GetRecoil();
 
 				// vanilla's horizontial recoil is driven by a triangular wave generator.
