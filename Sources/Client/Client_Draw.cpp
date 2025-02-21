@@ -84,6 +84,7 @@ DEFINE_SPADES_SETTING(cg_playerNames, "2");
 DEFINE_SPADES_SETTING(cg_playerNameX, "0");
 DEFINE_SPADES_SETTING(cg_playerNameY, "0");
 DEFINE_SPADES_SETTING(cg_dbgHitTestSize, "128");
+DEFINE_SPADES_SETTING(cg_dbgHitTestFadeTime, "10");
 DEFINE_SPADES_SETTING(cg_damageIndicators, "1");
 DEFINE_SPADES_SETTING(cg_hurtScreenEffects, "1");
 
@@ -500,11 +501,12 @@ namespace spades {
 
 				float luminosity = color.x + color.y + color.z;
 				Vector4 shadowColor = (luminosity > 0.9F)
-					? MakeVector4(0, 0, 0, 0.8F * alpha)
-					: MakeVector4(1, 1, 1, 0.8F * alpha);
+					? MakeVector4(0, 0, 0, 0.8F)
+					: MakeVector4(1, 1, 1, 0.8F);
 
 				Vector4 col = color;
-				col.w = alpha;
+				col.w = alpha * col.w;
+				shadowColor.w = 0.8F * col.w;
 
 				font.DrawShadow(buf, scrPos, 1.0F, col, shadowColor);
 			}
@@ -993,7 +995,19 @@ namespace spades {
 				outRect.max = MakeVector2((sw + zoomedSize.x) * 0.5F, (sh + zoomedSize.y) * 0.5F);
 			}
 
-			float alpha = debugHitTestZoom ? debugHitTestZoomState : 1.0F;
+			const float fadeOutTime = cg_dbgHitTestFadeTime;
+			float timeSinceLastHit = world->GetTime() - lastHitTime;
+
+			float fade = 1.0F;
+			if (timeSinceLastHit > fadeOutTime) { // start fading
+				fade = (timeSinceLastHit - fadeOutTime) / 1.0F;
+				fade = std::max(0.0F, 1.0F - fade);
+			}
+
+			float alpha = debugHitTestZoom ? debugHitTestZoomState : fade;
+			if (alpha <= 0.0F)
+				return;
+
 			renderer->SetColorAlphaPremultiplied(MakeVector4(alpha, alpha, alpha, alpha));
 			renderer->DrawImage(debugHitTestImage, outRect, AABB2(128, 512 - 128, 256, 256 - 512)); // flip Y axis
 
@@ -1121,27 +1135,25 @@ namespace spades {
 			font.DrawShadow(msg, pos, 1.0F, color, shadowColor);
 
 			// draw deaths count
-			if (time >= lastAliveTime) {
-				const float fadeOutTime = 1.3F;
-				float timeSinceDeath = time - lastAliveTime;
+			const float fadeOutTime = 1.3F;
+			float timeSinceDeath = time - lastAliveTime;
 
-				float fade = 1.0F;
-				if (timeSinceDeath > fadeOutTime) { // start fading out
-					fade = 1.0F - (timeSinceDeath - fadeOutTime) / fadeOutTime;
-					fade = std::max(0.0F, fade);
-				}
+			float fade = 1.0F;
+			if (timeSinceDeath > fadeOutTime) { // start fading out
+				fade = (timeSinceDeath - fadeOutTime) / 1.0F;
+				fade = std::max(0.0F, 1.0F - fade);
+			}
 
-				if (fade > 0.0F) {
-					color.w = fade;
-					shadowColor.w = 0.5F * fade;
+			if (fade > 0.0F) {
+				color.w = fade;
+				shadowColor.w = 0.5F * fade;
 
-					msg = ToString(curDeaths);
-					IFont& bigFont = fontManager->GetLargeFont();
-					size = bigFont.Measure(msg);
-					pos.x = (sw - size.x) * 0.5F;
-					pos.y += 30.0F;
-					bigFont.DrawShadow(msg, pos, 1.0F, color, shadowColor);
-				}
+				msg = ToString(curDeaths);
+				IFont& bigFont = fontManager->GetLargeFont();
+				size = bigFont.Measure(msg);
+				pos.x = (sw - size.x) * 0.5F;
+				pos.y += 30.0F;
+				bigFont.DrawShadow(msg, pos, 1.0F, color, shadowColor);
 			}
 		}
 

@@ -1676,7 +1676,12 @@ msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:661
 msgctxt "Preferences"
-msgid "Toggle Hit Test Zoom"
+msgid "Toggle Hit Debugger Zoom"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1228
+msgctxt "Preferences"
+msgid "Hit Debugger Fade Time"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:662

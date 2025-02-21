@@ -1741,8 +1741,13 @@ msgstr "Tamaño del depurador de impactos"
 
 #: Resources/Scripts/Gui/Preferences.as:661
 msgctxt "Preferences"
-msgid "Toggle Hit Test Zoom"
+msgid "Toggle Hit Debugger Zoom"
 msgstr "Alternar zoom del depurador de impactos"
+
+#: Resources/Scripts/Gui/Preferences.as:1228
+msgctxt "Preferences"
+msgid "Hit Debugger Fade Time"
+msgstr "Tiempo de desvanecimiento"
 
 #: Resources/Scripts/Gui/Preferences.as:662
 msgctxt "Preferences"
