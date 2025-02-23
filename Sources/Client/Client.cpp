@@ -89,7 +89,6 @@ namespace spades {
 		      lastOriSentTime(0.0F),
 		      lastAliveTime(0.0F),
 		      lastRespawnCount(0),
-		      lastHitTime(0.0F),
 		      lastScore(0),
 		      curKills(0),
 		      curDeaths(0),
@@ -171,6 +170,7 @@ namespace spades {
 
 			lastHealth = 0;
 			lastHurtTime = -100.0F;
+			lastHitTime = -100.0F;
 			hurtRingView->ClearAll();
 
 			reloadKeyPressed = false;
