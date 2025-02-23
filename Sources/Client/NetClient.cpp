@@ -973,7 +973,6 @@ namespace spades {
 					int weapon = r.ReadByte();
 					int team = r.ReadByte();
 					Vector3 pos = r.ReadVector3();
-					pos.z -= 2.4F;
 					std::string name = TrimSpaces(r.ReadRemainingString());
 					// TODO: decode name?
 
@@ -989,6 +988,10 @@ namespace spades {
 						case 2: wType = SHOTGUN_WEAPON; break;
 						default: SPRaise("Received invalid weapon: %d", weapon);
 					}
+
+					// only adjust local player's spawn height
+					if (pId == GetWorld()->GetLocalPlayerIndex())
+						pos.z -= 2.4F;
 
 					auto p = stmp::make_unique<Player>(*GetWorld(),
 						pId, wType, team, pos, MakeIntVector3(111, 111, 111));
