@@ -156,31 +156,16 @@ namespace spades {
 			};
 
 			bool interp = cg_orientationSmoothing;
-			for (std::size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
-				auto p = world->GetPlayer(static_cast<unsigned int>(i));
-				if (!p || p == localPlayer)
-					continue;
-				if (!p->IsAlive() || p->IsSpectator())
+			for (const auto& hit : hits) {
+				auto p = world->GetPlayer(hit.first);
+				if (!p)
 					continue;
 
-				PlayerHit hit;
-				auto it = hits.find(static_cast<int>(i));
-				if (it != hits.end())
-					hit = it->second;
-
-				int numHits = 0;
-				numHits += hit.numHeadHits;
-				numHits += hit.numTorsoHits;
+				auto hb = p->GetHitBoxes(interp); // interpolated
+				drawBox(hb.head, getColor(hit.second.numHeadHits));
+				drawBox(hb.torso, getColor(hit.second.numTorsoHits));
 				for (int j = 0; j < 3; j++)
-					numHits += hit.numLimbHits[j];
-
-				if (numHits > 0) {
-					auto hb = p->GetHitBoxes(interp); // interpolated
-					drawBox(hb.head, getColor(hit.numHeadHits));
-					drawBox(hb.torso, getColor(hit.numTorsoHits));
-					for (int j = 0; j < 3; j++)
-						drawBox(hb.limbs[j], getColor(hit.numLimbHits[j]));
-				}
+					drawBox(hb.limbs[j], getColor(hit.second.numLimbHits[j]));
 			}
 
 			renderer->EndScene();
