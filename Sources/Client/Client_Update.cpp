@@ -892,10 +892,15 @@ namespace spades {
 				lastAliveTime = time;
 
 				// initialize the look-you-are-dead camera
-				Vector3 o = -victim.GetFront();
-				followCameraState.enabled = false;
-				followAndFreeCameraState.yaw = atan2f(o.y, o.x);
-				followAndFreeCameraState.pitch = DEG2RAD(30);
+				if (followCameraState.enabled) {
+					Vector3 o = -victim.GetFront();
+					followAndFreeCameraState.yaw = atan2f(o.y, o.x);
+					followAndFreeCameraState.pitch = DEG2RAD(30);
+
+					// reset follow camera state
+					followCameraState.firstPerson = true;
+					followCameraState.enabled = false;
+				}
 
 				// play death sound
 				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Player/Death.opus");
