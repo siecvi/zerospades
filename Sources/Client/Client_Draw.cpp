@@ -1037,21 +1037,9 @@ namespace spades {
 				                MakeVector4(0, 0, 0, 0.8F));
 			};
 
-			int hits, shots;
-			switch (p.GetWeaponType()) {
-				case RIFLE_WEAPON:
-					hits = rifleHits;
-					shots = rifleShots;
-					break;
-				case SMG_WEAPON:
-					hits = smgHits;
-					shots = smgShots;
-					break;
-				case SHOTGUN_WEAPON:
-					hits = shotgunHits;
-					shots = shotgunShots;
-					break;
-			}
+			const auto& weaponType = p.GetWeaponType();
+			int hits = weaponStats.hits[weaponType];
+			int shots = weaponStats.shots[weaponType];
 			int accPerc = int(100.0F * (float(hits) / float(std::max(1, shots))));
 			addLine(_Tr("Client", "Accuracy: {0}%", accPerc));
 

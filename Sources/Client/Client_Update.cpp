@@ -908,6 +908,10 @@ namespace spades {
 				param.volume = cg_deathSoundGain;
 				audioDevice->PlayLocal(c.GetPointerOrNull(), param);
 
+				// reset hit counter
+				if (kt == KillTypeClassChange)
+					hitStats = HitStats();
+
 				// register local deaths
 				curDeaths++;
 				if (curStreak > bestStreak)
@@ -1200,13 +1204,8 @@ namespace spades {
 				net->SendHit(hurtPlayer.GetId(), type);
 
 				// register bullet hits
-				if (type != HitTypeMelee) {
-					switch (by.GetWeaponType()) {
-						case RIFLE_WEAPON: rifleHits++; break;
-						case SMG_WEAPON: smgHits++; break;
-						case SHOTGUN_WEAPON: shotgunHits++; break;
-					}
-				}
+				if (type != HitTypeMelee)
+					weaponStats.hits[by.GetWeaponType()]++;
 
 				if ((bool)cg_damageIndicators && type != HitTypeMelee) {
 					DamageIndicator damages;
@@ -1222,13 +1221,13 @@ namespace spades {
 					char buf[256];
 					std::string s;
 
+					// add hurt player name and distance
 					float dist = (by.GetEye() - hurtPlayer.GetEye()).GetLength();
 					sprintf(buf, "%.1f", dist);
-					s += buf;
-
 					s = _Tr("Client", "You hit {0} from: {1} blocks ",
-						hurtPlayer.GetName(), s);
+						hurtPlayer.GetName(), std::string(buf));
 
+					// add delta time since last hit
 					if ((int)cg_hitAnalyze >= 2) {
 						float dt = world->GetTime() - lastHitTime;
 						if (dt <= 0.0F) {
@@ -1242,6 +1241,7 @@ namespace spades {
 						}
 					}
 
+					// add body part
 					s += "[";
 					switch (type) {
 						case HitTypeTorso: s += _Tr("Client", "TORSO"); break;
@@ -1251,6 +1251,18 @@ namespace spades {
 						default: s += _Tr("Client", "HEAD"); break;
 					}
 					s += "]";
+
+					// add hit count
+					if (type != HitTypeMelee) {
+						int hits = 0;
+						switch (type) {
+							case HitTypeTorso: hits = ++hitStats.numBodyHits; break;
+							case HitTypeHead: hits = ++hitStats.numHeadHits; break;
+							case HitTypeArms:
+							case HitTypeLegs: hits = ++hitStats.numLimbHits; break;
+						}
+						s += " (" + ToString(hits) + ")";
+					}
 
 					scriptedUI->RecordChatLog(s);
 					chatWindow->AddMessage(s);
@@ -1276,11 +1288,7 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			// register near shots
-			switch (by.GetWeaponType()) {
-				case RIFLE_WEAPON: rifleShots++; break;
-				case SMG_WEAPON: smgShots++; break;
-				case SHOTGUN_WEAPON: shotgunShots++; break;
-			}
+			weaponStats.shots[by.GetWeaponType()]++;
 		}
 
 		void Client::BulletHitBlock(Vector3 hitPos, IntVector3 blockPos, IntVector3 normal) {

@@ -22,6 +22,7 @@
 #pragma once
 
 #include <list>
+#include <array>
 #include <memory>
 #include <string>
 #include <tuple>
@@ -165,12 +166,19 @@ namespace spades {
 			int meleeKills;
 			int grenadeKills;
 			int placedBlocks;
-			int rifleHits;
-			int smgHits;
-			int shotgunHits;
-			int rifleShots;
-			int smgShots;
-			int shotgunShots;
+
+			struct WeaponStats {
+				std::array<int, 3> hits, shots;
+				WeaponStats() : hits({0, 0, 0}), shots({0, 0, 0}) {}
+			};
+			WeaponStats weaponStats;
+
+			struct HitStats {
+				int numHeadHits, numBodyHits, numLimbHits;
+				HitStats() : numHeadHits(0), numBodyHits(0), numLimbHits(0) {}
+			};
+			HitStats hitStats;
+
 			float worldSetTime;
 
 			bool reloadKeyPressed;
@@ -188,7 +196,7 @@ namespace spades {
 				float fade;
 				Vector3 position;
 				Vector3 velocity;
-				DamageIndicator() : damage(0) { ; }
+				DamageIndicator() : damage(0) {}
 			};
 			std::list<DamageIndicator> damageIndicators;
 
