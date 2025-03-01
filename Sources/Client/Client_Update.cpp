@@ -632,6 +632,10 @@ namespace spades {
 						if (hpper > 0.5F)
 							spr.strength *= 1.5F - hpper;
 					}
+
+					damageTaken = lastHealth - health;
+				} else {
+					damageTaken = 0;
 				}
 
 				lastHealth = health;

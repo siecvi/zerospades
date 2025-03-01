@@ -899,7 +899,6 @@ namespace spades {
 			{
 				int hp = p.GetHealth(); // current player health
 				int maxHealth = 100;    // server doesn't send this
-				int damageTaken = p.GetLastHealth() - hp;
 				float hpFrac = Clamp((float)hp / (float)maxHealth, 0.0F, 1.0F);
 
 				Vector4 hpColor = color + (red - color) * (1.0F - hpFrac);
