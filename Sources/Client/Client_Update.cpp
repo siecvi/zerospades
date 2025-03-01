@@ -165,7 +165,7 @@ namespace spades {
 
 		/** Captures the color of the block player is looking at. */
 		void Client::CaptureColor() {
-			Player& p = GetWorld()->GetLocalPlayer().value();
+			Player& p = world->GetLocalPlayer().value();
 
 			World::WeaponRayCastResult res;
 			res = world->WeaponRayCast(p.GetEye(), p.GetFront(), p.GetId());
@@ -454,14 +454,13 @@ namespace spades {
 		void Client::UpdateLocalPlayer(float dt) {
 			SPADES_MARK_FUNCTION();
 
-			Player& player = GetWorld()->GetLocalPlayer().value();
+			Player& player = world->GetLocalPlayer().value();
 			Weapon& weapon = player.GetWeapon();
 
 			PlayerInput inp = playerInput;
 			WeaponInput winp = weapInput;
 
-			int health = player.GetHealth();
-			bool isPlayerAlive = health > 0;
+			bool isPlayerAlive = player.IsAlive();
 			bool isToolWeapon = player.IsToolWeapon();
 
 			// stop sprinting if player is moving too slow
@@ -603,6 +602,7 @@ namespace spades {
 				}
 			}
 
+			int health = player.GetHealth();
 			if (health != lastHealth) {
 				if (health < lastHealth) { // ouch!
 					lastHurtTime = time;

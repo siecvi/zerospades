@@ -1436,8 +1436,8 @@ namespace spades {
 					Weapon& w = p.GetWeapon();
 
 					if (pId == GetWorld()->GetLocalPlayerIndex())
-						p.Refill(hp, grenades, blocks);
-					w.Refill(clip, reserve);
+						p.Restock(hp, grenades, blocks);
+					w.Restock(clip, reserve);
 					GetWorld()->GetPlayerPersistent(pId).score = score;
 				} break;
 				default:

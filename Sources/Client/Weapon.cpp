@@ -45,7 +45,7 @@ namespace spades {
 
 		Weapon::~Weapon() { SPADES_MARK_FUNCTION(); }
 
-		void Weapon::Refill(int ammo, int stock) {
+		void Weapon::Restock(int ammo, int stock) {
 			this->ammo = ammo;
 			this->stock = stock;
 		}
@@ -157,8 +157,7 @@ namespace spades {
 			reloading = false;
 
 			// set new ammo and stock
-			this->ammo = ammo;
-			this->stock = stock;
+			Restock(ammo, stock);
 
 			// handle shotgun reload
 			if (IsReloadSlow())

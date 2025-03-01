@@ -43,14 +43,15 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			lastJump = false;
-			lastClimbTime = -100;
-			lastJumpTime = -100;
+			lastClimbTime = -100.0F;
+			lastJumpTime = -100.0F;
 			tool = ToolWeapon;
+			alive = true;
 			airborne = false;
 			wade = false;
 			position = pos;
 			velocity = MakeVector3(0, 0, 0);
-			orientation = MakeVector3(tId ? -1.0F : 1, 0, 0);
+			orientation = MakeVector3(tId ? -1.0F : 1.0F, 0, 0);
 			orientationSmoothed = orientation;
 			eye = MakeVector3(0, 0, 0);
 			moveDistance = 0.0F;
@@ -63,12 +64,12 @@ namespace spades {
 			weapon->Reset();
 
 			health = 100;
-			lastHealth = health;
-			localPlayerHealth = health;
-
 			grenades = 3;
 			blockStocks = 50;
 			blockColor = col;
+
+			pendingRestock = false;
+			pendingRestockHealth = false;
 
 			nextSpadeTime = 0.0F;
 			nextDigTime = 0.0F;
@@ -83,8 +84,6 @@ namespace spades {
 			blockCursorActive = false;
 			blockCursorDragging = false;
 			pendingPlaceBlock = false;
-			pendingRestock = false;
-			pendingRestockHealth = false;
 			canPending = false;
 
 			respawnTime = 0.0F;
@@ -236,7 +235,7 @@ namespace spades {
 		void Player::Reload() {
 			SPADES_MARK_FUNCTION();
 
-			if (!IsAlive())
+			if (!alive)
 				return; // dead man cannot reload
 
 			weapon->Reload();
@@ -246,43 +245,39 @@ namespace spades {
 			weapon->ReloadDone(clip, stock);
 		}
 
-		void Player::Refill(int hp, int grenades, int blocks) {
+		// currently only used for local player
+		void Player::Restock(int hp, int grenades, int blocks) {
 			SPADES_MARK_FUNCTION();
 
-			lastHealth = localPlayerHealth;
-			localPlayerHealth = hp;
-			localPlayerGrenades = grenades;
-			localPlayerBlocks = blocks;
+			pendingHealth = hp;
+			pendingGrenades = grenades;
+			pendingBlocks = blocks;
 			pendingRestock = true;
 		}
 
-		// currently only used for localplayer
+		// currently only used for local player
 		void Player::Restock() {
 			SPADES_MARK_FUNCTION();
 
-			if (!IsAlive())
+			if (!alive)
 				return; // dead man cannot restock
 
-			Refill();
+			Restock(100, 3, 50);
 			weapon->Restock();
 
 			if (world.GetListener())
 				world.GetListener()->PlayerRestocked(*this);
 		}
 
-		// currently only used for localplayer
+		// currently only used for local player
 		void Player::SetHP(int hp, HurtType type, spades::Vector3 p) {
 			SPADES_MARK_FUNCTION();
 
-			if (!IsAlive())
+			if (!alive)
 				return; // already dead
 
-			lastHealth = localPlayerHealth;
-			localPlayerHealth = hp;
+			pendingHealth = hp;
 			pendingRestockHealth = true;
-
-			if (localPlayerHealth >= lastHealth)
-				return;
 
 			if (world.GetListener())
 				world.GetListener()->LocalPlayerHurt(type, p);
@@ -485,17 +480,15 @@ namespace spades {
 
 			// perform restock for local
 			if (isLocal && pendingRestock) {
-				lastHealth = health;
-				health = localPlayerHealth;
-				grenades = localPlayerGrenades;
-				blockStocks = localPlayerBlocks;
+				health = pendingHealth;
+				grenades = pendingGrenades;
+				blockStocks = pendingBlocks;
 				pendingRestock = false;
 			}
 
 			// perform health updates for local
 			if (isLocal && pendingRestockHealth) {
-				lastHealth = health;
-				health = localPlayerHealth;
+				health = pendingHealth;
 				pendingRestockHealth = false;
 			}
 		}
@@ -802,9 +795,7 @@ namespace spades {
 			if (IsLocalPlayer()) {
 				Vector3 const dir = GetFront();
 				Vector3 const muzzle = GetEye() + (dir * 0.1F);
-				Vector3 const vel = IsAlive()
-					? (dir + GetVelocity())
-					: Vector3(0, 0, 0);
+				Vector3 const vel = alive ? (dir + GetVelocity()) : Vector3(0, 0, 0);
 
 				float const fuse = 3.0F - GetGrenadeCookTime();
 
@@ -812,7 +803,8 @@ namespace spades {
 				if (world.GetListener())
 					world.GetListener()->PlayerThrewGrenade(*this, *nade);
 				world.AddGrenade(std::move(nade));
-				grenades--;
+				if (grenades > 0)
+					grenades--;
 			} else {
 				// grenade packet will be sent by server
 				if (world.GetListener())
@@ -1095,7 +1087,7 @@ namespace spades {
 		}
 
 		void Player::MovePlayer(float fsynctics) {
-			if (!IsAlive()) {
+			if (!alive) {
 				MoveCorpse(fsynctics);
 				return;
 			}
@@ -1293,15 +1285,14 @@ namespace spades {
 		void Player::KilledBy(KillType type, Player& killer, int respawnTime) {
 			SPADES_MARK_FUNCTION();
 
-			if (!IsAlive())
+			if (!alive)
 				return; // already dead
 
+			alive = false;
 			health = 0;
 			weapon->SetShooting(false);
 
 			if (IsLocalPlayer()) {
-				localPlayerHealth = 0;
-
 				// drop the live grenade (though it won't do any damage?)
 				if (tool == ToolGrenade)
 					ThrowGrenade();

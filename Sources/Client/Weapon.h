@@ -68,7 +68,7 @@ namespace spades {
 
 			static Weapon* CreateWeapon(WeaponType index, Player& owner, const GameProperties&);
 
-			void Refill(int ammo, int stock);
+			void Restock(int ammo, int stock);
 			void Restock();
 			void Reset();
 			void SetShooting(bool);

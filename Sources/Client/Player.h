@@ -77,6 +77,7 @@ namespace spades {
 			Vector3 eye;
 			PlayerInput input;
 			WeaponInput weapInput;
+			bool alive;
 			bool airborne;
 			bool wade;
 			ToolType tool;
@@ -86,18 +87,16 @@ namespace spades {
 			int playerId;
 			int teamId;
 
-			int lastHealth;
-
-			int localPlayerHealth;
-			int localPlayerGrenades;
-			int localPlayerBlocks;
-			bool pendingRestock;
-			bool pendingRestockHealth;
-
 			int health;
 			int grenades;
 			int blockStocks;
 			IntVector3 blockColor;
+
+			int pendingHealth;
+			int pendingGrenades;
+			int pendingBlocks;
+			bool pendingRestock;
+			bool pendingRestockHealth;
 
 			// for making footsteps
 			float moveDistance;
@@ -181,7 +180,7 @@ namespace spades {
 			int GetNumGrenades() { return grenades; }
 			void Reload();
 			void ReloadDone(int clip, int stock);
-			void Refill(int hp = 100, int grenades = 3, int blocks = 50);
+			void Restock(int hp, int grenades, int blocks);
 			void Restock();
 			void GotBlock() { blockStocks = std::min(blockStocks + 1, 50); }
 			void UseBlocks(int c) { blockStocks = std::max(blockStocks - c, 0); }
@@ -208,12 +207,11 @@ namespace spades {
 			/** makes player's health 0. */
 			void KilledBy(KillType, Player& killer, int respawnTime);
 
-			bool IsAlive() { return health > 0; }
+			bool IsAlive() { return alive; }
 			/** @return world time to respawn */
 			float GetTimeToRespawn();
 			/** Returns player's health (local player only) */
 			int GetHealth() { return health; }
-			int GetLastHealth() { return lastHealth; }
 
 			Vector3 GetPosition() { return position; }
 			Vector3 GetFront(bool interpolate = false);
