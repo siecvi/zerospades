@@ -1316,7 +1316,12 @@ namespace spades {
 
 			input = PlayerInput();
 			weapInput = WeaponInput();
-			this->respawnTime = world.GetTime() + respawnTime;
+
+			if (respawnTime == 255) {
+				this->respawnTime = -1;
+			} else {
+				this->respawnTime = world.GetTime() + respawnTime;
+			}
 		}
 
 		std::string Player::GetTeamName() { return world.GetTeamName(teamId); }
