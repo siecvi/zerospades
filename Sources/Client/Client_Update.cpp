@@ -602,7 +602,7 @@ namespace spades {
 				}
 			}
 
-			int health = player.GetHealth();
+			int health = player.GetHealth(); // current health
 			if (health != lastHealth) {
 				if (health < lastHealth) { // ouch!
 					lastHurtTime = time;
@@ -633,8 +633,14 @@ namespace spades {
 							spr.strength *= 1.5F - hpper;
 					}
 
+					if (lastHealth > 0)
+						lastHurtTime = time;
+					lastHealTime = -100.0F;
 					damageTaken = lastHealth - health;
 				} else {
+					lastHurtTime = -100.0F;
+					if (lastHealth > 0)
+						lastHealTime = time;
 					damageTaken = 0;
 				}
 

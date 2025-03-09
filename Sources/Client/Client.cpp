@@ -166,6 +166,7 @@ namespace spades {
 			lastHealth = 0;
 			damageTaken = 0;
 			lastHurtTime = -100.0F;
+			lastHealTime = -100.0F;
 			lastHitTime = -100.0F;
 			hurtRingView->ClearAll();
 

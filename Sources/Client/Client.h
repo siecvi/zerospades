@@ -153,6 +153,7 @@ namespace spades {
 			float lastPosSentTime;
 			float lastOriSentTime;
 			float lastHurtTime;
+			float lastHealTime;
 			float lastAliveTime;
 			int lastRespawnCount;
 			float lastHitTime;
@@ -445,8 +446,8 @@ namespace spades {
 			void DrawBlockPaletteHUD();
 			void DrawAlivePlayersCount();
 			void DrawPlayingTime();
-			void DrawHurtScreenEffect();
 			void DrawHurtSprites();
+			void DrawScreenEffect(bool hurt, float fadeTime = 0.35F);
 			void DrawAlert();
 			void DrawDebugAim(Player&);
 			void DrawStats();

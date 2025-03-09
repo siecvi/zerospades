@@ -29,6 +29,7 @@
 #include <Core/FileManager.h>
 #include <Core/Settings.h>
 #include <Core/Strings.h>
+#include <Draw/SWRenderer.h>
 
 #include "CTFGameMode.h"
 #include "CenterMessageView.h"
@@ -87,6 +88,7 @@ DEFINE_SPADES_SETTING(cg_dbgHitTestSize, "128");
 DEFINE_SPADES_SETTING(cg_dbgHitTestFadeTime, "10");
 DEFINE_SPADES_SETTING(cg_damageIndicators, "1");
 DEFINE_SPADES_SETTING(cg_hurtScreenEffects, "1");
+DEFINE_SPADES_SETTING(cg_healScreenEffects, "1");
 
 DEFINE_SPADES_SETTING(cg_hudHotbar, "1");
 SPADES_SETTING(cg_keyToolSpade);
@@ -410,30 +412,40 @@ namespace spades {
 			}
 		}
 
-		void Client::DrawHurtScreenEffect() {
+		void Client::DrawScreenEffect(bool hurt, float fadeTime) {
 			SPADES_MARK_FUNCTION();
 
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
 			Player& p = world->GetLocalPlayer().value();
-
 			float hpper = p.GetHealth() / 100.0F;
 
-			const float fadeOutTime = 0.35F;
-			float timeSinceLastHurt = time - lastHurtTime;
+			float lastEffectTime = hurt ? lastHurtTime : lastHealTime;
+			float timeSinceEffect = time - lastEffectTime;
 
-			if (time >= lastHurtTime && timeSinceLastHurt < fadeOutTime) {
-				float per = timeSinceLastHurt / fadeOutTime;
-				per = 1.0F - per;
-				per *= 0.3F + (1.0F - hpper) * 0.7F;
-				per = std::min(per, 0.9F);
-				per = 1.0F - per;
-				renderer->MultiplyScreenColor({1, per, per});
+			if (time >= lastHurtTime && timeSinceEffect < fadeTime) {
+				float prg = 1.0F - (timeSinceEffect / fadeTime);
+				prg *= 0.3F + (1.0F - hpper) * 0.7F;
+				prg = 1.0F - std::min(prg, 0.9F);
 
-				per = (1.0F - per) * 0.1F;
-				renderer->SetColorAlphaPremultiplied({per, 0, 0, per});
-				renderer->DrawImage(nullptr, AABB2(0, 0, sw, sh));
+				if (dynamic_cast<draw::SWRenderer*>(&GetRenderer())) {
+					prg = (1.0F - prg) * 0.5F;
+					renderer->SetColorAlphaPremultiplied(hurt
+						? MakeVector4(prg, 0.0F, 0.0F, prg)
+						: MakeVector4(0.0F, prg, 0.0F, prg));
+					renderer->DrawImage(nullptr, AABB2(0, 0, sw, sh));
+				} else {
+					renderer->MultiplyScreenColor(hurt
+						? MakeVector3(1.0F, prg, prg)
+						: MakeVector3(prg, 1.0F, prg));
+
+					prg = (1.0F - prg) * 0.1F;
+					renderer->SetColorAlphaPremultiplied(hurt
+						? MakeVector4(prg, 0.0F, 0.0F, prg)
+						: MakeVector4(0.0F, prg, 0.0F, prg));
+					renderer->DrawImage(nullptr, AABB2(0, 0, sw, sh));
+				}
 			}
 		}
 
@@ -1377,8 +1389,11 @@ namespace spades {
 
 				if (cg_hurtScreenEffects) {
 					DrawHurtSprites();
-					DrawHurtScreenEffect();
+					DrawScreenEffect(true);
 				}
+
+				if (cg_healScreenEffects)
+					DrawScreenEffect(false);
 
 				bool localPlayerIsSpectator = player.IsSpectator();
 				if (!localPlayerIsSpectator) {
