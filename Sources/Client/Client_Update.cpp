@@ -605,19 +605,13 @@ namespace spades {
 			int health = player.GetHealth(); // current health
 			if (health != lastHealth) {
 				if (health < lastHealth) { // ouch!
-					lastHurtTime = time;
-
-					Handle<IAudioChunk> c;
-					switch (SampleRandomInt(0, 3)) {
-						case 0: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal1.opus");
-							break;
-						case 1: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal2.opus");
-							break;
-						case 2: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal3.opus");
-							break;
-						case 3: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/FleshLocal4.opus");
-							break;
-					}
+					static constexpr std::array<const char*, 4> snds = {
+					  "Sounds/Weapons/Impacts/FleshLocal1.opus",
+					  "Sounds/Weapons/Impacts/FleshLocal2.opus",
+					  "Sounds/Weapons/Impacts/FleshLocal3.opus",
+					  "Sounds/Weapons/Impacts/FleshLocal4.opus"
+					};
+					Handle<IAudioChunk> c = audioDevice->RegisterSound(SampleRandomElement(snds));
 					audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 
 					float hpper = health / 100.0F;
@@ -689,27 +683,27 @@ namespace spades {
 		void Client::PlayerMadeFootstep(spades::client::Player& p) {
 			SPADES_MARK_FUNCTION();
 
-			if (!IsMuted()) {
-				std::array<const char*, 4> snds = {
-				  "Sounds/Player/Footstep1.opus", "Sounds/Player/Footstep2.opus",
-				  "Sounds/Player/Footstep3.opus", "Sounds/Player/Footstep4.opus"
-				};
-				std::array<const char*, 6> rsnds = {
-				  "Sounds/Player/Run1.opus", "Sounds/Player/Run2.opus",
-				  "Sounds/Player/Run3.opus", "Sounds/Player/Run4.opus",
-				  "Sounds/Player/Run5.opus", "Sounds/Player/Run6.opus"
-				};
-				std::array<const char*, 4> wsnds = {
-				  "Sounds/Player/Wade1.opus", "Sounds/Player/Wade2.opus",
-				  "Sounds/Player/Wade3.opus", "Sounds/Player/Wade4.opus"
-				};
+			static constexpr std::array<const char*, 4> snds = {
+			  "Sounds/Player/Footstep1.opus", "Sounds/Player/Footstep2.opus",
+			  "Sounds/Player/Footstep3.opus", "Sounds/Player/Footstep4.opus"
+			};
+			static constexpr std::array<const char*, 4> wsnds = {
+			  "Sounds/Player/Wade1.opus", "Sounds/Player/Wade2.opus",
+			  "Sounds/Player/Wade3.opus", "Sounds/Player/Wade4.opus"
+			};
+			static constexpr std::array<const char*, 6> rsnds = {
+			  "Sounds/Player/Run1.opus", "Sounds/Player/Run2.opus", "Sounds/Player/Run3.opus",
+			  "Sounds/Player/Run4.opus", "Sounds/Player/Run5.opus", "Sounds/Player/Run6.opus"
+			};
 
+			if (!IsMuted()) {
 				float sprintState = clientPlayers[p.GetId()]
 					? clientPlayers[p.GetId()]->GetSprintState() : 0.0F;
 
 				Handle<IAudioChunk> c =
 				  audioDevice->RegisterSound(SampleRandomElement(p.GetWade() ? wsnds : snds));
 				audioDevice->Play(c.GetPointerOrNull(), p.GetOrigin(), AudioParam());
+
 				if (sprintState > 0.5F && !p.GetWade()) {
 					AudioParam param;
 					param.volume *= sprintState;
@@ -927,15 +921,13 @@ namespace spades {
 				// play hit sound for non local player: see BullethitPlayer
 				if (kt == KillTypeWeapon || kt == KillTypeHeadshot) {
 					if (!IsMuted()) {
-						Handle<IAudioChunk> c;
-						switch (SampleRandomInt(0, 2)) {
-							case 0: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh1.opus");
-								break;
-							case 1: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh2.opus");
-								break;
-							case 2: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh3.opus");
-								break;
-						}
+						static constexpr std::array<const char*, 3> snds = {
+						  "Sounds/Weapons/Impacts/Flesh1.opus",
+						  "Sounds/Weapons/Impacts/Flesh2.opus",
+						  "Sounds/Weapons/Impacts/Flesh3.opus"
+						};
+						Handle<IAudioChunk> c =
+						  audioDevice->RegisterSound(SampleRandomElement(snds));
 
 						AudioParam param;
 						param.volume = 4.0F;
@@ -1180,18 +1172,12 @@ namespace spades {
 						c = audioDevice->RegisterSound("Sounds/Weapons/Spade/HitPlayer.opus");
 						audioDevice->Play(c.GetPointerOrNull(), hitPos, param);
 					} else {
-						switch (SampleRandomInt(0, 2)) {
-							case 0:
-								c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh1.opus");
-								break;
-							case 1:
-								c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh2.opus");
-								break;
-							case 2:
-								c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Flesh3.opus");
-								break;
-						}
-
+						static constexpr std::array<const char*, 3> snds = {
+						  "Sounds/Weapons/Impacts/Flesh1.opus",
+						  "Sounds/Weapons/Impacts/Flesh2.opus",
+						  "Sounds/Weapons/Impacts/Flesh3.opus"
+						};
+						c = audioDevice->RegisterSound(SampleRandomElement(snds));
 						param.volume = 4.0F;
 						audioDevice->Play(c.GetPointerOrNull(), hitPos, param);
 					}
@@ -1302,32 +1288,29 @@ namespace spades {
 
 			Vector3 shiftedHitPos = hitPos + (MakeVector3(normal) * 0.1F);
 
-			uint32_t col = map->GetColor(blockPos.x, blockPos.y, blockPos.z);
-			col = map->GetColorJit(col); // jit the colour
-			IntVector3 color = IntVectorFromColor(col);
+			static constexpr std::array<const char*, 4> snds = {
+			  "Sounds/Weapons/Impacts/Ricochet1.opus", "Sounds/Weapons/Impacts/Ricochet2.opus",
+			  "Sounds/Weapons/Impacts/Ricochet3.opus", "Sounds/Weapons/Impacts/Ricochet4.opus"
+			};
+			static constexpr std::array<const char*, 4> wsnds = {
+			  "Sounds/Weapons/Impacts/Water1.opus", "Sounds/Weapons/Impacts/Water2.opus",
+			  "Sounds/Weapons/Impacts/Water3.opus", "Sounds/Weapons/Impacts/Water4.opus"
+			};
 
 			if (blockPos.z >= 63) {
 				BulletHitWaterSurface(shiftedHitPos);
 
 				if (!IsMuted()) {
-					Handle<IAudioChunk> c;
-					switch (SampleRandomInt(0, 3)) {
-						case 0: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water1.opus");
-							break;
-						case 1: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water2.opus");
-							break;
-						case 2: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water3.opus");
-							break;
-						case 3: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Water4.opus");
-							break;
-					}
+					Handle<IAudioChunk> c = audioDevice->RegisterSound(SampleRandomElement(wsnds));
 					AudioParam param;
 					param.volume = 2.0F;
 					param.pitch = 0.9F + SampleRandomFloat() * 0.2F;
 					audioDevice->Play(c.GetPointerOrNull(), shiftedHitPos, param);
 				}
 			} else {
-				EmitBlockFragments(shiftedHitPos, color);
+				uint32_t col = map->GetColor(blockPos.x, blockPos.y, blockPos.z);
+				col = map->GetColorJit(col); // jit the colour
+				EmitBlockFragments(shiftedHitPos, IntVectorFromColor(col));
 
 				if (!IsMuted()) {
 					Handle<IAudioChunk> c =
@@ -1337,16 +1320,7 @@ namespace spades {
 					audioDevice->Play(c.GetPointerOrNull(), shiftedHitPos, param);
 
 					param.pitch = 0.9F + SampleRandomFloat() * 0.2F;
-					switch (SampleRandomInt(0, 3)) {
-						case 0: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Ricochet1.opus");
-							break;
-						case 1: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Ricochet2.opus");
-							break;
-						case 2: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Ricochet3.opus");
-							break;
-						case 3: c = audioDevice->RegisterSound("Sounds/Weapons/Impacts/Ricochet4.opus");
-							break;
-					}
+					c = audioDevice->RegisterSound(SampleRandomElement(snds));
 					audioDevice->Play(c.GetPointerOrNull(), shiftedHitPos, param);
 				}
 			}

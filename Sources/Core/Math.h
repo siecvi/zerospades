@@ -69,7 +69,7 @@ namespace spades {
 		auto begin = std::begin(container);
 		auto end = std::end(container);
 		auto numElements = std::distance(begin, end);
-		begin += SampleRandomInt(0, numElements - 1);
+		begin += SampleRandomInt<decltype(numElements)>(0, numElements - 1);
 		return *begin;
 	}
 
