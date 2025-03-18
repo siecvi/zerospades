@@ -1824,10 +1824,20 @@ msgctxt "Preferences"
 msgid "Chat Height"
 msgstr "Altura del chat"
 
+#: Resources/Scripts/Gui/Preferences.as:1269
+msgctxt "Preferences"
+msgid "Chat Fade Time"
+msgstr "Desvanecimiento del chat"
+
 #: Resources/Scripts/Gui/Preferences.as:679
 msgctxt "Preferneces"
 msgid "Killfeed Height"
 msgstr "Altura del killfeed"
+
+#: Resources/Scripts/Gui/Preferences.as:1271
+msgctxt "Preferences"
+msgid "Killfeed Fade Time"
+msgstr "Desvanecimiento del killfeed"
 
 #: Resources/Scripts/Gui/Preferences.as:692
 msgctxt "Preferences"

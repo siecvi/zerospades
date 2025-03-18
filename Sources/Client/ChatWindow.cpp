@@ -33,6 +33,9 @@
 DEFINE_SPADES_SETTING(cg_chatHeight, "30");
 DEFINE_SPADES_SETTING(cg_killfeedHeight, "26");
 
+DEFINE_SPADES_SETTING(cg_chatFadeTime, "10");
+DEFINE_SPADES_SETTING(cg_killfeedFadeTime, "20");
+
 SPADES_SETTING(cg_smallFont);
 
 namespace spades {
@@ -114,7 +117,10 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			float lh = GetLineHeight();
-			entries.push_front(ChatEntry(msg, lh, 15.0F));
+			float fadeOut = killfeed ? 0.5F : 1.0F;
+			float fadeTime = killfeed ? cg_killfeedFadeTime : cg_chatFadeTime;
+
+			entries.push_front(ChatEntry(msg, lh, fadeTime + fadeOut));
 
 			firstY -= lh;
 		}
@@ -185,9 +191,11 @@ namespace spades {
 					ent.bufferFade = std::min(ent.bufferFade + dt * 4.0F, 1.0F);
 				}
 
-				ent.timeFade -= dt;
-				if (ent.timeFade < 0.0F)
-					ent.timeFade = 0.0F;
+				if (ent.timeFade > 0.0F) {
+					ent.timeFade -= dt;
+					if (ent.timeFade < 0.0F)
+						ent.timeFade = 0.0F;
+				}
 
 				y += ent.height;
 				++it;
@@ -237,10 +245,9 @@ namespace spades {
 				if (expanded) { // Display out-dated messages
 					fade = ent.bufferFade;
 				} else {
-					if (ent.timeFade < 1.0F)
-						fade *= killfeed
-							? std::min(ent.timeFade * 2.0F, 1.0F)
-							: ent.timeFade;
+					float fadeOut = killfeed ? 0.5F : 1.0F;
+					if (ent.timeFade < fadeOut)
+						fade *= (ent.timeFade / fadeOut);
 				}
 
 				if (fade < 0.01F)

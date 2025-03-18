@@ -1266,6 +1266,10 @@ namespace spades {
 			10, 100, 1, ConfigNumberFormatter(0, "px"));
 			layouter.AddSliderField(_Tr("Preferneces", "Killfeed Height"), "cg_killfeedHeight",
 			10, 100, 1, ConfigNumberFormatter(0, "px"));
+			layouter.AddSliderField(_Tr("Preferences", "Chat Fade Time"), "cg_chatFadeTime",
+			5, 20, 1, ConfigNumberFormatter(0, "s"));
+			layouter.AddSliderField(_Tr("Preferences", "Killfeed Fade Time"), "cg_killfeedFadeTime",
+			5, 20, 1, ConfigNumberFormatter(0, "s"));
 			layouter.AddToggleField(_Tr("Preferences", "Killfeed Icons"), "cg_killfeedIcons");
 			layouter.AddToggleField(_Tr("Preferences", "Small HUD Font"),
 				"cg_smallFont", not options.GameActive);

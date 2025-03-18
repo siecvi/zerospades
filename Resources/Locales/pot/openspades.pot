@@ -1754,9 +1754,19 @@ msgctxt "Preferences"
 msgid "Chat Height"
 msgstr ""
 
+#: Resources/Scripts/Gui/Preferences.as:1269
+msgctxt "Preferneces"
+msgid "Chat Fade Time"
+msgstr ""
+
 #: Resources/Scripts/Gui/Preferences.as:679
 msgctxt "Preferneces"
 msgid "Killfeed Height"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1271
+msgctxt "Preferneces"
+msgid "Killfeed Fade Time"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:692
