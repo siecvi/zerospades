@@ -58,7 +58,7 @@ namespace spades {
 			renderer->Shutdown();
 		}
 
-		void HitTestDebugger::SaveImage(const std::map<int, PlayerHit>& hits,
+		void HitTestDebugger::SaveImage(const std::unordered_map<int, PlayerHit>& hits,
 		                                const std::vector<Vector3>& bullets) {
 			SPADES_MARK_FUNCTION();
 

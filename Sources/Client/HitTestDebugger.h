@@ -22,7 +22,7 @@
 #pragma once
 
 #include <array>
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 #include "IImage.h"
@@ -57,7 +57,7 @@ namespace spades {
 			};
 
 			/** Save hit detection debug image */
-			void SaveImage(const std::map<int, PlayerHit>& hits,
+			void SaveImage(const std::unordered_map<int, PlayerHit>& hits,
 			               const std::vector<Vector3>& bullets);
 			Handle<Bitmap> GetBitmap();
 		};

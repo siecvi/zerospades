@@ -531,7 +531,7 @@ namespace spades {
 			Vector3 muzzle = GetEye() + (dir * 0.01F);
 
 			// for hit-test debugging
-			std::map<int, HitTestDebugger::PlayerHit> playerHits;
+			std::unordered_map<int, HitTestDebugger::PlayerHit> playerHits;
 			std::vector<Vector3> bulletVectors;
 
 			int pellets = weapon->GetPelletSize();
