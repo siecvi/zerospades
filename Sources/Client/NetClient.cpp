@@ -997,7 +997,7 @@ namespace spades {
 						pId, wType, team, pos, MakeIntVector3(111, 111, 111));
 
 					// set position
-					p->SetPosition(pos);
+					p->RepositionPlayer(pos);
 
 					GetWorld()->SetPlayer(pId, std::move(p));
 
