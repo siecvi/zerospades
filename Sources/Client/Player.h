@@ -165,7 +165,7 @@ namespace spades {
 			void SetInput(PlayerInput);
 			void SetWeaponInput(WeaponInput);
 			void SetTool(ToolType);
-			void SetHeldBlockColor(IntVector3 c) { blockColor = c; }
+			void SetHeldBlockColor(const IntVector3& c) { blockColor = c; }
 			void PlayerJump();
 			bool IsBlockCursorActive() { return blockCursorActive; }
 			bool IsBlockCursorDragging() { return blockCursorDragging; }
