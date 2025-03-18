@@ -1290,7 +1290,9 @@ namespace spades {
 
 			alive = false;
 			health = 0;
+
 			weapon->SetShooting(false);
+			weapon->AbortReload();
 
 			if (IsLocalPlayer()) {
 				// drop the live grenade (though it won't do any damage?)
@@ -1302,17 +1304,17 @@ namespace spades {
 				blockCursorDragging = false;
 			}
 
-			if (world.GetListener())
-				world.GetListener()->PlayerKilledPlayer(killer, *this, type);
-
-			input = PlayerInput();
-			weapInput = WeaponInput();
-
 			if (respawnTime == 255) {
 				this->respawnTime = -1;
 			} else {
 				this->respawnTime = world.GetTime() + respawnTime;
 			}
+
+			if (world.GetListener())
+				world.GetListener()->PlayerKilledPlayer(killer, *this, type);
+
+			input = PlayerInput();
+			weapInput = WeaponInput();
 		}
 
 		std::string Player::GetTeamName() { return world.GetTeamName(teamId); }
