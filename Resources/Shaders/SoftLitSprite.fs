@@ -76,7 +76,7 @@ void main() {
 	gl_FragColor.xyz *= gl_FragColor.w; // premultiplied alpha
 	gl_FragColor *= computedColor;
 
-	vec4 fogColorP = vec4(fogColor, 1.0);
+	vec4 fogColorP = vec4(sRGBFogColor, 1.0);
 
 	// linearize
 #if LINEAR_FRAMEBUFFER
