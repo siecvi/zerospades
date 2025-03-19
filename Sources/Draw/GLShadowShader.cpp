@@ -34,9 +34,7 @@
 namespace spades {
 	namespace draw {
 		GLShadowShader::GLShadowShader()
-		    : eyeOrigin("eyeOrigin"),
-		      eyeFront("eyeFront"),
-		      mapShadowTexture("mapShadowTexture"),
+		    : mapShadowTexture("mapShadowTexture"),
 		      fogColor("fogColor"),
 		      ambientColor("ambientColor"),
 		      shadowMapViewMatrix("shadowMapViewMatrix"),
@@ -105,13 +103,8 @@ namespace spades {
 			spades::draw::GLProgram* program, int texStage) {
 			mapShadowTexture(program);
 			fogColor(program);
-			eyeOrigin(program);
-			eyeFront(program);
 
 			const client::SceneDefinition& def = renderer->GetSceneDef();
-
-			eyeOrigin.SetValue(def.viewOrigin.x, def.viewOrigin.y, def.viewOrigin.z);
-			eyeFront.SetValue(def.viewAxis[2].x, def.viewAxis[2].y, def.viewAxis[2].z);
 
 			Vector3 fc = renderer->GetFogColorForSolidPass();
 			fc *= fc; // linearize

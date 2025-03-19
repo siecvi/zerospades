@@ -30,8 +30,6 @@ namespace spades {
 		class GLProgramManager;
 		class GLSettings;
 		class GLShadowShader {
-			GLProgramUniform eyeOrigin;
-			GLProgramUniform eyeFront;
 			GLProgramUniform mapShadowTexture;
 			GLProgramUniform fogColor;
 			GLProgramUniform ambientColor;
