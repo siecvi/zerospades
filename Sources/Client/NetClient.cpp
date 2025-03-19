@@ -1407,7 +1407,18 @@ namespace spades {
 						p.ReloadDone(clip, reserve);
 					}
 				} break;
+				case PacketTypeChangeTeam: {
+					break; // ignore this now
+
+					Player& p = GetPlayer(r.ReadByte());
+					int team = r.ReadByte();
+					if (team < 0 || team > 2)
+						SPRaise("Received invalid team: %d", team);
+					p.SetTeam(team);
+				} break;
 				case PacketTypeChangeWeapon: {
+					break; // ignore this now
+
 					Player& p = GetPlayer(r.ReadByte());
 					int weapon = r.ReadByte();
 
@@ -1418,9 +1429,7 @@ namespace spades {
 						case 2: wType = SHOTGUN_WEAPON; break;
 						default: SPRaise("Received invalid weapon: %d", weapon);
 					}
-					// maybe this command is intended to change local player's
-					// weapon...
-					// p->SetWeaponType(wType);
+					p.SetWeaponType(wType);
 				} break;
 				case PacketTypePlayerProperties: {
 					int subId = r.ReadByte();
