@@ -258,7 +258,7 @@ namespace spades {
 			@this.renderer = renderer;
 			localFireVibration = 0.0F;
 			@scopeImage = renderer.RegisterImage("Gfx/Rifle.png");
-			@sightImage = renderer.RegisterImage("Gfx/Target.png");
+			@sightImage = renderer.RegisterImage("Gfx/Sight.tga");
 			@dotSightImage = renderer.RegisterImage("Gfx/DotSight.tga");
 		}
 
