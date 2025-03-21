@@ -259,7 +259,8 @@ namespace spades {
 			}
 
 			recoilVerticalSpring.velocity += 1.5;
-			recoilBackSpring.velocity += 1.5;
+			recoilBackSpring.position += 0.1;
+			recoilBackSpring.velocity += 1.0;
 			recoilRotationSpring.velocity += (GetRandom() * 2 - 1);
 		}
 
@@ -302,7 +303,7 @@ namespace spades {
 			recoilRot.y = 0.3F * recoilRotationSpring.position;
 			recoilRot.z = 0.3F * recoilRotationSpring.position;
 			Vector3 recoilOffset = Vector3(0, 0, -0.1) * recoilVerticalSpring.position * sp;
-			recoilOffset -= Vector3(0, 0.75, 0) * recoilBackSpring.position;
+			recoilOffset -= Vector3(0, Mix(0.35F, 0.5F, sp), 0) * recoilBackSpring.position;
 			mat = CreateEulerAnglesMatrix(recoilRot * sp) * mat;
 			mat = mat * CreateTranslateMatrix(recoilOffset);
 

@@ -52,7 +52,7 @@ namespace spades {
 
 		// A bunch of springs.
 		private ViewWeaponSpring recoilVerticalSpring = ViewWeaponSpring(300, 24);
-		private ViewWeaponSpring recoilBackSpring = ViewWeaponSpring(100, 16);
+		private ViewWeaponSpring recoilBackSpring = ViewWeaponSpring(300, 16);
 		private ViewWeaponSpring recoilRotationSpring = ViewWeaponSpring(50, 8);
 		private ViewWeaponSpring horizontalSwingSpring = ViewWeaponSpring(100, 12);
 		private ViewWeaponSpring verticalSwingSpring = ViewWeaponSpring(100, 12);
@@ -213,7 +213,7 @@ namespace spades {
 			BasicViewWeapon::Update(dt);
 
 			recoilVerticalSpring.damping = Mix(16, 24, AimDownSightState);
-			recoilBackSpring.damping = Mix(12, 20, AimDownSightState);
+			recoilBackSpring.damping = Mix(24, 20, AimDownSightState);
 			recoilRotationSpring.damping = Mix(8, 16, AimDownSightState);
 
 			recoilVerticalSpring.Update(dt);
@@ -265,7 +265,8 @@ namespace spades {
 			}
 
 			recoilVerticalSpring.velocity += 0.75;
-			recoilBackSpring.velocity += 0.75;
+			recoilBackSpring.position += 0.1;
+			//recoilBackSpring.velocity += 0.75;
 			recoilRotationSpring.velocity += (GetRandom() * 2 - 1);
 		}
 
@@ -305,10 +306,10 @@ namespace spades {
 			// recoil animation
 			Vector3 recoilRot(0, 0, 0);
 			recoilRot.x = -1.0F * recoilVerticalSpring.position;
-			recoilRot.y = 0.3F * recoilRotationSpring.position;
-			recoilRot.z = 0.3F * recoilRotationSpring.position;
+			recoilRot.y = 0.2F * recoilRotationSpring.position;
+			recoilRot.z = 0.2F * recoilRotationSpring.position;
 			Vector3 recoilOffset = Vector3(0, 0, -0.1) * recoilVerticalSpring.position * sp;
-			recoilOffset -= Vector3(0, 0.5, 0) * recoilBackSpring.position * (1.0F - readyState);
+			recoilOffset -= Vector3(0, Mix(0.5F, 0.25F, sp), 0) * recoilBackSpring.position;
 			mat = CreateEulerAnglesMatrix(recoilRot * sp) * mat;
 			mat = mat * CreateTranslateMatrix(recoilOffset);
 
