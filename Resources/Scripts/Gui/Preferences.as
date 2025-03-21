@@ -707,7 +707,7 @@ namespace spades {
 
 			// draw target
 			if (targetType == 1) { // draw default target
-				Image@ sightImage = r.RegisterImage("Gfx/Target.png");
+				Image@ sightImage = r.RegisterImage("Gfx/Sight.tga");
 				Vector2 imgSize = Vector2(sightImage.Width, sightImage.Height);
 				r.ColorNP = color;
 				r.DrawImage(sightImage, center - (imgSize * 0.5F));
