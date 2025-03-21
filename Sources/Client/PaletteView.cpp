@@ -34,7 +34,7 @@ DEFINE_SPADES_SETTING(cg_keyPaletteLeft, "Left");
 DEFINE_SPADES_SETTING(cg_keyPaletteRight, "Right");
 DEFINE_SPADES_SETTING(cg_keyPaletteUp, "Up");
 DEFINE_SPADES_SETTING(cg_keyPaletteDown, "Down");
-DEFINE_SPADES_SETTING(cg_paletteSize, "128");
+DEFINE_SPADES_SETTING(cg_hudPaletteSize, "128");
 
 namespace spades {
 	namespace client {
@@ -166,7 +166,7 @@ namespace spades {
 			float sw = renderer.ScreenWidth();
 			float sh = renderer.ScreenHeight();
 
-			float wndSize = cg_paletteSize;
+			float wndSize = cg_hudPaletteSize;
 			float rectSize = wndSize / PALETTE_SIZE;
 
 			float winX = (sw - wndSize) - 8.0F;

@@ -96,7 +96,7 @@ SPADES_SETTING(cg_keyToolBlock);
 SPADES_SETTING(cg_keyToolWeapon);
 SPADES_SETTING(cg_keyToolGrenade);
 
-DEFINE_SPADES_SETTING(cg_paletteHud, "1");
+DEFINE_SPADES_SETTING(cg_hudPalette, "1");
 SPADES_SETTING(cg_keyCaptureColor);
 SPADES_SETTING(cg_keyPaletteLeft);
 SPADES_SETTING(cg_keyPaletteRight);
@@ -105,7 +105,7 @@ SPADES_SETTING(cg_keyPaletteDown);
 
 SPADES_SETTING(cg_smallFont);
 SPADES_SETTING(cg_minimapSize);
-SPADES_SETTING(cg_paletteSize);
+SPADES_SETTING(cg_hudPaletteSize);
 
 namespace spades {
 	namespace client {
@@ -736,7 +736,7 @@ namespace spades {
 			if (curToolType == Player::ToolBlock) {
 				paletteView->Draw();
 
-				if (cg_paletteHud)
+				if (cg_hudPalette)
 					DrawBlockPaletteHUD();
 			}
 
@@ -1041,12 +1041,14 @@ namespace spades {
 			float y = sh * 0.5F;
 			y -= (float)cg_playerStatsHeight;
 
+			Vector4 color = MakeVector4(1, 1, 1, 1);
+			Vector4 shadow = MakeVector4(0, 0, 0, 0.5F);
+
 			float lh = cg_smallFont ? 12.0F : 20.0F;
 			auto addLine = [&](const std::string& text) {
 				Vector2 pos = MakeVector2(x, y);
 				y += lh;
-				font.DrawShadow(text, pos, 1.0F, MakeVector4(1, 1, 1, 1),
-				                MakeVector4(0, 0, 0, 0.8F));
+				font.DrawShadow(text, pos, 1.0F, color, shadow);
 			};
 
 			const auto& weaponType = p.GetWeaponType();
@@ -1180,13 +1182,15 @@ namespace spades {
 				y = 256.0F;
 			y += 32.0F;
 
+			Vector4 color = MakeVector4(1, 1, 1, 1);
+			Vector4 shadow = MakeVector4(0, 0, 0, 0.5);
+
 			float lh = cg_smallFont ? 12.0F : 20.0F;
 			auto addLine = [&](const std::string& text) {
 				Vector2 pos = MakeVector2(x, y);
 				pos.x -= font.Measure(text).x;
 				y += lh;
-				font.DrawShadow(text, pos, 1.0F, MakeVector4(1, 1, 1, 1),
-				                MakeVector4(0, 0, 0, 0.5));
+				font.DrawShadow(text, pos, 1.0F, color, shadow);
 			};
 
 			auto cameraMode = GetCameraMode();
@@ -1244,41 +1248,41 @@ namespace spades {
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
-			float wndSize = cg_paletteSize;
+			float wndSize = cg_hudPaletteSize;
 			float winY = (sh - wndSize) - 64.0F;
-
 			float lh = cg_smallFont ? 12.0F : 20.0F;
-
 			float x = sw - 8.0F;
-			float y = (winY - lh) - 8.0F;
 
-			auto addLine = [&](const std::string& text) {
-				Vector2 pos = MakeVector2(x, y);
-				pos.x -= font.Measure(text).x;
-				y -= lh;
-				font.DrawShadow(text, pos, 1.0F, MakeVector4(1, 1, 1, 1),
-				                MakeVector4(0, 0, 0, 0.5));
-			};
+			std::vector<std::string> lines;
+			lines.push_back(_Tr("Client", "[{0}] Grab color", TrKey(cg_keyCaptureColor)));
+			lines.push_back(_Tr("Client", "[{0}/{1}] Navigate up/down",
+				TrKey(cg_keyPaletteUp), TrKey(cg_keyPaletteDown)));
+			lines.push_back(_Tr("Client", "[{0}/{1}] Navigate left/right",
+				TrKey(cg_keyPaletteLeft), TrKey(cg_keyPaletteRight)));
 
-			// draw color
-			if ((int)cg_paletteHud >= 2) {
+			// add color information
+			if ((int)cg_hudPalette >= 2) {
 				IntVector3 color = world->GetLocalPlayer()->GetBlockColor();
-
-				addLine(_Tr("Client", "({0}, {1}, {2}) RGB", color.x, color.y, color.z));
 
 				char buf[8];
 				sprintf(buf, "#%02X%02X%02X", color.x, color.y, color.z);
-				addLine(_Tr("Client", "({0}) HEX", std::string(buf)));
-
-				y -= lh * 0.5F;
+				lines.push_back(_Tr("Client", "({0}) HEX", std::string(buf)));
+				lines.push_back(_Tr("Client", "({0}, {1}, {2}) RGB", color.x, color.y, color.z));
 			}
 
-			// draw controls
-			addLine(_Tr("Client", "[{0}/{1}] Navigate left/right",
-				TrKey(cg_keyPaletteLeft), TrKey(cg_keyPaletteRight)));
-			addLine(_Tr("Client", "[{0}/{1}] Navigate up/down",
-				TrKey(cg_keyPaletteUp), TrKey(cg_keyPaletteDown)));
-			addLine(_Tr("Client", "[{0}] Grab color", TrKey(cg_keyCaptureColor)));
+			float totalHeight = lines.size() * lh;
+			float y = winY - totalHeight - 8.0F;
+
+			Vector4 color = MakeVector4(1, 1, 1, 1);
+			Vector4 shadow = MakeVector4(0, 0, 0, 0.5);
+
+			// draw each line
+			for (const auto& line : lines) {
+				Vector2 pos = MakeVector2(x, y);
+				pos.x -= font.Measure(line).x;
+				font.DrawShadow(line, pos, 1.0F, color, shadow);
+				y += lh;
+			}
 		}
 
 		void Client::DrawAlert() {
