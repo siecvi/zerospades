@@ -230,7 +230,8 @@ namespace spades {
 				return v;
 			}
 
-			std::size_t GetPosition() { return data.size(); }
+			std::size_t GetLength() { return data.size(); }
+			std::size_t GetPosition() { return pos; }  
 			std::size_t GetNumRemainingBytes() { return data.size() - pos; }
 			std::vector<char> GetData() { return data; }
 
@@ -756,7 +757,7 @@ namespace spades {
 			switch (r.GetType()) {
 				case PacketTypePositionData: {
 					Player& p = GetLocalPlayer();
-					if (r.GetPosition() < 12) {
+					if (r.GetLength() != 13) {
 						// sometimes 00 00 00 00 packet is sent.
 						// ignore this now
 						break;
@@ -781,7 +782,7 @@ namespace spades {
 
 					client->MarkWorldUpdate();
 
-					int entries = static_cast<int>(r.GetPosition() / bytesPerEntry);
+					int entries = static_cast<int>(r.GetLength() / bytesPerEntry);
 					for (int i = 0; i < entries; i++) {
 						int idx = i;
 						if (protocolVersion == 4) {
@@ -792,9 +793,6 @@ namespace spades {
 
 						Vector3 pos = r.ReadVector3();
 						Vector3 front = r.ReadVector3();
-
-						savedPlayerPos.at(idx) = pos;
-						savedPlayerFront.at(idx) = front;
 
 						{
 							SPAssert(!pos.IsNaN());
@@ -810,6 +808,10 @@ namespace spades {
 								}
 							}
 						}
+
+						// save position and orientation
+						savedPlayerPos.at(idx) = pos;
+						savedPlayerFront.at(idx) = front;
 					}
 					SPAssert(r.ReadRemainingData().empty());
 				} break;
@@ -1411,28 +1413,31 @@ namespace spades {
 					}
 				} break;
 				case PacketTypeChangeTeam: {
-					break; // ignore this now
+					r.ReadByte(); // skip player id
+					r.ReadByte(); // skip team id
 
-					Player& p = GetPlayer(r.ReadByte());
-					int team = r.ReadByte();
-					if (team < 0 || team > 2)
-						SPRaise("Received invalid team: %d", team);
-					p.SetTeam(team);
+					/*
+						Player& p = GetPlayer(pId);
+						if (team < 0 || team > 2)
+							SPRaise("Received invalid team: %d", team);
+						p.SetTeam(team);
+					*/
 				} break;
 				case PacketTypeChangeWeapon: {
-					break; // ignore this now
+					r.ReadByte(); // skip player id
+					r.ReadByte(); // skip weapon id
 
-					Player& p = GetPlayer(r.ReadByte());
-					int weapon = r.ReadByte();
-
-					WeaponType wType;
-					switch (weapon) {
-						case 0: wType = RIFLE_WEAPON; break;
-						case 1: wType = SMG_WEAPON; break;
-						case 2: wType = SHOTGUN_WEAPON; break;
-						default: SPRaise("Received invalid weapon: %d", weapon);
-					}
-					p.SetWeaponType(wType);
+					/*
+						Player& p = GetPlayer(pId);
+						WeaponType wType;
+						switch (weapon) {
+							case 0: wType = RIFLE_WEAPON; break;
+							case 1: wType = SMG_WEAPON; break;
+							case 2: wType = SHOTGUN_WEAPON; break;
+							default: SPRaise("Received invalid weapon: %d", weapon);
+						}
+						p.SetWeaponType(wType);
+					*/
 				} break;
 				case PacketTypePlayerProperties: {
 					int subId = r.ReadByte();
