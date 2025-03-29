@@ -139,8 +139,7 @@ namespace spades {
 			void ThrowGrenade();
 
 		public:
-			Player(World&, int pId, WeaponType wType, 
-				int tId, Vector3 pos, IntVector3 col);
+			Player(World&, int pId, WeaponType wType, int tId);
 			Player(const Player&) = delete;
 			void operator=(const Player&) = delete;
 

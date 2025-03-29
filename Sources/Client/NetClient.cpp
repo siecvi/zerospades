@@ -903,8 +903,13 @@ namespace spades {
 							default: SPRaise("Received invalid weapon: %d", weapon);
 						}
 
-						auto p = stmp::make_unique<Player>(*GetWorld(),
-							pId, wType, team, savedPlayerPos[pId], color);
+						auto p = stmp::make_unique<Player>(*GetWorld(), pId, wType, team);
+
+						// set position
+						p->SetPosition(savedPlayerPos[pId]);
+
+						// set block color
+						p->SetHeldBlockColor(color);
 
 						// set tool
 						switch (tool) {
@@ -989,15 +994,13 @@ namespace spades {
 						default: SPRaise("Received invalid weapon: %d", weapon);
 					}
 
-					// only adjust local player's spawn height
-					if (pId == GetWorld()->GetLocalPlayerIndex())
-						pos.z -= 2.4F;
+					auto p = stmp::make_unique<Player>(*GetWorld(), pId, wType, team);
 
-					auto p = stmp::make_unique<Player>(*GetWorld(),
-						pId, wType, team, pos, MakeIntVector3(111, 111, 111));
+					// adjust spawn height
+					pos.z -= 2.4F;
 
 					// set position
-					p->RepositionPlayer(pos);
+					p->SetPosition(pos);
 
 					GetWorld()->SetPlayer(pId, std::move(p));
 
@@ -1008,16 +1011,16 @@ namespace spades {
 					Player& pRef = GetWorld()->GetPlayer(pId).value();
 
 					if (pId == GetWorld()->GetLocalPlayerIndex()) {
+						client->LocalPlayerCreated();
+						lastPlayerInput = 0xFFFFFFFF;
+						lastWeaponInput = 0xFFFFFFFF;
+
 						// override default block color for local player
 						IntVector3 blockColor;
 						blockColor.x = Clamp((int)cg_defaultBlockColorR, 0, 255);
 						blockColor.y = Clamp((int)cg_defaultBlockColorG, 0, 255);
 						blockColor.z = Clamp((int)cg_defaultBlockColorB, 0, 255);
 						pRef.SetHeldBlockColor(blockColor);
-
-						client->LocalPlayerCreated();
-						lastPlayerInput = 0xFFFFFFFF;
-						lastWeaponInput = 0xFFFFFFFF;
 						SendHeldBlockColor(); // ensure block color is synchronized
 					} else {
 						if (savedPlayerTeam[pId] != team) {

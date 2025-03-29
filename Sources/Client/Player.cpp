@@ -38,8 +38,7 @@ DEFINE_SPADES_SETTING(cg_orientationSmoothing, "1");
 namespace spades {
 	namespace client {
 
-		Player::Player(World& w, int pId, WeaponType wType, int tId, Vector3 pos, IntVector3 col)
-		    : world(w) {
+		Player::Player(World& w, int pId, WeaponType wType, int tId) : world(w) {
 			SPADES_MARK_FUNCTION();
 
 			lastJump = false;
@@ -49,11 +48,11 @@ namespace spades {
 			alive = true;
 			airborne = false;
 			wade = false;
-			position = pos;
+			position = MakeVector3(0, 0, 0);
+			eye = position;
 			velocity = MakeVector3(0, 0, 0);
-			orientation = MakeVector3(tId ? -1.0F : 1.0F, 0, 0);
+			orientation = MakeVector3((tId == 1) ? -1.0F : 1.0F, 0, 0);
 			orientationSmoothed = orientation;
-			eye = MakeVector3(0, 0, 0);
 			moveDistance = 0.0F;
 			moveSteps = 0;
 
@@ -66,7 +65,7 @@ namespace spades {
 			health = 100;
 			grenades = 3;
 			blockStocks = 50;
-			blockColor = col;
+			blockColor = MakeIntVector3(111, 111, 111);
 
 			pendingRestock = false;
 			pendingRestockHealth = false;
