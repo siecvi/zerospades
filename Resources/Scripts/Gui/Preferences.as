@@ -1271,8 +1271,8 @@ namespace spades {
 			layouter.AddSliderField(_Tr("Preferences", "Killfeed Fade Time"), "cg_killfeedFadeTime",
 			5, 20, 1, ConfigNumberFormatter(0, "s"));
 			layouter.AddToggleField(_Tr("Preferences", "Killfeed Icons"), "cg_killfeedIcons");
-			layouter.AddToggleField(_Tr("Preferences", "Small HUD Font"),
-				"cg_smallFont", not options.GameActive);
+			layouter.AddToggleField(_Tr("Preferences", "Show dominations"), "cg_killfeedStreaks");
+			layouter.AddToggleField(_Tr("Preferences", "Small HUD Font"), "cg_smallFont", not options.GameActive);
 
 			layouter.AddHeading(_Tr("Preferences", "Minimap"));
 			layouter.AddSliderField(_Tr("Preferences", "Minimap Size"), "cg_minimapSize",

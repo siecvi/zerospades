@@ -168,6 +168,8 @@ namespace spades {
 			int grenadeKills;
 			int placedBlocks;
 
+			std::unordered_map<int, std::unordered_map<int, int>> killStreaks;
+
 			struct WeaponStats {
 				std::array<int, 3> hits, shots;
 				WeaponStats() : hits({0, 0, 0}), shots({0, 0, 0}) {}

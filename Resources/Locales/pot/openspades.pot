@@ -229,6 +229,16 @@ msgctxt "Client"
 msgid "Team Change"
 msgstr ""
 
+#: Sources/Client/Client_Update.cpp:860
+msgctxt "Client"
+msgid "Revenge!"
+msgstr ""
+
+#: Sources/Client/Client_Update.cpp:860
+msgctxt "Client"
+msgid "Dominating!"
+msgstr ""
+
 #. ! A cause of death shown in the kill feed.
 #: Sources/Client/Client_Update.cpp:868
 msgctxt "Client"
@@ -1767,6 +1777,11 @@ msgstr ""
 #: Resources/Scripts/Gui/Preferences.as:1271
 msgctxt "Preferneces"
 msgid "Killfeed Fade Time"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1274
+msgctxt "Preferences"
+msgid "Show dominations"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:692

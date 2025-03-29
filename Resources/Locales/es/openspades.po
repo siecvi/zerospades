@@ -234,6 +234,16 @@ msgctxt "Client"
 msgid "Weapon Change"
 msgstr "Cambio de arma"
 
+#: Sources/Client/Client_Update.cpp:860
+msgctxt "Client"
+msgid "Revenge!"
+msgstr "¡Venganza!"
+
+#: Sources/Client/Client_Update.cpp:860
+msgctxt "Client"
+msgid "Dominating!"
+msgstr "¡Dominando!"
+
 #: Sources/Client/Client_Update.cpp:909
 msgctxt "Client"
 msgid "You were killed by {0}"
@@ -1838,6 +1848,11 @@ msgstr "Altura del killfeed"
 msgctxt "Preferences"
 msgid "Killfeed Fade Time"
 msgstr "Desvanecimiento del killfeed"
+
+#: Resources/Scripts/Gui/Preferences.as:1274
+msgctxt "Preferences"
+msgid "Show dominations"
+msgstr "Mostrar dominaciones"
 
 #: Resources/Scripts/Gui/Preferences.as:692
 msgctxt "Preferences"

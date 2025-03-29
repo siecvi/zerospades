@@ -61,6 +61,7 @@ DEFINE_SPADES_SETTING(cg_tracers, "1");
 DEFINE_SPADES_SETTING(cg_tracersFirstPerson, "1");
 DEFINE_SPADES_SETTING(cg_hitAnalyze, "0");
 DEFINE_SPADES_SETTING(cg_killfeedIcons, "1");
+DEFINE_SPADES_SETTING(cg_killfeedStreaks, "1");
 DEFINE_SPADES_SETTING(cg_classicSprinting, "0");
 
 SPADES_SETTING(cg_smallFont);
@@ -887,6 +888,21 @@ namespace spades {
 			// only used in case of KillTypeWeapon
 			const auto& weaponType = killer.GetWeapon().GetWeaponType();
 
+			const int victimId = victim.GetId();
+			const int killerId = killer.GetId();
+
+			bool isRevengeKill = false;
+			if (killerId != victimId) {
+				// check if the victim was dominating before dying
+				if (killStreaks[victimId][killerId] >= 4) {
+					killStreaks[killerId][victimId] = 1; // start new streak for the killer
+					isRevengeKill = true;
+				} else {
+					killStreaks[killerId][victimId]++; // increment killer streak
+				}
+				killStreaks[victimId][killerId] = 0; // reset victim streak
+			}
+
 			// The local player is dead
 			if (victim.IsLocalPlayer()) {
 				lastAliveTime = time;
@@ -970,7 +986,7 @@ namespace spades {
 			}
 
 			// create ragdoll corpse
-			if (!victim.IsSpectator() && cg_ragdoll) {
+			if (cg_ragdoll) {
 				auto corp = stmp::make_unique<Corpse>(*renderer, *map, victim);
 
 				if (victim.IsLocalPlayer())
@@ -978,7 +994,7 @@ namespace spades {
 
 				if (kt == KillTypeGrenade) {
 					corp->AddImpulse(MakeVector3(0, 0, -4.0F - SampleRandomFloat() * 4.0F));
-				} else if (&killer != &victim) {
+				} else if (killerId != victimId) {
 					Vector3 dir = victim.GetPosition() - killer.GetPosition();
 					dir = dir.Normalize();
 					if (kt == KillTypeMelee) {
@@ -1035,7 +1051,7 @@ namespace spades {
 			s += " ";
 			if (cg_killfeedIcons && !cg_smallFont) {
 				std::string killImg;
-				if (&killer != &victim && (kt == KillTypeWeapon || kt == KillTypeHeadshot)) {
+				if (killerId != victimId && (kt == KillTypeWeapon || kt == KillTypeHeadshot)) {
 					if (!killer.IsOnGroundOrWade()) // air shots
 						killImg += ChatWindow::KillImage(7);
 					killImg += ChatWindow::KillImage(KillTypeWeapon, weaponType);
@@ -1047,13 +1063,13 @@ namespace spades {
 					killImg += ChatWindow::KillImage(kt, weaponType);
 				}
 
-				if (&killer != &victim && killer.IsTeammate(victim))
+				if (killerId != victimId && killer.IsTeammate(victim))
 					s += ChatWindow::ColoredMessage(killImg, MsgColorFriendlyFire);
 				else
 					s += killImg;
 			} else {
 				s += "[";
-				if (&killer != &victim && killer.IsTeammate(victim))
+				if (killerId != victimId && killer.IsTeammate(victim))
 					s += ChatWindow::ColoredMessage(cause, MsgColorFriendlyFire);
 				else if (killer.IsLocalPlayer() || victim.IsLocalPlayer())
 					s += ChatWindow::ColoredMessage(cause, MsgColorGray);
@@ -1063,14 +1079,34 @@ namespace spades {
 			}
 			s += " ";
 
-			// add colored victim name
-			if (&killer != &victim)
+			if (killerId != victimId) {
+				// add colored victim name
 				s += ChatWindow::TeamColorMessage(victim.GetName(), victim.GetTeamId());
+
+				// add domination indicator
+				if (cg_killfeedStreaks && (killer.IsLocalPlayer() || victim.IsLocalPlayer())) {
+					if (isRevengeKill) {
+						s += " (";
+						s += ChatWindow::ColoredMessage(_Tr("Client", "Revenge!"), MsgColorYellow);
+						s += ")";
+					} else {
+						const int killerStreak = killStreaks[killerId][victimId];
+						if (killerStreak > 1) {
+							s += " (";
+							if (killerStreak >= 4)
+								s += ChatWindow::ColoredMessage(_Tr("Client", "Dominating!"), MsgColorYellow);
+							else
+								s += "x" + ToString(killerStreak);
+							s += ")";
+						}
+					}
+				}
+			}
 
 			killfeedWindow->AddMessage(s);
 
 			// log to netlog
-			if (&killer != &victim) {
+			if (killerId != victimId) {
 				NetLog("%s (%s) [%s] %s (%s)", killer.GetName().c_str(),
 				       killer.GetTeamName().c_str(), cause.c_str(),
 				       victim.GetName().c_str(), victim.GetTeamName().c_str());
@@ -1079,8 +1115,8 @@ namespace spades {
 					killer.GetTeamName().c_str(), cause.c_str());
 			}
 
-			// show big message if player is involved
-			if (&killer != &victim && (killer.IsLocalPlayer() || victim.IsLocalPlayer())) {
+			// show big message if local player is involved
+			if (killerId != victimId && (killer.IsLocalPlayer() || victim.IsLocalPlayer())) {
 				std::string msg = "";
 				if (victim.IsLocalPlayer()) {
 					msg = _Tr("Client", "You were killed by {0}", killer.GetName());

@@ -169,6 +169,7 @@ namespace spades {
 			lastHealTime = -100.0F;
 			lastHitTime = -100.0F;
 			hurtRingView->ClearAll();
+			killStreaks.clear();
 
 			reloadKeyPressed = false;
 			scoreboardVisible = false;

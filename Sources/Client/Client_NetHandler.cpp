@@ -274,12 +274,14 @@ namespace spades {
 		}
 
 		void Client::PlayerLeaving(Player& p) {
+			int playerId = p.GetId();
+
 			// Choose the next player if a follow cam is active on this player
-			if (FollowsNonLocalPlayer(GetCameraMode()) && &GetCameraTargetPlayer() == &p) {
+			if (FollowsNonLocalPlayer(GetCameraMode()) && GetCameraTargetPlayerId() == playerId) {
 				FollowNextPlayer(false);
 
 				// Still unable to find a substitute?
-				if (&GetCameraTargetPlayer() == &p)
+				if (GetCameraTargetPlayerId() == playerId)
 					followCameraState.enabled = false; // Turn off the follow cam mode
 			}
 
@@ -295,7 +297,17 @@ namespace spades {
 				chatWindow->AddMessage(msg);
 			}
 
-			RemoveCorpseForPlayer(p.GetId());
+			// remove player streaks from the killStreaks map
+			for (auto it = killStreaks.begin(); it != killStreaks.end();) {
+				it->second.erase(playerId);
+				if (it->first == playerId) {
+					it = killStreaks.erase(it);
+				} else {
+					++it;
+				}
+			}
+
+			RemoveCorpseForPlayer(playerId);
 		}
 
 		void Client::PlayerJoinedTeam(Player& p) {
