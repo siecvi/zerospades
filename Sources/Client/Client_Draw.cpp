@@ -96,7 +96,7 @@ SPADES_SETTING(cg_keyToolBlock);
 SPADES_SETTING(cg_keyToolWeapon);
 SPADES_SETTING(cg_keyToolGrenade);
 
-DEFINE_SPADES_SETTING(cg_hudPalette, "1");
+SPADES_SETTING(cg_hudPalette);
 SPADES_SETTING(cg_keyCaptureColor);
 SPADES_SETTING(cg_keyPaletteLeft);
 SPADES_SETTING(cg_keyPaletteRight);
@@ -105,7 +105,6 @@ SPADES_SETTING(cg_keyPaletteDown);
 
 SPADES_SETTING(cg_smallFont);
 SPADES_SETTING(cg_minimapSize);
-SPADES_SETTING(cg_hudPaletteSize);
 
 namespace spades {
 	namespace client {
@@ -733,12 +732,8 @@ namespace spades {
 			hurtRingView->Draw();
 
 			// draw color palette
-			if (curToolType == Player::ToolBlock) {
+			if (curToolType == Player::ToolBlock)
 				paletteView->Draw();
-
-				if (cg_hudPalette)
-					DrawBlockPaletteHUD();
-			}
 
 			// draw hotbar when unable to use tool
 			if ((!CanLocalPlayerUseTool() || (isToolWeapon && isReloading)) && cg_hudHotbar) {
@@ -1169,6 +1164,7 @@ namespace spades {
 			float sh = renderer->ScreenHeight();
 
 			Player& p = world->GetLocalPlayer().value();
+
 			bool localPlayerIsSpectator = p.IsSpectator();
 
 			float x = sw - 8.0F;
@@ -1238,20 +1234,12 @@ namespace spades {
 				addLine(_Tr("Client", "[{0}] Select Team/Weapon", TrKey(cg_keyLimbo)));
 		}
 
-		void Client::DrawBlockPaletteHUD() {
+		void Client::DrawBlockPaletteHUD(float winY) {
 			SPADES_MARK_FUNCTION();
 
 			IFont& font = cg_smallFont
 				? fontManager->GetSmallFont()
 				: fontManager->GetGuiFont();
-
-			float sw = renderer->ScreenWidth();
-			float sh = renderer->ScreenHeight();
-
-			float wndSize = cg_hudPaletteSize;
-			float winY = (sh - wndSize) - 64.0F;
-			float lh = cg_smallFont ? 12.0F : 20.0F;
-			float x = sw - 8.0F;
 
 			std::vector<std::string> lines;
 			lines.push_back(_Tr("Client", "[{0}] Grab color", TrKey(cg_keyCaptureColor)));
@@ -1270,7 +1258,10 @@ namespace spades {
 				lines.push_back(_Tr("Client", "({0}, {1}, {2}) RGB", color.x, color.y, color.z));
 			}
 
-			float totalHeight = lines.size() * lh;
+			float lh = cg_smallFont ? 12.0F : 20.0F;
+			float totalHeight = (int)lines.size() * lh;
+			
+			float x = renderer->ScreenWidth() - 8.0F;
 			float y = winY - totalHeight - 8.0F;
 
 			Vector4 color = MakeVector4(1, 1, 1, 1);
@@ -1370,10 +1361,10 @@ namespace spades {
 		void Client::Draw2DWithWorld() {
 			SPADES_MARK_FUNCTION();
 
-			bool shouldDrawHUD = hudVisible && !cg_hideHud;
-
 			for (const auto& ent : localEntities)
 				ent->Render2D();
+
+			bool shouldDrawHUD = hudVisible && !cg_hideHud;
 
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();

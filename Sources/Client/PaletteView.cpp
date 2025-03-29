@@ -34,6 +34,8 @@ DEFINE_SPADES_SETTING(cg_keyPaletteLeft, "Left");
 DEFINE_SPADES_SETTING(cg_keyPaletteRight, "Right");
 DEFINE_SPADES_SETTING(cg_keyPaletteUp, "Up");
 DEFINE_SPADES_SETTING(cg_keyPaletteDown, "Down");
+
+DEFINE_SPADES_SETTING(cg_hudPalette, "1");
 DEFINE_SPADES_SETTING(cg_hudPaletteSize, "128");
 
 namespace spades {
@@ -166,36 +168,57 @@ namespace spades {
 			float sw = renderer.ScreenWidth();
 			float sh = renderer.ScreenHeight();
 
-			float wndSize = cg_hudPaletteSize;
-			float rectSize = wndSize / PALETTE_SIZE;
+			float cellGap = 1.0F;
+			float bgPadding = 2.0F;
 
-			float winX = (sw - wndSize) - 8.0F;
-			float winY = (sh - wndSize) - 64.0F;
+			float wndSize = cg_hudPaletteSize;
+			float cellSize = wndSize / PALETTE_SIZE;
+			float totalSize = wndSize + (PALETTE_SIZE - 1) * cellGap;
+
+			float winX = (sw - totalSize) - 8.0F - bgPadding;
+			float winY = (sh - totalSize) - 64.0F;
+
+			float bgX = winX - bgPadding;
+			float bgY = winY - bgPadding;
+			float bgSize = totalSize + 2 * bgPadding;
+
+			// draw background
+			renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) * 0.07F);
+			renderer.DrawFilledRect(bgX, bgY, bgX + bgSize, bgY + bgSize);
+
+			renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) * 0.1F);
+			renderer.DrawOutlinedRect(bgX - 1, bgY - 1, bgX + bgSize + 1, bgY + bgSize + 1);
 
 			int sel = GetSelectedIndex();
 			for (size_t phase = 0; phase < 2; phase++) {
 				for (size_t i = 0; i < colors.size(); i++) {
-					if ((sel == i) != (phase == 1))
+					bool selected = sel == static_cast<int>(i);
+					if (selected != (phase == 1))
 						continue;
 
 					int row = static_cast<int>(i / PALETTE_SIZE);
 					int col = static_cast<int>(i % PALETTE_SIZE);
 
-					float x = winX + rectSize * col;
-					float y = winY + rectSize * row;
-					float w = x + rectSize;
-					float h = y + rectSize;
+					float x = winX + col * (cellSize + cellGap);
+					float y = winY + row * (cellSize + cellGap);
+					float w = x + cellSize;
+					float h = y + cellSize;
 
 					renderer.SetColorAlphaPremultiplied(ConvertColorRGBA(colors[i]));
 					renderer.DrawFilledRect(x + 1, y + 1, w - 1, h - 1);
 
-					if (sel == i) {
-						float p = float((int(client->GetTime() * 4.0F)) & 1);
+					if (selected) {
+						float p = 0.5F * (1.0F + sinf(client->GetTime() * M_PI_F * 4.0F));
 						renderer.SetColorAlphaPremultiplied(MakeVector4(p, p, p, 1));
-						renderer.DrawOutlinedRect(x, y, w, h);
+					} else {
+						renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) * 0.2F);
 					}
+					renderer.DrawOutlinedRect(x, y, w, h);
 				}
 			}
+
+			if (cg_hudPalette)
+				client->DrawBlockPaletteHUD(winY);
 		}
 	} // namespace client
 } // namespace spades

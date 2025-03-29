@@ -443,7 +443,7 @@ namespace spades {
 			void DrawHottrackedPlayerName();
 			void DrawPubOVL();
 
-			void DrawBlockPaletteHUD();
+			void DrawBlockPaletteHUD(float y);
 			void DrawAlivePlayersCount();
 			void DrawPlayingTime();
 			void DrawHurtSprites();
