@@ -1571,6 +1571,10 @@ namespace spades {
 				auto downbps = net->GetDownlinkBps() / 1000;
 				sprintf(buf, ", up/down: %.02f/%.02fkbps", upbps, downbps);
 				str += buf;
+
+				auto packetloss = net->GetPacketLoss() * 100.0F;
+				sprintf(buf, ", loss: %.2f%%", packetloss);
+				str += buf;
 			}
 
 			// add margin

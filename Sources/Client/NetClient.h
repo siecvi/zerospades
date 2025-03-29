@@ -180,6 +180,7 @@ namespace spades {
 			void Disconnect();
 
 			int GetPing();
+			float GetPacketLoss();
 
 			void DoEvents(int timeout = 0);
 
