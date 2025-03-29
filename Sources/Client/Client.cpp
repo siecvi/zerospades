@@ -335,11 +335,13 @@ namespace spades {
 			audioDevice->RegisterSound("Sounds/Weapons/AimDownSightLocal.opus");
 			audioDevice->RegisterSound("Sounds/Weapons/Grenade/WaterExplode.opus");
 			audioDevice->RegisterSound("Sounds/Weapons/Grenade/WaterExplodeFar.opus");
+			audioDevice->RegisterSound("Sounds/Weapons/Grenade/WaterExplodeStereo.opus");
 			audioDevice->RegisterSound("Sounds/Weapons/Grenade/Explode1.opus");
 			audioDevice->RegisterSound("Sounds/Weapons/Grenade/ExplodeStereo1.opus");
 			audioDevice->RegisterSound("Sounds/Weapons/Grenade/Explode2.opus");
 			audioDevice->RegisterSound("Sounds/Weapons/Grenade/ExplodeStereo2.opus");
 			audioDevice->RegisterSound("Sounds/Weapons/Grenade/ExplodeFar.opus");
+			audioDevice->RegisterSound("Sounds/Weapons/Grenade/ExplodeFarStereo.opus");
 			audioDevice->RegisterSound("Sounds/Weapons/Grenade/Debris.opus");
 
 			LoadKillSounds();
