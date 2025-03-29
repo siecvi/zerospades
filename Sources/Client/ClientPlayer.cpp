@@ -999,6 +999,7 @@ namespace spades {
 				if (!cg_ragdoll) {
 					model = renderer.RegisterModel((modelPath + "Dead.kv6").c_str());
 					param.matrix = Matrix4::FromAxis(-right, front2D, -up, p.GetEye());
+					param.matrix = param.matrix * Matrix4::Translate(0.0F, 0.0F, -0.1F);
 					param.matrix = param.matrix * Matrix4::Scale(0.1F);
 					renderer.RenderModel(*model, param);
 				}
