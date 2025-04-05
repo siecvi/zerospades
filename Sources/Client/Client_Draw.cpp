@@ -423,7 +423,7 @@ namespace spades {
 			float lastEffectTime = hurt ? lastHurtTime : lastHealTime;
 			float timeSinceEffect = time - lastEffectTime;
 
-			if (time >= lastHurtTime && timeSinceEffect < fadeTime) {
+			if (time >= lastEffectTime && timeSinceEffect < fadeTime) {
 				float prg = 1.0F - (timeSinceEffect / fadeTime);
 				prg *= 0.3F + (1.0F - hpper) * 0.7F;
 				prg = 1.0F - std::min(prg, 0.9F);
