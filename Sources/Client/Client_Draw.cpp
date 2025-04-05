@@ -1037,7 +1037,7 @@ namespace spades {
 			y -= (float)cg_playerStatsHeight;
 
 			Vector4 color = MakeVector4(1, 1, 1, 1);
-			Vector4 shadow = MakeVector4(0, 0, 0, 0.5F);
+			Vector4 shadow = MakeVector4(0, 0, 0, 0.7F);
 
 			float lh = cg_smallFont ? 12.0F : 20.0F;
 			auto addLine = [&](const std::string& text) {
@@ -1179,7 +1179,7 @@ namespace spades {
 			y += 32.0F;
 
 			Vector4 color = MakeVector4(1, 1, 1, 1);
-			Vector4 shadow = MakeVector4(0, 0, 0, 0.5);
+			Vector4 shadow = MakeVector4(0, 0, 0, 0.7F);
 
 			float lh = cg_smallFont ? 12.0F : 20.0F;
 			auto addLine = [&](const std::string& text) {
@@ -1265,7 +1265,7 @@ namespace spades {
 			float y = winY - totalHeight - 8.0F;
 
 			Vector4 color = MakeVector4(1, 1, 1, 1);
-			Vector4 shadow = MakeVector4(0, 0, 0, 0.5);
+			Vector4 shadow = MakeVector4(0, 0, 0, 0.7F);
 
 			// draw each line
 			for (const auto& line : lines) {
