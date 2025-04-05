@@ -28,15 +28,15 @@
 #include "Player.h"
 #include "World.h"
 
-#define PALETTE_SIZE 16
-
 DEFINE_SPADES_SETTING(cg_keyPaletteLeft, "Left");
 DEFINE_SPADES_SETTING(cg_keyPaletteRight, "Right");
 DEFINE_SPADES_SETTING(cg_keyPaletteUp, "Up");
 DEFINE_SPADES_SETTING(cg_keyPaletteDown, "Down");
+DEFINE_SPADES_SETTING(cg_keyExtendedPalette, "p");
 
 DEFINE_SPADES_SETTING(cg_hudPalette, "1");
 DEFINE_SPADES_SETTING(cg_hudPaletteSize, "128");
+DEFINE_SPADES_SETTING(cg_extendedPalette, "1");
 
 namespace spades {
 	namespace client {
@@ -48,23 +48,42 @@ namespace spades {
 		}
 
 		PaletteView::PaletteView(Client* client) : client(client), renderer(client->GetRenderer()) {
-			IntVector3 cols[PALETTE_SIZE] = { // Extended palette to 256 colors
+			UpdatePaletteSize();
+			ResetColors();
+			time = 0.0F;
+			defaultColor = 3;
+		}
+
+		void PaletteView::UpdatePaletteSize() {
+			paletteSize = extended ? 16 : 8;
+		}
+
+		void PaletteView::ResetColors() {
+			colors.clear();
+
+			static const IntVector3 palette[8] = {
+				{128, 128, 128}, {256, 0, 0},  {256, 128, 0},
+				{256, 256, 0},   {0, 256, 0},  {0, 256, 256},
+				{0, 0, 256},     {256, 0, 256}
+			};
+
+			static const IntVector3 extendedPalette[16] = {
 			  {128, 128, 128}, {256, 0, 0},     {256, 128, 0},   {256, 256, 0},
 			  {256, 256, 128}, {128, 256, 0},   {0, 256, 0},     {0, 256, 128},
 			  {0, 256, 256},   {128, 256, 256}, {0, 128, 256},   {0, 0, 256},
 			  {128, 0, 256},   {256, 0, 256},   {256, 128, 256}, {256, 0, 128}
 			};
 
-			auto def = MakeIntVector3(256, 256, 256);
-			for (const auto& col : cols) {
-				for (int j = 1; j < PALETTE_SIZE; j += 2)
-					colors.push_back(SanitizeCol((col * j) / PALETTE_SIZE - 1));
-				for (int j = 1; j < PALETTE_SIZE; j += 2)
-					colors.push_back(col + (((def - col) * j) / PALETTE_SIZE - 1));
-			}
+			const auto* cols = extended ? extendedPalette : palette;
+			const auto def = MakeIntVector3(256, 256, 256);
 
-			time = 0.0F;
-			defaultColor = 3;
+			for (int i = 0; i < paletteSize; ++i) {
+				const auto& col = cols[i];
+				for (int j = 1; j < paletteSize; j += 2)
+					colors.push_back(SanitizeCol((col * j) / paletteSize - 1));
+				for (int j = 1; j < paletteSize; j += 2)
+					colors.push_back(col + (((def - col) * j) / paletteSize - 1));
+			}
 		}
 
 		PaletteView::~PaletteView() {}
@@ -106,12 +125,25 @@ namespace spades {
 			} else if (EqualsIgnoringCase(name, cg_keyPaletteDown)) {
 				paletteInput.down = down;
 				return true;
+			} else if (EqualsIgnoringCase(name, cg_keyExtendedPalette) && down) {
+				extended = !extended;
+				UpdatePaletteSize();
+				ResetColors();
+				cg_extendedPalette = extended;
+				return true;
 			}
 			return false;
 		}
 
 		void PaletteView::Update(float dt) {
 			time += dt;
+
+			bool mode = cg_extendedPalette;
+			if (extended != mode) {
+				extended = mode;
+				UpdatePaletteSize();
+				ResetColors();
+			}
 
 			if (time < 0.1F)
 				return;
@@ -124,6 +156,8 @@ namespace spades {
 
 				// handle horizontal navigation
 				if (paletteInput.left || paletteInput.right) {
+					changed = true;
+
 					if (paletteInput.left) {
 						if (c == 0)
 							c = cols - 1;
@@ -135,25 +169,23 @@ namespace spades {
 						else
 							c++;
 					}
-
-					changed = true;
 				}
 
 				// handle vertical navigation
 				if (paletteInput.up || paletteInput.down) {
-					if (paletteInput.up) {
-						if (c < PALETTE_SIZE)
-							c += cols - PALETTE_SIZE;
-						else
-							c -= PALETTE_SIZE;
-					} else if (paletteInput.down) {
-						if (c >= cols - PALETTE_SIZE)
-							c -= cols - PALETTE_SIZE;
-						else
-							c += PALETTE_SIZE;
-					}
-
 					changed = true;
+
+					if (paletteInput.up) {
+						if (c < paletteSize)
+							c += cols - paletteSize;
+						else
+							c -= paletteSize;
+					} else if (paletteInput.down) {
+						if (c >= cols - paletteSize)
+							c -= cols - paletteSize;
+						else
+							c += paletteSize;
+					}
 				}
 
 				// apply changes if any
@@ -168,12 +200,14 @@ namespace spades {
 			float sw = renderer.ScreenWidth();
 			float sh = renderer.ScreenHeight();
 
+			float wndSize = cg_hudPaletteSize;
+			if (!extended)
+				wndSize *= 0.5F;
+
 			float cellGap = 1.0F;
 			float bgPadding = 2.0F;
-
-			float wndSize = cg_hudPaletteSize;
-			float cellSize = wndSize / PALETTE_SIZE;
-			float totalSize = wndSize + (PALETTE_SIZE - 1) * cellGap;
+			float cellSize = wndSize / paletteSize;
+			float totalSize = wndSize + (paletteSize - 1) * cellGap;
 
 			float winX = (sw - totalSize) - 8.0F - bgPadding;
 			float winY = (sh - totalSize) - 64.0F;
@@ -196,8 +230,8 @@ namespace spades {
 					if (selected != (phase == 1))
 						continue;
 
-					int row = static_cast<int>(i / PALETTE_SIZE);
-					int col = static_cast<int>(i % PALETTE_SIZE);
+					int row = static_cast<int>(i / paletteSize);
+					int col = static_cast<int>(i % paletteSize);
 
 					float x = winX + col * (cellSize + cellGap);
 					float y = winY + row * (cellSize + cellGap);

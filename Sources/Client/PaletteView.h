@@ -39,6 +39,12 @@ namespace spades {
 			PaletteInput paletteInput;
 			float time;
 
+			int paletteSize;
+			bool extended;
+
+			void UpdatePaletteSize();
+			void ResetColors();
+
 			int defaultColor;
 			std::vector<IntVector3> colors;
 			int GetSelectedIndex();
