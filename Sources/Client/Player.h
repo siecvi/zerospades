@@ -98,6 +98,10 @@ namespace spades {
 			bool pendingRestock;
 			bool pendingRestockHealth;
 
+			int pendingAmmo;
+			int pendingAmmoStock;
+			bool pendingWeaponReload;
+
 			// for making footsteps
 			float moveDistance;
 			int moveSteps;

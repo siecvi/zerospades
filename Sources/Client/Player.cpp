@@ -69,6 +69,7 @@ namespace spades {
 
 			pendingRestock = false;
 			pendingRestockHealth = false;
+			pendingWeaponReload = false;
 
 			nextSpadeTime = 0.0F;
 			nextDigTime = 0.0F;
@@ -240,8 +241,13 @@ namespace spades {
 			weapon->Reload();
 		}
 
+		// currently only used for local player
 		void Player::ReloadDone(int clip, int stock) {
-			weapon->ReloadDone(clip, stock);
+			SPADES_MARK_FUNCTION();
+
+			pendingAmmo = clip;
+			pendingAmmoStock = stock;
+			pendingWeaponReload = true;
 		}
 
 		// currently only used for local player
@@ -473,11 +479,11 @@ namespace spades {
 				lastReloadingTime = world.GetTime();
 			} else if (weapon->IsReloading()) {
 				// for some reason server didn't return a WeaponReload packet.
-				if (world.GetTime() - lastReloadingTime > 1.0F)
+				if (world.GetTime() - lastReloadingTime > 5.0F)
 					weapon->ForceReloadDone();
 			}
 
-			// perform restock for local
+			// perform restock for local player
 			if (isLocal && pendingRestock) {
 				health = pendingHealth;
 				grenades = pendingGrenades;
@@ -485,10 +491,16 @@ namespace spades {
 				pendingRestock = false;
 			}
 
-			// perform health updates for local
+			// perform health updates for local player
 			if (isLocal && pendingRestockHealth) {
 				health = pendingHealth;
 				pendingRestockHealth = false;
+			}
+
+			// perform weapon reload for local player
+			if (isLocal && pendingWeaponReload) {
+				weapon->ReloadDone(pendingAmmo, pendingAmmoStock);
+				pendingWeaponReload = false;
 			}
 		}
 
