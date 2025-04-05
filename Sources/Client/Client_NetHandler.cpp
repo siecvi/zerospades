@@ -285,15 +285,28 @@ namespace spades {
 					followCameraState.enabled = false; // Turn off the follow cam mode
 			}
 
+			// check if the player was being dominated
+			bool wasDominated = false;
+			for (auto it = killStreaks.begin(); it != killStreaks.end(); ++it) {
+				if (it->second.find(playerId) != it->second.end() && it->second[playerId] >= 4) {
+					wasDominated = true;
+					break;
+				}
+			}
+
 			std::string msg;
 			{
 				msg = _Tr("Client", "Player {0} has left", p.GetName());
+				if (wasDominated)
+					msg += _Tr("Client", " (ragequit)");
 				NetLog("%s", msg.c_str());
 				scriptedUI->RecordChatLog(msg, ConvertColorRGBA(p.GetColor()));
 			}
 			{
 				msg = chatWindow->TeamColorMessage(p.GetName(), p.GetTeamId());
 				msg = _Tr("Client", "Player {0} has left", msg);
+				if (wasDominated)
+					msg += _Tr("Client", " (ragequit)");
 				chatWindow->AddMessage(msg);
 			}
 
