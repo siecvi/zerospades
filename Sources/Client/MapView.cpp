@@ -37,6 +37,7 @@
 
 DEFINE_SPADES_SETTING(cg_minimapOpacity, "1");
 DEFINE_SPADES_SETTING(cg_minimapSize, "128");
+DEFINE_SPADES_SETTING(cg_minimapScaleMode, "2");
 DEFINE_SPADES_SETTING(cg_minimapCoords, "1");
 DEFINE_SPADES_SETTING(cg_minimapPlayerIcon, "1");
 DEFINE_SPADES_SETTING(cg_minimapPlayerColor, "1");
@@ -58,7 +59,7 @@ namespace spades {
 					case 3: return inLine;
 				}
 
-				const float fraction = d1 / (d1 - d2); // hmm
+				const float fraction = d1 / (d1 - d2);
 				Vector2 intersection = Mix(inLine.first, inLine.second, fraction);
 				if (bits == 1)
 					return std::make_pair(inLine.first, intersection);
@@ -84,7 +85,6 @@ namespace spades {
 
 		MapView::MapView(Client* c, bool largeMap)
 		    : client(c), renderer(c->GetRenderer()), largeMap(largeMap) {
-			scaleMode = 2;
 			actualScale = 1.0F;
 			lastScale = 1.0F;
 			zoomed = false;
@@ -94,6 +94,25 @@ namespace spades {
 		MapView::~MapView() {}
 
 		void MapView::Update(float dt) {
+			if (largeMap) {
+				if (zoomed) {
+					zoomState += dt * 5.0F;
+					if (zoomState > 1.0F)
+						zoomState = 1.0F;
+				} else {
+					zoomState -= dt * 5.0F;
+					if (zoomState < 0.0F)
+						zoomState = 0.0F;
+				}
+				return;
+			}
+
+			int mode = cg_minimapScaleMode;
+			if (scaleMode != mode) {
+				lastScale = actualScale;
+				scaleMode = mode;
+			}
+
 			float scale = 0.0F;
 			switch (scaleMode) {
 				case 0: scale = 1.0F / 4.0F; break; // 400%
@@ -116,16 +135,6 @@ namespace spades {
 					if (actualScale < scale)
 						actualScale = scale;
 				}
-			}
-
-			if (zoomed) {
-				zoomState += dt * 10.0F;
-				if (zoomState > 1.0F)
-					zoomState = 1.0F;
-			} else {
-				zoomState -= dt * 10.0F;
-				if (zoomState < 0.0F)
-					zoomState = 0.0F;
 			}
 		}
 
@@ -185,6 +194,7 @@ namespace spades {
 		void MapView::SwitchScale() {
 			scaleMode = (scaleMode + 1) % 4;
 			lastScale = actualScale;
+			cg_minimapScaleMode = scaleMode;
 		}
 
 		std::string MapView::ToGrid(float x, float y) {
@@ -292,7 +302,7 @@ namespace spades {
 				per = 1.0F - per;
 				per *= per;
 				per = 1.0F - per;
-				per = Mix(0.75F, 1.0F, per);
+				per = Mix(0.25F, 1.0F, per);
 				zoomedSize = Mix(MakeVector2(0, 0), zoomedSize, per);
 				mapWndSize = zoomedSize;
 			}

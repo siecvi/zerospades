@@ -777,10 +777,15 @@ msgctxt "Preferences"
 msgid "Field of View"
 msgstr "Campo de visión"
 
-#: Resources/Scripts/Gui/Preferences.as:666
+#: Resources/Scripts/Gui/Preferences.as:1278
 msgctxt "Preferences"
-msgid "Minimap size"
+msgid "Minimap Size"
 msgstr "Tamaño del minimapa"
+
+#: Resources/Scripts/Gui/Preferences.as:1280
+msgctxt "Preferences"
+msgid "Minimap Scale Mode"
+msgstr "Modo de escala del minimapa"
 
 #: Resources/Scripts/Gui/Preferences.as:1274
 msgctxt "Preferences"

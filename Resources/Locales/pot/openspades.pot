@@ -771,12 +771,12 @@ msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:666
 msgctxt "Preferences"
-msgid "Minimap size"
+msgid "Minimap Size"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:1274
 msgctxt "Preferences"
-msgid "Minimap Opacity"
+msgid "Minimap Scale Mode"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:678
