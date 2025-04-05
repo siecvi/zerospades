@@ -181,6 +181,7 @@ namespace spades {
 
 			int GetPing();
 			float GetPacketLoss();
+			float GetPacketThrottle();
 
 			void DoEvents(int timeout = 0);
 

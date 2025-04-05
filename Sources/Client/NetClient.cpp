@@ -498,8 +498,14 @@ namespace spades {
 			if (status == NetClientStatusNotConnected)
 				return -1;
 
-			auto loss = peer->packetLoss;
-			return static_cast<float>(loss) / ENET_PEER_PACKET_LOSS_SCALE;
+			return static_cast<float>(peer->packetLoss) / ENET_PEER_PACKET_LOSS_SCALE;
+		}
+
+		float NetClient::GetPacketThrottle() {
+			if (status == NetClientStatusNotConnected)
+				return -1;
+
+			return static_cast<float>(peer->packetThrottle) / ENET_PEER_PACKET_THROTTLE_SCALE;
 		}
 
 		void NetClient::DoEvents(int timeout) {

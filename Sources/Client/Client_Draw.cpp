@@ -1534,21 +1534,21 @@ namespace spades {
 			std::string str;
 
 			{
-				auto fps = (int)fpsCounter.GetFps();
+				auto fps = fpsCounter.GetFps();
 				if (fps <= 0) {
 					str += "FPS: NA";
 				} else {
-					sprintf(buf, "%dFPS", fps);
+					sprintf(buf, "%.0fFPS", fps);
 					str += buf;
 				}
 			}
 			{
 				// Display world updates per second
-				auto ups = (int)upsCounter.GetFps();
+				auto ups = upsCounter.GetFps();
 				if (ups <= 0) {
 					str += ", UPS: NA";
 				} else {
-					sprintf(buf, ", %dUPS", ups);
+					sprintf(buf, ", %.0fUPS", ups);
 					str += buf;
 				}
 			}
@@ -1563,8 +1563,13 @@ namespace spades {
 				sprintf(buf, ", up/down: %.02f/%.02fkbps", upbps, downbps);
 				str += buf;
 
-				auto packetloss = net->GetPacketLoss() * 100.0F;
-				sprintf(buf, ", loss: %.2f%%", packetloss);
+				auto loss = net->GetPacketLoss() * 100.0F;
+				sprintf(buf, ", loss: %.0f%%", loss);
+				str += buf;
+
+				auto throttle = net->GetPacketThrottle();
+				auto choke = (1.0F - throttle) * 100.0F;
+				sprintf(buf, ", choke: %.0f%%", choke);
 				str += buf;
 			}
 
