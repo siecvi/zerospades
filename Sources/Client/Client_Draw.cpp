@@ -1585,7 +1585,8 @@ namespace spades {
 			Vector4 color = MakeVector4(1, 1, 1, 1);
 			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.4F);
 
-			if (cg_statsBackground) {
+			bool drawBg = cg_statsBackground;
+			if (drawBg) {
 				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.5));
 				renderer->DrawFilledRect(pos.x - margin, pos.y,
 					pos.x + size.x + margin, pos.y + size.y);
@@ -1597,7 +1598,8 @@ namespace spades {
 
 			// draw text
 			pos += MakeVector2(margin, margin);
-			font.DrawShadow(str, pos + MakeVector2(1, 1), 1.0F, shadowColor, shadowColor);
+			if (!drawBg)
+				font.DrawShadow(str, pos + MakeVector2(1, 1), 1.0F, shadowColor, shadowColor);
 			font.Draw(str, pos, 1.0F, color);
 		}
 
