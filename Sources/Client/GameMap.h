@@ -106,6 +106,8 @@ namespace spades {
 			inline bool IsSurface(int x, int y, int z) const {
 				if (!IsSolid(x, y, z))
 					return false;
+				if (z == 0)
+					return true;
 				if (x > 0 && !IsSolid(x - 1, y, z))
 					return true;
 				if (x < Width() - 1 && !IsSolid(x + 1, y, z))
@@ -114,7 +116,7 @@ namespace spades {
 					return true;
 				if (y < Height() - 1 && !IsSolid(x, y + 1, z))
 					return true;
-				if (z > 0 && !IsSolid(x, y, z - 1))
+				if (!IsSolid(x, y, z - 1))
 					return true;
 				if (z < Depth() - 1 && !IsSolid(x, y, z + 1))
 					return true;
