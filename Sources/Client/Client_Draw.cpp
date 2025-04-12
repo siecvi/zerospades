@@ -102,6 +102,7 @@ SPADES_SETTING(cg_keyPaletteLeft);
 SPADES_SETTING(cg_keyPaletteRight);
 SPADES_SETTING(cg_keyPaletteUp);
 SPADES_SETTING(cg_keyPaletteDown);
+SPADES_SETTING(cg_keyExtendedPalette);
 
 SPADES_SETTING(cg_smallFont);
 SPADES_SETTING(cg_minimapSize);
@@ -1247,6 +1248,7 @@ namespace spades {
 				TrKey(cg_keyPaletteUp), TrKey(cg_keyPaletteDown)));
 			lines.push_back(_Tr("Client", "[{0}/{1}] Navigate left/right",
 				TrKey(cg_keyPaletteLeft), TrKey(cg_keyPaletteRight)));
+			lines.push_back(_Tr("Client", "[{0}] Toggle extended palette", TrKey(cg_keyExtendedPalette)));
 
 			// add color information
 			if ((int)cg_hudPalette >= 2) {

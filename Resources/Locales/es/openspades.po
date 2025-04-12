@@ -872,6 +872,11 @@ msgctxt "Preferences"
 msgid "Navigate right"
 msgstr "Navegar a la derecha"
 
+#: Resources/Scripts/Gui/Preferences.as:1466
+msgctxt "Preferences"
+msgid "Toggle extended palette"
+msgstr "Alternar paleta extendida"
+
 #: Resources/Scripts/Gui/Preferences.as:691
 msgctxt "Preferences"
 msgid "Equip Spade"
@@ -2611,3 +2616,8 @@ msgstr "[{0}/{1}] Navegar arriba/abajo"
 msgctxt "Client"
 msgid "[{0}/{1}] Navigate left/right"
 msgstr "[{0}/{1}] Navegar izq./derecha"
+
+#: Sources/Client/Client_Draw.cpp:1261
+msgctxt "Client"
+msgid "[{0}] Toggle extended palette"
+msgstr "[{0}] Alternar paleta extendida"

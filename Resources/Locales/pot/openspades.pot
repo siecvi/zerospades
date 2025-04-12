@@ -849,6 +849,11 @@ msgctxt "Preferences"
 msgid "Navigate left"
 msgstr ""
 
+#: Resources/Scripts/Gui/Preferences.as:1466
+msgctxt "Preferences"
+msgid "Toggle extended palette"
+msgstr ""
+
 #: Resources/Scripts/Gui/Preferences.as:1425
 msgctxt "Preferences"
 msgid "Navigate right"
@@ -2522,4 +2527,9 @@ msgstr ""
 #: Sources/Client/Client_Draw.cpp:1256
 msgctxt "Client"
 msgid "[{0}/{1}] Navigate left/right"
+msgstr ""
+
+#: Sources/Client/Client_Draw.cpp:1261
+msgctxt "Client"
+msgid "[{0}] Toggle extended palette"
 msgstr ""

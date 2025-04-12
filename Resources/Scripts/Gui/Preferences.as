@@ -1463,6 +1463,7 @@ namespace spades {
 			layouter.AddControl(_Tr("Preferences", "Navigate down"), "cg_keyPaletteDown");
 			layouter.AddControl(_Tr("Preferences", "Navigate left"), "cg_keyPaletteLeft");
 			layouter.AddControl(_Tr("Preferences", "Navigate right"), "cg_keyPaletteRight");
+			layouter.AddControl(_Tr("Preferences", "Toggle extended palette"), "cg_keyExtendedPalette");
 
 			layouter.AddHeading(_Tr("Preferences", "Misc"));
 			layouter.AddControl(_Tr("Preferences", "Scoreboard"), "cg_keyScoreboard");
