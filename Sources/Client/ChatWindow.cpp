@@ -105,8 +105,8 @@ namespace spades {
 				case KillTypeClassChange:
 				case 7:  // airborne kill
 				case 8:  // noscope kill
-				case 9:  // revenge kill
-				case 10: // domination kill
+				case 9:  // domination kill
+				case 10: // revenge kill
 					tmp[1] = 'a' + 2 + kt;
 					break;
 				default: return "";

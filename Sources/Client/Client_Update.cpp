@@ -1041,7 +1041,7 @@ namespace spades {
 					if (isRevengeKill) {
 						s += " ";
 						if (killfeedIcons) {
-							s += ChatWindow::KillImage(9);
+							s += ChatWindow::KillImage(10);
 						} else {
 							s += "(";
 							s += ChatWindow::ColoredMessage(_Tr("Client", "Revenge!"), MsgColorYellow);
@@ -1053,7 +1053,7 @@ namespace spades {
 							s += " ";
 							if (killerStreak >= 4) {
 								if (killfeedIcons) {
-									s += ChatWindow::KillImage(10);
+									s += ChatWindow::KillImage(9);
 								} else {
 									s += "(";
 									s += ChatWindow::ColoredMessage(_Tr("Client", "Dominating!"), MsgColorYellow);
