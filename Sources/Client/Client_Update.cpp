@@ -974,55 +974,6 @@ namespace spades {
 				}
 			}
 
-			// emit blood (also for local player)
-			// FIXME: emiting blood for either
-			// client-side or server-side hit?
-			switch (kt) {
-				case KillTypeGrenade:
-				case KillTypeHeadshot:
-				case KillTypeMelee:
-				case KillTypeWeapon: Bleed(victim.GetEye()); break;
-				default: break;
-			}
-
-			// create ragdoll corpse
-			if (cg_ragdoll) {
-				auto corp = stmp::make_unique<Corpse>(*renderer, *map, victim);
-
-				if (victim.IsLocalPlayer())
-					lastLocalCorpse = corp.get();
-
-				if (kt == KillTypeGrenade) {
-					corp->AddImpulse(MakeVector3(0, 0, -4.0F - SampleRandomFloat() * 4.0F));
-				} else if (killerId != victimId) {
-					Vector3 dir = victim.GetPosition() - killer.GetPosition();
-					dir = dir.Normalize();
-					if (kt == KillTypeMelee) {
-						dir *= 6.0F;
-					} else {
-						switch (weaponType) {
-							case SMG_WEAPON: dir *= 2.8F; break;
-							case SHOTGUN_WEAPON: dir *= 4.5F; break;
-							default: dir *= 3.5F; break;
-						}
-					}
-
-					// add extra head impulse if its a headshot or melee kill
-					if (kt == KillTypeHeadshot || kt == KillTypeMelee)
-						corp->AddHeadImpulse(dir * 4.0F);
-
-					corp->AddImpulse(dir);
-				}
-
-				corp->AddImpulse(victim.GetVelocity() * 32.0F);
-				corpses.emplace_back(std::move(corp));
-
-				if (corpses.size() > corpseHardLimit)
-					corpses.pop_front();
-				else if (corpses.size() > corpseSoftLimit)
-					RemoveInvisibleCorpses();
-			}
-
 			// create a killfeed message
 			std::string s, cause;
 
@@ -1126,6 +1077,59 @@ namespace spades {
 
 				if (!msg.empty())
 					centerMessageView->AddMessage(msg);
+			}
+
+			// don't spawn blood/ragdolls for spectators
+			if (victim.IsSpectator())
+				return;
+
+			// emit blood (also for local player)
+			// FIXME: emiting blood for either
+			// client-side or server-side hit?
+			switch (kt) {
+				case KillTypeGrenade:
+				case KillTypeHeadshot:
+				case KillTypeMelee:
+				case KillTypeWeapon: Bleed(victim.GetEye()); break;
+				default: break;
+			}
+
+			// create ragdoll corpse
+			if (cg_ragdoll) {
+				auto corp = stmp::make_unique<Corpse>(*renderer, *map, victim);
+
+				if (kt == KillTypeGrenade) {
+					corp->AddImpulse(MakeVector3(0, 0, -4.0F - SampleRandomFloat() * 4.0F));
+				} else if (killerId != victimId) {
+					Vector3 dir = victim.GetPosition() - killer.GetPosition();
+					dir = dir.Normalize();
+
+					if (kt == KillTypeMelee) {
+						dir *= 6.0F;
+					} else {
+						switch (weaponType) {
+							case SMG_WEAPON: dir *= 2.8F; break;
+							case SHOTGUN_WEAPON: dir *= 4.5F; break;
+							default: dir *= 3.5F; break;
+						}
+					}
+
+					// add extra head impulse if its a headshot or melee kill
+					if (kt == KillTypeHeadshot || kt == KillTypeMelee)
+						corp->AddHeadImpulse(dir * 4.0F);
+
+					corp->AddImpulse(dir);
+				}
+				corp->AddImpulse(victim.GetVelocity() * 32.0F);
+
+				if (victim.IsLocalPlayer())
+					lastLocalCorpse = corp.get();
+
+				corpses.emplace_back(std::move(corp));
+				if (corpses.size() > corpseHardLimit)
+					corpses.pop_front();
+				else if (corpses.size() > corpseSoftLimit)
+					RemoveInvisibleCorpses();
 			}
 		}
 
