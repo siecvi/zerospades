@@ -36,7 +36,7 @@ DEFINE_SPADES_SETTING(cg_keyExtendedPalette, "p");
 
 DEFINE_SPADES_SETTING(cg_hudPalette, "1");
 DEFINE_SPADES_SETTING(cg_hudPaletteSize, "128");
-DEFINE_SPADES_SETTING(cg_extendedPalette, "1");
+DEFINE_SPADES_SETTING(cg_extendedPalette, "0");
 
 namespace spades {
 	namespace client {
