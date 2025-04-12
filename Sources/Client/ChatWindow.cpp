@@ -55,6 +55,8 @@ namespace spades {
 			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/i-Classchange.png").GetPointerOrNull());
 			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/j-Airborne.png").GetPointerOrNull());
 			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/k-Noscope.png").GetPointerOrNull());
+			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/l-Domination.png").GetPointerOrNull());
+			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/m-Revenge.png").GetPointerOrNull());
 		}
 		ChatWindow::~ChatWindow() {}
 
@@ -90,7 +92,8 @@ namespace spades {
 						case RIFLE_WEAPON:
 						case SMG_WEAPON:
 						case SHOTGUN_WEAPON:
-							tmp[1] = 'a' + weapon; break;
+							tmp[1] = 'a' + weapon;
+							break;
 						default: return "";
 					}
 					break;
@@ -100,8 +103,12 @@ namespace spades {
 				case KillTypeFall:
 				case KillTypeTeamChange:
 				case KillTypeClassChange:
-				case 7:
-				case 8: tmp[1] = 'a' + 2 + kt; break;
+				case 7:  // airborne kill
+				case 8:  // noscope kill
+				case 9:  // revenge kill
+				case 10: // domination kill
+					tmp[1] = 'a' + 2 + kt;
+					break;
 				default: return "";
 			}
 			return tmp;

@@ -977,6 +977,8 @@ namespace spades {
 			// create a killfeed message
 			std::string s, cause;
 
+			bool killfeedIcons = cg_killfeedIcons && !cg_smallFont;
+
 			// add colored killer name
 			s += ChatWindow::TeamColorMessage(killer.GetName(), killer.GetTeamId());
 
@@ -1000,7 +1002,7 @@ namespace spades {
 
 			// add cause of death
 			s += " ";
-			if (cg_killfeedIcons && !cg_smallFont) {
+			if (killfeedIcons) {
 				std::string killImg;
 				if (killerId != victimId && (kt == KillTypeWeapon || kt == KillTypeHeadshot)) {
 					if (!killer.IsOnGroundOrWade()) // air shots
@@ -1037,18 +1039,29 @@ namespace spades {
 				// add domination indicator
 				if (cg_killfeedStreaks && (killer.IsLocalPlayer() || victim.IsLocalPlayer())) {
 					if (isRevengeKill) {
-						s += " (";
-						s += ChatWindow::ColoredMessage(_Tr("Client", "Revenge!"), MsgColorYellow);
-						s += ")";
+						s += " ";
+						if (killfeedIcons) {
+							s += ChatWindow::KillImage(9);
+						} else {
+							s += "(";
+							s += ChatWindow::ColoredMessage(_Tr("Client", "Revenge!"), MsgColorYellow);
+							s += ")";
+						}
 					} else {
 						const int killerStreak = killStreaks[killerId][victimId];
-						if (killerStreak > 1) {
-							s += " (";
-							if (killerStreak >= 4)
-								s += ChatWindow::ColoredMessage(_Tr("Client", "Dominating!"), MsgColorYellow);
-							else
-								s += "x" + ToString(killerStreak);
-							s += ")";
+						if (killerStreak >= 2) {
+							s += " ";
+							if (killerStreak >= 4) {
+								if (killfeedIcons) {
+									s += ChatWindow::KillImage(10);
+								} else {
+									s += "(";
+									s += ChatWindow::ColoredMessage(_Tr("Client", "Dominating!"), MsgColorYellow);
+									s += ")";
+								}
+							} else {
+								s += "(x" + ToString(killerStreak) + ")"; 
+							}
 						}
 					}
 				}

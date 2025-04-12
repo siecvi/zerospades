@@ -287,6 +287,8 @@ namespace spades {
 			renderer->RegisterImage("Gfx/Killfeed/i-Classchange.png");
 			renderer->RegisterImage("Gfx/Killfeed/j-Airborne.png");
 			renderer->RegisterImage("Gfx/Killfeed/k-Noscope.png");
+			renderer->RegisterImage("Gfx/Killfeed/l-Domination.png");
+			renderer->RegisterImage("Gfx/Killfeed/m-Revenge.png");
 			renderer->RegisterImage("Gfx/Ball.png");
 			renderer->RegisterImage("Gfx/HurtRing.png");
 			renderer->RegisterImage("Gfx/HurtSprite.png");
