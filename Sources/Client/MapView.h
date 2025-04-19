@@ -50,8 +50,8 @@ namespace spades {
 
 			Vector2 Project(const Vector2&) const;
 
-			void DrawIcon(Vector3 pos, IImage& img, Vector4 col, float rotation = 0.0F);
-			void DrawText(std::string s, Vector3 pos, Vector4 col);
+			void DrawIcon(Vector3 pos, IImage& img, const Vector4&, float rotation = 0.0F);
+			void DrawText(IFont& font, std::string s, Vector3 pos, const Vector4&);
 
 		public:
 			MapView(Client*, bool largeMap);

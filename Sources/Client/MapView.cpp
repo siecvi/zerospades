@@ -147,7 +147,7 @@ namespace spades {
 			return scrPos;
 		}
 
-		void MapView::DrawIcon(spades::Vector3 pos, IImage& img, Vector4 col, float rotation) {
+		void MapView::DrawIcon(Vector3 pos, IImage& img, const Vector4& col, float rotation) {
 			if ((int)cg_minimapPlayerIcon >= 2 && rotation == 0.0F) {
 				pos.x = Clamp(pos.x, inRect.GetMinX(), inRect.GetMaxX());
 				pos.y = Clamp(pos.y, inRect.GetMinY(), inRect.GetMaxY());
@@ -177,13 +177,12 @@ namespace spades {
 			renderer.DrawImage(img, vt[0], vt[1], vt[2], inRect);
 		}
 
-		void MapView::DrawText(std::string s, Vector3 pos, Vector4 col) {
+		void MapView::DrawText(IFont& font, std::string s, Vector3 pos, const Vector4& col) {
 			if (pos.x < inRect.GetMinX() || pos.x > inRect.GetMaxX() ||
 				pos.y < inRect.GetMinY() || pos.y > inRect.GetMaxY())
 				return;
 
 			Vector2 scrPos = Project(Vector2{pos.x, pos.y});
-			IFont& font = client->fontManager->GetSmallFont();
 			Vector2 size = font.Measure(s);
 			scrPos.x -= size.x * 0.5F;
 			scrPos.y -= size.y;
@@ -332,7 +331,8 @@ namespace spades {
 			this->inRect = inRect;
 			this->outRect = outRect;
 
-			float alpha = largeMap ? zoomState : Clamp((float)cg_minimapOpacity, 0.1F, 1.0F);
+			float largeMapAlpha = largeMap ? zoomState : 1.0F;
+			float alpha = largeMap ? largeMapAlpha : Clamp((float)cg_minimapOpacity, 0.1F, 1.0F);
 
 			// draw map
 			renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) * alpha);
@@ -345,7 +345,7 @@ namespace spades {
 
 			// draw grid lines
 			Vector2 gridSize = mapSize / 8.0F;
-			Vector4 gridCol = MakeVector4(0, 0, 0, 0.8F) * alpha;
+			Vector4 gridCol = MakeVector4(0, 0, 0, 1) * 0.8F * alpha;
 			renderer.SetColorAlphaPremultiplied(gridCol);
 			for (float x = gridSize.x; x < inRect.GetMaxX() - 1; x += gridSize.x) {
 				float wx = (x - inRect.GetMinX()) / inRect.GetWidth();
@@ -370,7 +370,7 @@ namespace spades {
 
 			// draw grid label
 			Handle<IImage> mapFont = renderer.RegisterImage("Gfx/Fonts/MapFont.tga");
-			Vector4 labelCol = MakeVector4(0.8F, 0.8F, 0.8F, 0.8F) * alpha;
+			Vector4 labelCol = MakeVector4(1, 1, 1, 1) * 0.8F * alpha;
 			for (int i = 0; i < 8; i++) {
 				float startX = (float)i * gridSize.x;
 				float endX = startX + gridSize.x;
@@ -427,7 +427,7 @@ namespace spades {
 			const float tracerW = 0.5F;
 			const AABB2 tracerInRect{0.0F, 0.0F, tracerImg->GetWidth(), tracerImg->GetHeight()};
 
-			renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 0, 1));
+			renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 0, 1) * largeMapAlpha);
 			for (const auto& localEntity : client->localEntities) {
 				auto* const tracer = dynamic_cast<MapViewTracer*>(localEntity.get());
 				if (!tracer)
@@ -475,6 +475,8 @@ namespace spades {
 			Handle<IImage> playerViewIcon = renderer.RegisterImage("Gfx/Map/View.png");
 			Handle<IImage> playerADSViewIcon = renderer.RegisterImage("Gfx/Map/ViewADS.png");
 
+			IFont& smallFont = client->fontManager->GetSmallFont();
+
 			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
 				auto maybePlayer = world->GetPlayer(static_cast<unsigned int>(i));
 				if (!maybePlayer)
@@ -501,7 +503,7 @@ namespace spades {
 						palette[colorIndex][2]
 					);
 				}
-				Vector4 iconColorF = ModifyColor(iconColor);
+				Vector4 iconColorF = ModifyColor(iconColor) * largeMapAlpha;
 
 				if (iconMode) {
 					switch (p.GetWeaponType()) {
@@ -513,20 +515,22 @@ namespace spades {
 
 				// draw the focused player view
 				if (&p == &focusPlayer) {
-					DrawIcon(focusPlayerPos, focusPlayer.IsZoomed()
-						? *playerADSViewIcon : *playerViewIcon, iconColorF * 0.9F, focusPlayerAngle);
+					DrawIcon(focusPlayerPos,
+					         focusPlayer.IsZoomed() ? *playerADSViewIcon : *playerViewIcon,
+					         iconColorF * 0.9F, focusPlayerAngle);
 					DrawIcon(focusPlayerPos, *playerIcon, iconColorF, focusPlayerAngle);
 					continue;
 				}
 
-				Vector3 pos = p.GetPosition();
-				Vector3 o = p.GetFront2D();
+				const auto& pos = p.GetPosition();
+				const auto& o = p.GetFront2D();
 				float playerAngle = atan2f(o.y, o.x) + M_PI_F * 0.5F;
 				DrawIcon(pos, *playerIcon, iconColorF, playerAngle);
 
 				// draw player names
 				if (namesMode == 1 || (namesMode >= 2 && largeMap))
-					DrawText(p.GetName(), pos, MakeVector4(1, 1, 1, 0.75F));
+					DrawText(smallFont, p.GetName(), pos,
+					         MakeVector4(1, 1, 1, 0.75F * largeMapAlpha));
 			}
 
 			// draw map objects
@@ -540,7 +544,7 @@ namespace spades {
 					CTFGameMode::Team& team2 = ctf.GetTeam(1 - tId);
 
 					// draw base
-					Vector4 teamColorF = ModifyColor(world->GetTeamColor(tId));
+					Vector4 teamColorF = ModifyColor(world->GetTeamColor(tId)) * largeMapAlpha;
 					DrawIcon(team1.basePos, *baseIcon, teamColorF);
 
 					// draw both flags
@@ -562,7 +566,7 @@ namespace spades {
 					                         ? MakeIntVector3(128, 128, 128)
 					                         : world->GetTeamColor(t.ownerTeamId);
 
-					Vector4 teamColorF = ModifyColor(teamColor);
+					Vector4 teamColorF = ModifyColor(teamColor) * largeMapAlpha;
 					DrawIcon(t.pos, *baseIcon, teamColorF);
 				}
 			}
@@ -586,6 +590,9 @@ namespace spades {
 				Vector4 shadowColor = (luminosity > 0.9F)
 					? MakeVector4(0, 0, 0, 0.8F)
 					: MakeVector4(1, 1, 1, 0.8F);
+
+				color.w *= largeMapAlpha;
+				shadowColor.w *= largeMapAlpha;
 
 				font.DrawShadow(gridStr, pos, 1.0F, color, shadowColor);
 			}
