@@ -158,6 +158,13 @@ namespace spades {
 			}
 
 			Vector2 scrPos = Project(Vector2{pos.x, pos.y});
+
+			// rounded for better pixel alignment
+			if (rotation == 0.0F) {
+				scrPos.x = roundf(scrPos.x);
+				scrPos.y = roundf(scrPos.y);
+			}
+
 			float c = (rotation != 0.0F) ? cosf(rotation) : 1.0F;
 			float s = (rotation != 0.0F) ? sinf(rotation) : 0.0F;
 			static const float coords[][2] = {{-1, -1}, {1, -1}, {-1, 1}};
@@ -186,6 +193,10 @@ namespace spades {
 			Vector2 size = font.Measure(s);
 			scrPos.x -= size.x * 0.5F;
 			scrPos.y -= size.y;
+
+			// rounded for better pixel alignment
+			scrPos.x = floorf(scrPos.x);
+			scrPos.y = floorf(scrPos.y);
 
 			font.DrawShadow(s, scrPos, 1.0F, col, MakeVector4(0, 0, 0, col.w));
 		}
@@ -352,6 +363,7 @@ namespace spades {
 				if (wx < 0.0F || wx >= 1.0F)
 					continue;
 				wx = (wx * outRect.GetWidth()) + outRect.GetMinX();
+				wx = roundf(wx); // rounded for better pixel alignment
 				for (float dx = 0; dx < outRect.GetHeight(); dx += 4) {
 					renderer.DrawImage(nullptr, MakeVector2(wx, outRect.GetMinY() + dx),
 					                   AABB2(0, 0, 1, 2));
@@ -362,6 +374,7 @@ namespace spades {
 				if (wy < 0.0F || wy >= 1.0F)
 					continue;
 				wy = (wy * outRect.GetHeight()) + outRect.GetMinY();
+				wy = roundf(wy); // rounded for better pixel alignment
 				for (float dy = 0; dy < outRect.GetWidth(); dy += 4) {
 					renderer.DrawImage(nullptr, MakeVector2(outRect.GetMinX() + dy, wy),
 					                   AABB2(0, 0, 2, 1));
@@ -389,6 +402,7 @@ namespace spades {
 
 				float wx = (center - inRect.GetMinX()) / inRect.GetWidth();
 				wx = (wx * outRect.GetWidth()) + outRect.GetMinX();
+				wx = roundf(wx); // rounded for better pixel alignment
 
 				float fntX = static_cast<float>((i & 3) * 8);
 				float fntY = static_cast<float>((i >> 2) * 8);
@@ -414,6 +428,7 @@ namespace spades {
 
 				float wy = (center - inRect.GetMinY()) / inRect.GetHeight();
 				wy = (wy * outRect.GetHeight()) + outRect.GetMinY();
+				wy = roundf(wy); // rounded for better pixel alignment
 
 				float fntX = static_cast<float>((i & 3) * 8);
 				float fntY = static_cast<float>((i >> 2) * 8 + 16);
