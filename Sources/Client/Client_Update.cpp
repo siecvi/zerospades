@@ -892,7 +892,7 @@ namespace spades {
 			const int killerId = killer.GetId();
 
 			bool isRevengeKill = false;
-			if (killerId != victimId) {
+			if (killerId != victimId && (killer.IsLocalPlayer() || victim.IsLocalPlayer())) {
 				// check if the victim was dominating before dying
 				if (killStreaks[victimId][killerId] >= 4) {
 					killStreaks[killerId][victimId] = 1; // start new streak for the killer
@@ -1038,30 +1038,27 @@ namespace spades {
 
 				// add domination indicator
 				if (cg_killfeedStreaks && (killer.IsLocalPlayer() || victim.IsLocalPlayer())) {
-					if (isRevengeKill) {
+					const int killerStreak = killStreaks[killerId][victimId];
+					if (isRevengeKill || killerStreak >= 2) {
 						s += " ";
-						if (killfeedIcons) {
-							s += ChatWindow::KillImage(10);
-						} else {
-							s += "(";
-							s += ChatWindow::ColoredMessage(_Tr("Client", "Revenge!"), MsgColorYellow);
-							s += ")";
-						}
-					} else {
-						const int killerStreak = killStreaks[killerId][victimId];
-						if (killerStreak >= 2) {
-							s += " ";
-							if (killerStreak >= 4) {
-								if (killfeedIcons) {
-									s += ChatWindow::KillImage(9);
-								} else {
-									s += "(";
-									s += ChatWindow::ColoredMessage(_Tr("Client", "Dominating!"), MsgColorYellow);
-									s += ")";
-								}
+						if (isRevengeKill) {
+							if (killfeedIcons) {
+								s += ChatWindow::KillImage(10);
 							} else {
-								s += "(x" + ToString(killerStreak) + ")"; 
+								s += "(";
+								s += ChatWindow::ColoredMessage(_Tr("Client", "Revenge!"), MsgColorYellow);
+								s += ")";
 							}
+						} else if (killerStreak >= 4) {
+							if (killfeedIcons) {
+								s += ChatWindow::KillImage(9);
+							} else {
+								s += "(";
+								s += ChatWindow::ColoredMessage(_Tr("Client", "Dominating!"), MsgColorYellow);
+								s += ")";
+							}
+						} else {
+							s += "(x" + ToString(killerStreak) + ")";
 						}
 					}
 				}
