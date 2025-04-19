@@ -654,7 +654,6 @@ namespace spades {
 			float spacing = 2.0F;
 			int clipNum, clipSize, stockNum, stockMax;
 
-			int ammoStyle = cg_hudAmmoStyle;
 			IFont& squareFont = fontManager->GetSquareDesignFont();
 
 			IntVector3 col;
@@ -721,8 +720,8 @@ namespace spades {
 						default: SPInvalidEnum("weapon.GetWeaponType()", curWeaponType);
 					}
 
-					clipNum = weapon.GetAmmo();
-					clipSize = std::max(weapon.GetClipSize(), clipNum);
+					clipSize = weapon.GetClipSize();
+					clipNum = std::min(weapon.GetAmmo(), clipSize);
 					stockNum = weapon.GetStock();
 					stockMax = weapon.GetMaxStock();
 				} break;
@@ -737,7 +736,7 @@ namespace spades {
 				paletteView->Draw();
 
 			// draw hotbar when unable to use tool
-			if ((!CanLocalPlayerUseTool() || (isToolWeapon && isReloading)) && cg_hudHotbar) {
+			if (cg_hudHotbar && (!CanLocalPlayerUseTool() || (isToolWeapon && isReloading))) {
 				IFont& font = fontManager->GetSmallFont();
 
 				// register tool icons
@@ -860,6 +859,8 @@ namespace spades {
 
 			// draw remaining ammo counter
 			{
+				bool drawIcon = (int)cg_hudAmmoStyle < 1;
+
 				float per = Clamp((float)clipNum / (float)(clipSize / 3), 0.0F, 1.0F);
 				Vector4 ammoCol = color + (red - color) * (1.0F - per);
 
@@ -867,7 +868,7 @@ namespace spades {
 				Vector4 stockCol = color + (red - color) * (1.0F - per);
 
 				auto stockStr = ToString(stockNum);
-				if (ammoStyle >= 1 && curToolType == Player::ToolWeapon)
+				if (!drawIcon && isToolWeapon)
 					stockStr = ToString(clipNum) + "-" + stockStr;
 
 				IFont& font = squareFont;
@@ -875,12 +876,12 @@ namespace spades {
 				Vector2 pos = MakeVector2(x, y) - size;
 
 				// draw ammo icon
-				if (ammoStyle < 1 && isToolWeapon) {
+				if (drawIcon && isToolWeapon) {
 					Vector2 iconSize = MakeVector2(ammoIcon->GetWidth(), ammoIcon->GetHeight());
 					Vector2 iconPos = MakeVector2(x - (iconSize.x + spacing), y - iconSize.y);
 
-					int clip = isReloading
-						? (int)(clipSize * weapon.GetReloadProgress()) : clipSize;
+					float reloadPrg = weapon.GetReloadProgress();
+					int clip = isReloading ? (int)(clipSize * reloadPrg) : clipSize;
 
 					for (int i = 0; i < clipSize; i++) {
 						iconPos.x = x - ((float)(i + 1) * (iconSize.x + spacing));
@@ -900,7 +901,7 @@ namespace spades {
 				}
 
 				font.Draw(stockStr, pos + MakeVector2(1, 1), 1.0F, shadowColor);
-				font.Draw(stockStr, pos, 1.0F, (ammoStyle < 1) ? stockCol : ammoCol);
+				font.Draw(stockStr, pos, 1.0F, drawIcon ? stockCol : ammoCol);
 			}
 
 			// draw player health
