@@ -197,7 +197,7 @@ namespace spades {
 
 			// load sounds
 			@fireSound = dev.RegisterSound("Sounds/Weapons/Shotgun/FireLocal.opus");
-			@fireFarSound = dev.RegisterSound("Sounds/Weapons/SMG/FireFar.opus");
+			@fireFarSound = dev.RegisterSound("Sounds/Weapons/Shotgun/FireFar.opus");
 			@fireStereoSound = dev.RegisterSound("Sounds/Weapons/Shotgun/FireStereo.opus");
 			@fireSmallReverbSound = dev.RegisterSound("Sounds/Weapons/Shotgun/V2AmbienceSmall.opus");
 			@fireLargeReverbSound = dev.RegisterSound("Sounds/Weapons/Shotgun/V2AmbienceLarge.opus");
