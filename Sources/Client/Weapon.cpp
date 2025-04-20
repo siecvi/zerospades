@@ -218,7 +218,7 @@ namespace spades {
 			float GetEjectBrassTime() override { return 0.0F; }
 			bool IsReloadSlow() override { return false; }
 			WeaponType GetWeaponType() override { return RIFLE_WEAPON; }
-			int GetDamage(HitType type, float distance) override {
+			int GetDamage(HitType type) override {
 				switch (type) {
 					case HitTypeTorso: return 49;
 					case HitTypeHead: return 100;
@@ -244,7 +244,7 @@ namespace spades {
 			float GetEjectBrassTime() override { return 0.0F; }
 			bool IsReloadSlow() override { return false; }
 			WeaponType GetWeaponType() override { return SMG_WEAPON; }
-			int GetDamage(HitType type, float distance) override {
+			int GetDamage(HitType type) override {
 				switch (type) {
 					case HitTypeTorso: return 29;
 					case HitTypeHead: return 75;
@@ -270,7 +270,7 @@ namespace spades {
 			float GetEjectBrassTime() override { return 0.6F; }
 			bool IsReloadSlow() override { return true; }
 			WeaponType GetWeaponType() override { return SHOTGUN_WEAPON; }
-			int GetDamage(HitType type, float distance) override {
+			int GetDamage(HitType type) override {
 				switch (type) {
 					case HitTypeTorso: return 27;
 					case HitTypeHead: return 37;
@@ -299,17 +299,17 @@ namespace spades {
 			float GetEjectBrassTime() override { return 0.0F; }
 			bool IsReloadSlow() override { return false; }
 			WeaponType GetWeaponType() override { return RIFLE_WEAPON; }
-			int GetDamage(HitType type, float distance) override {
+			int GetDamage(HitType type) override {
 				switch (type) {
 					// These are the 0.75 damage values.
 					// To be honest, we don't need this information, as the server decides the
 					// damage.
 					// EXCEPT for blocks, that is.
 					// --GM
-					case HitTypeTorso: return 49;
-					case HitTypeHead: return 100;
-					case HitTypeArms: return 33;
-					case HitTypeLegs: return 33;
+					case HitTypeTorso: return 60;
+					case HitTypeHead: return 250;
+					case HitTypeArms: return 50;
+					case HitTypeLegs: return 50;
 					case HitTypeBlock: return 50;
 					default: SPAssert(false); return 0;
 				}
@@ -330,12 +330,12 @@ namespace spades {
 			float GetEjectBrassTime() override { return 0.0F; }
 			bool IsReloadSlow() override { return false; }
 			WeaponType GetWeaponType() override { return SMG_WEAPON; }
-			int GetDamage(HitType type, float distance) override {
+			int GetDamage(HitType type) override {
 				switch (type) {
-					case HitTypeTorso: return 29;
-					case HitTypeHead: return 75;
-					case HitTypeArms: return 18;
-					case HitTypeLegs: return 18;
+					case HitTypeTorso: return 40;
+					case HitTypeHead: return 60;
+					case HitTypeArms: return 20;
+					case HitTypeLegs: return 20;
 					case HitTypeBlock: return 26;
 					default: SPAssert(false); return 0;
 				}
@@ -356,12 +356,12 @@ namespace spades {
 			float GetEjectBrassTime() override { return 0.6F; }
 			bool IsReloadSlow() override { return true; }
 			WeaponType GetWeaponType() override { return SHOTGUN_WEAPON; }
-			int GetDamage(HitType type, float distance) override {
+			int GetDamage(HitType type) override {
 				switch (type) {
-					case HitTypeTorso: return 27;
-					case HitTypeHead: return 37;
-					case HitTypeArms: return 16;
-					case HitTypeLegs: return 16;
+					case HitTypeTorso: return 40;
+					case HitTypeHead: return 60;
+					case HitTypeArms: return 20;
+					case HitTypeLegs: return 20;
 					case HitTypeBlock: return 34;
 					default: SPAssert(false); return 0;
 				}

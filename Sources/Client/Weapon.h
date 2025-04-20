@@ -58,7 +58,7 @@ namespace spades {
 			virtual float GetReloadTime() = 0;
 			virtual float GetEjectBrassTime() = 0;
 			virtual bool IsReloadSlow() = 0;
-			virtual int GetDamage(HitType, float distance = 0.0F) = 0;
+			virtual int GetDamage(HitType) = 0;
 			virtual WeaponType GetWeaponType() = 0;
 
 			virtual Vector2 GetRecoil() = 0;
