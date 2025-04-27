@@ -230,10 +230,9 @@ namespace spades {
 		void GLSparseShadowMapRenderer::Render() {
 			SPADES_MARK_FUNCTION();
 
-			float nearDist = 0.0F;
-			float farDist = 150.0F;
+			client::SceneDefinition def = GetRenderer().GetSceneDef();
 
-			BuildMatrix(nearDist, farDist);
+			BuildMatrix(def.zNear, def.zFar);
 
 			device.BindFramebuffer(IGLDevice::Framebuffer, framebuffer);
 			device.Viewport(0, 0, textureSize, textureSize);
