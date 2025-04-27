@@ -179,7 +179,14 @@ namespace spades {
 			if (!flags[idx]) {
 				SPAssert(!IsSolid(x, y, z));
 				SetSolid(x, y, z, 0xDDBEEF);
+			}
+		}
 
+#ifndef NDEBUG
+		for (int z = 0, idx = 0; z < depth; z++)
+		for (int y = 0; y < height; y++)
+		for (int x = 0; x < width; x++, idx++) {
+			if (!flags[idx]) {
 				SPAssert(IsSolid(x, y, z));
 				SPAssert(IsSolid(x + 1, y, z));
 				SPAssert(IsSolid(x - 1, y, z));
@@ -189,6 +196,7 @@ namespace spades {
 				SPAssert(IsSolid(x, y, z - 1));
 			}
 		}
+#endif
 	}
 
 	Handle<VoxelModel> VoxelModel::LoadKV6(IStream& stream) {
