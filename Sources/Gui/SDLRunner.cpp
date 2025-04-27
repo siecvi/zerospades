@@ -55,6 +55,8 @@ DEFINE_SPADES_SETTING(s_audioDriver, "openal");
 #endif
 DEFINE_SPADES_SETTING(cl_fps, "0");
 
+static int lastMouseX = 0, lastMouseY = 0;
+
 namespace spades {
 	namespace gui {
 
@@ -187,7 +189,7 @@ namespace spades {
 			}
 		}
 
-		void SDLRunner::RunClientLoop(spades::client::IRenderer* renderer,
+		void SDLRunner::RunClientLoop(SDL_Window* wnd, spades::client::IRenderer* renderer,
 		                              spades::client::IAudioDevice* audio) {
 			{
 				Handle<View> view(CreateView(renderer, audio), false);
@@ -302,10 +304,27 @@ namespace spades {
 
 					bool ab = view->NeedsAbsoluteMouseCoordinate();
 					if (ab != absoluteMouseCoord) {
+						if (ab) {
+							SDL_SetRelativeMouseMode(SDL_FALSE);
+							SDL_WarpMouseInWindow(wnd, lastMouseX, lastMouseY);
+						} else {
+							SDL_GetMouseState(&lastMouseX, &lastMouseY);
+
+							// re-center if needed...
+							if (lastMouseX == 0 && lastMouseY == 0) {
+								int sw, sh;
+								SDL_GetWindowSize(wnd, &sw, &sh);
+								lastMouseX = sw / 2;
+								lastMouseY = sh / 2;
+							}
+
+							SDL_SetRelativeMouseMode(SDL_TRUE);
+						}
+
 						absoluteMouseCoord = ab;
-						SDL_SetRelativeMouseMode(absoluteMouseCoord ? SDL_FALSE : SDL_TRUE);
 					}
 
+					// Process events
 					while (SDL_PollEvent(&event))
 						ProcessEvent(event, *view);
 				}
@@ -430,7 +449,9 @@ namespace spades {
 
 		void SDLRunner::Run(int width, int height) {
 			SPADES_MARK_FUNCTION();
+
 			SDL_Init(SDL_INIT_VIDEO);
+
 			try {
 
 				{
@@ -522,7 +543,7 @@ namespace spades {
 							SPRaise("SDL_GL_SetSwapInterval failed: %s", SDL_GetError());
 					}
 
-					RunClientLoop(renderer.GetPointerOrNull(), audio.GetPointerOrNull());
+					RunClientLoop(window, renderer.GetPointerOrNull(), audio.GetPointerOrNull());
 
 					// `SDL_Window` and its associated resources will be inaccessible
 					// past this point. Some referencing objects might be still alive due to
