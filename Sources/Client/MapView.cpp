@@ -312,8 +312,8 @@ namespace spades {
 				per = 1.0F - per;
 				per *= per;
 				per = 1.0F - per;
-				per = Mix(0.25F, 1.0F, per);
-				zoomedSize = Mix(MakeVector2(0, 0), zoomedSize, per);
+				per = Mix(0.0F, 1.0F, per);
+				zoomedSize = Mix(mapWndSize, zoomedSize, per);
 				mapWndSize = zoomedSize;
 			}
 

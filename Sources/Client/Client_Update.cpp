@@ -328,11 +328,11 @@ namespace spades {
 			}
 
 			if (debugHitTestZoom) {
-				debugHitTestZoomState += dt * 10.0F;
+				debugHitTestZoomState += dt * 5.0F;
 				if (debugHitTestZoomState > 1.0F)
 					debugHitTestZoomState = 1.0F;
 			} else {
-				debugHitTestZoomState -= dt * 10.0F;
+				debugHitTestZoomState -= dt * 5.0F;
 				if (debugHitTestZoomState < 0.0F)
 					debugHitTestZoomState = 0.0F;
 			}
