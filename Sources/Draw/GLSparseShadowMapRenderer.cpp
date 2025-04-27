@@ -146,6 +146,8 @@ namespace spades {
 		}
 
 		void GLSparseShadowMapRenderer::BuildMatrix(float near, float far) {
+			client::SceneDefinition def = GetRenderer().GetSceneDef();
+
 			// TODO: variable light direction?
 			Vector3 lightDir = MakeVector3(0, -1, -1).Normalize();
 			// set better up dir?
@@ -154,19 +156,19 @@ namespace spades {
 			up = Vector3::Cross(lightDir, side).Normalize();
 
 			// build frustrum
-			client::SceneDefinition def = GetRenderer().GetSceneDef();
-			Vector3 frustrum[8];
 			float tanX = tanf(def.fovX * 0.5F);
 			float tanY = tanf(def.fovY * 0.5F);
 
-			frustrum[0] = FrustrumCoord(def, tanX, tanY, near);
-			frustrum[1] = FrustrumCoord(def, tanX, -tanY, near);
-			frustrum[2] = FrustrumCoord(def, -tanX, tanY, near);
-			frustrum[3] = FrustrumCoord(def, -tanX, -tanY, near);
-			frustrum[4] = FrustrumCoord(def, tanX, tanY, far);
-			frustrum[5] = FrustrumCoord(def, tanX, -tanY, far);
-			frustrum[6] = FrustrumCoord(def, -tanX, tanY, far);
-			frustrum[7] = FrustrumCoord(def, -tanX, -tanY, far);
+			Vector3 frustrum[8] = {
+				FrustrumCoord(def,  tanX,  tanY, near),
+				FrustrumCoord(def,  tanX, -tanY, near),
+				FrustrumCoord(def, -tanX,  tanY, near),
+				FrustrumCoord(def, -tanX, -tanY, near),
+				FrustrumCoord(def,  tanX,  tanY, far),
+				FrustrumCoord(def,  tanX, -tanY, far),
+				FrustrumCoord(def, -tanX,  tanY, far),
+				FrustrumCoord(def, -tanX, -tanY, far)
+			};
 
 			// compute frustrum's x,y boundary
 			float minX, maxX, minY, maxY;
@@ -200,8 +202,8 @@ namespace spades {
 			Vector3 axis3 = lightDir * (seg.high - seg.low);
 
 			obb = OBB3(Matrix4::FromAxis(axis1, axis2, axis3, origin));
-			vpWidth = 2.f / axis1.GetLength();
-			vpHeight = 2.f / axis2.GetLength();
+			vpWidth = 2.0F / axis1.GetLength();
+			vpHeight = 2.0F / axis2.GetLength();
 
 			// convert to projectionview matrix
 			matrix = obb.m.InversedFast();
@@ -219,10 +221,8 @@ namespace spades {
 				Vector4 v = matrix * frustrum[i];
 				SPAssert(v.x >= -1.0F);
 				SPAssert(v.y >= -1.0F);
-				// SPAssert(v.z >= -1.0F);
 				SPAssert(v.x < 1.0F);
 				SPAssert(v.y < 1.0F);
-				// SPAssert(v.z < 1.0F);
 			}
 #endif
 		}
@@ -231,6 +231,10 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			client::SceneDefinition def = GetRenderer().GetSceneDef();
+
+			// skip until the camera is initialized
+			if (def.fovX <= 0.0F || def.fovY <= 0.0F)
+				return;
 
 			BuildMatrix(def.zNear, def.zFar);
 
@@ -479,13 +483,15 @@ namespace spades {
 							continue;
 
 						OBB3 instWorldBoundsOBB = inst.param->matrix * modelBounds;
-						// w should be 1, so this should wor
+						// w should be 1, so this should work
 						OBB3 instBoundsOBB = r.matrix * instWorldBoundsOBB;
 						AABB3 instBounds = instBoundsOBB.GetBoundingAABB();
 
 						// frustrum(?) cull
-						if (instBounds.max.x < -1.f || instBounds.max.y < -1.f ||
-						    instBounds.min.x > 1.f || instBounds.min.y > 1.f)
+						if (instBounds.max.x < -1.0F ||
+							instBounds.max.y < -1.0F ||
+						    instBounds.min.x > 1.0F ||
+							instBounds.min.y > 1.0F)
 							continue;
 
 						inst.tile1 = ShadowMapToTileCoord(instBounds.min);
@@ -502,9 +508,8 @@ namespace spades {
 						if (inst.tile2.y > Tiles)
 							inst.tile2.y = Tiles;
 
-						if (inst.tile1.x >= inst.tile2.x)
-							continue;
-						if (inst.tile1.y >= inst.tile2.y)
+						if (inst.tile1.x >= inst.tile2.x ||
+							inst.tile1.y >= inst.tile2.y)
 							continue;
 
 						size_t instId = allInstances.size();
@@ -750,7 +755,8 @@ namespace spades {
 						Internal::Instance& inst = itnl.allInstances[mId];
 						mrend.RenderModel(inst.model, *inst.param);
 
-						Vector3 v = inst.model->GetBoundingBox().min + inst.model->GetBoundingBox().max;
+						AABB3 modelBounds = inst.model->GetBoundingBox();
+						Vector3 v = modelBounds.min + modelBounds.max;
 						v *= 0.5F;
 						v = (inst.param->matrix * v).GetXYZ();
 						{
