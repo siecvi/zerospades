@@ -158,7 +158,7 @@ namespace spades {
 			if (world.get() == w)
 				return;
 
-			//scriptedUI->CloseUI();
+			scriptedUI->CloseUI();
 
 			RemoveAllCorpses();
 			RemoveAllLocalEntities();
