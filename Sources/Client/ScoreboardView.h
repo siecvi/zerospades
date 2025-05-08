@@ -45,7 +45,7 @@ namespace spades {
 			int GetTeamScore(int) const;
 			Vector4 GetTeamColor(int);
 			void DrawPlayers(int team, float left, float top, float width, float height);
-			void DrawSpectators(float top, float width) const;
+			void DrawSpectators(float left, float top) const;
 
 		public:
 			ScoreboardView(Client*);

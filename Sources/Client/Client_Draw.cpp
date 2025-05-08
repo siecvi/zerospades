@@ -187,8 +187,7 @@ namespace spades {
 		}
 
 		std::string Client::ScreenShotPath() {
-			char bufJpg[256], bufTga[256], bufPng[256];
-
+			char bufJpg[32], bufTga[32], bufPng[32];
 			const int maxShotIndex = 10000;
 			for (int i = 0; i < maxShotIndex; i++) {
 				sprintf(bufJpg, "Screenshots/shot%04d.jpg", nextScreenShotIndex);
@@ -482,23 +481,25 @@ namespace spades {
 				scrPos.x += (int)cg_playerNameX;
 				scrPos.y += (int)cg_playerNameY;
 
+				char buf[32];
+				std::string str;
+
+				// add player name
+				str += player.GetName();
+
+				// add distance to player
 				Vector3 diff = origin - lastSceneDef.viewOrigin;
 				float dist = diff.GetLength2D();
-
-				// draw player name
-				char buf[64];
-				auto nameStr = player.GetName();
-				sprintf(buf, "%s", nameStr.c_str());
-
-				// draw distance
-				if ((int)cg_playerNames < 2 && dist <= FOG_DISTANCE)
-					sprintf(buf, "%s [%.1f]", nameStr.c_str(), dist);
+				if ((int)cg_playerNames < 2 && dist <= FOG_DISTANCE) {
+					sprintf(buf, " [%.1f]", dist);
+					str += buf;
+				}
 
 				IFont& font = cg_smallFont
 					? fontManager->GetSmallFont()
 					: fontManager->GetGuiFont();
 
-				Vector2 size = font.Measure(buf);
+				Vector2 size = font.Measure(str);
 				scrPos.x -= size.x * 0.5F;
 				scrPos.y -= size.y;
 
@@ -520,7 +521,7 @@ namespace spades {
 				col.w = alpha * col.w;
 				shadowColor.w = 0.8F * col.w;
 
-				font.DrawShadow(buf, scrPos, 1.0F, col, shadowColor);
+				font.DrawShadow(str, scrPos, 1.0F, col, shadowColor);
 			}
 		}
 
@@ -543,7 +544,7 @@ namespace spades {
 				auto maybePlayer = world->GetPlayer(static_cast<unsigned int>(i));
 				if (maybePlayer == camTarget || !maybePlayer)
 					continue;
-
+				
 				Player& p = maybePlayer.value();
 				if (p.IsSpectator() || !p.IsAlive())
 					continue;
@@ -1003,14 +1004,12 @@ namespace spades {
 				outRect.max = MakeVector2((sw + zoomedSize.x) * 0.5F, (sh + zoomedSize.y) * 0.5F);
 			}
 
-			const float fadeOutTime = cg_dbgHitTestFadeTime;
+			const float fadeOutStart = cg_dbgHitTestFadeTime;
+			const float fadeDuration = 1.0F;
 			float timeSinceLastHit = world->GetTime() - lastHitTime;
-
-			float fade = 1.0F;
-			if (timeSinceLastHit > fadeOutTime) { // start fading
-				fade = (timeSinceLastHit - fadeOutTime) / 1.0F;
-				fade = std::max(0.0F, 1.0F - fade);
-			}
+			float fade = timeSinceLastHit - fadeOutStart;
+			fade = 1.0F - (fade / fadeDuration);
+			fade = Clamp(fade, 0.0F, 1.0F);
 
 			float alpha = debugHitTestZoom ? debugHitTestZoomState : fade;
 			if (alpha <= 0.0F)
@@ -1054,7 +1053,7 @@ namespace spades {
 			int accPerc = int(100.0F * (float(hits) / float(std::max(1, shots))));
 			addLine(_Tr("Client", "Accuracy: {0}%", accPerc));
 
-			char buf[64];
+			char buf[32];
 			sprintf(buf, "%.3g", curKills / float(std::max(1, curDeaths)));
 			addLine(_Tr("Client", "Kill/Death Ratio: {0}", std::string(buf)));
 			addLine(_Tr("Client", "Kill Streak: {0}, Best: {1}", curStreak, bestStreak));
@@ -1133,14 +1132,12 @@ namespace spades {
 			font.DrawShadow(msg, pos, 1.0F, color, shadowColor);
 
 			// draw deaths count
-			const float fadeOutTime = 1.3F;
+			const float fadeOutStart = 1.3F;
+			const float fadeDuration = 1.0F;
 			float timeSinceDeath = time - lastAliveTime;
-
-			float fade = 1.0F;
-			if (timeSinceDeath > fadeOutTime) { // start fading out
-				fade = (timeSinceDeath - fadeOutTime) / 1.0F;
-				fade = std::max(0.0F, 1.0F - fade);
-			}
+			float fade = timeSinceDeath - fadeOutStart;
+			fade = 1.0F - (fade / fadeDuration);
+			fade = Clamp(fade, 0.0F, 1.0F);
 
 			if (fade > 0.0F) {
 				color.w = fade;
@@ -1364,21 +1361,26 @@ namespace spades {
 		void Client::Draw2DWithWorld() {
 			SPADES_MARK_FUNCTION();
 
-			for (const auto& ent : localEntities)
-				ent->Render2D();
-
 			bool shouldDrawHUD = hudVisible && !cg_hideHud;
 
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
 			// fade the map when the world starts (draw)
+			const float fadeOutStart = 1.0F;
+			const float fadeDuration = 2.5F;
 			float timeSinceWorldStart = time - worldSetTime;
-			float fade = Clamp(1.0F - (timeSinceWorldStart - 1.0F) / 2.5F, 0.0F, 1.0F);
+			float fade = timeSinceWorldStart - fadeOutStart;
+			fade = 1.0F - (fade / fadeDuration);
+			fade = Clamp(fade, 0.0F, 1.0F);
+
 			if (fade > 0.0F) {
 				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, fade));
 				renderer->DrawImage(nullptr, AABB2(0, 0, sw, sh));
 			}
+
+			for (const auto& ent : localEntities)
+				ent->Render2D();
 
 			stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
 
@@ -1527,13 +1529,13 @@ namespace spades {
 
 			// only draw stats when scoreboard is visible
 			int statsStyle = cg_stats;
-			if (!scoreboardVisible && statsStyle >= 3)
+			if (statsStyle >= 3 && !scoreboardVisible)
 				return;
 
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
-			char buf[256];
+			char buf[64];
 			std::string str;
 
 			{

@@ -177,7 +177,7 @@ namespace spades {
 
 							for (int i = 0; i < 4; i++) {
 								auto ent = stmp::make_unique<ParticleSpriteEntity>(*client, img, color);
-								ent->SetTrajectory(p3, (RandomAxis() + velBias * 0.5F) * 8.0F, 1.0F, 0.6F);
+								ent->SetTrajectory(p3, (RandomVector() + velBias * 0.5F) * 8.0F, 1.0F, 0.6F);
 								ent->SetRadius(0.4F + getRandom() * getRandom() * 0.1F);
 								ent->SetLifeTime(2.0F, 0.0F, 1.0F);
 								if (usePrecisePhysics)
@@ -187,7 +187,7 @@ namespace spades {
 
 							if (particleMode >= 2) {
 								auto ent = stmp::make_unique<SmokeSpriteEntity>(*client, color, 70.0F);
-								ent->SetTrajectory(p3, RandomAxis() * 0.2F, 1.0F, 0.0F);
+								ent->SetTrajectory(p3, RandomVector() * 0.2F, 1.0F, 0.0F);
 								ent->SetRotation(getRandom() * M_PI_F * 2.0F);
 								ent->SetRadius(1.0F, 0.5F);
 								ent->SetBlockHitAction(BlockHitAction::Ignore);

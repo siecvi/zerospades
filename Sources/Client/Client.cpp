@@ -422,9 +422,9 @@ namespace spades {
 				struct tm tm;
 				::time(&t);
 				tm = *localtime(&t);
-				char buf[256];
-				strftime(buf, sizeof(buf), "%Y%m%d%H%M%S_", &tm);
-				fn2 = buf;
+				char timeBuf[32];
+				strftime(timeBuf, sizeof(timeBuf), "%Y%m%d%H%M%S_", &tm);
+				fn2 = timeBuf;
 			}
 			for (size_t i = 0; i < fn.size(); i++) {
 				char c = fn[i];
@@ -713,8 +713,7 @@ namespace spades {
 		}
 
 		std::string Client::MapShotPath() {
-			char buf[256];
-
+			char buf[32];
 			const int maxShotIndex = 10000;
 			for (int i = 0; i < maxShotIndex; i++) {
 				sprintf(buf, "Mapshots/shot%04d.vxl", nextMapShotIndex);
@@ -736,14 +735,14 @@ namespace spades {
 		void Client::PlayerSentChatMessage(Player& p, bool global, const std::string& msg) {
 			std::string msgType = global
 				? _Tr("Client", "Global") : _Tr("Client", "Team");
-			std::string playername = p.GetName();
-			std::string teamName = p.IsSpectator()
+			std::string playerNameStr = p.GetName();
+			std::string teamNameStr = p.IsSpectator()
 				? _Tr("Client", "Spectator") : p.GetTeamName();
 			NetLog("[%s] %s (%s): %s",
-				msgType.c_str(), playername.c_str(),
-				teamName.c_str(), msg.c_str());
+				msgType.c_str(), playerNameStr.c_str(),
+				teamNameStr.c_str(), msg.c_str());
 
-			std::string state;
+			std::string state = "";
 			if (!p.IsAlive()) {
 				state = _Tr("Client", "(DEAD)");
 			} else if (p.IsSpectator()) {
@@ -752,13 +751,17 @@ namespace spades {
 
 			{
 				std::string s;
+
+				// add prefix
 				if (global) {
-					s = _Tr("Client", "[Global]");
+					s += _Tr("Client", "[Global]");
 					s += " ";
 				}
-				s += playername;
 
-				// add player state to chat log
+				// add player name
+				s += playerNameStr;
+
+				// add player state
 				if (!state.empty()) {
 					s += " ";
 					s += state;
@@ -775,16 +778,17 @@ namespace spades {
 
 			{
 				std::string s;
+
+				// add prefix
 				if (global) {
-					//! Prefix added to global chat messages.
-					//!
-					//! Example: [Global] playername: blah blah
-					s = _Tr("Client", "[Global]");
+					s += _Tr("Client", "[Global]");
 					s += " ";
 				}
-				s += ChatWindow::TeamColorMessage(playername, p.GetTeamId());
 
-				// add player state to chat messages
+				// add player name (team-colored)
+				s += ChatWindow::TeamColorMessage(playerNameStr, p.GetTeamId());
+
+				// add player state
 				if (!state.empty()) {
 					s += " ";
 					s += state;
@@ -858,10 +862,13 @@ namespace spades {
 			SPAssert(maybePlayer);
 
 			Player& localPlayer = maybePlayer.value();
+
 			bool localPlayerIsSpectator = localPlayer.IsSpectator();
+			bool skipDeadPlayers = !localPlayerIsSpectator && cg_skipDeadPlayersWhenDead;
 
 			int localPlayerId = localPlayer.GetId();
-			int nextId = FollowsNonLocalPlayer(GetCameraMode()) ? followedPlayerId : localPlayerId;
+			int nextId = FollowsNonLocalPlayer(GetCameraMode())
+				? followedPlayerId : localPlayerId;
 
 			auto slots = world->GetNumPlayerSlots();
 
@@ -878,8 +885,8 @@ namespace spades {
 					continue; // Do not follow a non-existent player or spectator
 				if (!localPlayerIsSpectator && !p->IsTeammate(localPlayer))
 					continue; // Skip enemies unless the local player is a spectator
-				if (!localPlayerIsSpectator && !p->IsAlive() && cg_skipDeadPlayersWhenDead)
-					continue; // Skip dead players unless the local player is not a spectator
+				if (skipDeadPlayers && !p->IsAlive())
+					continue; // Skip dead players if the local player is not a spectator
 
 				// Do not follow a player with an invalid state
 				if (p->GetFront().GetSquaredLength() < 0.01F)

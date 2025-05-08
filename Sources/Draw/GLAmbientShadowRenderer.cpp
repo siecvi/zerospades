@@ -49,11 +49,8 @@ namespace spades {
 		    : renderer(r), device(r.GetGLDevice()), map(m) {
 			SPADES_MARK_FUNCTION();
 
-			for (auto& rayDir : rays) {
-				Vector3 dir = RandomAxis().Normalize();
-				dir += 0.01F;
-				rayDir = dir;
-			}
+			for (auto& rayDir : rays)
+				rayDir = RandomUnitVector();
 
 			w = map->Width();
 			h = map->Height();

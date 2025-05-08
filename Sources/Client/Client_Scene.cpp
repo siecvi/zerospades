@@ -120,8 +120,7 @@ namespace spades {
 		float Client::GetLocalFireVibration() {
 			float localFireVibration = time - localFireVibrationTime;
 			localFireVibration = 1.0F - (localFireVibration / 0.1F);
-			if (localFireVibration < 0.0F)
-				localFireVibration = 0.0F;
+			localFireVibration = Clamp(localFireVibration, 0.0F, 1.0F);
 			return localFireVibration;
 		}
 

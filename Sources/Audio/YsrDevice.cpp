@@ -485,7 +485,7 @@ namespace spades {
 				Vector3 rayTo;
 
 				for (int rays = 0; rays < 4; rays++) {
-					rayTo = RandomAxis().Normalize();
+					rayTo = RandomUnitVector();
 
 					IntVector3 hitPos;
 					bool hit = map->CastRay(rayFrom, rayTo, maxDistance, hitPos);

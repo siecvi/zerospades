@@ -338,7 +338,7 @@ namespace spades {
 					// Draw a trajectory
 					Vector3 particleVelocity = velocity;
 					particleVelocity *= e;
-					particleVelocity += RandomAxis() * (velocity.GetLength() * 0.2F);
+					particleVelocity += RandomVector() * (velocity.GetLength() * 0.2F);
 
 					GameMap::RayCastResult const res = ProjectArc(position, particleVelocity, 1.4F, *map);
 					if (!res.hit)

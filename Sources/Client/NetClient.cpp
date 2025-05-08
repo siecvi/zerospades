@@ -260,14 +260,15 @@ namespace spades {
 
 			void DumpDebug() {
 #if 1
-				char buf[1024];
+				char buf[512];
 				std::string str;
-				sprintf(buf, "Packet 0x%02x [len=%d]", (int)GetType(), (int)data.size());
-				str = buf;
+
 				int bytes = (int)data.size();
+				sprintf(buf, "Packet 0x%02x [len=%d]", (int)GetType(), bytes);
+				str += buf;
+
 				if (bytes > 64)
 					bytes = 64;
-
 				for (int i = 0; i < bytes; i++) {
 					sprintf(buf, " %02x", (unsigned int)(unsigned char)data[i]);
 					str += buf;
@@ -553,9 +554,11 @@ namespace spades {
 						statusString = _Tr("NetClient", "Awaiting for state");
 					} else if (event.type == ENET_EVENT_TYPE_RECEIVE) {
 						auto& reader = readerOrNone.value();
+						int type = reader.GetType();
 						reader.DumpDebug();
-						if (reader.GetType() != PacketTypeMapStart)
-							SPRaise("Unexpected packet: %d", (int)reader.GetType());
+
+						if (type != PacketTypeMapStart)
+							SPRaise("Unexpected packet: %d", type);
 
 						auto mapSize = reader.ReadInt();
 						SPLog("Map size advertised by the server: %lu", (unsigned long)mapSize);
@@ -571,8 +574,9 @@ namespace spades {
 
 					if (event.type == ENET_EVENT_TYPE_RECEIVE) {
 						auto& reader = readerOrNone.value();
+						int type = reader.GetType();
 
-						if (reader.GetType() == PacketTypeMapChunk) {
+						if (type == PacketTypeMapChunk) {
 							std::vector<char> dt = reader.GetData();
 
 							mapLoader->AddRawChunk(dt.data() + 1, dt.size() - 1);
@@ -607,8 +611,7 @@ namespace spades {
 							//    an "invalid player ID" exception, so we simply drop it during
 							//    map load sequence.
 							//
-
-							if (reader.GetType() == PacketTypeStateData) {
+							if (type == PacketTypeStateData) {
 								status = NetClientStatusConnected;
 								statusString = _Tr("NetClient", "Connected");
 
@@ -629,7 +632,7 @@ namespace spades {
 								}
 
 								HandleGamePacket(reader);
-							} else if (reader.GetType() == PacketTypeWeaponReload) {
+							} else if (type == PacketTypeWeaponReload) {
 								// Drop the reload packet. Pyspades does not
 								// cancel the reload packets on map change and
 								// they would cause an error if we would

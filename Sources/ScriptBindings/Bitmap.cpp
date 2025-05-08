@@ -38,7 +38,7 @@ namespace spades {
 			try {
 				bmp->Save(str);
 			} catch (const std::exception& ex) {
-				// FIXME: returning error message?
+				ScriptContextUtils().SetNativeException(ex);
 				return false;
 			}
 			return true;

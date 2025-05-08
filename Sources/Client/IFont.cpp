@@ -164,7 +164,7 @@ namespace spades {
 		FallbackFontRenderer::FallbackFontRenderer(IRenderer* renderer, FallbackFontManager* manager)
 		    : renderer(renderer), manager(manager) {
 			for (const auto& font : manager->fonts) {
-				auto imgPath = font->imagePath;
+				const auto& imgPath = font->imagePath;
 				auto img = renderer->RegisterImage(imgPath.c_str()).Unmanage();
 				images.push_back(img);
 			}

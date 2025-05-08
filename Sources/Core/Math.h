@@ -906,21 +906,26 @@ namespace spades {
 
 #pragma mark - Utilities
 
-	template <typename T> 
-	static inline void FastErase(std::vector<T>& vec, size_t index) {
-		SPAssert(index < vec.size());
-		if (index < vec.size() - 1)
-			vec[index] = vec[vec.size() - 1];
-
-		vec.resize(vec.size() - 1);
-	}
-
 	float SmoothStep(float);
 	float Mix(float a, float b, float frac);
 	Vector2 Mix(const Vector2& a, const Vector2& b, float frac);
 	Vector3 Mix(const Vector3& a, const Vector3& b, float frac);
 
-	inline Vector3 RandomAxis() {
+	template <class T> 
+	inline T Clamp(const T& val, const T& minVal, const T& maxVal) {
+		return (val < minVal) ? minVal : (val > maxVal) ? maxVal : val;
+	}
+
+	template <typename T> 
+	inline void FastErase(std::vector<T>& vec, size_t index) {
+		SPAssert(index < vec.size());
+		if (index < vec.size() - 1)
+			vec[index] = vec[vec.size() - 1];
+		vec.resize(vec.size() - 1);
+	}
+
+	// triangular distribution
+	inline Vector3 RandomVector() {
 		Vector3 v;
 		v.x = SampleRandomFloat() - SampleRandomFloat();
 		v.y = SampleRandomFloat() - SampleRandomFloat();
@@ -928,21 +933,18 @@ namespace spades {
 		return v;
 	}
 
-	// This is the preferred clamp operator. Using the clamp macro can lead to
-	// unexpected side-effects or more expensive code. Even the clamp (all
-	// lower-case) function can generate more expensive code because of the
-	// mixed types involved.
-	template <class T> 
-	inline T Clamp(T const& val, T const& minVal, T const& maxVal) {
-		if (val < minVal)
-			return minVal;
-		else if (val > maxVal)
-			return maxVal;
-		else
-			return val;
+	// uniform distribution
+	inline Vector3 RandomUnitVector() {
+		Vector3 v;
+		v.z = SampleRandomFloat() * 2.0F - 1.0F;
+		float ang = SampleRandomFloat() * M_PI_F * 2.0F;
+		float rad = sqrtf(1.0F - v.z * v.z);
+		v.x = rad * cosf(ang);
+		v.y = rad * sinf(ang);
+		return v;
 	}
 
-	static inline Vector4 AdjustColor(spades::Vector4 col, float bright, float saturation) {
+	inline Vector4 AdjustColor(spades::Vector4 col, float bright, float saturation) {
 		col.x *= bright;
 		col.y *= bright;
 		col.z *= bright;
@@ -953,7 +955,7 @@ namespace spades {
 		return col;
 	}
 
-	static inline Vector4 ModifyColor(IntVector3 v) {
+	inline Vector4 ModifyColor(IntVector3 v) {
 		Vector4 fv = ConvertColorRGBA(v);
 		float avg = (fv.x + fv.y + fv.z) / 3.0F;
 		fv.x = Mix(fv.x, avg, 0.5F);
@@ -965,7 +967,7 @@ namespace spades {
 		return fv;
 	}
 
-	static inline Vector3 HSV2RGB(float h, float s, float v) {
+	inline Vector3 HSV2RGB(float h, float s, float v) {
 		if (s == 0.0F)
 			return Vector3(v, v, v);
 
@@ -1002,7 +1004,7 @@ namespace spades {
 
 	uint32_t GetCodePointFromUTF8String(const std::string&, size_t start = 0, size_t* outNumBytes = nullptr);
 	template <typename Iterator> 
-	static Iterator CodePointToUTF8(Iterator output, uint32_t cp) {
+	inline Iterator CodePointToUTF8(Iterator output, uint32_t cp) {
 		if (cp < 0x80) {
 			*(output++) = static_cast<char>(cp);
 		} else if (cp < 0x800) {

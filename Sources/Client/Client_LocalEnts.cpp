@@ -166,7 +166,7 @@ namespace spades {
 			int particlesNum = cg_particlesBloodNum;
 			for (int i = 0; i < particlesNum; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
-				ent->SetTrajectory(pos, (RandomAxis() + velBias * 0.5F) * 8.0F);
+				ent->SetTrajectory(pos, (RandomVector() + velBias * 0.5F) * 8.0F);
 				ent->SetRadius(0.4F);
 				ent->SetLifeTime(3.0F, 0.0F, 1.0F);
 				if (distSqr < PARTICLE_BOUNCE_DIST_SQ || bounce)
@@ -181,7 +181,7 @@ namespace spades {
 			for (int i = 0; i < 2; i++) {
 				auto ent = stmp::make_unique<SmokeSpriteEntity>(*this, color, 100.0F,
 					SmokeSpriteEntity::Type::Explosion);
-				ent->SetTrajectory(pos, RandomAxis() * 0.7F, 0.8F, 0.0F);
+				ent->SetTrajectory(pos, RandomVector() * 0.7F, 0.8F, 0.0F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 				ent->SetRadius(0.5F + SampleRandomFloat() * SampleRandomFloat() * 0.2F, 2.0F);
 				ent->SetLifeTime(0.2F + SampleRandomFloat() * 0.2F, 0.06F, 0.2F);
@@ -192,7 +192,7 @@ namespace spades {
 			color.w *= 0.1F;
 			{
 				auto ent = stmp::make_unique<SmokeSpriteEntity>(*this, color, 40.0F);
-				ent->SetTrajectory(pos, RandomAxis() * 0.7F, 0.8F, 0.0F);
+				ent->SetTrajectory(pos, RandomVector() * 0.7F, 0.8F, 0.0F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 				ent->SetRadius(0.7F + SampleRandomFloat() * SampleRandomFloat() * 0.2F, 2.0F, 0.1F);
 				ent->SetLifeTime(0.8F + SampleRandomFloat() * 0.4F, 0.06F, 1.0F);
@@ -237,7 +237,7 @@ namespace spades {
 
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
-				Vector3 dir = RandomAxis() + velBias * 0.5F;
+				Vector3 dir = RandomVector() + velBias * 0.5F;
 				ent->SetTrajectory(pos + dir * 0.2F, dir * 8.0F);
 				ent->SetRadius(0.4F);
 				ent->SetLifeTime(3.0F, 0.0F, 1.0F);
@@ -252,7 +252,7 @@ namespace spades {
 			if (distSqr < 32.0F * 32.0F) {
 				for (int i = 0; i < 8; i++) {
 					auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
-					ent->SetTrajectory(pos, RandomAxis() * 12.0F, 1.0F, 0.9F);
+					ent->SetTrajectory(pos, RandomVector() * 12.0F, 1.0F, 0.9F);
 					ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 					ent->SetRadius(0.2F + SampleRandomFloat() * SampleRandomFloat() * 0.25F);
 					ent->SetLifeTime(3.0F, 0.0F, 1.0F);
@@ -265,7 +265,7 @@ namespace spades {
 			color.w *= 0.2F;
 			for (int i = 0; i < 2; i++) {
 				auto ent = stmp::make_unique<SmokeSpriteEntity>(*this, color, 100.0F);
-				ent->SetTrajectory(pos, RandomAxis() * 0.7F, 1.0F, 0.0F);
+				ent->SetTrajectory(pos, RandomVector() * 0.7F, 1.0F, 0.0F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 				ent->SetRadius(0.6F + SampleRandomFloat() * SampleRandomFloat() * 0.2F, 0.8F);
 				ent->SetLifeTime(0.3F + SampleRandomFloat() * 0.3F, 0.06F, 0.4F);
@@ -296,7 +296,7 @@ namespace spades {
 
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
-				ent->SetTrajectory(origin, RandomAxis() * 8.0F);
+				ent->SetTrajectory(origin, RandomVector() * 8.0F);
 				ent->SetRadius(0.4F);
 				ent->SetLifeTime(3.0F, 0.0F, 1.0F);
 				if (distSqr < PARTICLE_BOUNCE_DIST_SQ)
@@ -331,7 +331,7 @@ namespace spades {
 			for (int i = 0; i < 2; i++) {
 				auto ent = stmp::make_unique<SmokeSpriteEntity>(*this, color, 120.0F,
 					SmokeSpriteEntity::Type::Explosion);
-				ent->SetTrajectory(pos, (RandomAxis() + velBias * 0.5F) * 0.3F, 1.0F, 0.0F);
+				ent->SetTrajectory(pos, (RandomVector() + velBias * 0.5F) * 0.3F, 1.0F, 0.0F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 				ent->SetRadius(0.4F, 3.0F, 0.0000005F);
 				ent->SetLifeTime(0.2F + SampleRandomFloat() * 0.1F, 0.0F, 0.3F);
@@ -344,7 +344,7 @@ namespace spades {
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<SmokeSpriteEntity>(*this, color, 120.0F,
 					SmokeSpriteEntity::Type::Explosion);
-				ent->SetTrajectory(pos, (RandomAxis() + velBias * 0.5F) * 0.3F, 1.0F, 0.0F);
+				ent->SetTrajectory(pos, (RandomVector() + velBias * 0.5F) * 0.3F, 1.0F, 0.0F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 				ent->SetRadius(0.2F + SampleRandomFloat() * SampleRandomFloat() * 0.3F, 3.0F, 0.0000005F);
 				ent->SetLifeTime(0.01F + SampleRandomFloat() * 0.02F, 0.0F, 0.01F);
@@ -406,9 +406,9 @@ namespace spades {
 			int particlesNum = cg_particlesGrenadeNum;
 			for (int i = 0; i < particlesNum; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
-				Vector3 dir = RandomAxis() + velBias * 0.5F;
+				Vector3 dir = RandomVector() + velBias * 0.5F;
 				float radius = 0.3F + SampleRandomFloat() * SampleRandomFloat() * 0.3F;
-				ent->SetTrajectory(pos + dir * 0.2F, dir * 20.0F, 0.1F + radius * 3.0F);
+				ent->SetTrajectory(pos + dir * 0.2F, dir * 16.0F, 0.1F + radius * 3.0F);
 				ent->SetRadius(radius);
 				ent->SetLifeTime(3.5F + SampleRandomFloat() * 2.0F, 0.0F, 1.0F);
 				if (dist < PARTICLE_BOUNCE_DIST)
@@ -423,7 +423,7 @@ namespace spades {
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<SmokeSpriteEntity>(*this, color, 60.0F,
 					SmokeSpriteEntity::Type::Explosion);
-				ent->SetTrajectory(pos, (RandomAxis() + velBias * 0.5F) * 2.0F, 1.0F, 0.0F);
+				ent->SetTrajectory(pos, (RandomVector() + velBias * 0.5F) * 2.0F, 1.0F, 0.0F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 				ent->SetRadius(0.6F + SampleRandomFloat() * SampleRandomFloat() * 0.4F, 2.0F, 0.2F);
 				ent->SetLifeTime(1.8F + SampleRandomFloat() * 0.1F, 0.0F, 0.2F);
@@ -455,7 +455,7 @@ namespace spades {
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<SmokeSpriteEntity>(*this, color, 120.0F,
 					SmokeSpriteEntity::Type::Explosion);
-				ent->SetTrajectory(pos, (RandomAxis() + velBias) * 6.0F, 1.0F, 0.0F);
+				ent->SetTrajectory(pos, (RandomVector() + velBias) * 6.0F, 1.0F, 0.0F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 				ent->SetRadius(0.3F + SampleRandomFloat() * SampleRandomFloat() * 0.4F, 3.0F, 0.1F);
 				ent->SetLifeTime(0.18F + SampleRandomFloat() * 0.03F, 0.0F, 0.1F);
@@ -487,7 +487,7 @@ namespace spades {
 			int particlesNum = cg_particlesGrenadeNum;
 			for (int i = 0; i < particlesNum; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
-				Vector3 dir = RandomAxis() + velBias * 0.5F;
+				Vector3 dir = RandomVector() + velBias * 0.5F;
 				float radius = 0.3F + SampleRandomFloat() * SampleRandomFloat() * 0.3F;
 				ent->SetTrajectory(pos + dir * 0.2F, dir * 16.0F, 0.1F + radius * 3.0F);
 				ent->SetRadius(radius);
@@ -563,7 +563,7 @@ namespace spades {
 
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
-				ent->SetTrajectory(pos, (RandomAxis() + velBias * 0.5F) * 8.0F);
+				ent->SetTrajectory(pos, (RandomVector() + velBias * 0.5F) * 8.0F);
 				ent->SetRadius(0.3F);
 				ent->SetLifeTime(3.0F, 0.0F, 1.0F);
 				if (distSqr < PARTICLE_BOUNCE_DIST_SQ)

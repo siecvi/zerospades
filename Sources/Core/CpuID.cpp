@@ -98,6 +98,7 @@ namespace spades {
 			case CpuFeature::AVX512PF: return (featureXcr0Avx512 && subfeature & (1U << 26));
 			case CpuFeature::AVX512F: return (featureXcr0Avx512 && subfeature & (1U << 16));
 			case CpuFeature::SimultaneousMT: return featureEdx & (1U << 28);
+			default: return false;
 		}
 	}
 

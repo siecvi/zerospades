@@ -271,7 +271,7 @@ namespace spades {
 			DrawPlayers(0, contentsLeft, playersTop, contentsHalf, playersHeight);
 			DrawPlayers(1, (contentsLeft + contentsHalf) - 4.0F, playersTop, contentsHalf, playersHeight);
 			if (areSpectatorsPresent)
-				DrawSpectators(playersBottom, scrCenter.x);
+				DrawSpectators(scrCenter.x, playersBottom);
 		}
 
 		struct ScoreboardEntry {
@@ -285,7 +285,7 @@ namespace spades {
 		extern int palette[32][3];
 
 		void ScoreboardView::DrawPlayers(int team, float left, float top, float width, float height) {
-			char buf[256];
+			char buf[16];
 			Vector2 size;
 			
 			int numPlayers = 0;
@@ -385,9 +385,9 @@ namespace spades {
 			}
 		}
 
-		void ScoreboardView::DrawSpectators(float top, float centerX) const {
+		void ScoreboardView::DrawSpectators(float centerX, float top) const {
 			IFont& font = client->fontManager->GetGuiFont();
-			char buf[256];
+			char buf[16];
 			
 			static const float xPixelSpectatorOffset = 20.0F;
 			float totalPixelWidth = 0;

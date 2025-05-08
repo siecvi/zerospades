@@ -1254,45 +1254,45 @@ namespace spades {
 					damages.damage = by.GetWeapon().GetDamage(type);
 					damages.fade = 2.0F;
 					damages.position = hitPos;
-					damages.velocity = RandomAxis() * 4.0F;
+					damages.velocity = RandomVector() * 4.0F;
 					damages.velocity.z = -2.0F;
 					damageIndicators.push_back(damages);
 				}
 
 				if ((bool)cg_hitAnalyze) {
-					char buf[256];
-					std::string s;
+					char buf[32];
+					std::string str;
 
 					// add hurt player name and distance
 					float dist = (by.GetEye() - hurtPlayer.GetEye()).GetLength();
 					sprintf(buf, "%.1f", dist);
-					s = _Tr("Client", "You hit {0} from: {1} blocks ",
+					str += _Tr("Client", "You hit {0} from: {1} blocks ",
 						hurtPlayer.GetName(), std::string(buf));
 
 					// add delta time since last hit
 					if ((int)cg_hitAnalyze >= 2) {
 						float dt = world->GetTime() - lastHitTime;
 						if (dt <= 0.0F) {
-							s += "dT: NA ";
+							str += "dT: NA ";
 						} else {
 							if (dt > 1.0F)
 								sprintf(buf, "dT: %.0fs ", dt);
 							else
 								sprintf(buf, "dT: %dms ", (int)(dt * 1000));
-							s += buf;
+							str += buf;
 						}
 					}
 
 					// add body part
-					s += "[";
+					str += "[";
 					switch (type) {
-						case HitTypeTorso: s += _Tr("Client", "TORSO"); break;
-						case HitTypeArms: s += _Tr("Client", "ARMS"); break;
-						case HitTypeLegs: s += _Tr("Client", "LEGS"); break;
-						case HitTypeMelee: s += _Tr("Client", "MELEE"); break;
-						default: s += _Tr("Client", "HEAD"); break;
+						case HitTypeTorso: str += _Tr("Client", "TORSO"); break;
+						case HitTypeArms: str += _Tr("Client", "ARMS"); break;
+						case HitTypeLegs: str += _Tr("Client", "LEGS"); break;
+						case HitTypeMelee: str += _Tr("Client", "MELEE"); break;
+						default: str += _Tr("Client", "HEAD"); break;
 					}
-					s += "]";
+					str += "]";
 
 					// add hit count
 					if (type != HitTypeMelee) {
@@ -1303,11 +1303,11 @@ namespace spades {
 							case HitTypeArms:
 							case HitTypeLegs: hits = ++hitStats.numLimbHits; break;
 						}
-						s += " (" + ToString(hits) + ")";
+						str += " (" + ToString(hits) + ")";
 					}
 
-					scriptedUI->RecordChatLog(s);
-					chatWindow->AddMessage(s);
+					scriptedUI->RecordChatLog(str);
+					chatWindow->AddMessage(str);
 				}
 
 				if (!hitScanState.hasPlayedHeadshotSound && type == HitTypeHead) {
