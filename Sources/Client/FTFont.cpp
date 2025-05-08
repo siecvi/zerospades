@@ -284,7 +284,7 @@ namespace spades {
 			SplitTextIntoGlyphs(
 			  str,
 			  [&](Glyph& g) {
-				  x += g.advance.x;
+				  x += (int)roundf(g.advance.x);
 				  maxWidth = std::max(x, maxWidth);
 			  },
 			  [&](uint32_t codepoint) {
@@ -314,13 +314,15 @@ namespace spades {
 			SPAssert(outbmp->pixel_mode == FT_PIXEL_MODE_GRAY);
 
 			auto spbmp = Handle<Bitmap>::New(outbmp->width + 1, outbmp->rows + 1);
+			int const spW = spbmp->GetWidth();
+			int const spH = spbmp->GetHeight();
 
-			memset(spbmp->GetPixels(), 0, 4 * spbmp->GetWidth() * spbmp->GetHeight());
+			memset(spbmp->GetPixels(), 0, 4 * spW * spH);
 
 			for (unsigned int y = 0; y < outbmp->rows; ++y) {
 				const auto* inpixs = outbmp->buffer + y * outbmp->width;
 				auto* outpixs = spbmp->GetPixels();
-				outpixs += y * spbmp->GetWidth();
+				outpixs += y * spW;
 				for (unsigned int x = 0; x < outbmp->width; ++x) {
 					uint32_t v = *inpixs;
 					v = (v << 24) | 0xFFFFFF;
@@ -341,11 +343,14 @@ namespace spades {
 			AABB2 bounds(
 				(float)(*result).x,
 				(float)(*result).y,
-				(float)spbmp->GetWidth() - 1,
-				(float)spbmp->GetHeight() - 1
+				(float)spW - 1,
+				(float)spH - 1
 			);
 
-			Vector2 offs(g.face->glyph->bitmap_left, baselineY - g.face->glyph->bitmap_top);
+			Vector2 offs(
+				(float)g.face->glyph->bitmap_left,
+				baselineY - g.face->glyph->bitmap_top
+			);
 
 			g.image.reset((*result).image, bounds, offs);
 			g.bmp = spbmp;
@@ -359,11 +364,10 @@ namespace spades {
 			enum { KernelSize = 6 };
 
 			auto& orig = *g.bmp;
-			auto newbmp =
-			  Handle<Bitmap>::New(orig.GetWidth() + KernelSize, orig.GetHeight() + KernelSize);
-
 			int const origW = orig.GetWidth();
 			int const origH = orig.GetHeight();
+
+			auto newbmp = Handle<Bitmap>::New(origW + KernelSize, origH + KernelSize);
 			int const newW = newbmp->GetWidth();
 			int const newH = newbmp->GetHeight();
 
@@ -433,8 +437,8 @@ namespace spades {
 			AABB2 bounds(
 				(float)(*result).x,
 				(float)(*result).y,
-				(float)newbmp->GetWidth() - 1,
-				(float)newbmp->GetHeight() - 1
+				(float)newW - 1,
+				(float)newH - 1
 			);
 
 			Vector2 offs = (*g.image).offset - Vector2(1, 1) * (KernelSize * 0.5F);
@@ -473,8 +477,8 @@ namespace spades {
 
 				  renderer->DrawImage(&img.img, destBounds, srcBounds);
 
-				  x += g.advance.x;
-				  y += g.advance.y;
+				  x += (int)roundf(g.advance.x);
+				  y += (int)roundf(g.advance.y);
 			  },
 			  [&](uint32_t codepoint) {
 				  DrawFallback(codepoint, offset + Vector2(x, y) * scale, height * scale, color);
@@ -517,8 +521,8 @@ namespace spades {
 
 				  renderer->DrawImage(&img.img, destBounds, srcBounds);
 
-				  x += g.advance.x;
-				  y += g.advance.y;
+				  x += (int)roundf(g.advance.x);
+				  y += (int)roundf(g.advance.y);
 			  },
 			  [&](uint32_t codepoint) {
 				  DrawFallback(codepoint, offset + Vector2(x, y) * scale, height * scale, color);
