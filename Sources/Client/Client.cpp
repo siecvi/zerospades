@@ -666,8 +666,10 @@ namespace spades {
 			struct tm tm;
 			::time(&t);
 			tm = *localtime(&t);
-			std::string timeStr = asctime(&tm);
-			timeStr.resize(timeStr.size() - 1); // remove '\n'
+
+			char timeBuf[32];
+			strftime(timeBuf, sizeof(timeBuf), "%a %b %d %H:%M:%S %Y", &tm);
+			std::string timeStr = timeBuf;
 
 			snprintf(buf, sizeof(buf), "%s %s\n", timeStr.c_str(), str.c_str());
 			buf[sizeof(buf) - 1] = 0;
