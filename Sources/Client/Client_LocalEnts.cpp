@@ -406,7 +406,7 @@ namespace spades {
 			int particlesNum = cg_particlesGrenadeNum;
 			for (int i = 0; i < particlesNum; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
-				Vector3 dir = RandomVector() + velBias * 0.5F;
+				Vector3 dir = RandomUnitVector() + velBias * 0.5F;
 				float radius = 0.3F + SampleRandomFloat() * SampleRandomFloat() * 0.3F;
 				ent->SetTrajectory(pos + dir * 0.2F, dir * 16.0F, 0.1F + radius * 3.0F);
 				ent->SetRadius(radius);
@@ -423,7 +423,7 @@ namespace spades {
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<SmokeSpriteEntity>(*this, color, 60.0F,
 					SmokeSpriteEntity::Type::Explosion);
-				ent->SetTrajectory(pos, (RandomVector() + velBias * 0.5F) * 2.0F, 1.0F, 0.0F);
+				ent->SetTrajectory(pos, (RandomUnitVector() + velBias * 0.5F) * 2.0F, 1.0F, 0.0F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 				ent->SetRadius(0.6F + SampleRandomFloat() * SampleRandomFloat() * 0.4F, 2.0F, 0.2F);
 				ent->SetLifeTime(1.8F + SampleRandomFloat() * 0.1F, 0.0F, 0.2F);
@@ -455,7 +455,7 @@ namespace spades {
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<SmokeSpriteEntity>(*this, color, 120.0F,
 					SmokeSpriteEntity::Type::Explosion);
-				ent->SetTrajectory(pos, (RandomVector() + velBias) * 6.0F, 1.0F, 0.0F);
+				ent->SetTrajectory(pos, (RandomUnitVector() + velBias) * 6.0F, 1.0F, 0.0F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 				ent->SetRadius(0.3F + SampleRandomFloat() * SampleRandomFloat() * 0.4F, 3.0F, 0.1F);
 				ent->SetLifeTime(0.18F + SampleRandomFloat() * 0.03F, 0.0F, 0.1F);
@@ -487,7 +487,7 @@ namespace spades {
 			int particlesNum = cg_particlesGrenadeNum;
 			for (int i = 0; i < particlesNum; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
-				Vector3 dir = RandomVector() + velBias * 0.5F;
+				Vector3 dir = RandomUnitVector() + velBias * 0.5F;
 				float radius = 0.3F + SampleRandomFloat() * SampleRandomFloat() * 0.3F;
 				ent->SetTrajectory(pos + dir * 0.2F, dir * 16.0F, 0.1F + radius * 3.0F);
 				ent->SetRadius(radius);
