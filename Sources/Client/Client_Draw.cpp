@@ -258,10 +258,16 @@ namespace spades {
 			float y = ((int)cg_stats >= 2) ? spacing : 30.0F;
 
 			int now = (int)time;
-			int mins = now / 60;
-			int secs = now - mins * 60;
-			char buf[64];
-			sprintf(buf, "%d:%.2d", mins, secs);
+			int hrs = now / 3600;
+			int mins = (now % 3600) / 60;
+			int secs = now % 60;
+
+			char buf[16];
+			if (hrs > 0)
+				sprintf(buf, "%d:%02d:%02d", hrs, mins, secs);
+			else
+				sprintf(buf, "%d:%02d", mins, secs);
+
 			IFont& font = fontManager->GetHeadingFont();
 			Vector2 size = font.Measure(buf);
 			Vector2 pos = MakeVector2((sw - size.x) * 0.5F, y - size.y);
