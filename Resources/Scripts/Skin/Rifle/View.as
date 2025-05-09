@@ -186,9 +186,9 @@ namespace spades {
 			// load models
 			@gunModel = renderer.RegisterModel("Models/Weapons/Rifle/WeaponNoMagazine.kv6");
 			@magazineModel = renderer.RegisterModel("Models/Weapons/Rifle/Magazine.kv6");
-			@rearSightModel = renderer.RegisterModel("Models/Weapons/Rifle/RearSight.kv6");
-			@frontSightModel = renderer.RegisterModel("Models/Weapons/Rifle/FrontSight.kv6");
-			@dotSightModel = renderer.RegisterModel("Models/Weapons/Rifle/DotSight.kv6");
+			@rearSightModel = renderer.RegisterModel("Models/Weapons/Rifle/SightRear.kv6");
+			@frontSightModel = renderer.RegisterModel("Models/Weapons/Rifle/SightFront.kv6");
+			@dotSightModel = renderer.RegisterModel("Models/Weapons/Rifle/SightDot.kv6");
 
 			// load sounds
 			@fireSound = dev.RegisterSound("Sounds/Weapons/Rifle/FireLocal.opus");
