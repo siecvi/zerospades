@@ -54,19 +54,27 @@ namespace spades {
 #pragma mark - Server Packet Handlers
 
 		void Client::LocalPlayerCreated() {
-			renderer->UpdateFlatGameMap();
+			Player& p = world->GetLocalPlayer().value();
 
-			hotBarIconState = 1.0F;
+			// clear hurt/heal effects
+			lastHurtTime = -100.0F;
+			lastHealTime = -100.0F;
+			damageTaken = 0;
+			lastHealth = p.GetHealth();
 
 			// reset input
 			playerInput.jump = PlayerInput().jump;
 			weapInput = WeaponInput();
 
+			hotBarIconState = 1.0F;
+
 			// set loadout
-			Player& p = world->GetLocalPlayer().value();
 			limbo->SetSelectedTeam(p.GetTeamId());
 			limbo->SetSelectedWeapon(p.GetWeaponType());
 			inGameLimbo = false;
+
+			// update minimap
+			renderer->UpdateFlatGameMap();
 		}
 
 		void Client::JoinedGame() {

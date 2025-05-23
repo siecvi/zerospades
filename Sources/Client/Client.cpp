@@ -163,7 +163,7 @@ namespace spades {
 			RemoveAllCorpses();
 			RemoveAllLocalEntities();
 
-			lastHealth = 0;
+			lastHealth = 100;
 			damageTaken = 0;
 			lastHurtTime = -100.0F;
 			lastHealTime = -100.0F;
