@@ -171,6 +171,9 @@ namespace spades {
 			hurtRingView->ClearAll();
 			killStreaks.clear();
 
+			// reset on new map
+			placedBlocks = 0;
+
 			reloadKeyPressed = false;
 			scoreboardVisible = false;
 			flashlightOn = false;
