@@ -915,19 +915,35 @@ namespace spades {
 			{
 				int hp = lastHealth; // player health
 				int maxHealth = 100; // server doesn't send this
+				int dmgTaken = damageTaken;
+
 				float hpFrac = Clamp((float)hp / (float)maxHealth, 0.0F, 1.0F);
+				float dmgFrac = Clamp((float)dmgTaken / (float)maxHealth, 0.0F, 1.0F);
 
 				Vector4 hpColor = color + (red - color) * (1.0F - hpFrac);
 
-				float hurtTime = (time - lastHurtTime) / 0.25F;
+				float timeSinceLastHurt = time - lastHurtTime;
+				float hurtTime = timeSinceLastHurt / 0.25F;
 				hurtTime = std::max(0.0F, 1.0F - hurtTime);
 
+				const float fadeOutStart = 0.4F;
+				const float fadeDuration = 0.3F;
+				float fade = timeSinceLastHurt - fadeOutStart;
+				fade = 1.0F - (fade / fadeDuration);
+				fade = Clamp(fade, 0.0F, 1.0F);
+
+				auto healthStr = ToString(cg_hudHealthAnimation
+					? ((int)(hp + dmgTaken * hurtTime)) : hp);
+				IFont& font = squareFont;
+				Vector2 size = font.Measure(healthStr);
+				Vector2 pos = MakeVector2(sw - x, y - size.y);
+
 				if (cg_hudHealthBar) {
-					float barW = 44.0F;
+					float barW = 45.0F;
 					float barH = 4.0F;
 					float barX = sw - x;
 					float barY = y - (barH + 2.0F);
-					float barPrg = ceilf(barW * hpFrac);
+					float barPrg = std::max(1.0F, floorf(barW * hpFrac));
 
 					Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
 
@@ -941,13 +957,14 @@ namespace spades {
 						renderer->DrawImage(img, AABB2(barX, barY, barW, barH));
 
 						// draw damaged portion
-						if (hurtTime > 0.0F) {
+						if (fade > 0.0F) {
 							Vector4 dmgColor = red + (white - red) * hurtTime;
-							float dmgBarW = damageTaken * (barW / maxHealth) * hurtTime;
+							float dmgBarW = std::min(ceilf(barW * dmgFrac), barW - barPrg);
 							for (float x2 = barPrg; x2 < barPrg + dmgBarW; x2 += 1.0F) {
-								float per = 1.0F - ((x2 - barPrg) / dmgBarW);
+								float t = (x2 - barPrg) / dmgBarW;
+								float per = (1.0F - t * t) * fade;
 								renderer->SetColorAlphaPremultiplied(dmgColor * per);
-								renderer->DrawImage(img, AABB2(barX + x2 - 1.0F, barY, 1.0F, barH));
+								renderer->DrawImage(img, AABB2(barX + x2, barY, 1.0F, barH));
 							}
 						}
 					}
@@ -955,13 +972,8 @@ namespace spades {
 					// draw health bar
 					renderer->SetColorAlphaPremultiplied(color + (white - color) * hurtTime);
 					renderer->DrawImage(img, AABB2(barX, barY, barPrg, barH));
-				}
 
-				auto healthStr = ToString(cg_hudHealthAnimation
-					? ((int)(hp + damageTaken * hurtTime)) : hp);
-				IFont& font = squareFont;
-				Vector2 size = font.Measure(healthStr);
-				Vector2 pos = MakeVector2(sw - x, y - size.y);
+				}
 
 				font.Draw(healthStr, pos + MakeVector2(1, 1), 1.0F, shadowColor);
 				font.Draw(healthStr, pos, 1.0F, hpColor + (white - hpColor) * hurtTime);
