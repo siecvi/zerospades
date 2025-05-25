@@ -615,7 +615,7 @@ namespace spades {
 					  audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
 					audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 				} else if (CheckKey(cg_keyToggleLeftHand, name) && down) {
-					if (IsFirstPerson(cameraMode)) {
+					if (IsFirstPerson(cameraMode) && GetAimDownState() < 1.0F) {
 						cg_viewWeaponSide = (cg_viewWeaponSide == 1) ? -1 : 1;
 
 						// TODO: use a better sound
