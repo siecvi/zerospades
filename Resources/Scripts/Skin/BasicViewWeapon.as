@@ -296,10 +296,11 @@ namespace spades {
 		Matrix4 GetViewWeaponMatrix() {
 			Matrix4 mat;
 
+			float weapSide = Clamp(cg_viewWeaponSide.FloatValue, -1.0F, 1.0F);
+			float sp = 1.0F - AimDownSightStateSmooth;
+
 			if (sprintStateSmooth > 0.0F) {
-				mat = CreateRotateMatrix(Vector3(0, 1, 0), sprintStateSmooth * -0.1F) * mat;
-				mat = CreateRotateMatrix(Vector3(1, 0, 0), sprintStateSmooth * 0.3F) * mat;
-				mat = CreateRotateMatrix(Vector3(0, 0, 1), sprintStateSmooth * -0.55F) * mat;
+				mat = CreateEulerAnglesMatrix(Vector3(0.3F, -0.1F, -0.55F) * sprintStateSmooth) * mat;
 				mat = CreateTranslateMatrix(Vector3(0.23F, -0.05F, 0.15F) * sprintStateSmooth) * mat;
 			}
 
@@ -310,11 +311,9 @@ namespace spades {
 				mat = CreateTranslateMatrix(Vector3(0.1F, -0.3F, 0.1F) * putdown) * mat;
 			}
 
-			float sp = 1.0F - AimDownSightStateSmooth;
-
 			if (readyState < 1.0F) {
 				float per = SmoothStep(1.0F - readyState);
-				mat = CreateTranslateMatrix(Vector3(-0.25F * sp, -0.5F, 0.25F * sp) * per * 0.1F) * mat;
+				mat = CreateTranslateMatrix(Vector3(-0.25F * weapSide * sp, -0.5F, 0.25F * sp) * per * 0.1F) * mat;
 				mat = CreateRotateMatrix(Vector3(-1, 0, 0), per * 0.05F * sp) * mat;
 			}
 
@@ -326,6 +325,7 @@ namespace spades {
 			trans.x += cg_viewWeaponX.FloatValue * sp;
 			trans.y += cg_viewWeaponY.FloatValue * sp;
 			trans.z += cg_viewWeaponZ.FloatValue * sp;
+			trans.x *= weapSide;
 
 			mat = CreateTranslateMatrix(trans) * mat;
 
