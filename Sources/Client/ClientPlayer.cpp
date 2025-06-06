@@ -135,13 +135,8 @@ namespace spades {
 
 				if (p.depthHack && !allowDepthHack) {
 					OnProhibitedAction();
-					return;
-				}
-
-				// Disable depth hack when `cg_debugToolSkinAnchors` is set
-				// so that the drawn debug lines intersect with the weapon model
-				if (cg_debugToolSkinAnchors)
 					p.depthHack = false;
+				}
 
 				// Overbright surfaces bypass the fog
 				p.customColor.x = Clamp(p.customColor.x, 0.0F, 1.0F);
@@ -668,6 +663,13 @@ namespace spades {
 			param.depthHack = true;
 			param.customColor = ConvertColorRGB(p.GetColor());
 
+			// disable depth hack when `cg_debugToolSkinAnchors` is set
+			// so that the drawn debug lines intersect with the weapon model
+			if (cg_debugToolSkinAnchors && currentTool == Player::ToolWeapon) {
+				param.depthHack = false;
+				sandboxedRenderer->SetAllowDepthHack(false);
+			}
+
 			asIScriptObject* curSkin = GetCurrentSkin(true);
 			SetSkinParameterForTool(currentTool, curSkin);
 			SetCommonSkinParameter(curSkin);
@@ -677,11 +679,6 @@ namespace spades {
 			// Moving this to the scripting environment means
 			// breaking compatibility with existing scripts.
 			if (cg_classicViewWeapon) {
-				// Disable depth hack when `cg_debugToolSkinAnchors` is set
-				// so that the drawn debug lines intersect with the weapon model
-				if (cg_debugToolSkinAnchors)
-					param.depthHack = false;
-
 				Matrix4 mat = Matrix4::Scale(0.033F);
 				Vector3 trans = MakeVector3(0, 0, 0);
 
