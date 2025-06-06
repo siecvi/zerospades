@@ -905,10 +905,11 @@ namespace spades {
 				if (listener)
 					listener->BulletHitPlayer(*hitPlayer,
 						HitTypeMelee, hitPlayer->GetEye(), *this, stateCell);
-			} else {
-				if (listener)
-					listener->PlayerMissedSpade(*this);
 			}
+
+			// always play "woosh" sound
+			if (listener)
+				listener->PlayerMissedSpade(*this);
 		}
 
 		Vector3 Player::GetFront(bool interpolate) {
