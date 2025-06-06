@@ -43,6 +43,9 @@ DEFINE_SPADES_SETTING(cg_minimapPlayerIcon, "1");
 DEFINE_SPADES_SETTING(cg_minimapPlayerColor, "1");
 DEFINE_SPADES_SETTING(cg_minimapPlayerNames, "0");
 
+SPADES_SETTING(cg_stats);
+SPADES_SETTING(cg_statsSmallFont);
+
 using std::pair;
 using stmp::optional;
 
@@ -300,12 +303,12 @@ namespace spades {
 			float cfgMapSize = Clamp((float)cg_minimapSize, 32.0F, 256.0F);
 			Vector2 mapWndSize = {cfgMapSize, cfgMapSize};
 
-			Vector2 center = {focusPlayerPos.x, focusPlayerPos.y};
-			center = Mix(center, mapSize * 0.5F, zoomState);
-
-			Vector2 zoomedSize = {512, 512};
+			Vector2 zoomedSize = {512.0F, 512.0F};
 			if (sw < zoomedSize.x || sh < zoomedSize.y)
 				zoomedSize *= 0.75F;
+
+			Vector2 center = {focusPlayerPos.x, focusPlayerPos.y};
+			center = Mix(center, mapSize * 0.5F, zoomState);
 
 			if (largeMap) {
 				float per = zoomState;
@@ -333,10 +336,19 @@ namespace spades {
 					inRect = inRect.Translated(0, mapSize.y - inRect.GetMaxY());
 			}
 
-			AABB2 outRect((sw - mapWndSize.x) - 8.0F, 8.0F, mapWndSize.x, mapWndSize.y);
+			float winX = (sw - 8.0F) - mapWndSize.x;
+			float winY = 8.0F;
+
+			if (!largeMap) {
+				const int statsMode = cg_stats;
+				if (statsMode == 2 || (statsMode >= 3 && client->IsScoreboardVisible()))
+					winY += cg_statsSmallFont ? 10.0F : 20.0F;
+			}
+
+			AABB2 outRect(winX, winY, mapWndSize.x, mapWndSize.y);
 			if (largeMap) {
-				outRect.min = MakeVector2((sw - zoomedSize.x) * 0.5F, (sh - zoomedSize.y) * 0.5F);
-				outRect.max = MakeVector2((sw + zoomedSize.x) * 0.5F, (sh + zoomedSize.y) * 0.5F);
+				outRect.min = MakeVector2(sw - zoomedSize.x, sh - zoomedSize.y) * 0.5F;
+				outRect.max = MakeVector2(sw + zoomedSize.x, sh + zoomedSize.y) * 0.5F;
 			}
 
 			this->inRect = inRect;

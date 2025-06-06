@@ -514,6 +514,7 @@ namespace spades {
 
 			bool WantsToBeClosed() override;
 			bool IsMuted();
+			bool IsScoreboardVisible() { return scoreboardVisible; }
 
 			void PlayerSentChatMessage(Player&, bool global, const std::string&);
 			void ServerSentMessage(bool system, const std::string&);

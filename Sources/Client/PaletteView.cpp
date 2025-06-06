@@ -18,8 +18,6 @@
 
  */
 
-#include <Core/Settings.h>
-
 #include "Client.h"
 #include "IImage.h"
 #include "IRenderer.h"
@@ -27,6 +25,7 @@
 #include "PaletteView.h"
 #include "Player.h"
 #include "World.h"
+#include <Core/Settings.h>
 
 DEFINE_SPADES_SETTING(cg_keyPaletteLeft, "Left");
 DEFINE_SPADES_SETTING(cg_keyPaletteRight, "Right");
@@ -38,6 +37,9 @@ DEFINE_SPADES_SETTING(cg_hudPalette, "1");
 DEFINE_SPADES_SETTING(cg_hudPaletteSize, "128");
 DEFINE_SPADES_SETTING(cg_extendedPalette, "0");
 
+SPADES_SETTING(cg_stats);
+SPADES_SETTING(cg_statsSmallFont);
+
 namespace spades {
 	namespace client {
 		static IntVector3 SanitizeCol(IntVector3 col) {
@@ -47,7 +49,7 @@ namespace spades {
 			return col;
 		}
 
-		PaletteView::PaletteView(Client* client) : client(client), renderer(client->GetRenderer()) {
+		PaletteView::PaletteView(Client* c) : client(c), renderer(c->GetRenderer()) {
 			UpdatePaletteSize();
 			ResetColors();
 			time = 0.0F;
@@ -209,8 +211,12 @@ namespace spades {
 			float cellSize = wndSize / paletteSize;
 			float totalSize = wndSize + (paletteSize - 1) * cellGap;
 
-			float winX = (sw - totalSize) - 8.0F - bgPadding;
-			float winY = (sh - totalSize) - 64.0F;
+			float winX = (sw - 8.0F) - totalSize - bgPadding;
+			float winY = (sh - 8.0F) - totalSize - 42.0F;
+
+			const int statsMode = cg_stats;
+			if (statsMode == 1)
+				winY -= cg_statsSmallFont ? 2.0F : 12.0F;
 
 			float bgX = winX - bgPadding;
 			float bgY = winY - bgPadding;

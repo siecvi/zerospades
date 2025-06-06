@@ -27,10 +27,10 @@
 
 namespace spades {
 	namespace client {
-		class IRenderer;
+		class Client;
 		class IFont;
 		class IImage;
-		class Client;
+		class IRenderer;
 
 		static const char MsgColorTeam1 = 1;
 		static const char MsgColorTeam2 = 2;
@@ -47,7 +47,7 @@ namespace spades {
 
 		class ChatWindow {
 			Client* client;
-			IRenderer* renderer;
+			IRenderer& renderer;
 			IFont* font;
 
 			struct ChatEntry {
@@ -76,7 +76,7 @@ namespace spades {
 			Vector4 GetColor(char);
 
 		public:
-			ChatWindow(Client*, IRenderer* rend, IFont* font, bool killfeed);
+			ChatWindow(Client*, IFont* font, bool killfeed);
 			~ChatWindow();
 
 			void AddMessage(const std::string&);

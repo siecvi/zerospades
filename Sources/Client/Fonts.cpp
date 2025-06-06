@@ -75,10 +75,10 @@ namespace spades {
 		FontManager::FontManager(IRenderer* renderer) {
 			auto& instance = GlobalFontInfo::GetInstance();
 
-			squareDesignFont = Handle<ngclient::FTFont>::New(renderer, instance.squareFontSet, 36.0F, 48.0F).Cast<IFont>();
-			largeFont = Handle<ngclient::FTFont>::New(renderer, instance.guiFontSet, 34.0F, 48.0F).Cast<IFont>();
-			mediumFont = Handle<ngclient::FTFont>::New(renderer, instance.guiFontSet, 24.0F, 32.0F).Cast<IFont>();
-			headingFont = Handle<ngclient::FTFont>::New(renderer, instance.guiFontSet, 20.0F, 26.0F).Cast<IFont>();
+			squareDesignFont = Handle<ngclient::FTFont>::New(renderer, instance.squareFontSet, 36.0F, 36.0F).Cast<IFont>();
+			largeFont = Handle<ngclient::FTFont>::New(renderer, instance.guiFontSet, 34.0F, 34.0F).Cast<IFont>();
+			mediumFont = Handle<ngclient::FTFont>::New(renderer, instance.guiFontSet, 24.0F, 24.0F).Cast<IFont>();
+			headingFont = Handle<ngclient::FTFont>::New(renderer, instance.guiFontSet, 20.0F, 20.0F).Cast<IFont>();
 			guiFont = Handle<ngclient::FTFont>::New(renderer, instance.guiFontSet, 16.0F, 20.0F).Cast<IFont>();
 			smallFont = Handle<ngclient::FTFont>::New(renderer, instance.sysFontSet, 8.0F, 10.0F).Cast<IFont>();
 		}

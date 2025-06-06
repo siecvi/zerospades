@@ -252,10 +252,12 @@ namespace spades {
 
 		void Client::DrawPlayingTime() {
 			float sw = renderer->ScreenWidth();
-			float sh = renderer->ScreenHeight();
 
-			float spacing = cg_statsSmallFont ? 40.0F : 50.0F;
-			float y = ((int)cg_stats >= 2) ? spacing : 30.0F;
+			float y = 8.0F;
+
+			const int statsMode = cg_stats;
+			if (statsMode == 2 || (statsMode >= 3 && scoreboardVisible))
+				y += cg_statsSmallFont ? 10.0F : 20.0F;
 
 			int now = (int)time;
 			int hrs = now / 3600;
@@ -270,18 +272,15 @@ namespace spades {
 
 			IFont& font = fontManager->GetHeadingFont();
 			Vector2 size = font.Measure(buf);
-			Vector2 pos = MakeVector2((sw - size.x) * 0.5F, y - size.y);
+			Vector2 pos = MakeVector2((sw - size.x) * 0.5F, y);
 			font.Draw(buf, pos + MakeVector2(1, 1), 1.0F, MakeVector4(0, 0, 0, 0.5));
 			font.Draw(buf, pos, 1.0F, MakeVector4(1, 1, 1, 1));
 		}
 
 		void Client::DrawAlivePlayersCount() {
-			int playerCountStyle = cg_hudPlayerCount;
-			if (playerCountStyle >= 3)
+			const int playerCountMode = cg_hudPlayerCount;
+			if (playerCountMode >= 3)
 				return; // draw on scoreboard
-
-			int statsStyle = cg_stats;
-			bool isSmallFont = cg_statsSmallFont;
 
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
@@ -289,17 +288,18 @@ namespace spades {
 			float teamBarW = 30.0F;
 			float teamBarH = 40.0F;
 
-			float spacing = isSmallFont ? 40.0F : 50.0F;
-
 			float x = sw * 0.5F;
 			float y = 8.0F;
-			if ((playerCountStyle >= 2 && statsStyle < 2 && statsStyle > 0) ||
-			    (playerCountStyle < 2 && statsStyle >= 2 && statsStyle < 3))
-				y = isSmallFont ? 20.0F : 30.0F;
-			if (playerCountStyle < 2 && scoreboardVisible)
-				y = (statsStyle >= 2) ? spacing : 30.0F;
 
-			float teamBarY = (playerCountStyle < 2) ? y : ((sh - y) - teamBarH);
+			if (playerCountMode < 2 && scoreboardVisible)
+				y += 30.0F;
+
+			const int statsMode = cg_stats;
+			if ((playerCountMode >= 2 && statsMode == 1) ||
+			    (playerCountMode < 2 && (statsMode == 2 || (statsMode >= 3 && scoreboardVisible))))
+				y += cg_statsSmallFont ? 10.0F : 20.0F;
+
+			float teamBarY = (playerCountMode < 2) ? y : ((sh - y) - teamBarH);
 
 			Handle<IImage> img;
 			IFont& font = fontManager->GetHeadingFont();
@@ -313,26 +313,29 @@ namespace spades {
 			Vector4 brightCol2 = col2 + (white - col2) * 0.5F;
 			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.5);
 
-			// draw shadow
-			img = renderer->RegisterImage("Gfx/White.tga");
-			for (float y2 = 0.0F; y2 < teamBarH; y2 += 1.0F) {
-				float per = 1.0F - (y2 / teamBarH);
-				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.5F * per));
-				renderer->DrawImage(img, AABB2(x - teamBarW, teamBarY + y2, teamBarW * 2, 1.0F));
-			}
-
 			// draw team bar
+			img = renderer->RegisterImage("Gfx/White.tga");
+			size.y = 2.0F;
 			renderer->SetColorAlphaPremultiplied(brightCol1);
-			renderer->DrawImage(img, AABB2(x - teamBarW, teamBarY, teamBarW, 2));
+			renderer->DrawImage(img, AABB2(x - teamBarW, teamBarY, teamBarW, size.y));
 			renderer->SetColorAlphaPremultiplied(brightCol2);
-			renderer->DrawImage(img, AABB2(x, teamBarY, teamBarW, 2));
+			renderer->DrawImage(img, AABB2(x, teamBarY, teamBarW, size.y));
+
+			// draw shadow
+			size.x = teamBarW * 2;
+			size.y = 12.0F;
+			renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.4F));
+			renderer->DrawImage(img,
+				AABB2(x - teamBarW, teamBarY + size.y, size.x, -size.y + 2.0F));
+			img = renderer->RegisterImage("Gfx/Scoreboard/TopShadow.tga");
+			size.y = 32.0F;
+			renderer->DrawImage(img,
+				AABB2(x - teamBarW, teamBarY + size.y + 12.0F, size.x, -size.y));
 
 			// draw player icon
 			img = renderer->RegisterImage("Gfx/User.png");
-
 			float iconSize = 12.0F;
 			float iconSpacing = 5.0F;
-
 			pos.x = x - (teamBarW * 0.5F) - (iconSize * 0.5F);
 			pos.y = (teamBarY - 2.0F) + iconSize - iconSpacing;
 			renderer->SetColorAlphaPremultiplied(shadowColor);
@@ -643,9 +646,16 @@ namespace spades {
 			float safeZoneX = Clamp((float)cg_hudSafezoneX, safeZoneXMin, 1.0F);
 			float safeZoneY = Clamp((float)cg_hudSafezoneY, 0.85F, 1.0F);
 
+			float x = (sw - 16.0F) * safeZoneX;
+			float y = (sh - 16.0F) * safeZoneY;
+
+			const int statsMode = cg_stats;
+			if (statsMode == 1)
+				y -= cg_statsSmallFont ? 2.0F : 12.0F;
+
 			// rounded for better pixel alignment
-			float x = floorf((sw - 16.0F) * safeZoneX);
-			float y = floorf((sh - 16.0F) * safeZoneY);
+			x = floorf(x);
+			y = floorf(y);
 
 			Player& p = world->GetLocalPlayer().value();
 			Weapon& weapon = p.GetWeapon();
@@ -833,7 +843,8 @@ namespace spades {
 				auto& ctf = static_cast<CTFGameMode&>(mode.value());
 				if (ctf.PlayerHasIntel(p)) {
 					Handle<IImage> img = renderer->RegisterImage("Gfx/Intel.png");
-					Vector2 pos = MakeVector2((sw * 0.5F) - 90.0F, y - 45.0F);
+					Vector2 size = {img->GetWidth(), img->GetHeight()};
+					Vector2 pos = MakeVector2(((sw - size.x) * 0.5F) - 64.0F, y - size.y);
 
 					// Strobe
 					float pulse = fabsf(sinf(time * 2.0F));
@@ -904,7 +915,7 @@ namespace spades {
 						renderer->DrawImage(ammoIcon, iconPos);
 					}
 
-					pos.y -= iconSize.y;
+					pos.y -= iconSize.y + 5.0F;
 				}
 
 				font.Draw(stockStr, pos + MakeVector2(1, 1), 1.0F, shadowColor);
@@ -942,7 +953,7 @@ namespace spades {
 					float barW = 45.0F;
 					float barH = 4.0F;
 					float barX = sw - x;
-					float barY = y - (barH + 2.0F);
+					float barY = y - barH;
 					float barPrg = std::max(1.0F, floorf(barW * hpFrac));
 
 					Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
@@ -973,6 +984,7 @@ namespace spades {
 					renderer->SetColorAlphaPremultiplied(color + (white - color) * hurtTime);
 					renderer->DrawImage(img, AABB2(barX, barY, barPrg, barH));
 
+					pos.y -= barH + 5.0F;
 				}
 
 				font.Draw(healthStr, pos + MakeVector2(1, 1), 1.0F, shadowColor);
@@ -1016,10 +1028,18 @@ namespace spades {
 				wndSize = zoomedSize;
 			}
 
-			AABB2 outRect((sw - wndSize.x) - 8.0F, (sh - wndSize.y) - 80.0F, wndSize.x, wndSize.y);
+			float winX = (sw - 8.0F) - wndSize.x;
+			float winY = (sh - 8.0F) - wndSize.y - 64.0F;
+
+			const int statsMode = cg_stats;
+			if (statsMode == 1)
+				winY -= cg_statsSmallFont ? 2.0F : 12.0F;
+
+			AABB2 inRect(128, 512 - 128, 256, 256 - 512); // flip Y axis
+			AABB2 outRect(winX, winY, wndSize.x, wndSize.y);
 			if (debugHitTestZoom) {
-				outRect.min = MakeVector2((sw - zoomedSize.x) * 0.5F, (sh - zoomedSize.y) * 0.5F);
-				outRect.max = MakeVector2((sw + zoomedSize.x) * 0.5F, (sh + zoomedSize.y) * 0.5F);
+				outRect.min = MakeVector2(sw - zoomedSize.x, sh - zoomedSize.y) * 0.5F;
+				outRect.max = MakeVector2(sw + zoomedSize.x, sh + zoomedSize.y) * 0.5F;
 			}
 
 			const float fadeOutStart = cg_dbgHitTestFadeTime;
@@ -1034,7 +1054,7 @@ namespace spades {
 				return;
 
 			renderer->SetColorAlphaPremultiplied(MakeVector4(alpha, alpha, alpha, alpha));
-			renderer->DrawImage(debugHitTestImage, outRect, AABB2(128, 512 - 128, 256, 256 - 512)); // flip Y axis
+			renderer->DrawImage(debugHitTestImage, outRect, inRect); 
 
 			renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, alpha));
 			renderer->DrawOutlinedRect(outRect.min.x - 1, outRect.min.y - 1, outRect.max.x + 1, outRect.max.y + 1);
@@ -1058,7 +1078,7 @@ namespace spades {
 			Vector4 color = MakeVector4(1, 1, 1, 1);
 			Vector4 shadow = MakeVector4(0, 0, 0, 0.7F);
 
-			float lh = cg_smallFont ? 12.0F : 20.0F;
+			float lh = cg_smallFont ? 14.0F : 20.0F;
 			auto addLine = [&](const std::string& text) {
 				Vector2 pos = MakeVector2(x, y);
 				y += lh;
@@ -1198,7 +1218,7 @@ namespace spades {
 			Vector4 color = MakeVector4(1, 1, 1, 1);
 			Vector4 shadow = MakeVector4(0, 0, 0, 0.7F);
 
-			float lh = cg_smallFont ? 12.0F : 20.0F;
+			float lh = cg_smallFont ? 14.0F : 20.0F;
 			auto addLine = [&](const std::string& text) {
 				Vector2 pos = MakeVector2(x, y);
 				pos.x -= font.Measure(text).x;
@@ -1254,6 +1274,8 @@ namespace spades {
 		void Client::DrawBlockPaletteHUD(float winY) {
 			SPADES_MARK_FUNCTION();
 
+			float sw = renderer->ScreenWidth();
+
 			IFont& font = cg_smallFont
 				? fontManager->GetSmallFont()
 				: fontManager->GetGuiFont();
@@ -1271,16 +1293,16 @@ namespace spades {
 				IntVector3 color = world->GetLocalPlayer()->GetBlockColor();
 
 				char buf[8];
-				sprintf(buf, "#%02X%02X%02X", color.x, color.y, color.z);
-				lines.push_back(_Tr("Client", "({0}) HEX", std::string(buf)));
-				lines.push_back(_Tr("Client", "({0}, {1}, {2}) RGB", color.x, color.y, color.z));
+				sprintf(buf, "%02X%02X%02X", color.x, color.y, color.z);
+				lines.push_back(_Tr("Client", "#{0} / RGB({1}, {2}, {3})",
+					std::string(buf), color.x, color.y, color.z));
 			}
 
-			float lh = cg_smallFont ? 12.0F : 20.0F;
+			float lh = cg_smallFont ? 14.0F : 20.0F;
 			float totalHeight = (int)lines.size() * lh;
 			
-			float x = renderer->ScreenWidth() - 8.0F;
-			float y = winY - totalHeight - 8.0F;
+			float x = sw - 8.0F;
+			float y = (winY - 8.0F) - totalHeight;
 
 			Vector4 color = MakeVector4(1, 1, 1, 1);
 			Vector4 shadow = MakeVector4(0, 0, 0, 0.7F);
@@ -1546,8 +1568,8 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			// only draw stats when scoreboard is visible
-			int statsStyle = cg_stats;
-			if (statsStyle >= 3 && !scoreboardVisible)
+			const int statsMode = cg_stats;
+			if (statsMode >= 3 && !scoreboardVisible)
 				return;
 
 			float sw = renderer->ScreenWidth();
@@ -1603,7 +1625,7 @@ namespace spades {
 				: fontManager->GetGuiFont();
 			Vector2 size = font.Measure(str) + (margin * 2.0F);
 			Vector2 pos = MakeVector2(sw, sh) - size;
-			pos *= MakeVector2(0.5F, (statsStyle < 2) ? 1.0F : 0.0F);
+			pos *= MakeVector2(0.5F, (statsMode < 2) ? 1.0F : 0.0F);
 
 			Vector4 color = MakeVector4(1, 1, 1, 1);
 			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.4F);

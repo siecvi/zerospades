@@ -51,8 +51,7 @@ namespace spades {
 		static const Vector4 spectatorTextColor = {220.0F / 255, 220.0F / 255, 0, 1}; // Goldish yellow
 		static const int spectatorTeamId = 255; // Spectators have a team id of 255
 
-		ScoreboardView::ScoreboardView(Client* client)
-		    : client(client), renderer(client->GetRenderer()) {
+		ScoreboardView::ScoreboardView(Client* c) : client(c), renderer(c->GetRenderer()) {
 			SPADES_MARK_FUNCTION();
 			world = nullptr;
 			tc = nullptr;
@@ -66,8 +65,8 @@ namespace spades {
 			  }) != spectatorString.end();
 
 			spectatorFont = hasSpecialChar
-				? client->fontManager->GetMediumFont()
-				: client->fontManager->GetSquareDesignFont();
+				? c->fontManager->GetMediumFont()
+				: c->fontManager->GetSquareDesignFont();
 
 			intelIcon = renderer.RegisterImage("Gfx/Map/Intel.png");
 		}
@@ -181,7 +180,7 @@ namespace spades {
 			float playersBottom = playersTop + playersHeight;
 
 			bool areSpectatorsPresent = numSpectators > 0;
-			float spectatorsHeight = areSpectatorsPresent ? 75.0F : 0.0F;
+			float spectatorsHeight = areSpectatorsPresent ? 64.0F : 0.0F;
 			float spectatorsBottom = playersBottom + spectatorsHeight;
 
 			// draw shadow
@@ -418,16 +417,13 @@ namespace spades {
 
 			strcpy(buf, _TrN("Client", "Spectator{1}", "Spectators{1}", numSpectators, "").c_str());
 
-			auto isSquareFont = spectatorFont == &client->fontManager->GetSquareDesignFont();
 			auto sizeSpecString = spectatorFont->Measure(buf);
-
-			Vector2 pos = MakeVector2(centerX - sizeSpecString.x / 2, top + (isSquareFont ? 0 : 10));
+			Vector2 pos = MakeVector2(centerX, top + 10.0F) - sizeSpecString * 0.5F;
 			spectatorFont->Draw(buf, pos + MakeVector2(1, 2), 1.0F, MakeVector4(0, 0, 0, 0.5));
 			spectatorFont->Draw(buf, pos, 1.0F, spectatorTextColor);
 
-			float yOffset = top + sizeSpecString.y;
-			float halfTotalX = totalPixelWidth / 2;
-			float currentXoffset = centerX - halfTotalX;
+			float currentXoffset = centerX - totalPixelWidth * 0.5F;
+			float yOffset = pos.y + sizeSpecString.y + 10.0F;
 
 			for (const auto& ent : entries) {
 				sprintf(buf, "#%d", ent.id);

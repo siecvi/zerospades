@@ -38,34 +38,38 @@ DEFINE_SPADES_SETTING(cg_killfeedFadeTime, "20");
 
 SPADES_SETTING(cg_smallFont);
 
+SPADES_SETTING(cg_stats);
+SPADES_SETTING(cg_statsSmallFont);
+
 namespace spades {
 	namespace client {
 
-		ChatWindow::ChatWindow(Client* clin, IRenderer* r, IFont* fnt, bool killfeed)
-		    : client(clin), renderer(r), font(fnt), killfeed(killfeed) {
+		ChatWindow::ChatWindow(Client* c, IFont* fnt, bool killfeed)
+		    : client(c), renderer(c->GetRenderer()), font(fnt), killfeed(killfeed) {
 			firstY = 0.0F;
-			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/a-Rifle.png").GetPointerOrNull());
-			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/b-SMG.png").GetPointerOrNull());
-			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/c-Shotgun.png").GetPointerOrNull());
-			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/d-Headshot.png").GetPointerOrNull());
-			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/e-Melee.png").GetPointerOrNull());
-			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/f-Grenade.png").GetPointerOrNull());
-			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/g-Falling.png").GetPointerOrNull());
-			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/h-Teamchange.png").GetPointerOrNull());
-			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/i-Classchange.png").GetPointerOrNull());
-			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/j-Airborne.png").GetPointerOrNull());
-			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/k-Noscope.png").GetPointerOrNull());
-			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/l-Domination.png").GetPointerOrNull());
-			killImages.push_back(renderer->RegisterImage("Gfx/Killfeed/m-Revenge.png").GetPointerOrNull());
+			killImages.push_back(renderer.RegisterImage("Gfx/Killfeed/a-Rifle.png").GetPointerOrNull());
+			killImages.push_back(renderer.RegisterImage("Gfx/Killfeed/b-SMG.png").GetPointerOrNull());
+			killImages.push_back(renderer.RegisterImage("Gfx/Killfeed/c-Shotgun.png").GetPointerOrNull());
+			killImages.push_back(renderer.RegisterImage("Gfx/Killfeed/d-Headshot.png").GetPointerOrNull());
+			killImages.push_back(renderer.RegisterImage("Gfx/Killfeed/e-Melee.png").GetPointerOrNull());
+			killImages.push_back(renderer.RegisterImage("Gfx/Killfeed/f-Grenade.png").GetPointerOrNull());
+			killImages.push_back(renderer.RegisterImage("Gfx/Killfeed/g-Falling.png").GetPointerOrNull());
+			killImages.push_back(renderer.RegisterImage("Gfx/Killfeed/h-Teamchange.png").GetPointerOrNull());
+			killImages.push_back(renderer.RegisterImage("Gfx/Killfeed/i-Classchange.png").GetPointerOrNull());
+			killImages.push_back(renderer.RegisterImage("Gfx/Killfeed/j-Airborne.png").GetPointerOrNull());
+			killImages.push_back(renderer.RegisterImage("Gfx/Killfeed/k-Noscope.png").GetPointerOrNull());
+			killImages.push_back(renderer.RegisterImage("Gfx/Killfeed/l-Domination.png").GetPointerOrNull());
+			killImages.push_back(renderer.RegisterImage("Gfx/Killfeed/m-Revenge.png").GetPointerOrNull());
 		}
+
 		ChatWindow::~ChatWindow() {}
 
-		float ChatWindow::GetWidth() { return renderer->ScreenWidth() * 0.5F; }
+		float ChatWindow::GetWidth() { return renderer.ScreenWidth() * 0.5F; }
 
 		float ChatWindow::GetNormalHeight() {
 			float prop = killfeed ? (float)cg_killfeedHeight : (float)cg_chatHeight;
 
-			return renderer->ScreenHeight() * prop * 0.01F;
+			return renderer.ScreenHeight() * prop * 0.01F;
 		}
 
 		float ChatWindow::GetBufferHeight() {
@@ -75,13 +79,11 @@ namespace spades {
 				// Take up the remaining height
 				float prop = 100.0F - (float)cg_killfeedHeight;
 
-				return renderer->ScreenHeight() * prop * 0.01F - 100.0F;
+				return renderer.ScreenHeight() * prop * 0.01F - 100.0F;
 			}
 		}
 
-		float ChatWindow::GetLineHeight() { return cg_smallFont ? 12.0F : 20.0F; }
-
-		static bool isWordChar(char c) { return isalnum(c) || c == '\''; }
+		float ChatWindow::GetLineHeight() { return cg_smallFont ? 14.0F : 20.0F; }
 
 		std::string ChatWindow::KillImage(int kt, int weapon) {
 			std::string tmp = "xx";
@@ -212,12 +214,21 @@ namespace spades {
 		void ChatWindow::Draw() {
 			SPADES_MARK_FUNCTION();
 
+			float sw = renderer.ScreenWidth();
+			float sh = renderer.ScreenHeight();
+
 			float winW = GetWidth();
 			float winH = expanded ? GetBufferHeight() : GetNormalHeight();
 			float winX = 8.0F;
-			float winY = killfeed ? 8.0F : renderer->ScreenHeight() - winH - 64.0F;
+			float winY = killfeed ? 8.0F : (sh - 64.0F) - winH;
 			float lh = GetLineHeight();
 			float y = firstY;
+
+			if (killfeed) {
+				const int statsMode = cg_stats;
+				if (statsMode == 2 || (statsMode >= 3 && client->IsScoreboardVisible()))
+					winY += cg_statsSmallFont ? 10.0F : 20.0F;
+			}
 
 			Vector4 shadowColor = { 0, 0, 0, 0.8F };
 			Vector4 brightShadowColor = { 1, 1, 1, 0.8F };
@@ -226,16 +237,19 @@ namespace spades {
 			// note: UTF-8's longest character is 6 bytes
 
 			// Draw a box behind text when expanded
-			if (expanded) {
-				float x1 = winX - 4.0F;
-				float y1 = winY + y;
-				float x2 = winW + 16.0F;
-				float y2 = winH + 16.0F - y;
+			if (expanded && !killfeed) {
+				float bgX = 8.0F;
+				float bgY = winY;
+				float bgW = std::min(sw - bgX, 640.0F);
+				float bgH = winH + bgY;
 
-				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.8F));
-				renderer->DrawFilledRect(x1 + 1, y1 + 1, x2 + x1 - 1, y2 + y1 - 1);
-				renderer->SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) * 0.07F);
-				renderer->DrawOutlinedRect(x1, y1, x2 + x1, y2 + y1);
+				renderer.SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.8F));
+				renderer.DrawFilledRect(bgX + 1, bgY + 1, bgW - 1, bgH - 1);
+				renderer.SetColorAlphaPremultiplied(MakeVector4(1, 1, 1, 1) * 0.07F);
+				renderer.DrawOutlinedRect(bgX, bgY, bgW, bgH);
+
+				winX += 8.0F;
+				winY += 8.0F;
 			}
 
 			std::list<ChatEntry>::iterator it;
@@ -271,6 +285,7 @@ namespace spades {
 
 				for (size_t i = 0; i < msg.size(); i++) {
 					if ((msg[i] == '\r' || msg[i] == '\n') && !killfeed) {
+						// new line
 						tx = 0.0F;
 						ty += lh;
 					} else if (msg[i] >= 1 && msg[i] <= MsgColorMax) {
@@ -281,8 +296,8 @@ namespace spades {
 								colorP.x *= colorP.w;
 								colorP.y *= colorP.w;
 								colorP.z *= colorP.w;
-								renderer->SetColorAlphaPremultiplied(colorP);
-								renderer->DrawImage(img, MakeVector2(tx + curPosX + 1, ty + winY).Floor());
+								renderer.SetColorAlphaPremultiplied(colorP);
+								renderer.DrawImage(img, MakeVector2(tx + curPosX + 1, ty + winY).Floor());
 								tx += (int)roundf(img->GetWidth());
 								++i;
 							}
