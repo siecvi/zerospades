@@ -30,8 +30,6 @@
 #include <vector>
 
 #define M_PI_F ((float)(M_PI))
-#define RAD2DEG(x) ((float)(x) * (float)(180.0F / M_PI_F))
-#define DEG2RAD(x) ((float)(x) * (float)(M_PI_F / 180.0F))
 
 namespace spades {
 
@@ -910,6 +908,9 @@ namespace spades {
 	float Mix(float a, float b, float frac);
 	Vector2 Mix(const Vector2& a, const Vector2& b, float frac);
 	Vector3 Mix(const Vector3& a, const Vector3& b, float frac);
+
+	inline float DEG2RAD(float deg) { return deg * (M_PI_F / 180.0F); }
+	inline float RAD2DEG(float rad) { return rad * (180.0F / M_PI_F); }
 
 	template <class T> 
 	inline T Clamp(const T& val, const T& minVal, const T& maxVal) {

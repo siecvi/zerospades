@@ -103,6 +103,10 @@ namespace spades {
 					manager->CheckError(r);
 					r = eng->RegisterGlobalProperty("const double Pi", &Pi);
 					manager->CheckError(r);
+					r = eng->RegisterGlobalFunction("float rad(float)", asFUNCTION(DEG2RAD), asCALL_CDECL);
+					manager->CheckError(r);
+					r = eng->RegisterGlobalFunction("float deg(float)", asFUNCTION(RAD2DEG), asCALL_CDECL);
+					manager->CheckError(r);
 
 					struct IntVector3Funcs {
 						static void Construct1(IntVector3* self) { new (self) IntVector3(); }
