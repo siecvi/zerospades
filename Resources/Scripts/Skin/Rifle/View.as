@@ -104,28 +104,28 @@ namespace spades {
 
 			float sp = 1.0F - AimDownSightStateSmooth;
 
-			mat *= CreateEulerAnglesMatrix(Vector3(0, 0.6, 0) * reloadRollSpring.position * sp);
-			mat *= CreateEulerAnglesMatrix(Vector3(-0.25, 0, 0) * reloadPitchSpring.position * sp);
-			mat *= CreateTranslateMatrix(Vector3(0, -1, 0) * reloadOffsetSpring.position * sp);
-			mat *= CreateTranslateMatrix(Vector3(0, 0, -globalScale) * reloadPitchSpring.position * sp);
+			mat *= CreateEulerAnglesMatrix(Vector3(0.0F, 0.6, 0.0F) * reloadRollSpring.position * sp);
+			mat *= CreateEulerAnglesMatrix(Vector3(-0.25F, 0.0F, 0.0F) * reloadPitchSpring.position * sp);
+			mat *= CreateTranslateMatrix(Vector3(0.0F, -1.0F, 0.0F) * reloadOffsetSpring.position * sp);
+			mat *= CreateTranslateMatrix(Vector3(0.0F, 0.0F, -globalScale) * reloadPitchSpring.position * sp);
 
 			return mat;
 		}
 
 		Vector3 GetMagazineOffset() {
-			Vector3 offsetPos = Vector3(0, -6, 8);
+			Vector3 magazineDetachedOffset = Vector3(0.0F, 0.0F, 15.0F);
 
 			if (reloadProgress < 0.2) {
 				return magazineAttachment;
 			} else if (reloadProgress < 0.25) {
 				magazineRemoved.Activate();
 				float per = Min(1.0, (reloadProgress-0.2) / (0.25-0.2));
-				return Mix(magazineAttachment, offsetPos, SmoothStep(per));
+				return Mix(magazineAttachment, magazineDetachedOffset, SmoothStep(per));
 			} else if (reloadProgress < 0.4) {
-				return offsetPos;
+				return magazineDetachedOffset;
 			} else if (reloadProgress < 0.5) {
 				float per = Min(1.0, (reloadProgress-0.4) / (0.5-0.4));
-				return Mix(offsetPos, magazineAttachment, SmoothStep(per));
+				return Mix(magazineDetachedOffset, magazineAttachment, SmoothStep(per));
 			} else {
 				magazineInserted.Activate();
 				return magazineAttachment;
@@ -133,8 +133,8 @@ namespace spades {
 		}
 
 		Vector3 GetLeftHandOffset() {
-			Vector3 leftHandOffset = Vector3(1, 6, 1);
-			Vector3 magazineOffset = GetMagazineOffset() + Vector3(0, 0, 4);
+			Vector3 leftHandOffset = Vector3(1.0F, 6.0F, 1.0F);
+			Vector3 magazineOffset = GetMagazineOffset() + Vector3(0.0F, 0.0F, 4.0F);
 
 			if (reloadProgress < 0.1) {
 				float per = Min(1.0, reloadProgress / 0.1);
@@ -151,14 +151,14 @@ namespace spades {
 		}
 
 		Vector3 GetRightHandOffset() {
-			Vector3 rightHandOffset = Vector3(0, -8, 2);
-			Vector3 chargingHandleOffset = Vector3(-3, -4, -5);
+			Vector3 rightHandOffset = Vector3(0.0F, -8.0F, 2.0F);
+			Vector3 chargingHandleOffset = Vector3(-3.0F, -4.0F, -5.0F);
 
 			// sprint animation
-			rightHandOffset -= Vector3(0, 3, 0.5) * sprintSpring.position;
-			chargingHandleOffset -= Vector3(0, 2, -3) * sprintSpring.position;
+			rightHandOffset -= Vector3(0.0F, 3.0F, 0.5F) * sprintSpring.position;
+			chargingHandleOffset -= Vector3(0.0F, 2.0F, -3.0F) * sprintSpring.position;
 
-			Vector3 handlePullingOffset = chargingHandleOffset + Vector3(-1, -4, 0);
+			Vector3 handlePullingOffset = chargingHandleOffset + Vector3(-1.0F, -4.0F, 0.0F);
 
 			if (reloadProgress < 0.7) {
 				return rightHandOffset;
