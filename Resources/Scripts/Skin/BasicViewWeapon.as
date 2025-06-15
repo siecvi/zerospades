@@ -380,7 +380,9 @@ namespace spades {
 					Vector2 imgSize = Vector2(scopeImage.Width, scopeImage.Height);
 					imgSize *= Max(1.0F, sw / 800.0F);
 					imgSize *= Min(1.0F, sh / 600.0F);
-					imgSize *= Max(0.25F * (1.0F - readyState) + 1.0F, 1.0F);
+
+					if (cg_scopeDynamic.BoolValue)
+						imgSize *= Max(0.25F * (1.0F - readyState) + 1.0F, 1.0F);
 
 					Vector2 imgPos = scrCenter - (imgSize * 0.5F);
 
