@@ -319,13 +319,15 @@ namespace spades {
 
 			Vector3 trans(0.0F, 0.0F, 0.0F);
 			trans += Vector3(-0.13F * sp, 0.5F, GetZPos());
-			trans += swing * GetMotionGain();
 
 			// manual adjustment
 			trans.x += cg_viewWeaponX.FloatValue * sp;
 			trans.y += cg_viewWeaponY.FloatValue * sp;
 			trans.z += cg_viewWeaponZ.FloatValue * sp;
 			trans.x *= weapSide;
+
+			// add weapon sway
+			trans += swing * GetMotionGain();
 
 			mat = CreateTranslateMatrix(trans) * mat;
 
