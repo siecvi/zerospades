@@ -479,6 +479,7 @@ namespace spades {
 			renderer->RegisterModel("Models/Player/Torso.kv6");
 			renderer->RegisterModel("Models/Player/TorsoCrouch.kv6");
 			renderer->RegisterModel("Models/Player/UpperArm.kv6");
+			renderer->RegisterModel("Models/Weapons/Spade/Pickaxe.kv6");
 			renderer->RegisterModel("Models/Weapons/Spade/Spade.kv6");
 			renderer->RegisterModel("Models/Weapons/Block/Block.kv6");
 			renderer->RegisterModel("Models/Weapons/Grenade/Grenade.kv6");
