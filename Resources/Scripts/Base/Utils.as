@@ -14,170 +14,176 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
 namespace spades {
-    // AngelScript doesn't seem to support user-defined template functions...
-    uint Min(uint a, uint b) { return (a < b) ? a : b; }
-    uint Max(uint a, uint b) { return (a > b) ? a : b; }
-    int Min(int a, int b) { return (a < b) ? a : b; }
-    int Max(int a, int b) { return (a > b) ? a : b; }
-    float Min(float a, float b) { return (a < b) ? a : b; }
-    float Max(float a, float b) { return (a > b) ? a : b; }
-    uint Clamp(uint v, uint lo, uint hi) { return Min(Max(v, lo), hi); }
-    int Clamp(int v, int lo, int hi) { return Min(Max(v, lo), hi); }
-    float Clamp(float v, float lo, float hi) { return Min(Max(v, lo), hi); }
+	// AngelScript doesn't seem to support user-defined template functions...
+	uint Min(uint a, uint b) { return (a < b) ? a : b; }
+	uint Max(uint a, uint b) { return (a > b) ? a : b; }
+	int Min(int a, int b) { return (a < b) ? a : b; }
+	int Max(int a, int b) { return (a > b) ? a : b; }
+	float Min(float a, float b) { return (a < b) ? a : b; }
+	float Max(float a, float b) { return (a > b) ? a : b; }
+	uint Clamp(uint v, uint lo, uint hi) { return Min(Max(v, lo), hi); }
+	int Clamp(int v, int lo, int hi) { return Min(Max(v, lo), hi); }
+	float Clamp(float v, float lo, float hi) { return Min(Max(v, lo), hi); }
 
-    class TargetParam {
-        bool drawLines;
-        bool useTStyle;
-        Vector4 lineColor;
-        float lineGap;
-        Vector2 lineLength;
-        float lineThickness;
-        bool drawOutline;
-        bool useRoundedStyle;
-        Vector4 outlineColor;
-        float outlineThickness;
-        bool drawDot;
-        Vector4 dotColor;
-        float dotThickness;
-    }
+	class TargetParam {
+		bool drawLines;
+		bool useTStyle;
+		Vector4 lineColor;
+		float lineGap;
+		Vector2 lineLength;
+		float lineThickness;
+		bool drawOutline;
+		bool useRoundedStyle;
+		Vector4 outlineColor;
+		float outlineThickness;
+		bool drawDot;
+		Vector4 dotColor;
+		float dotThickness;
+	}
 
-    void DrawTargetRect(Renderer@ r, int x, int y, int w, int h, TargetParam param) {
-        if (param.drawOutline) {
-            r.ColorNP = param.outlineColor;
-            int thickness = int(param.outlineThickness);
-            if (param.useRoundedStyle) {
-                r.DrawFilledRect(x, y-thickness, w, y);
-                r.DrawFilledRect(x, h, w, h+thickness);
-            } else {
-                r.DrawFilledRect(x-thickness, y-thickness, w+thickness, y);
-                r.DrawFilledRect(x-thickness, h, w+thickness, h+thickness);
-            }
-            r.DrawFilledRect(x-thickness, y, x, h);
-            r.DrawFilledRect(w, y, w+thickness, h);
-        }
+	void DrawTargetOutlineRect(Renderer@ r, int x, int y, int w, int h, TargetParam param) {
+		int thickness = int(param.outlineThickness);
+		r.ColorNP = param.outlineColor;
+		if (param.useRoundedStyle) {
+			r.DrawFilledRect(x, y-thickness, w, y);
+			r.DrawFilledRect(x, h, w, h+thickness);
+		} else {
+			r.DrawFilledRect(x-thickness, y-thickness, w+thickness, y);
+			r.DrawFilledRect(x-thickness, h, w+thickness, h+thickness);
+		}
+		r.DrawFilledRect(x-thickness, y, x, h);
+		r.DrawFilledRect(w, y, w+thickness, h);
+	}
 
-        r.ColorNP = param.lineColor;
-        r.DrawFilledRect(x, y, w, h);
-    }
+	void DrawTargetRect(Renderer@ r, int x, int y, int w, int h, TargetParam param) {
+		if (param.drawOutline)
+			DrawTargetOutlineRect(r, x, y, w, h, param);
+		r.ColorNP = param.lineColor;
+		r.DrawFilledRect(x, y, w, h);
+	}
 
-    void DrawTarget(Renderer@ r, Vector2 pos, TargetParam param) {
-        int thickness = int(param.lineThickness);
-        int x = int(pos.x) - thickness / 2;
-        int y = int(pos.y) - thickness / 2;
-        int w = x + thickness;
-        int h = y + thickness;
+	void DrawTarget(Renderer@ r, Vector2 pos, TargetParam param) {
+		int thickness = int(param.lineThickness);
+		int x = int(pos.x) - thickness / 2;
+		int y = int(pos.y) - thickness / 2;
+		int w = x + thickness;
+		int h = y + thickness;
 
-        // draw target lines
-        if (param.drawLines) {
-            int lineGap = int(param.lineGap);
+		// draw target lines
+		if (param.drawLines) {
+			int lineGap = int(param.lineGap);
 
-            // horizontal lines
-            int lineLengthHorizontal = int(param.lineLength.x);
-            int innerLeft = x - lineGap;
-            int innerRight = w + lineGap;
-            int outerLeft = innerLeft - lineLengthHorizontal;
-            int outerRight = innerRight + lineLengthHorizontal;
-            DrawTargetRect(r, outerLeft, y, innerLeft, h, param); // left
-            DrawTargetRect(r, innerRight, y, outerRight, h, param); // right
+			// horizontal lines
+			int lineLengthHorizontal = int(param.lineLength.x);
+			int innerLeft = x - lineGap;
+			int innerRight = w + lineGap;
+			int outerLeft = innerLeft - lineLengthHorizontal;
+			int outerRight = innerRight + lineLengthHorizontal;
+			DrawTargetRect(r, outerLeft, y, innerLeft, h, param); // left
+			DrawTargetRect(r, innerRight, y, outerRight, h, param); // right
 
-            // vertical lines
-            int lineLengthVertical = int(param.lineLength.y);
-            int innerTop = y - lineGap;
-            int innerBottom = h + lineGap;
-            int outerTop = innerTop - lineLengthVertical;
-            int outerBottom = innerBottom + lineLengthVertical;
-            if (not param.useTStyle)
-                DrawTargetRect(r, x, outerTop, w, innerTop, param); // top
-            DrawTargetRect(r, x, innerBottom, w, outerBottom, param); // bottom
-        }
+			// vertical lines
+			int lineLengthVertical = int(param.lineLength.y);
+			int innerTop = y - lineGap;
+			int innerBottom = h + lineGap;
+			int outerTop = innerTop - lineLengthVertical;
+			int outerBottom = innerBottom + lineLengthVertical;
+			if (not param.useTStyle)
+				DrawTargetRect(r, x, outerTop, w, innerTop, param); // top
+			DrawTargetRect(r, x, innerBottom, w, outerBottom, param); // bottom
+		}
 
-        // draw center dot
-        if (param.drawDot) {
-            thickness = int(param.dotThickness);
-            x = int(pos.x) - thickness / 2;
-            y = int(pos.y) - thickness / 2;
-            w = x + thickness;
-            h = y + thickness;
-            DrawTargetRect(r, x, y, w, h, param);
-        }
-    }
+		// draw center dot
+		if (param.drawDot) {
+			thickness = int(param.dotThickness);
+			x = int(pos.x) - thickness / 2;
+			y = int(pos.y) - thickness / 2;
+			w = x + thickness;
+			h = y + thickness;
 
-    /** Returns the byte index for a certain character index. */
-    int GetByteIndexForString(string s, int charIndex, int start = 0) {
-        int len = s.length;
+			if (param.drawOutline)
+				DrawTargetOutlineRect(r, x, y, w, h, param);
+			r.ColorNP = param.dotColor;
+			r.DrawFilledRect(x, y, w, h);
+		}
+	}
 
-        while (start < len and charIndex > 0) {
-            int c = s[start];
+	/** Returns the byte index for a certain character index. */
+	int GetByteIndexForString(string s, int charIndex, int start = 0) {
+		int len = s.length;
 
-            if ((c & 0x80) == 0) {
-                charIndex--;
-                start += 1;
-            } else if ((c & 0xE0) == 0xC0) {
-                charIndex--;
-                start += 2;
-            } else if ((c & 0xF0) == 0xE0) {
-                charIndex--;
-                start += 3;
-            } else if ((c & 0xF8) == 0xF0) {
-                charIndex--;
-                start += 4;
-            } else if ((c & 0xFC) == 0xF8) {
-                charIndex--;
-                start += 5;
-            } else if ((c & 0xFE) == 0xFC) {
-                charIndex--;
-                start += 6;
-            } else {
-                // invalid!
-                charIndex--;
-                start++;
-            }
-        }
+		while (start < len and charIndex > 0) {
+			int c = s[start];
 
-        if (start > len)
-            start = len;
+			if ((c & 0x80) == 0) {
+				charIndex--;
+				start += 1;
+			} else if ((c & 0xE0) == 0xC0) {
+				charIndex--;
+				start += 2;
+			} else if ((c & 0xF0) == 0xE0) {
+				charIndex--;
+				start += 3;
+			} else if ((c & 0xF8) == 0xF0) {
+				charIndex--;
+				start += 4;
+			} else if ((c & 0xFC) == 0xF8) {
+				charIndex--;
+				start += 5;
+			} else if ((c & 0xFE) == 0xFC) {
+				charIndex--;
+				start += 6;
+			} else {
+				// invalid!
+				charIndex--;
+				start++;
+			}
+		}
 
-        return start;
-    }
+		if (start > len)
+			start = len;
 
-    /** Returns the byte index for a certain character index. */
-    int GetCharIndexForString(string s, int byteIndex, int start = 0) {
-        int len = s.length;
-        int charIndex = 0;
+		return start;
+	}
 
-        while (start < len and start < byteIndex and byteIndex > 0) {
-            int c = s[start];
+	/** Returns the byte index for a certain character index. */
+	int GetCharIndexForString(string s, int byteIndex, int start = 0) {
+		int len = s.length;
+		int charIndex = 0;
 
-            if ((c & 0x80) == 0) {
-                charIndex++;
-                start += 1;
-            } else if ((c & 0xE0) == 0xC0) {
-                charIndex++;
-                start += 2;
-            } else if ((c & 0xF0) == 0xE0) {
-                charIndex++;
-                start += 3;
-            } else if ((c & 0xF8) == 0xF0) {
-                charIndex++;
-                start += 4;
-            } else if ((c & 0xFC) == 0xF8) {
-                charIndex++;
-                start += 5;
-            } else if ((c & 0xFE) == 0xFC) {
-                charIndex++;
-                start += 6;
-            } else {
-                // invalid!
-                charIndex++;
-                start++;
-            }
-        }
+		while (start < len and start < byteIndex and byteIndex > 0) {
+			int c = s[start];
 
-        return charIndex;
-    }
+			if ((c & 0x80) == 0) {
+				charIndex++;
+				start += 1;
+			} else if ((c & 0xE0) == 0xC0) {
+				charIndex++;
+				start += 2;
+			} else if ((c & 0xF0) == 0xE0) {
+				charIndex++;
+				start += 3;
+			} else if ((c & 0xF8) == 0xF0) {
+				charIndex++;
+				start += 4;
+			} else if ((c & 0xFC) == 0xF8) {
+				charIndex++;
+				start += 5;
+			} else if ((c & 0xFE) == 0xFC) {
+				charIndex++;
+				start += 6;
+			} else {
+				// invalid!
+				charIndex++;
+				start++;
+			}
+		}
+
+		return charIndex;
+	}
  }
