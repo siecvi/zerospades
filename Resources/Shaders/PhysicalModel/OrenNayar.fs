@@ -26,17 +26,17 @@ float OrenNayar(float sigma, float dotLight, float dotEye) {
 	float scale = 1.0 / A;
 	float scaledB = B * scale;
 
-	vec2 dotLightEye = vec2(dotLight, dotEye);
+	vec2 dotLightEye = clamp(vec2(dotLight, dotEye), 0.0, 1.0);
 	vec2 sinLightEye = sqrt(1.0 - dotLightEye * dotLightEye);
 	float alphaSin = max(sinLightEye.x, sinLightEye.y);
-	float betaCos = max(dotLight, dotEye);
+	float betaCos = max(dotLightEye.x, dotLightEye.y);
 
 	// (tan x)^2 + 1 = 1 / (cosx)^2
 	// tan x = sqrt(1 / (cosx)^2 - 1)
 	float betaCos2 = betaCos * betaCos;
 
 	// rsq optimization; 1/x-1 = (1-x)/x
-	float betaTan = 1.0 / sqrt(betaCos2 / (1.0 - betaCos2));
+	float betaTan = 1.0 / sqrt(betaCos2 / max(1.0 - betaCos2, 0.001));
 
 	// cos(dotLight - dotEye)
 	vec4 vecs = vec4(dotLightEye, sinLightEye);
