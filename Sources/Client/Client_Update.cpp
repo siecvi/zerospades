@@ -63,6 +63,7 @@ DEFINE_SPADES_SETTING(cg_hitAnalyze, "0");
 DEFINE_SPADES_SETTING(cg_killfeedIcons, "1");
 DEFINE_SPADES_SETTING(cg_killfeedStreaks, "1");
 DEFINE_SPADES_SETTING(cg_classicSprinting, "0");
+DEFINE_SPADES_SETTING(cg_spectatorNoclip, "0");
 
 SPADES_SETTING(cg_smallFont);
 SPADES_SETTING(cg_centerMessage);
@@ -352,6 +353,9 @@ namespace spades {
 		void Client::UpdateLocalSpectator(float dt) {
 			SPADES_MARK_FUNCTION();
 
+			if (GetCameraMode() != ClientCameraMode::Free)
+				return;
+
 			auto& freeState = freeCameraState;
 
 			Vector3 lastPos = freeState.position;
@@ -366,49 +370,55 @@ namespace spades {
 				freeState.velocity.x = fabsf(freeState.velocity.x) * -0.2F;
 			if (freeState.position.y > static_cast<float>(map->Height()))
 				freeState.velocity.y = fabsf(freeState.velocity.y) * -0.2F;
+			if (freeState.position.z > static_cast<float>(map->Depth()))
+				freeState.velocity.z = fabsf(freeState.velocity.z) * -0.2F;
 
 			freeState.position = lastPos + freeState.velocity * dt;
 
-			GameMap::RayCastResult minResult;
-			float minDist = 1.0E+10F;
-			Vector3 minShift;
-
-			Vector3 const dir = freeState.position - lastPos;
-
 			// check collision
-			if (freeState.velocity.GetLength() < 0.01F) {
-				freeState.position = lastPos;
-				freeState.velocity *= 0.0F;
-			} else {
-				for (int sx = -1; sx <= 1; sx++)
-				for (int sy = -1; sy <= 1; sy++)
-				for (int sz = -1; sz <= 1; sz++) {
-					Vector3 shift = {sx * 0.1F, sy * 0.1F, sz * 0.1F};
+			if (!cg_spectatorNoclip) {
+				GameMap::RayCastResult minResult;
+				float minDist = 1.0E+10F;
+				Vector3 minShift;
 
-					GameMap::RayCastResult res;
-					res = map->CastRay2(lastPos + shift, dir, 32);
-					if (res.hit && !res.startSolid) {
+				const Vector3 dir = freeState.position - lastPos;
+				const Vector3 normDir = dir.Normalize();
+
+				if (freeState.velocity.GetSquaredLength() < 0.01F) {
+					freeState.position = lastPos;
+					freeState.velocity *= 0.0F;
+				} else {
+					for (int sx = -1; sx <= 1; sx++)
+					for (int sy = -1; sy <= 1; sy++)
+					for (int sz = -1; sz <= 1; sz++) {
+						Vector3 shift = {sx * 0.1F, sy * 0.1F, sz * 0.1F};
+
+						GameMap::RayCastResult res = map->CastRay2(lastPos + shift, normDir, 16);
+						if (res.hit == false || res.startSolid)
+							continue;
+
 						Vector3 hitPos = res.hitPos - freeState.position - shift;
-						if (Vector3::Dot(hitPos, dir) < 0.0F) {
-							float dist = Vector3::Dot(hitPos, dir.Normalize());
-							if (dist < minDist) {
-								minResult = res;
-								minDist = dist;
-								minShift = shift;
-							}
+						if (Vector3::Dot(hitPos, dir) >= 0.0F)
+							continue;
+
+						float dist = Vector3::Dot(hitPos, normDir);
+						if (dist < minDist) {
+							minResult = res;
+							minDist = dist;
+							minShift = shift;
 						}
 					}
 				}
-			}
 
-			if (minDist < 1.0E+9F) {
-				Vector3 hitPos = minResult.hitPos - minShift;
-				Vector3 normal = MakeVector3(minResult.normal);
-				freeState.position = hitPos + (normal * 0.02F);
+				if (minDist < 1.0E+9F) {
+					Vector3 hitPos = minResult.hitPos - minShift;
+					Vector3 normal = MakeVector3(minResult.normal);
+					freeState.position = hitPos + (normal * 0.02F);
 
-				// bounce
-				float dot = Vector3::Dot(freeState.velocity, normal);
-				freeState.velocity -= normal * (dot * 1.25F);
+					// bounce
+					float dot = Vector3::Dot(freeState.velocity, normal);
+					freeState.velocity -= normal * (dot * 1.2F);
+				}
 			}
 
 			// acceleration

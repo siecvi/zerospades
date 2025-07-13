@@ -340,19 +340,21 @@ namespace spades {
 						eye.z -= sinf(sharedState.pitch) * distance;
 
 						// Prevent the camera from being behind a wall
-						GameMap::RayCastResult res;
-						res = map->CastRay2(center, (eye - center).Normalize(), 32);
+						const Vector3 dir = eye - center;
+						const Vector3 normDir = dir.Normalize();
+
+						GameMap::RayCastResult res = map->CastRay2(center, normDir, 16);
 						if (res.hit && !res.startSolid) {
 							float dist = (res.hitPos - center).GetLength();
-							float curDist = (eye - center).GetLength();
+							float curDist = dir.GetLength();
 							dist -= 0.3F; // near clip plane
 							if (curDist > dist) {
 								float diff = curDist - dist;
-								eye += (center - eye).Normalize() * diff;
+								eye += -normDir * diff;
 							}
 						}
 
-						Vector3 front = (center - eye).Normalize();
+						Vector3 front = -normDir;
 						Vector3 up = {0, 0, -1};
 
 						def.viewOrigin = eye;
