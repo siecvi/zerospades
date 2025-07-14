@@ -27,6 +27,7 @@ namespace spades {
 		private Model@ frontSightModel;
 		private Model@ frontPinSightModel;
 		private Model@ dotSightModel;
+		private Model@ reflexSightModel;
 
 		private AudioChunk@[] fireSounds(4);
 		private AudioChunk@ fireFarSound;
@@ -36,12 +37,14 @@ namespace spades {
 		private AudioChunk@ reloadSound;
 
 		// Constants
+		private Vector3 gunPivot = Vector3(1.0F, 16.5F, 3.5F);
 
 		// Attachment Points
-		private Vector3 magazineAttachment = Vector3(0, 0, 0);
+		private Vector3 magazineAttachment = Vector3(0.0F, 0.0F, 0.0F);
 		private Vector3 rearSightAttachment = Vector3(0.04F, -9.0F, -4.9F);
 		private Vector3 frontSightAttachment = Vector3(0.05F, 5.0F, -4.85F);
-		private Vector3 frontPinSightAttachment = Vector3(0.025F, 5.0F, -4.875F);
+		private Vector3 frontPinSightAttachment = Vector3(0.025F, 4.85F, -4.875F);
+		private Vector3 reflexSightAttachment = Vector3(0.04F, -7.825F, -5.875F);
 
 		// Scales
 		private float globalScale = 0.033F;
@@ -49,6 +52,7 @@ namespace spades {
 		private float rearSightScale = 0.08F;
 		private float frontSightScale = 0.1F;
 		private float frontPinSightScale = 0.05F;
+		private float reflexSightScale = 0.08F;
 
 		// A bunch of springs.
 		private ViewWeaponSpring recoilVerticalSpring = ViewWeaponSpring(300, 24);
@@ -107,8 +111,8 @@ namespace spades {
 
 			float sp = 1.0F - AimDownSightStateSmooth;
 
-			mat *= CreateEulerAnglesMatrix(Vector3(0.0F, 0.6F, 0.0F) * reloadRollSpring.position * sp);
-			mat *= CreateEulerAnglesMatrix(Vector3(-0.25F, 0.0F, 0.0F) * reloadPitchSpring.position * sp);
+			mat *= CreateRotateMatrix(Vector3(0, 1, 0), 0.6F * reloadRollSpring.position * sp);
+			mat *= CreateRotateMatrix(Vector3(-1, 0, 0), 0.25F * reloadPitchSpring.position * sp);
 			mat *= CreateTranslateMatrix(Vector3(0.0F, -1.0F, 0.0F) * reloadOffsetSpring.position * sp);
 			mat *= CreateTranslateMatrix(Vector3(0.0F, 0.0F, -globalScale) * reloadPitchSpring.position * sp);
 
@@ -185,6 +189,7 @@ namespace spades {
 			@frontSightModel = renderer.RegisterModel("Models/Weapons/SMG/SightFront.kv6");
 			@frontPinSightModel = renderer.RegisterModel("Models/Weapons/SMG/SightFrontPin.kv6");
 			@dotSightModel = renderer.RegisterModel("Models/Weapons/SMG/SightDot.kv6");
+			@reflexSightModel = renderer.RegisterModel("Models/Weapons/SMG/SightReflex.kv6");
 
 			// load sounds
 			@fireSounds[0] = dev.RegisterSound("Sounds/Weapons/SMG/V2Local1.opus");
@@ -284,9 +289,6 @@ namespace spades {
 			}
 		}
 
-		// (override BasicViewWeapon::GetZPos())
-		float GetZPos() { return 0.2F - AimDownSightStateSmooth * 0.038F; }
-
 		// (override BasicViewWeapon::GetViewWeaponMatrix())
 		Matrix4 GetViewWeaponMatrix() {
 			Matrix4 mat;
@@ -299,23 +301,30 @@ namespace spades {
 			mat = CreateTranslateMatrix(Vector3(0.23F, -0.05F, 0.15F) * sprintSpring.position * sp) * mat;
 
 			// raise gun animation
-			mat = CreateRotateMatrix(Vector3(0, 0, 1), raiseSpring.position * -1.3F * sp) * mat;
-			mat = CreateRotateMatrix(Vector3(0, 1, 0), raiseSpring.position * 0.2F * sp) * mat;
+			mat = CreateRotateMatrix(Vector3(0, 0, -1), 1.3F * raiseSpring.position * sp) * mat;
+			mat = CreateRotateMatrix(Vector3(0, 1, 0), 0.2F * raiseSpring.position * sp) * mat;
 			mat = CreateTranslateMatrix(Vector3(0.1F, -0.3F, 0.1F) * raiseSpring.position * sp) * mat;
 
 			// recoil animation
-			Vector3 recoilRot(0, 0, 0);
+			Vector3 recoilRot(0.0F, 0.0F, 0.0F);
 			recoilRot.x = -1.0F * recoilVerticalSpring.position;
 			recoilRot.y = 0.2F * recoilRotationSpring.position;
 			recoilRot.z = 0.2F * recoilRotationSpring.position;
-			Vector3 recoilOffset = Vector3(0, 0, -0.1) * recoilVerticalSpring.position * sp;
-			recoilOffset -= Vector3(0, Mix(0.5F, 0.25F, sp), 0) * recoilBackSpring.position;
+			Vector3 recoilOffset = Vector3(0.0F, 0.0F, 0.0F);
+			recoilOffset.y -= Mix(0.5F, 0.25F, sp) * recoilBackSpring.position;
+			recoilOffset.z -= 0.1F * recoilVerticalSpring.position * sp;
 			mat = CreateEulerAnglesMatrix(recoilRot * sp) * mat;
 			mat = mat * CreateTranslateMatrix(recoilOffset);
 
 			// add weapon offset
-			Vector3 trans(0, 0, 0);
-			trans += Vector3(-0.13F * sp, 0.5F, GetZPos());
+			Vector3 trans(0.0F, 0.0F, 0.0F);
+
+			bool reflexScope = cg_reflexScope.BoolValue;
+			Vector3 sightAttachment = reflexScope ? reflexSightAttachment : frontPinSightAttachment;
+			Vector3 offset = reflexScope ? Vector3(sightAttachment.x, 0.0F, -0.05F) : Vector3(sightAttachment.x, 0.0F, 0.05F);
+			Vector3 sightPos = (sightAttachment - offset) * globalScale;
+			float sightZ = reflexScope ? (sightPos.z + 0.0125F) : sightPos.z;
+			trans += Vector3(-0.13F * sp, 0.5F, GetZPos(-sightZ));
 
 			// manual adjustment
 			trans.x += cg_viewWeaponX.FloatValue * sp;
@@ -329,14 +338,15 @@ namespace spades {
 			mat = CreateTranslateMatrix(trans) * mat;
 
 			// twist the gun when strafing
-			Vector3 swingRot(0, 0, 0);
+			Vector3 swingRot(0.0F, 0.0F, 0.0F);
 			swingRot.z += 2.0F * horizontalSwingSpring.position;
 			swingRot.x -= 2.0F * verticalSwingSpring.position;
 			mat = mat * CreateEulerAnglesMatrix(swingRot * sp);
 
-			Vector3 pivot = Vector3(0.05F, 0.0F, 0.05F);
-			Vector3 sightPos = (frontSightAttachment - pivot) * globalScale;
-			mat = AdjustToAlignSight(mat, sightPos, AimDownSightStateSmooth);
+			if (AimDownSightStateSmooth > 0.0F)
+				mat = AdjustToAlignSight(mat, sightPos, AimDownSightStateSmooth);
+
+			// reload animation
 			mat = AdjustToReload(mat);
 
 			return mat;
@@ -347,6 +357,14 @@ namespace spades {
 		Vector3 CaseEjectPosition { get { return GetViewWeaponMatrix() * Vector3(-0.025F, -0.175F, -0.1F); } }
 
 		void Draw2D() {
+			// draw reflex sight (2D image)
+			if (cg_reflexScope.IntValue >= 3
+				and not cg_pngScope.BoolValue
+				and AimDownSightStateSmooth > 0.8F) {
+				DrawReflexSight2D(GetViewWeaponMatrix());
+				return;
+			}
+
 			BasicViewWeapon::Draw2D();
 		}
 
@@ -379,21 +397,37 @@ namespace spades {
 			renderer.AddModel(magazineModel, param);
 
 			// draw sights
-			param.matrix = weapMatrix
-				* CreateTranslateMatrix(rearSightAttachment)
-				* CreateScaleMatrix(rearSightScale);
-			renderer.AddModel(rearSightModel, param); // rear
-
-			param.matrix = weapMatrix
-				* CreateTranslateMatrix(frontSightAttachment)
-				* CreateScaleMatrix(frontSightScale);
-			renderer.AddModel(frontSightModel, param); // front
+			if (cg_reflexScope.BoolValue) {
+				param.matrix = weapMatrix
+					* CreateTranslateMatrix(reflexSightAttachment)
+					* CreateScaleMatrix(reflexSightScale);
+				renderer.AddModel(reflexSightModel, param); // reflex
+			} else {
+				param.matrix = weapMatrix
+					* CreateTranslateMatrix(rearSightAttachment)
+					* CreateScaleMatrix(rearSightScale);
+				renderer.AddModel(rearSightModel, param); // rear
+			}
 
 			param.matrix = weapMatrix
 				* CreateTranslateMatrix(frontPinSightAttachment)
 				* CreateScaleMatrix(frontPinSightScale);
 			renderer.AddModel(frontPinSightModel, param); // front pin
 			renderer.AddModel(dotSightModel, param); // front pin (emissive)
+
+			param.matrix = weapMatrix
+				* CreateTranslateMatrix(frontSightAttachment)
+				* CreateScaleMatrix(frontSightScale);
+			renderer.AddModel(frontSightModel, param); // front
+
+			// draw reflex sight (3D sprite)
+			int reflexMode = cg_reflexScope.IntValue;
+			if ((reflexMode >= 1 and reflexMode < 3) and AimDownSightStateSmooth > 0.8F) {
+				bool dotReflex = reflexMode == 1;
+				Vector3 sightPos = reflexSightAttachment - Vector3(reflexSightAttachment.x, 0.0F, -0.05F);
+                float reflexSize = 1.0F / (dotReflex ? 50.0F : 8.0F);
+				DrawReflexSight3D(dotReflex ? ballImage : reflexImage, weapMatrix * sightPos, reflexSize);
+            }
 
 			LeftHandPosition = leftHand;
 			RightHandPosition = rightHand;

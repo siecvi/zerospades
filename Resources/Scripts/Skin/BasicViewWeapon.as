@@ -192,6 +192,11 @@ namespace spades {
 		protected Image@ sightImage;
 		protected Image@ scopeImage;
 		protected Image@ dotSightImage;
+		protected Image@ reflexImage;
+		protected Image@ ballImage;
+
+		protected ConfigItem cg_fov("cg_fov");
+		protected ConfigItem cg_reflexScope("cg_reflexScope", "0");
 
 		protected ConfigItem cg_viewWeaponX("cg_viewWeaponX");
 		protected ConfigItem cg_viewWeaponY("cg_viewWeaponY");
@@ -260,11 +265,14 @@ namespace spades {
 			@scopeImage = renderer.RegisterImage("Gfx/Rifle.png");
 			@sightImage = renderer.RegisterImage("Gfx/Sight.tga");
 			@dotSightImage = renderer.RegisterImage("Gfx/DotSight.tga");
+			@reflexImage = renderer.RegisterImage("Gfx/ReflexSight.png");
+			@ballImage = renderer.RegisterImage("Gfx/Ball.png");
 		}
 
 		float GetLocalFireVibration() { return localFireVibration; }
 		float GetMotionGain() { return 1.0F - AimDownSightStateSmooth * 0.4F; }
 		float GetZPos() { return 0.2F - AimDownSightStateSmooth * 0.05F; }
+		float GetZPos(float sightPosZ) { return Mix(0.2F, sightPosZ, AimDownSightStateSmooth); }
 
 		Vector3 GetLocalFireVibrationOffset() {
 			float vib = GetLocalFireVibration();
@@ -277,7 +285,7 @@ namespace spades {
 			return Mix(hip, ads, AimDownSightStateSmooth);
 		}
 
-		// Creates a rotation matrix from euler angles (in the form of a Vector3) x-y-z
+		// creates a rotation matrix from euler angles (in the form of a Vector3) x-y-z
 		Matrix4 CreateEulerAnglesMatrix(Vector3 angles) {
 			Matrix4 mat = CreateRotateMatrix(Vector3(1, 0, 0), angles.x);
 			mat = CreateRotateMatrix(Vector3(0, 1, 0), angles.y) * mat;
@@ -299,24 +307,28 @@ namespace spades {
 			float weapSide = Clamp(cg_viewWeaponSide.FloatValue, -1.0F, 1.0F);
 			float sp = 1.0F - AimDownSightStateSmooth;
 
+			// sprint animation
 			if (sprintStateSmooth > 0.0F) {
 				mat = CreateEulerAnglesMatrix(Vector3(0.3F, -0.1F, -0.55F) * sprintStateSmooth) * mat;
 				mat = CreateTranslateMatrix(Vector3(0.23F, -0.05F, 0.15F) * sprintStateSmooth) * mat;
 			}
 
+			// raise gun animation
 			if (raiseState < 1.0F) {
 				float putdown = 1.0F - raiseState;
-				mat = CreateRotateMatrix(Vector3(0, 0, 1), putdown * -1.3F) * mat;
-				mat = CreateRotateMatrix(Vector3(0, 1, 0), putdown * 0.2F) * mat;
+				mat = CreateRotateMatrix(Vector3(0, 0, -1), 1.3F * putdown) * mat;
+				mat = CreateRotateMatrix(Vector3(0, 1, 0), 0.2F * putdown) * mat;
 				mat = CreateTranslateMatrix(Vector3(0.1F, -0.3F, 0.1F) * putdown) * mat;
 			}
 
+			// recoil animation
 			if (readyState < 1.0F) {
 				float per = SmoothStep(1.0F - readyState);
-				mat = CreateTranslateMatrix(Vector3(-0.25F * weapSide * sp, -0.5F, 0.25F * sp) * per * 0.1F) * mat;
-				mat = CreateRotateMatrix(Vector3(-1, 0, 0), per * 0.05F * sp) * mat;
+				mat = CreateTranslateMatrix(Vector3(-0.25F * weapSide * sp, -0.5F, 0.25F * sp) * 0.1F * per) * mat;
+				mat = CreateRotateMatrix(Vector3(-1, 0, 0), (0.05F * per) * sp) * mat;
 			}
 
+			// add weapon offset
 			Vector3 trans(0.0F, 0.0F, 0.0F);
 			trans += Vector3(-0.13F * sp, 0.5F, GetZPos());
 
@@ -355,6 +367,51 @@ namespace spades {
 		void AddToScene() {}
 		void ReloadingWeapon() {}
 		void ReloadedWeapon() {}
+
+		void DrawReflexSight3D(Image@ img, Vector3 pos, float size, Vector3 color = Vector3(1, 0, 0)) {
+			float spriteSize = size * 0.025F;
+
+			float reflexOp = AimDownSightStateSmooth * 5.0F - 4.0F;
+			Vector3 sightColor = color * reflexOp;
+
+			renderer.ColorP = Vector4(sightColor.x, sightColor.y, sightColor.z, 0.0F);
+			renderer.AddLongSprite(img, pos, pos, spriteSize);
+			renderer.ColorP = Vector4(reflexOp, reflexOp, reflexOp, 0.0F); // premultiplied alpha
+			renderer.AddLongSprite(img, pos, pos, spriteSize);
+		}
+
+		void DrawReflexSight2D(Matrix4 sightMat, float size = 0.02F) {
+			float sw = renderer.ScreenWidth;
+			float sh = renderer.ScreenHeight;
+
+			bool dotReflex = cg_reflexScope.IntValue == 3;
+			float imgSize = dotReflex ? 0.0025F : size;
+
+			// scale sight according to the fov value
+			float fov = tan(rad(cg_fov.FloatValue * 0.5F));
+			imgSize /= fov;
+			imgSize *= sh;
+
+			// scale sight according to the distance from the eye to the sight
+			Vector3 sightPos = sightMat.GetOrigin();
+			float scale = 1.0F / sightPos.y;
+			imgSize *= scale;
+
+			Vector2 scrCenter = Vector2(sw, sh) * 0.5F;
+			Vector2 imgPos = scrCenter - (imgSize * 0.5F);
+
+			float reflexOp = AimDownSightStateSmooth * 5.0F - 4.0F;
+
+			if (dotReflex) {
+				renderer.ColorP = Vector4(reflexOp, 0.0F, 0.0F, 0.0F);
+				renderer.DrawImage(ballImage, AABB2(imgPos.x, imgPos.y, imgSize, imgSize));
+				renderer.ColorP = Vector4(reflexOp, reflexOp, reflexOp, 0.0F); // premultiplied alpha
+				renderer.DrawImage(ballImage, AABB2(imgPos.x, imgPos.y, imgSize, imgSize));
+			} else {
+				renderer.ColorP = Vector4(reflexOp, reflexOp, reflexOp, 0.0F); // premultiplied alpha
+				renderer.DrawImage(reflexImage, AABB2(imgPos.x, imgPos.y, imgSize, imgSize));
+			}
+		}
 
 		void Draw2D() {
 			float sw = renderer.ScreenWidth;

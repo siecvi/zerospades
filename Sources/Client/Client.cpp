@@ -296,6 +296,7 @@ namespace spades {
 			renderer->RegisterImage("Gfx/Ball.png");
 			renderer->RegisterImage("Gfx/HurtRing.png");
 			renderer->RegisterImage("Gfx/HurtSprite.png");
+			renderer->RegisterImage("Gfx/ReflexSight.png");
 			renderer->RegisterImage("Gfx/Spotlight.jpg");
 			renderer->RegisterImage("Gfx/White.tga");
 			renderer->RegisterImage("Textures/Fluid.png");
@@ -488,6 +489,7 @@ namespace spades {
 			renderer->RegisterModel("Models/Weapons/Rifle/SightDot.kv6");
 			renderer->RegisterModel("Models/Weapons/Rifle/SightFront.kv6");
 			renderer->RegisterModel("Models/Weapons/Rifle/SightRear.kv6");
+			renderer->RegisterModel("Models/Weapons/Rifle/SightReflex.kv6");
 			renderer->RegisterModel("Models/Weapons/Rifle/Weapon.kv6");
 			renderer->RegisterModel("Models/Weapons/Rifle/WeaponNoMagazine.kv6");
 			renderer->RegisterModel("Models/Weapons/Shotgun/Casing.kv6");
@@ -495,6 +497,7 @@ namespace spades {
 			renderer->RegisterModel("Models/Weapons/Shotgun/SightDot.kv6");
 			renderer->RegisterModel("Models/Weapons/Shotgun/SightFront.kv6");
 			renderer->RegisterModel("Models/Weapons/Shotgun/SightRear.kv6");
+			renderer->RegisterModel("Models/Weapons/Shotgun/SightReflex.kv6");
 			renderer->RegisterModel("Models/Weapons/Shotgun/Weapon.kv6");
 			renderer->RegisterModel("Models/Weapons/Shotgun/WeaponNoPump.kv6");
 			renderer->RegisterModel("Models/Weapons/SMG/Casing.kv6");
@@ -503,6 +506,7 @@ namespace spades {
 			renderer->RegisterModel("Models/Weapons/SMG/SightFrontPin.kv6");
 			renderer->RegisterModel("Models/Weapons/SMG/SightFront.kv6");
 			renderer->RegisterModel("Models/Weapons/SMG/SightRear.kv6");
+			renderer->RegisterModel("Models/Weapons/SMG/SightReflex.kv6");
 			renderer->RegisterModel("Models/Weapons/SMG/Weapon.kv6");
 			renderer->RegisterModel("Models/Weapons/SMG/WeaponNoMagazine.kv6");
 
