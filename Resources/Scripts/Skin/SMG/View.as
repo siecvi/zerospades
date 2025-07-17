@@ -424,8 +424,8 @@ namespace spades {
 			int reflexMode = cg_reflexScope.IntValue;
 			if ((reflexMode >= 1 and reflexMode < 3) and AimDownSightStateSmooth > 0.8F) {
 				bool dotReflex = reflexMode == 1;
+				float reflexSize = dotReflex ? 0.02F : 0.125F;
 				Vector3 sightPos = reflexSightAttachment - Vector3(reflexSightAttachment.x, 0.0F, -0.05F);
-                float reflexSize = 1.0F / (dotReflex ? 50.0F : 8.0F);
 				DrawReflexSight3D(dotReflex ? ballImage : reflexImage, weapMatrix * sightPos, reflexSize);
             }
 

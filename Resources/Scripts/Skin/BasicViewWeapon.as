@@ -369,15 +369,14 @@ namespace spades {
 		void ReloadedWeapon() {}
 
 		void DrawReflexSight3D(Image@ img, Vector3 pos, float size, Vector3 color = Vector3(1, 0, 0)) {
-			float spriteSize = size * 0.025F;
-
+			float reflexSize = size * 0.025F;
 			float reflexOp = AimDownSightStateSmooth * 5.0F - 4.0F;
 			Vector3 sightColor = color * reflexOp;
 
 			renderer.ColorP = Vector4(sightColor.x, sightColor.y, sightColor.z, 0.0F);
-			renderer.AddLongSprite(img, pos, pos, spriteSize);
+			renderer.AddLongSprite(img, pos, pos, reflexSize);
 			renderer.ColorP = Vector4(reflexOp, reflexOp, reflexOp, 0.0F); // premultiplied alpha
-			renderer.AddLongSprite(img, pos, pos, spriteSize);
+			renderer.AddLongSprite(img, pos, pos, reflexSize);
 		}
 
 		void DrawReflexSight2D(Matrix4 sightMat, float size = 0.02F) {
@@ -385,31 +384,31 @@ namespace spades {
 			float sh = renderer.ScreenHeight;
 
 			bool dotReflex = cg_reflexScope.IntValue == 3;
-			float imgSize = dotReflex ? 0.0025F : size;
+			float reflexSize = dotReflex ? size * 0.125F : size;
 
 			// scale sight according to the fov value
 			float fov = tan(rad(cg_fov.FloatValue * 0.5F));
-			imgSize /= fov;
-			imgSize *= sh;
+			reflexSize /= fov;
+			reflexSize *= sh;
 
 			// scale sight according to the distance from the eye to the sight
 			Vector3 sightPos = sightMat.GetOrigin();
 			float scale = 1.0F / sightPos.y;
-			imgSize *= scale;
+			reflexSize *= scale;
 
 			Vector2 scrCenter = Vector2(sw, sh) * 0.5F;
-			Vector2 imgPos = scrCenter - (imgSize * 0.5F);
+			Vector2 imgPos = scrCenter - (reflexSize * 0.5F);
 
 			float reflexOp = AimDownSightStateSmooth * 5.0F - 4.0F;
 
 			if (dotReflex) {
 				renderer.ColorP = Vector4(reflexOp, 0.0F, 0.0F, 0.0F);
-				renderer.DrawImage(ballImage, AABB2(imgPos.x, imgPos.y, imgSize, imgSize));
+				renderer.DrawImage(ballImage, AABB2(imgPos.x, imgPos.y, reflexSize, reflexSize));
 				renderer.ColorP = Vector4(reflexOp, reflexOp, reflexOp, 0.0F); // premultiplied alpha
-				renderer.DrawImage(ballImage, AABB2(imgPos.x, imgPos.y, imgSize, imgSize));
+				renderer.DrawImage(ballImage, AABB2(imgPos.x, imgPos.y, reflexSize, reflexSize));
 			} else {
 				renderer.ColorP = Vector4(reflexOp, reflexOp, reflexOp, 0.0F); // premultiplied alpha
-				renderer.DrawImage(reflexImage, AABB2(imgPos.x, imgPos.y, imgSize, imgSize));
+				renderer.DrawImage(reflexImage, AABB2(imgPos.x, imgPos.y, reflexSize, reflexSize));
 			}
 		}
 
