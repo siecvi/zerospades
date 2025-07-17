@@ -422,132 +422,147 @@ namespace spades {
 			int targetType = cg_target.IntValue;
 			int scopeType = cg_pngScope.IntValue;
 
+			Vector4 color = Vector4(1, 1, 1, 1);
+
+			float adsFadeOut = 0.99F;
+			float adsAlpha = (adsFadeOut - AimDownSightStateSmooth) / adsFadeOut;
+
 			// draw scope
-			if (AimDownSightStateSmooth > 0.99F) {
-				IntVector3 col;
-				col.x = cg_scopeColorR.IntValue;
-				col.y = cg_scopeColorG.IntValue;
-				col.z = cg_scopeColorB.IntValue;
+			if (AimDownSightStateSmooth > adsFadeOut) {
+				if (scopeType > 0) {
+					IntVector3 col;
+					col.x = cg_scopeColorR.IntValue;
+					col.y = cg_scopeColorG.IntValue;
+					col.z = cg_scopeColorB.IntValue;
 
-				Vector4 color = ConvertColorRGBA(col);
-				color.w = Clamp(cg_scopeAlpha.IntValue, 0, 255) / 255.0F;
+					color = ConvertColorRGBA(col);
+					color.w = Clamp(cg_scopeAlpha.IntValue, 0, 255) / 255.0F;
+					color.w *= (1.0F - adsAlpha);
 
-				if (scopeType == 1) { // draw classic png scope
-					Vector2 imgSize = Vector2(scopeImage.Width, scopeImage.Height);
-					imgSize *= Max(1.0F, sw / 800.0F);
-					imgSize *= Min(1.0F, sh / 600.0F);
+					if (scopeType == 1) { // draw classic png scope
+						Vector2 imgSize = Vector2(scopeImage.Width, scopeImage.Height);
+						imgSize *= Max(1.0F, sw / 800.0F);
+						imgSize *= Min(1.0F, sh / 600.0F);
 
-					if (cg_scopeDynamic.BoolValue)
-						imgSize *= Max(0.25F * (1.0F - readyState) + 1.0F, 1.0F);
+						if (cg_scopeDynamic.BoolValue)
+							imgSize *= Max(0.25F * (1.0F - readyState) + 1.0F, 1.0F);
 
-					Vector2 imgPos = scrCenter - (imgSize * 0.5F);
+						Vector2 imgPos = scrCenter - (imgSize * 0.5F);
 
-					renderer.ColorNP = Vector4(1.0F, 1.0F, 1.0F, color.w);
-					renderer.DrawImage(scopeImage, AABB2(imgPos.x, imgPos.y, imgSize.x, imgSize.y));
-				} else if (scopeType == 2) { // draw dot png scope
-					Vector2 imgSize = Vector2(dotSightImage.Width, dotSightImage.Height);
-					Vector2 imgPos = scrCenter - (imgSize * 0.5F);
-					renderer.ColorNP = color;
-					renderer.DrawImage(dotSightImage, imgPos);
-				} else if (scopeType == 3) { // draw custom crosshair scope
-					param.lineColor = color;
-					param.drawLines = cg_scopeLines.BoolValue;
-					param.useTStyle = cg_scopeTStyle.BoolValue;
-					param.lineGap = cg_scopeGap.FloatValue;
-					param.lineLength.x = cg_scopeSizeHorizontal.FloatValue;
-					param.lineLength.y = cg_scopeSizeVertical.FloatValue;
-					param.lineThickness = Max(1.0F, cg_scopeThickness.FloatValue);
+						renderer.ColorNP = Vector4(1.0F, 1.0F, 1.0F, color.w);
+						renderer.DrawImage(scopeImage, AABB2(imgPos.x, imgPos.y, imgSize.x, imgSize.y));
+					} else if (scopeType == 2) { // draw dot png scope
+						Vector2 imgSize = Vector2(dotSightImage.Width, dotSightImage.Height);
+						Vector2 imgPos = scrCenter - (imgSize * 0.5F);
+						renderer.ColorNP = color;
+						renderer.DrawImage(dotSightImage, imgPos);
+					} else if (scopeType == 3) { // draw custom crosshair scope
+						param.lineColor = color;
+						param.drawLines = cg_scopeLines.BoolValue;
+						param.useTStyle = cg_scopeTStyle.BoolValue;
+						param.lineGap = cg_scopeGap.FloatValue;
+						param.lineLength.x = cg_scopeSizeHorizontal.FloatValue;
+						param.lineLength.y = cg_scopeSizeVertical.FloatValue;
+						param.lineThickness = Max(1.0F, cg_scopeThickness.FloatValue);
 
-					if (cg_scopeDynamic.BoolValue) {
-						float maxDist = cg_scopeDynamicSplitDist.FloatValue;
-						param.lineGap += localFireVibration * maxDist;
+						if (cg_scopeDynamic.BoolValue) {
+							float maxDist = cg_scopeDynamicSplitDist.FloatValue;
+							param.lineGap += localFireVibration * maxDist;
+						}
+
+						param.drawDot = cg_scopeDot.BoolValue;
+						col.x = cg_scopeDotColorR.IntValue;
+						col.y = cg_scopeDotColorG.IntValue;
+						col.z = cg_scopeDotColorB.IntValue;
+						color = ConvertColorRGBA(col);
+						color.w = Clamp(cg_scopeDotAlpha.IntValue, 0, 255) / 255.0F;
+						color.w *= (1.0F - adsAlpha);
+						param.dotColor = color;
+						param.dotThickness = Max(1.0F, cg_scopeDotThickness.FloatValue);
+
+						param.drawOutline = cg_scopeOutline.BoolValue;
+						param.useRoundedStyle = cg_scopeOutlineRoundedStyle.BoolValue;
+						col.x = cg_scopeOutlineColorR.IntValue;
+						col.y = cg_scopeOutlineColorG.IntValue;
+						col.z = cg_scopeOutlineColorB.IntValue;
+						color = ConvertColorRGBA(col);
+						color.w = Clamp(cg_scopeOutlineAlpha.IntValue, 0, 255) / 255.0F;
+						color.w *= (1.0F - adsAlpha);
+						param.outlineColor = color;
+						param.outlineThickness = Max(1.0F, cg_scopeOutlineThickness.FloatValue);
+
+						DrawTarget(renderer, scrCenter, param);
 					}
-
-					param.drawDot = cg_scopeDot.BoolValue;
-					col.x = cg_scopeDotColorR.IntValue;
-					col.y = cg_scopeDotColorG.IntValue;
-					col.z = cg_scopeDotColorB.IntValue;
-					color = ConvertColorRGBA(col);
-					color.w = Clamp(cg_scopeDotAlpha.IntValue, 0, 255) / 255.0F;
-					param.dotColor = color;
-					param.dotThickness = Max(1.0F, cg_scopeDotThickness.FloatValue);
-
-					param.drawOutline = cg_scopeOutline.BoolValue;
-					param.useRoundedStyle = cg_scopeOutlineRoundedStyle.BoolValue;
-					col.x = cg_scopeOutlineColorR.IntValue;
-					col.y = cg_scopeOutlineColorG.IntValue;
-					col.z = cg_scopeOutlineColorB.IntValue;
-					color = ConvertColorRGBA(col);
-					color.w = Clamp(cg_scopeOutlineAlpha.IntValue, 0, 255) / 255.0F;
-					param.outlineColor = color;
-					param.outlineThickness = Max(1.0F, cg_scopeOutlineThickness.FloatValue);
-
-					DrawTarget(renderer, scrCenter, param);
 				}
 
 				return; // do not draw the target when aiming
 			}
 
-			IntVector3 col;
-			switch (cg_targetColor.IntValue) {
-				case 1: col = IntVector3(250, 50, 50); break; // red
-				case 2: col = IntVector3(50, 250, 50); break; // green
-				case 3: col = IntVector3(50, 50, 250); break; // blue
-				case 4: col = IntVector3(250, 250, 50); break; // yellow
-				case 5: col = IntVector3(50, 250, 250); break; // cyan
-				case 6: col = IntVector3(250, 50, 250); break; // pink
-				default: // custom
-					col.x = cg_targetColorR.IntValue;
-					col.y = cg_targetColorG.IntValue;
-					col.z = cg_targetColorB.IntValue;
-					break;
-			}
-
-			Vector4 color = ConvertColorRGBA(col);
-			color.w = Clamp(cg_targetAlpha.IntValue, 0, 255) / 255.0F;
-
 			// draw target
-			if (targetType == 1) { // draw default target
-				Vector2 imgSize = Vector2(sightImage.Width, sightImage.Height);
-				Vector2 imgPos = scrCenter - (imgSize * 0.5F);
-				renderer.ColorNP = color;
-				renderer.DrawImage(sightImage, imgPos);
-			} else if (targetType == 2) { // draw custom target
-				param.lineColor = color;
-				param.drawLines = cg_targetLines.BoolValue;
-				param.useTStyle = cg_targetTStyle.BoolValue;
-				param.lineGap = cg_targetGap.FloatValue;
-				param.lineLength.x = cg_targetSizeHorizontal.FloatValue;
-				param.lineLength.y = cg_targetSizeVertical.FloatValue;
-				param.lineThickness = Max(1.0F, cg_targetThickness.FloatValue);
-
-				if (cg_targetDynamic.BoolValue) {
-					float maxDist = cg_targetDynamicSplitDist.FloatValue;
-					param.lineGap += sprintState * maxDist;
-					param.lineGap += localFireVibration * maxDist;
-					param.lineGap += (1.0F - raiseState) * maxDist;
+			if (targetType > 0) {
+				IntVector3 col;
+				switch (cg_targetColor.IntValue) {
+					case 1: col = IntVector3(250, 50, 50); break; // red
+					case 2: col = IntVector3(50, 250, 50); break; // green
+					case 3: col = IntVector3(50, 50, 250); break; // blue
+					case 4: col = IntVector3(250, 250, 50); break; // yellow
+					case 5: col = IntVector3(50, 250, 250); break; // cyan
+					case 6: col = IntVector3(250, 50, 250); break; // pink
+					default: // custom
+						col.x = cg_targetColorR.IntValue;
+						col.y = cg_targetColorG.IntValue;
+						col.z = cg_targetColorB.IntValue;
+						break;
 				}
 
-				param.drawDot = cg_targetDot.BoolValue;
-				col.x = cg_targetDotColorR.IntValue;
-				col.y = cg_targetDotColorG.IntValue;
-				col.z = cg_targetDotColorB.IntValue;
 				color = ConvertColorRGBA(col);
-				color.w = Clamp(cg_targetDotAlpha.IntValue, 0, 255) / 255.0F;
-				param.dotColor = color;
-				param.dotThickness = Max(1.0F, cg_targetDotThickness.FloatValue);
+				color.w = Clamp(cg_targetAlpha.IntValue, 0, 255) / 255.0F;
+				color.w *= adsAlpha;
 
-				param.drawOutline = cg_targetOutline.BoolValue;
-				param.useRoundedStyle = cg_targetOutlineRoundedStyle.BoolValue;
-				col.x = cg_targetOutlineColorR.IntValue;
-				col.y = cg_targetOutlineColorG.IntValue;
-				col.z = cg_targetOutlineColorB.IntValue;
-				color = ConvertColorRGBA(col);
-				color.w = Clamp(cg_targetOutlineAlpha.IntValue, 0, 255) / 255.0F;
-				param.outlineColor = color;
-				param.outlineThickness = Max(1.0F, cg_targetOutlineThickness.FloatValue);
+				if (targetType == 1) { // draw default target
+					Vector2 imgSize = Vector2(sightImage.Width, sightImage.Height);
+					Vector2 imgPos = scrCenter - (imgSize * 0.5F);
+					renderer.ColorNP = color;
+					renderer.DrawImage(sightImage, imgPos);
+				} else if (targetType == 2) { // draw custom target
+					param.lineColor = color;
+					param.drawLines = cg_targetLines.BoolValue;
+					param.useTStyle = cg_targetTStyle.BoolValue;
+					param.lineGap = cg_targetGap.FloatValue;
+					param.lineLength.x = cg_targetSizeHorizontal.FloatValue;
+					param.lineLength.y = cg_targetSizeVertical.FloatValue;
+					param.lineThickness = Max(1.0F, cg_targetThickness.FloatValue);
 
-				DrawTarget(renderer, scrCenter, param);
+					if (cg_targetDynamic.BoolValue) {
+						float maxDist = cg_targetDynamicSplitDist.FloatValue;
+						param.lineGap += sprintState * maxDist;
+						param.lineGap += localFireVibration * maxDist;
+						param.lineGap += (1.0F - raiseState) * maxDist;
+					}
+
+					param.drawDot = cg_targetDot.BoolValue;
+					col.x = cg_targetDotColorR.IntValue;
+					col.y = cg_targetDotColorG.IntValue;
+					col.z = cg_targetDotColorB.IntValue;
+					color = ConvertColorRGBA(col);
+					color.w = Clamp(cg_targetDotAlpha.IntValue, 0, 255) / 255.0F;
+					color.w *= adsAlpha;
+					param.dotColor = color;
+					param.dotThickness = Max(1.0F, cg_targetDotThickness.FloatValue);
+
+					param.drawOutline = cg_targetOutline.BoolValue;
+					param.useRoundedStyle = cg_targetOutlineRoundedStyle.BoolValue;
+					col.x = cg_targetOutlineColorR.IntValue;
+					col.y = cg_targetOutlineColorG.IntValue;
+					col.z = cg_targetOutlineColorB.IntValue;
+					color = ConvertColorRGBA(col);
+					color.w = Clamp(cg_targetOutlineAlpha.IntValue, 0, 255) / 255.0F;
+					color.w *= adsAlpha;
+					param.outlineColor = color;
+					param.outlineThickness = Max(1.0F, cg_targetOutlineThickness.FloatValue);
+
+					DrawTarget(renderer, scrCenter, param);
+				}
 			}
 		}
 	}
