@@ -23,6 +23,7 @@
 
 #include "GameMap.h"
 #include "GameMapWrapper.h"
+#include "GameProperties.h"
 #include "Grenade.h"
 #include "HitTestDebugger.h"
 #include "IWorldListener.h"
@@ -34,6 +35,7 @@
 #include <Core/Settings.h>
 
 DEFINE_SPADES_SETTING(cg_orientationSmoothing, "1");
+DEFINE_SPADES_SETTING(cg_classicWeaponRecoil, "1");
 
 namespace spades {
 	namespace client {
@@ -761,23 +763,73 @@ namespace spades {
 			if (isLocal) {
 				Vector2 rec = weapon->GetRecoil();
 
-				// vanilla's horizontial recoil is driven by a triangular wave generator.
-				int timer = world.GetTimeMS();
-				rec.x *= ((timer % 1024) < 512)
+				// as in AoS 0.75's way
+				if (cg_classicWeaponRecoil) {
+					// vanilla's horizontial recoil is driven by a triangular wave generator.
+					int timer = world.GetTimeMS();
+					rec.x *= ((timer % 1024) < 512)
 						? (timer % 512) - 255.5F
 						: 255.5F - (timer % 512);
 
-				// double recoil if walking and not aiming
-				if (IsWalking() && !weapInput.secondary)
-					rec *= 2;
+					// double recoil if walking and not aiming
+					if (IsWalking() && !weapInput.secondary)
+						rec *= 2;
 
-				// double recoil if airborne, halve if crouching and not midair
-				if (airborne)
-					rec *= 2;
-				else if (input.crouch)
-					rec /= 2;
+					// double recoil if airborne, halve if crouching and not midair
+					if (airborne)
+						rec *= 2;
+					else if (input.crouch)
+						rec /= 2;
 
-				Turn(rec.x, rec.y);
+					Turn(rec.x, rec.y);
+				} else { // as in OpenSpades 0.1.3's way
+					// https://github.com/yvt/openspades/blob/v0.1.3/Sources/Client/Player.cpp#L760
+					// https://github.com/yvt/openspades/blob/v0.1.3/Sources/Client/Weapon.cpp
+
+					// get base recoil
+					switch (world.GetGameProperties()->protocolVersion) {
+						case ProtocolVersion::v075:
+							switch (weaponType) {
+								case RIFLE_WEAPON: rec = MakeVector2(0.025F, 0.05F); break;
+								// damn son, where'd you find this?
+								// case SMG_WEAPON: rec = MakeVector2(0.01F, 0.012F); break;
+								case SMG_WEAPON: rec = MakeVector2(0.01F, 0.0125F); break;
+								case SHOTGUN_WEAPON: rec = MakeVector2(0.05F, 0.1F); break;
+							}
+							break;
+						case ProtocolVersion::v076:
+							switch (weaponType) {
+								case RIFLE_WEAPON: rec = MakeVector2(0.0001F, 0.075F); break;
+								case SMG_WEAPON: rec = MakeVector2(0.00005F, 0.0125F); break;
+								case SHOTGUN_WEAPON: rec = MakeVector2(0.0002F, 0.075F); break;
+							}
+							break;
+					}
+
+					Vector3 o = GetFront();
+					float upLimit = Vector3::Dot(GetFront2D(), o);
+					upLimit -= 0.03F; // ???
+
+					// vanilla's horizontial recoil seems to driven by a triangular wave generator.
+					// the period was measured with SMG
+					float triWave = world.GetTime() * 0.9788F;
+					triWave -= floorf(triWave);
+					rec.x *= (triWave < 0.5F)
+						? triWave * 4.0F - 1.0F
+						: 3.0F - triWave * 4.0F;
+
+					// clamp vertical recoil
+					rec.y = std::min(rec.y, std::max(0.0F, upLimit));
+
+					// halve recoil if crouching
+					if (input.crouch)
+						rec /= 2;
+
+					o += GetUp() * rec.y;
+					o += GetRight() * rec.x;
+					o = o.Normalize();
+					SetOrientation(o);
+				}
 			}
 		}
 
