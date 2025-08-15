@@ -71,6 +71,7 @@ namespace spades {
 			depthonlyProgram = renderer.RegisterProgram("Shaders/BasicBlockDepthOnly.program");
 			dlightProgram = renderer.RegisterProgram("Shaders/BasicBlockDynamicLit.program");
 			backfaceProgram = renderer.RegisterProgram("Shaders/BackFaceBlock.program");
+			outlinesProgram = renderer.RegisterProgram("Shaders/BasicBlockOutlines.program");
 			aoImage = renderer.RegisterImage("Gfx/AmbientOcclusion.png").Cast<GLImage>();
 
 			static const uint8_t squareVertices[] = {0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1};
@@ -132,7 +133,8 @@ namespace spades {
 
 		void GLMapRenderer::Realize() {
 			GLProfiler::Context profiler(renderer.GetGLProfiler(), "Map Chunks");
-			RealizeChunks(renderer.GetSceneDef().viewOrigin);
+			const auto& viewOrigin = renderer.GetSceneDef().viewOrigin;
+			RealizeChunks(viewOrigin);
 		}
 
 		void GLMapRenderer::Prerender() {
@@ -343,18 +345,18 @@ namespace spades {
 
 			// draw from nearest to farthest
 			IntVector3 c = viewOrigin.Floor() / GLMapChunk::Size;
-			DrawColumnDLight(c.x, c.y, c.z, viewOrigin, lights);
+			DrawColumnDynamicLight(c.x, c.y, c.z, viewOrigin, lights);
 			// TODO: optimize call
 			//	ex. don't call a chunk'r render method if
 			//  no dlight lights it
 			for (int dist = 1; dist <= 128 / GLMapChunk::Size; dist++) {
 				for (int x = c.x - dist; x <= c.x + dist; x++) {
-					DrawColumnDLight(x, c.y + dist, c.z, viewOrigin, lights);
-					DrawColumnDLight(x, c.y - dist, c.z, viewOrigin, lights);
+					DrawColumnDynamicLight(x, c.y + dist, c.z, viewOrigin, lights);
+					DrawColumnDynamicLight(x, c.y - dist, c.z, viewOrigin, lights);
 				}
 				for (int y = c.y - dist + 1; y <= c.y + dist - 1; y++) {
-					DrawColumnDLight(c.x + dist, y, c.z, viewOrigin, lights);
-					DrawColumnDLight(c.x - dist, y, c.z, viewOrigin, lights);
+					DrawColumnDynamicLight(c.x + dist, y, c.z, viewOrigin, lights);
+					DrawColumnDynamicLight(c.x - dist, y, c.z, viewOrigin, lights);
 				}
 			}
 
@@ -364,6 +366,61 @@ namespace spades {
 
 			device.ActiveTexture(0);
 			device.BindTexture(IGLDevice::Texture2D, 0);
+		}
+
+		void GLMapRenderer::RenderOutlinePass() {
+			SPADES_MARK_FUNCTION();
+
+			GLProfiler::Context profiler(renderer.GetGLProfiler(), "Map");
+			outlinesProgram->Use();
+
+			const auto& viewOrigin = renderer.GetSceneDef().viewOrigin;
+
+			static GLProgramUniform fogColor("fogColor");
+			fogColor(outlinesProgram);
+			Vector3 fogCol = renderer.GetFogColorForSolidPass();
+			fogCol *= fogCol; // linearize
+			fogColor.SetValue(fogCol.x, fogCol.y, fogCol.z);
+
+			static GLProgramUniform fogDistance("fogDistance");
+			fogDistance(outlinesProgram);
+			fogDistance.SetValue(renderer.GetFogDistance());
+
+			device.BindBuffer(IGLDevice::ArrayBuffer, 0);
+
+			static GLProgramAttribute positionAttribute("positionAttribute");
+			positionAttribute(outlinesProgram);
+			device.EnableVertexAttribArray(positionAttribute(), true);
+
+			static GLProgramUniform viewOriginVector("viewOriginVector");
+			viewOriginVector(outlinesProgram);
+			viewOriginVector.SetValue(viewOrigin.x, viewOrigin.y, viewOrigin.z);
+
+			static GLProgramUniform projectionViewMatrix("projectionViewMatrix");
+			projectionViewMatrix(outlinesProgram);
+			projectionViewMatrix.SetValue(renderer.GetProjectionViewMatrix());
+
+			static GLProgramUniform viewMatrix("viewMatrix");
+			viewMatrix(outlinesProgram);
+			viewMatrix.SetValue(renderer.GetViewMatrix());
+
+			RealizeChunks(viewOrigin);
+
+			// draw from nearest to farthest
+			IntVector3 c = viewOrigin.Floor() / GLMapChunk::Size;
+			DrawColumnOutline(c.x, c.y, c.z, viewOrigin);
+			for (int dist = 1; dist <= 128 / GLMapChunk::Size; dist++) {
+				for (int x = c.x - dist; x <= c.x + dist; x++) {
+					DrawColumnOutline(x, c.y + dist, c.z, viewOrigin);
+					DrawColumnOutline(x, c.y - dist, c.z, viewOrigin);
+				}
+				for (int y = c.y - dist + 1; y <= c.y + dist - 1; y++) {
+					DrawColumnOutline(c.x + dist, y, c.z, viewOrigin);
+					DrawColumnOutline(c.x - dist, y, c.z, viewOrigin);
+				}
+			}
+
+			device.EnableVertexAttribArray(positionAttribute(), false);
 		}
 
 		void GLMapRenderer::DrawColumnDepth(int cx, int cy, int cz, spades::Vector3 eye) {
@@ -383,14 +440,23 @@ namespace spades {
 				GetChunk(cx, cy, z)->RenderSunlightPass();
 		}
 
-		void GLMapRenderer::DrawColumnDLight(int cx, int cy, int cz, spades::Vector3 eye,
+		void GLMapRenderer::DrawColumnDynamicLight(int cx, int cy, int cz, spades::Vector3 eye,
 		                                     const std::vector<GLDynamicLight>& lights) {
 			cx &= numChunkWidth - 1;
 			cy &= numChunkHeight - 1;
 			for (int z = std::max(cz, 0); z < numChunkDepth; z++)
-				GetChunk(cx, cy, z)->RenderDLightPass(lights);
+				GetChunk(cx, cy, z)->RenderDynamicLightPass(lights);
 			for (int z = std::min(cz - 1, 63); z >= 0; z--)
-				GetChunk(cx, cy, z)->RenderDLightPass(lights);
+				GetChunk(cx, cy, z)->RenderDynamicLightPass(lights);
+		}
+
+		void GLMapRenderer::DrawColumnOutline(int cx, int cy, int cz, spades::Vector3 eye) {
+			cx &= numChunkWidth - 1;
+			cy &= numChunkHeight - 1;
+			for (int z = std::max(cz, 0); z < numChunkDepth; z++)
+				GetChunk(cx, cy, z)->RenderOutlinePass();
+			for (int z = std::min(cz - 1, 63); z >= 0; z--)
+				GetChunk(cx, cy, z)->RenderOutlinePass();
 		}
 
 #pragma mark - BackFaceBlock

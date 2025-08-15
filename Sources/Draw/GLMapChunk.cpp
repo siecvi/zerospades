@@ -53,8 +53,14 @@ namespace spades {
 			);
 
 			radius = (float)Size * 0.5F * sqrtf(3.0F);
-			aabb = AABB3(cx * (float)Size, cy * (float)Size, cz * (float)Size,
-				(float)Size, (float)Size, (float)Size);
+			aabb = AABB3(
+				cx * (float)Size,
+				cy * (float)Size,
+				cz * (float)Size,
+				(float)Size,
+				(float)Size,
+				(float)Size
+			);
 
 			buffer = 0;
 			iBuffer = 0;
@@ -289,7 +295,7 @@ namespace spades {
 		void GLMapChunk::RenderDepthPass() {
 			SPADES_MARK_FUNCTION();
 
-			Vector3 eye = renderer.renderer.GetSceneDef().viewOrigin;
+			const auto& eye = renderer.renderer.GetSceneDef().viewOrigin;
 
 			if (!realized)
 				return;
@@ -300,10 +306,9 @@ namespace spades {
 			if (!buffer)
 				return; // empty chunk
 
-			AABB3 bx = aabb;
-
 			Vector3 diff = eye - centerPos;
 			float sx = 0.0F, sy = 0.0F;
+
 			// FIXME: variable map size?
 			if (diff.x > 256.0F)
 				sx += 512.0F;
@@ -314,25 +319,28 @@ namespace spades {
 			if (diff.y < -256.0F)
 				sy -= 512.0F;
 
+			AABB3 bx = aabb;
 			bx.min.x += sx;
 			bx.min.y += sy;
 			bx.max.x += sx;
 			bx.max.y += sy;
 
+			// frustrum cull
 			if (!renderer.renderer.BoxFrustrumCull(bx))
 				return;
 
-			GLProgram* depthonlyProgram = renderer.depthonlyProgram;
+			GLProgram* depthOnlyProgram = renderer.depthonlyProgram;
 
 			static GLProgramUniform chunkPosition("chunkPosition");
-
-			chunkPosition(depthonlyProgram);
-			chunkPosition.SetValue((float)(chunkX * Size) + sx, (float)(chunkY * Size) + sy,
-			                       (float)(chunkZ * Size));
+			chunkPosition(depthOnlyProgram);
+			chunkPosition.SetValue(
+				(float)(chunkX * Size) + sx,
+				(float)(chunkY * Size) + sy,
+				(float)(chunkZ * Size)
+			);
 
 			static GLProgramAttribute positionAttribute("positionAttribute");
-
-			positionAttribute(depthonlyProgram);
+			positionAttribute(depthOnlyProgram);
 
 			device.BindBuffer(IGLDevice::ArrayBuffer, buffer);
 			device.VertexAttribPointer(positionAttribute(), 3, IGLDevice::UnsignedByte, false,
@@ -348,7 +356,7 @@ namespace spades {
 		void GLMapChunk::RenderSunlightPass() {
 			SPADES_MARK_FUNCTION();
 
-			Vector3 eye = renderer.renderer.GetSceneDef().viewOrigin;
+			const auto& eye = renderer.renderer.GetSceneDef().viewOrigin;
 
 			if (!realized)
 				return;
@@ -359,10 +367,9 @@ namespace spades {
 			if (!buffer)
 				return; // empty chunk
 
-			AABB3 bx = aabb;
-
 			Vector3 diff = eye - centerPos;
 			float sx = 0.0F, sy = 0.0F;
+
 			// FIXME: variable map size?
 			if (diff.x > 256.0F)
 				sx += 512.0F;
@@ -373,25 +380,28 @@ namespace spades {
 			if (diff.y < -256.0F)
 				sy -= 512.0F;
 
+			AABB3 bx = aabb;
 			bx.min.x += sx;
 			bx.min.y += sy;
 			bx.max.x += sx;
 			bx.max.y += sy;
 
+			// frustrum cull
 			if (!renderer.renderer.BoxFrustrumCull(bx))
 				return;
 
 			GLProgram* basicProgram = renderer.basicProgram;
 
 			static GLProgramUniform chunkPosition("chunkPosition");
-
 			chunkPosition(basicProgram);
-			chunkPosition.SetValue((float)(chunkX * Size) + sx, (float)(chunkY * Size) + sy,
-			                       (float)(chunkZ * Size));
+			chunkPosition.SetValue(
+				(float)(chunkX * Size) + sx,
+				(float)(chunkY * Size) + sy,
+				(float)(chunkZ * Size)
+			);
 
 			static GLProgramAttribute positionAttribute("positionAttribute");
-			static GLProgramAttribute ambientOcclusionCoordAttribute(
-			  "ambientOcclusionCoordAttribute");
+			static GLProgramAttribute ambientOcclusionCoordAttribute("ambientOcclusionCoordAttribute");
 			static GLProgramAttribute colorAttribute("colorAttribute");
 			static GLProgramAttribute normalAttribute("normalAttribute");
 			static GLProgramAttribute fixedPositionAttribute("fixedPositionAttribute");
@@ -425,10 +435,10 @@ namespace spades {
 			device.BindBuffer(IGLDevice::ElementArrayBuffer, 0);
 		}
 
-		void GLMapChunk::RenderDLightPass(std::vector<GLDynamicLight> lights) {
+		void GLMapChunk::RenderDynamicLightPass(std::vector<GLDynamicLight> lights) {
 			SPADES_MARK_FUNCTION();
 
-			Vector3 eye = renderer.renderer.GetSceneDef().viewOrigin;
+			const auto& eye = renderer.renderer.GetSceneDef().viewOrigin;
 
 			if (!realized)
 				return;
@@ -439,10 +449,9 @@ namespace spades {
 			if (!buffer)
 				return; // empty chunk
 
-			AABB3 bx = aabb;
-
 			Vector3 diff = eye - centerPos;
 			float sx = 0.0F, sy = 0.0F;
+
 			// FIXME: variable map size?
 			if (diff.x > 256.0F)
 				sx += 512.0F;
@@ -453,21 +462,25 @@ namespace spades {
 			if (diff.y < -256.0F)
 				sy -= 512.0F;
 
+			AABB3 bx = aabb;
 			bx.min.x += sx;
 			bx.min.y += sy;
 			bx.max.x += sx;
 			bx.max.y += sy;
 
+			// frustrum cull
 			if (!renderer.renderer.BoxFrustrumCull(bx))
 				return;
 
 			GLProgram* program = renderer.dlightProgram;
 
 			static GLProgramUniform chunkPosition("chunkPosition");
-
 			chunkPosition(program);
-			chunkPosition.SetValue((float)(chunkX * Size) + sx, (float)(chunkY * Size) + sy,
-			                       (float)(chunkZ * Size));
+			chunkPosition.SetValue(
+				(float)(chunkX * Size) + sx,
+				(float)(chunkY * Size) + sy,
+				(float)(chunkZ * Size)
+			);
 
 			static GLProgramAttribute positionAttribute("positionAttribute");
 			static GLProgramAttribute colorAttribute("colorAttribute");
@@ -499,6 +512,66 @@ namespace spades {
 				                    IGLDevice::UnsignedShort, NULL);
 			}
 
+			device.BindBuffer(IGLDevice::ElementArrayBuffer, 0);
+		}
+
+		void GLMapChunk::RenderOutlinePass() {
+			SPADES_MARK_FUNCTION();
+
+			const auto& eye = renderer.renderer.GetSceneDef().viewOrigin;
+
+			if (!realized)
+				return;
+			if (needsUpdate) {
+				Update();
+				needsUpdate = false;
+			}
+			if (!buffer)
+				return; // empty chunk
+
+			Vector3 diff = eye - centerPos;
+			float sx = 0.0F, sy = 0.0F;
+
+			// FIXME: variable map size?
+			if (diff.x > 256.0F)
+				sx += 512.0F;
+			if (diff.y > 256.0F)
+				sy += 512.0F;
+			if (diff.x < -256.0F)
+				sx -= 512.0F;
+			if (diff.y < -256.0F)
+				sy -= 512.0F;
+
+			AABB3 bx = aabb;
+			bx.min.x += sx;
+			bx.min.y += sy;
+			bx.max.x += sx;
+			bx.max.y += sy;
+
+			// frustrum cull
+			if (!renderer.renderer.BoxFrustrumCull(bx))
+				return;
+
+			GLProgram* program = renderer.outlinesProgram;
+
+			static GLProgramUniform chunkPosition("chunkPosition");
+			chunkPosition(program);
+			chunkPosition.SetValue(
+				(float)(chunkX * Size) + sx,
+				(float)(chunkY * Size) + sy,
+				(float)(chunkZ * Size)
+			);
+
+			static GLProgramAttribute positionAttribute("positionAttribute");
+			positionAttribute(program);
+
+			device.BindBuffer(IGLDevice::ArrayBuffer, buffer);
+			device.VertexAttribPointer(positionAttribute(), 3, IGLDevice::UnsignedByte, false,
+			                           sizeof(Vertex), (void*)asOFFSET(Vertex, x));
+
+			device.BindBuffer(IGLDevice::ArrayBuffer, 0);
+			device.BindBuffer(IGLDevice::ElementArrayBuffer, iBuffer);
+			device.DrawElements(IGLDevice::Triangles, indices.size(), IGLDevice::UnsignedShort, NULL);
 			device.BindBuffer(IGLDevice::ElementArrayBuffer, 0);
 		}
 

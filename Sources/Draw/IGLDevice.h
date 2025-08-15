@@ -56,6 +56,7 @@ namespace spades {
 				// State
 				DepthTest,
 				CullFace,
+				PolygonOffsetLine,
 				Blend,
 				Multisample,
 				FramebufferSRGB,
@@ -103,7 +104,11 @@ namespace spades {
 				GreaterOrEqual,
 				NotEqual,
 
-				// cull
+				// Polygon
+				Line,
+				Fill,
+
+				// Cull Face
 				Front,
 				Back,
 				FrontAndBack,
@@ -263,7 +268,7 @@ namespace spades {
 
 			virtual void DepthRange(Float near, Float far) = 0;
 			virtual void Viewport(Integer x, Integer y, Sizei width, Sizei height) = 0;
-
+			
 			virtual void ClearDepth(Float) = 0;
 			virtual void ClearColor(Float, Float, Float, Float) = 0;
 			virtual void Clear(Enum) = 0;
@@ -274,6 +279,10 @@ namespace spades {
 			virtual void Finish() = 0;
 			virtual void Flush() = 0;
 
+			virtual void PolygonMode(Enum, Enum) = 0;
+			virtual void PolygonOffset(Float, Float) = 0;
+
+			virtual void CullFaceMode(Enum) = 0;
 			virtual void FrontFace(Enum) = 0;
 			virtual void Enable(Enum state, bool) = 0;
 

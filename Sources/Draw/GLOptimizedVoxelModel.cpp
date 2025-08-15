@@ -45,6 +45,7 @@ namespace spades {
 				renderer.RegisterProgram("Shaders/OptimizedVoxelModel.program");
 			renderer.RegisterProgram("Shaders/OptimizedVoxelModelDynamicLit.program");
 			renderer.RegisterProgram("Shaders/OptimizedVoxelModelShadowMap.program");
+			renderer.RegisterProgram("Shaders/OptimizedVoxelModelOutlines.program");
 			renderer.RegisterImage("Gfx/AmbientOcclusion.png");
 		}
 		GLOptimizedVoxelModel::GLOptimizedVoxelModel(VoxelModel* m, GLRenderer& r)
@@ -60,6 +61,7 @@ namespace spades {
 				program = renderer.RegisterProgram("Shaders/OptimizedVoxelModel.program");
 			dlightProgram = renderer.RegisterProgram("Shaders/OptimizedVoxelModelDynamicLit.program");
 			shadowMapProgram = renderer.RegisterProgram("Shaders/OptimizedVoxelModelShadowMap.program");
+			outlinesProgram = renderer.RegisterProgram("Shaders/OptimizedVoxelModelOutlines.program");
 			aoImage = renderer.RegisterImage("Gfx/AmbientOcclusion.png").Cast<GLImage>();
 
 			buffer = device.GenBuffer();
@@ -387,25 +389,25 @@ namespace spades {
 				vtx.ny = ny;
 				vtx.nz = nz;
 
-				vtx.x = sx + (int)p1.x * ux + (int)p1.y * vx;
-				vtx.y = sy + (int)p1.x * uy + (int)p1.y * vy;
-				vtx.z = sz + (int)p1.x * uz + (int)p1.y * vz;
-				vtx.u = (int)p1.x - tu;
-				vtx.v = (int)p1.y - tv;
+				vtx.x = sx + p1.x * ux + p1.y * vx;
+				vtx.y = sy + p1.x * uy + p1.y * vy;
+				vtx.z = sz + p1.x * uz + p1.y * vz;
+				vtx.u = p1.x - tu;
+				vtx.v = p1.y - tv;
 				vertices.push_back(vtx);
 
-				vtx.x = sx + (int)p2.x * ux + (int)p2.y * vx;
-				vtx.y = sy + (int)p2.x * uy + (int)p2.y * vy;
-				vtx.z = sz + (int)p2.x * uz + (int)p2.y * vz;
-				vtx.u = (int)p2.x - tu;
-				vtx.v = (int)p2.y - tv;
+				vtx.x = sx + p2.x * ux + p2.y * vx;
+				vtx.y = sy + p2.x * uy + p2.y * vy;
+				vtx.z = sz + p2.x * uz + p2.y * vz;
+				vtx.u = p2.x - tu;
+				vtx.v = p2.y - tv;
 				vertices.push_back(vtx);
 
-				vtx.x = sx + (int)p3.x * ux + (int)p3.y * vx;
-				vtx.y = sy + (int)p3.x * uy + (int)p3.y * vy;
-				vtx.z = sz + (int)p3.x * uz + (int)p3.y * vz;
-				vtx.u = (int)p3.x - tu;
-				vtx.v = (int)p3.y - tv;
+				vtx.x = sx + p3.x * ux + p3.y * vx;
+				vtx.y = sy + p3.x * uy + p3.y * vy;
+				vtx.z = sz + p3.x * uz + p3.y * vz;
+				vtx.u = p3.x - tu;
+				vtx.v = p3.y - tv;
 				vertices.push_back(vtx);
 
 				indices.push_back(flip ? idx : idx + 2);
@@ -540,7 +542,6 @@ namespace spades {
 			// setup attributes
 			static GLProgramAttribute positionAttribute("positionAttribute");
 			static GLProgramAttribute normalAttribute("normalAttribute");
-
 			positionAttribute(shadowMapProgram);
 			normalAttribute(shadowMapProgram);
 
@@ -559,28 +560,27 @@ namespace spades {
 			device.BindBuffer(IGLDevice::ElementArrayBuffer, idxBuffer);
 
 			for (const auto& param : params) {
-				if (param.depthHack)
-					continue;
-				if (!param.castShadow || param.ghost)
+				if (param.depthHack || !param.castShadow || param.ghost)
 					continue;
 
 				// frustrum cull
-				float rad = radius * param.matrix.GetAxis(0).GetLength();
-				if (!renderer.GetShadowMapRenderer()->SphereCull(param.matrix.GetOrigin(), rad))
+				const auto& modelMatrix = param.matrix;
+				const auto& modelOrigin = modelMatrix.GetOrigin();
+				float rad = radius * modelMatrix.GetAxis(0).GetLength();
+				if (!renderer.GetShadowMapRenderer()->SphereCull(modelOrigin, rad))
 					continue;
-
-				Matrix4 modelMatrix = param.matrix;
 
 				static GLProgramUniform modelMatrixU("modelMatrix");
 				modelMatrixU(shadowMapProgram);
 				modelMatrixU.SetValue(modelMatrix);
 
-				modelMatrix.m[12] = 0.0F;
-				modelMatrix.m[13] = 0.0F;
-				modelMatrix.m[14] = 0.0F;
+				Matrix4 modelNormalMat = modelMatrix;
+				modelNormalMat.m[12] = 0.0F;
+				modelNormalMat.m[13] = 0.0F;
+				modelNormalMat.m[14] = 0.0F;
 				static GLProgramUniform modelNormalMatrix("modelNormalMatrix");
 				modelNormalMatrix(shadowMapProgram);
-				modelNormalMatrix.SetValue(modelMatrix);
+				modelNormalMatrix.SetValue(modelNormalMat);
 
 				device.DrawElements(IGLDevice::Triangles,
 					numIndices, IGLDevice::UnsignedInt, (void*)0);
@@ -601,6 +601,10 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			bool mirror = renderer.IsRenderingMirror();
+
+			const auto& viewOrigin = renderer.GetSceneDef().viewOrigin;
+			const auto& viewMatrix = renderer.GetViewMatrix();
+			const auto& pvMat = renderer.GetProjectionViewMatrix();
 
 			device.ActiveTexture(0);
 			aoImage->Bind(IGLDevice::Texture2D);
@@ -650,7 +654,6 @@ namespace spades {
 
 			static GLProgramUniform viewMatrixU("viewMatrix");
 			viewMatrixU(program);
-			Matrix4 viewMatrix = renderer.GetViewMatrix();
 			viewMatrixU.SetValue(viewMatrix);
 
 			static GLProgramUniform viewSpaceLight("viewSpaceLight");
@@ -666,14 +669,12 @@ namespace spades {
 
 			static GLProgramUniform viewOriginVector("viewOriginVector");
 			viewOriginVector(program);
-			const auto& viewOrigin = renderer.GetSceneDef().viewOrigin;
 			viewOriginVector.SetValue(viewOrigin.x, viewOrigin.y, viewOrigin.z);
 
 			// setup attributes
 			static GLProgramAttribute positionAttribute("positionAttribute");
 			static GLProgramAttribute textureCoordAttribute("textureCoordAttribute");
 			static GLProgramAttribute normalAttribute("normalAttribute");
-
 			positionAttribute(program);
 			textureCoordAttribute(program);
 			normalAttribute(program);
@@ -700,19 +701,19 @@ namespace spades {
 					continue;
 
 				// frustrum cull
-				float rad = radius * param.matrix.GetAxis(0).GetLength();
-				if (!renderer.SphereFrustrumCull(param.matrix.GetOrigin(), rad))
+				const auto& modelMatrix = param.matrix;
+				const auto& modelOrigin = modelMatrix.GetOrigin();
+				float rad = radius * modelMatrix.GetAxis(0).GetLength();
+				if (!renderer.SphereFrustrumCull(modelOrigin, rad))
 					continue;
 
 				static GLProgramUniform customColor("customColor");
 				customColor(program);
 				customColor.SetValue(param.customColor.x, param.customColor.y, param.customColor.z);
 
-				Matrix4 modelMatrix = param.matrix;
-
 				static GLProgramUniform projectionViewModelMatrix("projectionViewModelMatrix");
 				projectionViewModelMatrix(program);
-				projectionViewModelMatrix.SetValue(renderer.GetProjectionViewMatrix() * modelMatrix);
+				projectionViewModelMatrix.SetValue(pvMat * modelMatrix);
 
 				static GLProgramUniform viewModelMatrix("viewModelMatrix");
 				viewModelMatrix(program);
@@ -722,12 +723,13 @@ namespace spades {
 				modelMatrixU(program);
 				modelMatrixU.SetValue(modelMatrix);
 
-				modelMatrix.m[12] = 0.0F;
-				modelMatrix.m[13] = 0.0F;
-				modelMatrix.m[14] = 0.0F;
+				Matrix4 modelNormalMat = modelMatrix;
+				modelNormalMat.m[12] = 0.0F;
+				modelNormalMat.m[13] = 0.0F;
+				modelNormalMat.m[14] = 0.0F;
 				static GLProgramUniform modelNormalMatrix("modelNormalMatrix");
 				modelNormalMatrix(program);
-				modelNormalMatrix.SetValue(modelMatrix);
+				modelNormalMatrix.SetValue(modelNormalMat);
 
 				static GLProgramUniform modelOpacity("modelOpacity");
 				modelOpacity(program);
@@ -760,6 +762,10 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			bool mirror = renderer.IsRenderingMirror();
+
+			const auto& viewOrigin = renderer.GetSceneDef().viewOrigin;
+			const auto& viewMatrix = renderer.GetViewMatrix();
+			const auto& pvMat = renderer.GetProjectionViewMatrix();
 
 			device.ActiveTexture(0);
 			aoImage->Bind(IGLDevice::Texture2D);
@@ -798,14 +804,12 @@ namespace spades {
 
 			static GLProgramUniform viewOriginVector("viewOriginVector");
 			viewOriginVector(dlightProgram);
-			const auto& viewOrigin = renderer.GetSceneDef().viewOrigin;
 			viewOriginVector.SetValue(viewOrigin.x, viewOrigin.y, viewOrigin.z);
 
 			// setup attributes
 			static GLProgramAttribute positionAttribute("positionAttribute");
 			static GLProgramAttribute textureCoordAttribute("textureCoordAttribute");
 			static GLProgramAttribute normalAttribute("normalAttribute");
-
 			positionAttribute(dlightProgram);
 			textureCoordAttribute(dlightProgram);
 			normalAttribute(dlightProgram);
@@ -832,39 +836,41 @@ namespace spades {
 					continue;
 
 				// frustrum cull
-				float rad = radius * param.matrix.GetAxis(0).GetLength();
-				if (!renderer.SphereFrustrumCull(param.matrix.GetOrigin(), rad))
+				const auto& modelMatrix = param.matrix;
+				const auto& modelOrigin = modelMatrix.GetOrigin();
+				float rad = radius * modelMatrix.GetAxis(0).GetLength();
+				if (!renderer.SphereFrustrumCull(modelOrigin, rad))
 					continue;
 
 				static GLProgramUniform customColor("customColor");
 				customColor(dlightProgram);
 				customColor.SetValue(param.customColor.x, param.customColor.y, param.customColor.z);
-
-				Matrix4 modelMatrix = param.matrix;
+				
 				static GLProgramUniform projectionViewModelMatrix("projectionViewModelMatrix");
 				projectionViewModelMatrix(dlightProgram);
-				projectionViewModelMatrix.SetValue(renderer.GetProjectionViewMatrix() * modelMatrix);
+				projectionViewModelMatrix.SetValue(pvMat * modelMatrix);
 
 				static GLProgramUniform viewModelMatrix("viewModelMatrix");
 				viewModelMatrix(dlightProgram);
-				viewModelMatrix.SetValue(renderer.GetViewMatrix() * modelMatrix);
+				viewModelMatrix.SetValue(viewMatrix * modelMatrix);
 
 				static GLProgramUniform modelMatrixU("modelMatrix");
 				modelMatrixU(dlightProgram);
 				modelMatrixU.SetValue(modelMatrix);
 
-				modelMatrix.m[12] = 0.0F;
-				modelMatrix.m[13] = 0.0F;
-				modelMatrix.m[14] = 0.0F;
+				Matrix4 modelNormalMat = modelMatrix;
+				modelNormalMat.m[12] = 0.0F;
+				modelNormalMat.m[13] = 0.0F;
+				modelNormalMat.m[14] = 0.0F;
 				static GLProgramUniform modelNormalMatrix("modelNormalMatrix");
 				modelNormalMatrix(dlightProgram);
-				modelNormalMatrix.SetValue(modelMatrix);
+				modelNormalMatrix.SetValue(modelNormalMat);
 
 				if (param.depthHack)
 					device.DepthRange(0.0F, 0.1F);
 
 				for (const auto& light : lights) {
-					if (!light.SphereCull(param.matrix.GetOrigin(), rad))
+					if (!light.SphereCull(modelOrigin, rad))
 						continue;
 
 					dlightShader(&renderer, dlightProgram, light, 2);
@@ -883,6 +889,99 @@ namespace spades {
 			device.EnableVertexAttribArray(normalAttribute(), false);
 
 			device.ActiveTexture(0);
+		}
+
+		void GLOptimizedVoxelModel::RenderOutlinePass(
+			std::vector<client::ModelRenderParam> params) {
+			SPADES_MARK_FUNCTION();
+
+			bool mirror = renderer.IsRenderingMirror();
+
+			const auto& viewOrigin = renderer.GetSceneDef().viewOrigin;
+			const auto& pvMat = renderer.GetProjectionViewMatrix();
+
+			device.ActiveTexture(0);
+			aoImage->Bind(IGLDevice::Texture2D);
+			device.TexParamater(IGLDevice::Texture2D,
+				IGLDevice::TextureMinFilter, IGLDevice::Linear);
+
+			device.ActiveTexture(1);
+			image->Bind(IGLDevice::Texture2D);
+			device.TexParamater(IGLDevice::Texture2D,
+				IGLDevice::TextureMinFilter, IGLDevice::Nearest);
+			device.TexParamater(IGLDevice::Texture2D,
+				IGLDevice::TextureMagFilter, IGLDevice::Nearest);
+
+			device.Enable(IGLDevice::CullFace, true);
+			device.Enable(IGLDevice::DepthTest, true);
+
+			outlinesProgram->Use();
+
+			static GLProgramUniform fogColor("fogColor");
+			fogColor(outlinesProgram);
+			Vector3 fogCol = renderer.GetFogColorForSolidPass();
+			fogCol *= fogCol; // linearize
+			fogColor.SetValue(fogCol.x, fogCol.y, fogCol.z);
+
+			static GLProgramUniform fogDistance("fogDistance");
+			fogDistance(outlinesProgram);
+			fogDistance.SetValue(renderer.GetFogDistance());
+
+			static GLProgramUniform modelOrigin("modelOrigin");
+			modelOrigin(outlinesProgram);
+			modelOrigin.SetValue(origin.x, origin.y, origin.z);
+
+			static GLProgramUniform viewOriginVector("viewOriginVector");
+			viewOriginVector(outlinesProgram);	
+			viewOriginVector.SetValue(viewOrigin.x, viewOrigin.y, viewOrigin.z);
+
+			// setup attributes
+			static GLProgramAttribute positionAttribute("positionAttribute");
+			positionAttribute(outlinesProgram);
+
+			device.BindBuffer(IGLDevice::ArrayBuffer, buffer);
+			device.VertexAttribPointer(positionAttribute(), 4,
+				IGLDevice::UnsignedByte, false, sizeof(Vertex), (void*)0);
+			device.BindBuffer(IGLDevice::ArrayBuffer, 0);
+
+			device.EnableVertexAttribArray(positionAttribute(), true);
+
+			device.BindBuffer(IGLDevice::ElementArrayBuffer, idxBuffer);
+
+			for (const auto& param : params) {
+				if (mirror && param.depthHack)
+					continue;
+				if (param.ghost)
+					continue;
+
+				// frustrum cull
+				const auto& modelMatrix = param.matrix;
+				const auto& modelOrigin = modelMatrix.GetOrigin();
+				float rad = radius * modelMatrix.GetAxis(0).GetLength();
+				if (!renderer.SphereFrustrumCull(modelOrigin, rad))
+					continue;
+
+				static GLProgramUniform projectionViewModelMatrix("projectionViewModelMatrix");
+				projectionViewModelMatrix(outlinesProgram);
+				projectionViewModelMatrix.SetValue(pvMat * modelMatrix);
+
+				static GLProgramUniform modelMatrixU("modelMatrix");
+				modelMatrixU(outlinesProgram);
+				modelMatrixU.SetValue(modelMatrix);
+
+				if (param.depthHack)
+					device.DepthRange(0.0F, 0.1F);
+
+				device.DrawElements(IGLDevice::Triangles,
+					numIndices, IGLDevice::UnsignedInt, (void*)0);
+
+				if (param.depthHack)
+					device.DepthRange(0.0F, 1.0F);
+			}
+
+			device.BindBuffer(IGLDevice::ElementArrayBuffer, 0);
+
+			device.EnableVertexAttribArray(positionAttribute(), false);
 		}
 	} // namespace draw
 } // namespace spades

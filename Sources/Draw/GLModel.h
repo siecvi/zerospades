@@ -51,6 +51,8 @@ namespace spades {
 			virtual void RenderDynamicLightPass(std::vector<client::ModelRenderParam> params,
 			                                    std::vector<GLDynamicLight> lights) = 0;
 
+			virtual void RenderOutlinePass(std::vector<client::ModelRenderParam> params) = 0;
+
 		private:
 			// members used when rendering by GLModelRenderer
 			int renderId;

@@ -52,6 +52,8 @@ namespace spades {
 			GLProgram* program;
 			GLProgram* dlightProgram;
 			GLProgram* shadowMapProgram;
+			GLProgram* outlinesProgram;
+
 			Handle<GLImage> image;
 			Handle<GLImage> aoImage;
 
@@ -90,7 +92,8 @@ namespace spades {
 			void RenderShadowMapPass(std::vector<client::ModelRenderParam> params) override;
 			void RenderSunlightPass(std::vector<client::ModelRenderParam> params, bool ghostPass) override;
 			void RenderDynamicLightPass(std::vector<client::ModelRenderParam> params, std::vector<GLDynamicLight> lights) override;
-			
+			void RenderOutlinePass(std::vector<client::ModelRenderParam> params) override;
+
 			IntVector3 GetDimensions() override { return dimensions; }
 			AABB3 GetBoundingBox() override { return boundingBox; }
 		};

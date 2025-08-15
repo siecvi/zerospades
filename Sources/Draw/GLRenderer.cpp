@@ -581,7 +581,7 @@ namespace spades {
 			device->EnableVertexAttribArray(colorAttribute(), false);
 		}
 
-		void GLRenderer::RenderObjects() {
+		void GLRenderer::RenderObjects(bool mirror) {
 			// draw opaque objects, and do dynamic lighting
 			device->Enable(IGLDevice::DepthTest, true);
 			device->Enable(IGLDevice::Texture2D, true);
@@ -595,7 +595,9 @@ namespace spades {
 			if (needsDepthPrepass) {
 				{
 					GLProfiler::Context p(*profiler, "Depth-only Prepass");
+
 					device->DepthFunc(IGLDevice::Less);
+
 					if (!sceneDef.skipWorld && mapRenderer)
 						mapRenderer->Prerender();
 					if (needsFullDepthPrepass)
@@ -605,6 +607,7 @@ namespace spades {
 				if (needsFullDepthPrepass) {
 					{
 						GLProfiler::Context p(*profiler, "Screen Space Ambient Occlusion");
+
 						device->DepthMask(false);
 						device->Enable(IGLDevice::DepthTest, false);
 						device->Enable(IGLDevice::CullFace, false);
@@ -618,6 +621,8 @@ namespace spades {
 						device->TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMinFilter,
 						                     IGLDevice::Nearest);
 
+						device->DepthMask(true);
+						device->Enable(IGLDevice::DepthTest, true);
 						device->Enable(IGLDevice::CullFace, true);
 					}
 
@@ -631,7 +636,6 @@ namespace spades {
 				device->DepthFunc(IGLDevice::LessOrEqual);
 				if (!sceneDef.skipWorld && mapRenderer)
 					mapRenderer->RenderSunlightPass();
-
 				modelRenderer->RenderSunlightPass(false);
 			}
 
@@ -648,22 +652,43 @@ namespace spades {
 				GLProfiler::Context p(*profiler, "Dynamic Light Pass [%d light(s)]",
 				                      (int)lights.size());
 
-				device->Enable(IGLDevice::Blend, true);
-				device->Enable(IGLDevice::DepthTest, true);
 				device->DepthFunc(IGLDevice::Equal);
+				device->Enable(IGLDevice::Blend, true);
 				device->BlendFunc(IGLDevice::SrcAlpha, IGLDevice::One, IGLDevice::Zero,
 				                  IGLDevice::One);
 
 				if (!sceneDef.skipWorld && mapRenderer)
 					mapRenderer->RenderDynamicLightPass(lights);
-
 				modelRenderer->RenderDynamicLightPass(lights);
+
+				device->Enable(IGLDevice::Blend, false);
+			}
+
+			if (settings.r_outlines && !mirror) {
+				GLProfiler::Context p(*profiler, "Outline Pass");
+
+				device->DepthFunc(IGLDevice::Less);
+				device->Enable(IGLDevice::CullFace, true);
+				device->CullFaceMode(IGLDevice::Front);
+				device->Enable(IGLDevice::PolygonOffsetLine, true);
+				device->PolygonMode(IGLDevice::Back, IGLDevice::Line);
+				device->PolygonOffset(1.0F, 1.0F);
+				device->LineWidth(2.0F);
+
+				if (!sceneDef.skipWorld && mapRenderer)
+					mapRenderer->RenderOutlinePass();
+				modelRenderer->RenderOutlinePass();
+
+				device->CullFaceMode(IGLDevice::Back);
+				device->Enable(IGLDevice::PolygonOffsetLine, false);
+				device->PolygonMode(IGLDevice::Back, IGLDevice::Fill);
+				device->PolygonOffset(0.0F, 0.0F);
+				device->LineWidth(1.0F);
 			}
 
 			{
 				GLProfiler::Context p(*profiler, "Debug Line");
-				device->Enable(IGLDevice::Blend, false);
-				device->Enable(IGLDevice::DepthTest, true);
+
 				device->DepthFunc(IGLDevice::Less);
 				RenderDebugLines();
 			}
@@ -673,6 +698,7 @@ namespace spades {
 			// Run a depth-only pass so that for each pixel, objects are drawn only once
 			{
 				GLProfiler::Context p(*profiler, "Depth-only Prepass");
+
 				device->DepthFunc(IGLDevice::Less);
 				modelRenderer->Prerender(true);
 			}
@@ -681,11 +707,13 @@ namespace spades {
 			{
 				GLProfiler::Context p(*profiler, "Ghost Pass");
 
-				device->Enable(IGLDevice::Blend, true);
 				device->DepthMask(false);
+				device->DepthFunc(IGLDevice::Equal);
+
+				device->Enable(IGLDevice::Blend, true);
 				device->BlendFunc(IGLDevice::SrcAlpha, IGLDevice::OneMinusSrcAlpha, IGLDevice::Zero,
 				                  IGLDevice::One);
-				device->DepthFunc(IGLDevice::Equal);
+
 				modelRenderer->RenderSunlightPass(true);
 			}
 
@@ -714,6 +742,7 @@ namespace spades {
 
 			{
 				GLProfiler::Context p(*profiler, "Upload Dynamic Data");
+
 				if (mapShadowRenderer)
 					mapShadowRenderer->Update();
 				if (ambientShadowRenderer)
@@ -730,8 +759,10 @@ namespace spades {
 			// build shadowmap
 			{
 				GLProfiler::Context p(*profiler, "Shadow Map Pass");
+
 				device->Enable(IGLDevice::DepthTest, true);
 				device->DepthFunc(IGLDevice::Less);
+
 				if (shadowMapRenderer)
 					shadowMapRenderer->Render();
 			}
@@ -749,11 +780,11 @@ namespace spades {
 			if ((int)settings.r_water >= 2) {
 				// for Water 2 (r_water >= 2), we need to render reflection
 				try {
-					IGLDevice::UInteger occQu =
-					  waterRenderer ? waterRenderer->GetOcclusionQuery() : 0;
-
-					device->FrontFace(IGLDevice::CCW);
+					// render mirrored scene
 					renderingMirror = true;
+
+					IGLDevice::UInteger occQu = waterRenderer
+						? waterRenderer->GetOcclusionQuery() : 0;
 
 					// save normal matrices
 					Matrix4 view;
@@ -775,14 +806,19 @@ namespace spades {
 
 					{
 						GLProfiler::Context p(*profiler, "Clear (Mirrored Scene)");
+
 						device->ClearColor(bgCol.x, bgCol.y, bgCol.z, 1.0F);
 						device->Clear(
 						  (IGLDevice::Enum)(IGLDevice::ColorBufferBit | IGLDevice::DepthBufferBit));
 					}
 
-					// render scene
-					GLProfiler::Context p(*profiler, "Mirrored Objects");
-					RenderObjects();
+					device->FrontFace(IGLDevice::CCW);
+					
+					// render mirrored objects
+					{
+						GLProfiler::Context p(*profiler, "Mirrored Objects");
+						RenderObjects(true);
+					}
 
 					// restore matrices
 					std::swap(view, viewMatrix);
@@ -816,12 +852,14 @@ namespace spades {
 				}
 			}
 
+			// render non-mirrored scene
 			bgCol = GetFogColorForSolidPass();
 			if (settings.r_hdr)
 				bgCol *= bgCol;  // linearlize
 
 			{
-				GLProfiler::Context p(*profiler, "Clear");
+				GLProfiler::Context p(*profiler, "Clear (Non-mirrored Scene)");
+
 				device->ClearColor(bgCol.x, bgCol.y, bgCol.z, 1.0F);
 				device->Clear(
 				  (IGLDevice::Enum)(IGLDevice::ColorBufferBit | IGLDevice::DepthBufferBit));
@@ -829,6 +867,7 @@ namespace spades {
 
 			device->FrontFace(IGLDevice::CW);
 
+			// render non-mirrored objects
 			{
 				GLProfiler::Context p(*profiler, "Non-mirrored Objects");
 				RenderObjects();
@@ -847,19 +886,23 @@ namespace spades {
 			}
 
 			device->Enable(IGLDevice::Blend, true);
-
 			device->DepthMask(false);
+
 			if (!settings.r_softParticles) { // softparticle is a part of postprocess
 				GLProfiler::Context p(*profiler, "Particles");
+
 				device->BlendFunc(IGLDevice::One, IGLDevice::OneMinusSrcAlpha, IGLDevice::Zero,
 				                  IGLDevice::One);
+
 				spriteRenderer->Render();
 			}
 
 			{
 				GLProfiler::Context p(*profiler, "Long Particles");
+
 				device->BlendFunc(IGLDevice::One, IGLDevice::OneMinusSrcAlpha, IGLDevice::Zero,
 				                  IGLDevice::One);
+
 				longSpriteRenderer->Render();
 			}
 

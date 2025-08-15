@@ -53,8 +53,8 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			GLProfiler::Context profiler(renderer.GetGLProfiler(),
-				"Model [%d model(s), %d unique model type(s)]", modelCount,
-				(int)models.size());
+				"Model [%d model(s), %d unique model type(s)]",
+				modelCount, (int)models.size());
 
 			int numModels = 0;
 			for (const auto& m : models) {
@@ -72,8 +72,8 @@ namespace spades {
 			device.ColorMask(false, false, false, false);
 
 			GLProfiler::Context profiler(renderer.GetGLProfiler(),
-				"Model [%d model(s), %d unique model type(s)]", modelCount,
-				(int)models.size());
+				"Model [%d model(s), %d unique model type(s)]",
+				modelCount, (int)models.size());
 
 			int numModels = 0;
 			for (const auto& m : models) {
@@ -88,8 +88,8 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			GLProfiler::Context profiler(renderer.GetGLProfiler(),
-				"Model [%d model(s), %d unique model type(s)]", modelCount,
-				(int)models.size());
+				"Model [%d model(s), %d unique model type(s)]",
+				modelCount, (int)models.size());
 
 			for (const auto& m : models) {
 				GLModel* model = m.model;
@@ -101,8 +101,8 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			GLProfiler::Context profiler(renderer.GetGLProfiler(),
-				"Model [%d model(s), %d unique model type(s)]", modelCount,
-				(int)models.size());
+				"Model [%d model(s), %d unique model type(s)]",
+				modelCount, (int)models.size());
 
 			if (lights.empty())
 				return;
@@ -110,6 +110,19 @@ namespace spades {
 			for (const auto& m : models) {
 				GLModel* model = m.model;
 				model->RenderDynamicLightPass(m.params, lights);
+			}
+		}
+
+		void GLModelRenderer::RenderOutlinePass() {
+			SPADES_MARK_FUNCTION();
+
+			GLProfiler::Context profiler(renderer.GetGLProfiler(),
+				"Model [%d model(s), %d unique model type(s)]",
+				modelCount, (int)models.size());
+
+			for (const auto& m : models) {
+				GLModel* model = m.model;
+				model->RenderOutlinePass(m.params);
 			}
 		}
 

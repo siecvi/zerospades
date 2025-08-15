@@ -61,6 +61,7 @@ namespace spades {
 			TypedItemHandle<int> r_multisamples         { *this, "r_multisamples", ItemFlags::Latch };
 			TypedItemHandle<bool> r_occlusionQuery      { *this, "r_occlusionQuery" };
 			TypedItemHandle<bool> r_physicalLighting    { *this, "r_physicalLighting", ItemFlags::Latch };
+			TypedItemHandle<bool> r_outlines            { *this, "r_outlines" };
 			TypedItemHandle<int> r_radiosity            { *this, "r_radiosity", ItemFlags::Latch };
 			TypedItemHandle<float> r_saturation         { *this, "r_saturation" };
 			TypedItemHandle<float> r_scale              { *this, "r_scale" };

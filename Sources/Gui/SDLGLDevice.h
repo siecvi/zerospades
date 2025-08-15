@@ -52,6 +52,10 @@ namespace spades {
 			void DepthMask(bool) override;
 			void ColorMask(bool r, bool g, bool b, bool a) override;
 
+			void PolygonMode(Enum, Enum) override;
+			void PolygonOffset(Float, Float) override;
+
+			void CullFaceMode(Enum) override;
 			void FrontFace(Enum) override;
 			void Enable(Enum state, bool) override;
 

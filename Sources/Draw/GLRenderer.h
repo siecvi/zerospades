@@ -142,7 +142,7 @@ namespace spades {
 
 			void RenderDebugLines();
 
-			void RenderObjects();
+			void RenderObjects(bool mirror = false);
 			void RenderGhosts();
 
 			void EnsureInitialized();

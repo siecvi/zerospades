@@ -278,6 +278,42 @@ namespace spades {
 			CheckError();
 		}
 
+		void SDLGLDevice::PolygonMode(Enum face, Enum val) {
+			CheckExistence(glPolygonMode);
+
+			GLenum glFace;
+			switch (face) {
+				case draw::IGLDevice::Front: glFace = GL_FRONT; break;
+				case draw::IGLDevice::Back: glFace = GL_BACK; break;
+				case draw::IGLDevice::FrontAndBack: glFace = GL_FRONT_AND_BACK; break;
+				default: SPInvalidEnum("face", face);
+			}
+
+			GLenum glMode;
+			switch (val) {
+				case draw::IGLDevice::Line: glMode = GL_LINE; break;
+				case draw::IGLDevice::Fill: glMode = GL_FILL; break;
+				default: SPInvalidEnum("val", val);
+			}
+
+			glPolygonMode(glFace, glMode);
+			CheckError();
+		}
+		void SDLGLDevice::PolygonOffset(Float factor, Float units) {
+			CheckExistence(glPolygonOffset);
+			glPolygonOffset(factor, units);
+			CheckError();
+		}
+
+		void SDLGLDevice::CullFaceMode(Enum val) {
+			CheckExistence(glCullFace);
+			switch (val) {
+				case draw::IGLDevice::Front: glCullFace(GL_FRONT); break;
+				case draw::IGLDevice::Back: glCullFace(GL_BACK); break;
+				default: SPInvalidEnum("val", val);
+			}
+			CheckError();
+		}
 		void SDLGLDevice::FrontFace(Enum val) {
 			CheckExistence(glFrontFace);
 			switch (val) {
@@ -295,6 +331,7 @@ namespace spades {
 				case DepthTest: type = GL_DEPTH_TEST; break;
 				case CullFace: type = GL_CULL_FACE; break;
 				case Blend: type = GL_BLEND; break;
+				case PolygonOffsetLine: type = GL_POLYGON_OFFSET_LINE; break;
 				case Texture2D: type = GL_TEXTURE_2D; break;
 				case Multisample: type = GL_MULTISAMPLE; break;
 				case FramebufferSRGB: type = GL_FRAMEBUFFER_SRGB; break;

@@ -44,6 +44,8 @@ namespace spades {
 			GLProgram* basicProgram;
 			GLProgram* dlightProgram;
 			GLProgram* backfaceProgram;
+			GLProgram* outlinesProgram;
+
 			Handle<GLImage> aoImage;
 
 			IGLDevice::UInteger squareVertexBuffer;
@@ -72,8 +74,9 @@ namespace spades {
 
 			void DrawColumnDepth(int cx, int cy, int cz, Vector3 eye);
 			void DrawColumnSunlight(int cx, int cy, int cz, Vector3 eye);
-			void DrawColumnDLight(int cx, int cy, int cz, Vector3 eye,
-			                      const std::vector<GLDynamicLight>& lights);
+			void DrawColumnDynamicLight(int cx, int cy, int cz, Vector3 eye,
+			                            const std::vector<GLDynamicLight>& lights);
+			void DrawColumnOutline(int cx, int cy, int cz, Vector3 eye);
 
 			void RenderBackface();
 
@@ -91,6 +94,7 @@ namespace spades {
 			void Prerender();
 			void RenderSunlightPass();
 			void RenderDynamicLightPass(std::vector<GLDynamicLight> lights);
+			void RenderOutlinePass();
 		};
 	} // namespace draw
 } // namespace spades
