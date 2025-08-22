@@ -34,11 +34,20 @@ namespace spades {
 			// detect game mode
 			const std::string gameModeMsg = "game mode: ";
 			if (StartsWith(lowerMsg, gameModeMsg)) {
-				std::string modeStr = lowerMsg.substr(gameModeMsg.size());
+				std::string modeStr = TrimSpaces(lowerMsg.substr(gameModeMsg.size()));
 				if (modeStr.find("arena") != std::string::npos)
 					isGameModeArena = true;
-				
 				SPLog("Game mode: %s, based on server message heuristics", modeStr.c_str());
+			}
+
+			// detect login
+			const std::string loginMsg = "you logged in as ";
+			if (StartsWith(lowerMsg, loginMsg)) {
+				std::string roleStr = TrimSpaces(lowerMsg.substr(loginMsg.size()));
+				size_t pos = roleStr.find_first_of(" \t\n\r:,.(");
+				std::string roleName = (pos == std::string::npos) ? roleStr : roleStr.substr(0, pos);
+				isStaff = (roleName == "guard" || roleName == "moderator" || roleName == "admin");
+				SPLog("Logged in as: %s, based on server message heuristics", roleName.c_str());
 			}
 		}
 	} // namespace client

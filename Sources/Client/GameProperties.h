@@ -56,6 +56,7 @@ namespace spades {
 			 */
 			bool useHeuristics = true;
 			bool isGameModeArena = false;
+			bool isStaff = false;
 
 			/**
 			 * Raises the upper limit of the number of player slots to 256.
