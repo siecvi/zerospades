@@ -21,6 +21,7 @@
 namespace spades {
 	class ViewShotgunSkin : BasicViewWeapon {
 		private AudioDevice@ audioDevice;
+
 		private Model@ gunModel;
 		private Model@ pumpModel;
 		private Model@ rearSightModel;
@@ -52,16 +53,22 @@ namespace spades {
 		private float reflexSightScale = 0.08F;
 
 		// A bunch of springs.
+		private ViewWeaponSpring reloadPitchSpring = ViewWeaponSpring(150, 12, 0);
+		private ViewWeaponSpring reloadRollSpring = ViewWeaponSpring(150, 16, 0);
+		private ViewWeaponSpring reloadOffsetSpring = ViewWeaponSpring(150, 12, 0);
 		private ViewWeaponSpring recoilVerticalSpring = ViewWeaponSpring(200, 24);
 		private ViewWeaponSpring recoilBackSpring = ViewWeaponSpring(100, 16);
 		private ViewWeaponSpring recoilRotationSpring = ViewWeaponSpring(50, 8);
 		private ViewWeaponSpring horizontalSwingSpring = ViewWeaponSpring(100, 12);
 		private ViewWeaponSpring verticalSwingSpring = ViewWeaponSpring(100, 12);
-		private ViewWeaponSpring reloadPitchSpring = ViewWeaponSpring(150, 12, 0);
-		private ViewWeaponSpring reloadRollSpring = ViewWeaponSpring(150, 16, 0);
-		private ViewWeaponSpring reloadOffsetSpring = ViewWeaponSpring(150, 12, 0);
 		private ViewWeaponSpring sprintSpring = ViewWeaponSpring(100, 10, 0);
 		private ViewWeaponSpring raiseSpring = ViewWeaponSpring(200, 20, 1);
+
+		// charm springs
+		private ViewWeaponSpring charmHorizontalSwingSpring = ViewWeaponSpring(200, 4);
+		private ViewWeaponSpring charmVerticalSwingSpring = ViewWeaponSpring(200, 4);
+		private ViewWeaponSpring charmSprintSpring = ViewWeaponSpring(200, 4);
+		private ViewWeaponSpring charmRaiseSpring = ViewWeaponSpring(200, 4);
 
 		// A bunch of events.
 		private ViewWeaponEvent pumpHandlePulled = ViewWeaponEvent();
@@ -77,9 +84,11 @@ namespace spades {
 			if (reload < 0.6) {
 				reloadPitchSpring.desired = 0.4;
 				reloadRollSpring.desired = 0.4;
+				charmVerticalSwingSpring.desired = -0.01F;
 			} else {
 				reloadPitchSpring.desired = 0;
 				reloadRollSpring.desired = 0;
+				charmVerticalSwingSpring.desired = 0;
 			}
 
 			if (shellInserted.WasActivated()) {
@@ -87,6 +96,7 @@ namespace spades {
 				reloadPitchSpring.velocity = 5;
 				reloadRollSpring.velocity = 5;
 				reloadOffsetSpring.velocity = -1;
+				charmVerticalSwingSpring.velocity += 0.01F;
 			}
 
 			if (pumpHandlePulled.WasActivated()) {
@@ -94,6 +104,7 @@ namespace spades {
 				reloadPitchSpring.velocity = 5;
 				reloadRollSpring.velocity = -1;
 				reloadOffsetSpring.velocity = 0.5;
+				charmVerticalSwingSpring.velocity += 0.2F;
 			}
 
 			float sp = 1.0F - AimDownSightStateSmooth;
@@ -156,7 +167,7 @@ namespace spades {
 		Vector3 GetLeftHandOffset() {
 			float reload = reloadProgress * 0.5F;
 
-			Vector3 leftHandOffset = Vector3(1.0F, 3.0F, 0.5F);
+			Vector3 leftHandOffset = Vector3(1.0F, 4.0F, 1.0F);
 			Vector3 loadOffset = Vector3(1.0F, -2.0F, 1.0F);
 			Vector3 pumpHandleOffset = leftHandOffset + GetPumpOffset();
 
@@ -218,10 +229,13 @@ namespace spades {
 		void Update(float dt) {
 			BasicViewWeapon::Update(dt);
 
+			reloadPitchSpring.Update(dt);
+			reloadRollSpring.Update(dt);
+			reloadOffsetSpring.Update(dt);
+
 			recoilVerticalSpring.damping = Mix(16, 24, AimDownSightState);
 			recoilBackSpring.damping = Mix(12, 20, AimDownSightState);
 			recoilRotationSpring.damping = Mix(8, 16, AimDownSightState);
-
 			recoilVerticalSpring.Update(dt);
 			recoilBackSpring.Update(dt);
 			recoilRotationSpring.Update(dt);
@@ -231,12 +245,16 @@ namespace spades {
 			horizontalSwingSpring.Update(dt);
 			verticalSwingSpring.Update(dt);
 
-			reloadPitchSpring.Update(dt);
-			reloadRollSpring.Update(dt);
-			reloadOffsetSpring.Update(dt);
-
 			sprintSpring.Update(dt);
 			raiseSpring.Update(dt);
+
+			// update charm springs
+			charmHorizontalSwingSpring.velocity += swing.x * 60 * dt * 2;
+			charmVerticalSwingSpring.velocity += swing.z * 60 * dt * 2;
+			charmHorizontalSwingSpring.Update(dt);
+			charmVerticalSwingSpring.Update(dt);
+			charmSprintSpring.Update(dt);
+			charmRaiseSpring.Update(dt);
 
 			bool isSprinting = sprintState >= 1 or sprintState > lastSprintState;
 			bool isRaised = raiseState >= 1 or raiseState > lastRaiseState;
@@ -271,6 +289,9 @@ namespace spades {
 			recoilBackSpring.position += 0.1;
 			recoilBackSpring.velocity += 1.0;
 			recoilRotationSpring.velocity += (GetRandom() * 2 - 1);
+
+			charmHorizontalSwingSpring.velocity += (GetRandom() * 2 - 1) * 0.1F;
+			charmVerticalSwingSpring.velocity += 0.3F;
 		}
 
 		void ReloadingWeapon() {
@@ -282,6 +303,9 @@ namespace spades {
 				param.volume = 0.5F;
 				audioDevice.PlayLocal(reloadSound, origin, param);
 			}
+
+			charmHorizontalSwingSpring.velocity += 0.1F;
+			charmVerticalSwingSpring.velocity += 0.1F;
 		}
 
 		void ReloadedWeapon() {
@@ -421,6 +445,43 @@ namespace spades {
 			renderer.AddModel(frontSightModel, param); // front pin
 			renderer.AddModel(dotSightModel, param); // front pin (emissive)
 
+			// draw charms
+			if (cg_weaponCharms.BoolValue) {
+				Vector3 charmRot(0.0F, 0.0F, 0.0F);
+
+				// add sway spring
+				charmRot.x -= 50.0F * charmVerticalSwingSpring.position;	// pitch
+				charmRot.y += 30.0F * charmHorizontalSwingSpring.position;	// yaw
+				charmRot.z += 20.0F * charmHorizontalSwingSpring.position;	// roll
+
+				// add sprint/raise spring
+				charmRot += Vector3(-0.5F, -0.2F, -0.2F) * charmSprintSpring.position;
+				charmRot += Vector3(0.7F, 0.5F, 0.1F) * charmRaiseSpring.position;
+
+				// tilt backward/forward based on camera pitch
+				Vector3 front = eyeMatrix.GetAxis(1);
+				charmRot.x -= asin(front.z) * 0.85F;
+
+				// avoid clipping into the weapon
+				charmRot.y = abs(charmRot.y);
+
+				// rainbow color
+				param.customColor = HSV(time * 0.05F, 0.5F, 1.0F);
+
+				// draw base
+				param.matrix = weapMatrix
+					* CreateTranslateMatrix(GetPumpOffset())
+					* CreateTranslateMatrix(1.95F, -1.25F, -2.25F)
+					* CreateScaleMatrix(0.1F);
+				renderer.AddModel(charmBaseModel, param);
+
+				param.matrix = param.matrix
+					* CreateTranslateMatrix(-0.75F, -1.0F, 1.25F)
+					* CreateEulerAnglesMatrix(charmRot)
+					* CreateEulerAnglesMatrix(Vector3(rad(90.0F), 0, rad(-90.0F)));
+				renderer.AddModel(charmModel, param);
+			}
+
 			// draw reflex sight (3D sprite)
 			int reflexMode = cg_reflexScope.IntValue;
 			if ((reflexMode >= 1 and reflexMode < 3) and AimDownSightStateSmooth > 0.8F) {
@@ -428,7 +489,7 @@ namespace spades {
 				float reflexSize = dotReflex ? 0.02F : 0.125F;
 				Vector3 sightPos = reflexSightAttachment - Vector3(reflexSightAttachment.x, 0.0F, -0.05F);
 				DrawReflexSight3D(dotReflex ? ballImage : reflexImage, weapMatrix * sightPos, reflexSize);
-            }
+			}
 
 			LeftHandPosition = leftHand;
 			RightHandPosition = rightHand;

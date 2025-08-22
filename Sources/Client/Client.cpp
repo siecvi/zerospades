@@ -509,6 +509,8 @@ namespace spades {
 			renderer->RegisterModel("Models/Weapons/SMG/SightReflex.kv6");
 			renderer->RegisterModel("Models/Weapons/SMG/Weapon.kv6");
 			renderer->RegisterModel("Models/Weapons/SMG/WeaponNoMagazine.kv6");
+			renderer->RegisterModel("Models/Weapons/Charms/Charm.kv6");
+			renderer->RegisterModel("Models/Weapons/Charms/CharmBase.kv6");
 
 			if (mumbleLink.Init())
 				SPLog("Mumble linked");

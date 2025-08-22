@@ -188,6 +188,9 @@ namespace spades {
 		Vector3 CaseEjectPosition { get { return GetViewWeaponMatrix() * Vector3(0.0F, -0.1F, -0.05F); } }
 
 		protected Renderer@ renderer;
+		
+		protected Model@ charmModel;
+		protected Model@ charmBaseModel;
 
 		protected Image@ sightImage;
 		protected Image@ scopeImage;
@@ -197,6 +200,7 @@ namespace spades {
 
 		protected ConfigItem cg_fov("cg_fov");
 		protected ConfigItem cg_reflexScope("cg_reflexScope", "0");
+		protected ConfigItem cg_weaponCharms("cg_weaponCharms", "1");
 
 		protected ConfigItem cg_viewWeaponX("cg_viewWeaponX");
 		protected ConfigItem cg_viewWeaponY("cg_viewWeaponY");
@@ -259,9 +263,13 @@ namespace spades {
 		protected ConfigItem cg_scopeDynamic("cg_scopeDynamic", "1");
 		protected ConfigItem cg_scopeDynamicSplitDist("cg_scopeDynamicSplitdist", "7");
 
+		protected float time = -1.0F;
+
 		BasicViewWeapon(Renderer@ renderer) {
 			@this.renderer = renderer;
 			localFireVibration = 0.0F;
+			@charmModel = renderer.RegisterModel("Models/Weapons/Charms/Charm.kv6");
+			@charmBaseModel = renderer.RegisterModel("Models/Weapons/Charms/CharmBase.kv6");
 			@scopeImage = renderer.RegisterImage("Gfx/Rifle.png");
 			@sightImage = renderer.RegisterImage("Gfx/Sight.tga");
 			@dotSightImage = renderer.RegisterImage("Gfx/DotSight.tga");
@@ -287,7 +295,8 @@ namespace spades {
 
 		// creates a rotation matrix from euler angles (in the form of a Vector3) x-y-z
 		Matrix4 CreateEulerAnglesMatrix(Vector3 angles) {
-			Matrix4 mat = CreateRotateMatrix(Vector3(1, 0, 0), angles.x);
+			Matrix4 mat;
+			mat = CreateRotateMatrix(Vector3(1, 0, 0), angles.x);
 			mat = CreateRotateMatrix(Vector3(0, 1, 0), angles.y) * mat;
 			mat = CreateRotateMatrix(Vector3(0, 0, 1), angles.z) * mat;
 			return mat;
@@ -296,8 +305,8 @@ namespace spades {
 		// rotates gun matrix to ensure the sight is in the center of screen (0, ?, 0)
 		Matrix4 AdjustToAlignSight(Matrix4 mat, Vector3 sightPos, float fade) {
 			Vector3 p = mat * sightPos;
-			mat = CreateRotateMatrix(Vector3(0, 1, 1), atan(p.x / p.y) * fade) * mat;
-			mat = CreateRotateMatrix(Vector3(-1, 0, 0), atan(p.z / p.y) * fade) * mat;
+			mat = CreateRotateMatrix(Vector3(0, 1, 1), atan2(p.x, p.y) * fade) * mat;
+			mat = CreateRotateMatrix(Vector3(-1, 0, 0), atan2(p.z, p.y) * fade) * mat;
 			return mat;
 		}
 
@@ -347,6 +356,9 @@ namespace spades {
 		}
 
 		void Update(float dt) {
+			if (time < 0.0F)
+				time = 0.0F;
+
 			if (localFireVibration > 0.0F) {
 				localFireVibration -= dt * 10.0F;
 				if (localFireVibration < 0.0F)
@@ -358,6 +370,8 @@ namespace spades {
 				sprintStateSmooth = Mix(sprintStateSmooth, sprintStateSS, 1.0F - pow(0.001F, dt));
 			else
 				sprintStateSmooth = sprintStateSS;
+
+			time += Min(dt, 0.05F);
 		}
 
 		void WeaponFired() {
