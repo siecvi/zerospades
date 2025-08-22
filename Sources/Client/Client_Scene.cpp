@@ -26,8 +26,9 @@
 #include <Core/Strings.h>
 
 #include "BloodMarks.h"
-#include "CTFGameMode.h"
 #include "Corpse.h"
+#include "CTFGameMode.h"
+#include "GameProperties.h"
 #include "IGameMode.h"
 #include "Player.h"
 #include "TCGameMode.h"
@@ -65,13 +66,18 @@ namespace spades {
 		ClientCameraMode Client::GetCameraMode() {
 			if (!world)
 				return ClientCameraMode::None;
-			stmp::optional<Player&> p = world->GetLocalPlayer();
-			if (!p)
+			stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
+			if (!maybePlayer)
 				return ClientCameraMode::NotJoined;
 
-			if (!p->IsSpectator() && p->IsAlive()) {
+			Player& p = maybePlayer.value();
+
+			bool localPlayerIsSpectating = p.IsSpectator() || staffSpectating;
+			bool isStaff = net ? net->GetGameProperties()->isStaff : false;
+
+			if (!localPlayerIsSpectating && p.IsAlive()) {
 				// There exists an alive (non-spectator) local player
-				if (cg_thirdperson && world->GetNumPlayers() <= 1)
+				if (cg_thirdperson && (isStaff || world->GetNumPlayers() <= 1))
 					return ClientCameraMode::ThirdPersonLocal;
 				return ClientCameraMode::FirstPersonLocal;
 			} else {
@@ -83,7 +89,7 @@ namespace spades {
 					else
 						return ClientCameraMode::ThirdPersonFollow;
 				} else {
-					if (p->IsSpectator()) {
+					if (localPlayerIsSpectating) {
 						return ClientCameraMode::Free;
 					} else {
 						// Look at your own cadaver!

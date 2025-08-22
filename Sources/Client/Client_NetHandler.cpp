@@ -71,7 +71,6 @@ namespace spades {
 			// set loadout
 			limbo->SetSelectedTeam(p.GetTeamId());
 			limbo->SetSelectedWeapon(p.GetWeaponType());
-			inGameLimbo = false;
 
 			// update minimap
 			renderer->UpdateFlatGameMap();

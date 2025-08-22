@@ -113,6 +113,7 @@ namespace spades {
 		      spectatorZoomState(0.0F),
 		      spectatorZoom(false),
 		      spectatorPlayerNames(true),
+		      staffSpectating(false),
 		      focalLength(20.0F),
 		      targetFocalLength(20.0F),
 		      autoFocusEnabled(true),
@@ -174,6 +175,7 @@ namespace spades {
 			// reset on new map
 			placedBlocks = 0;
 
+			staffSpectating = false;
 			reloadKeyPressed = false;
 			scoreboardVisible = false;
 			flashlightOn = false;
@@ -975,8 +977,9 @@ namespace spades {
 
 			Player& localPlayer = maybePlayer.value();
 
-			bool localPlayerIsSpectator = localPlayer.IsSpectator();
-			bool skipDeadPlayers = !localPlayerIsSpectator && cg_skipDeadPlayersWhenDead;
+			bool localPlayerIsSpectador = localPlayer.IsSpectator();
+			bool localPlayerIsSpectating = localPlayerIsSpectador || staffSpectating;
+			bool skipDeadPlayers = !localPlayerIsSpectador && cg_skipDeadPlayersWhenDead;
 
 			int localPlayerId = localPlayer.GetId();
 			int nextId = FollowsNonLocalPlayer(GetCameraMode())
@@ -995,7 +998,7 @@ namespace spades {
 				stmp::optional<Player&> p = world->GetPlayer(nextId);
 				if (!p || p->IsSpectator())
 					continue; // Do not follow a non-existent player or spectator
-				if (!localPlayerIsSpectator && !p->IsTeammate(localPlayer))
+				if (!localPlayerIsSpectating && !p->IsTeammate(localPlayer))
 					continue; // Skip enemies unless the local player is a spectator
 				if (skipDeadPlayers && !p->IsAlive())
 					continue; // Skip dead players if the local player is not a spectator
@@ -1008,7 +1011,7 @@ namespace spades {
 			} while (nextId != followedPlayerId);
 
 			followedPlayerId = nextId;
-			followCameraState.enabled = (followedPlayerId != localPlayerId);
+			followCameraState.enabled = staffSpectating || (followedPlayerId != localPlayerId);
 		}
 	} // namespace client
 } // namespace spades

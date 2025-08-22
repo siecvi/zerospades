@@ -213,6 +213,9 @@ namespace spades {
 			if (maybePlayer) {
 				Player& player = maybePlayer.value();
 
+				bool localPlayerIsAlive = player.IsAlive();
+				bool localPlayerIsSpectator = player.IsSpectator() || staffSpectating;
+
 				// disable input when UI is open
 				if (NeedsAbsoluteMouseCoordinate()) {
 					weapInput.primary = false;
@@ -232,10 +235,69 @@ namespace spades {
 					spectatorZoom = false;
 				}
 
-				if (player.IsSpectator())
+				if (localPlayerIsSpectator) {
 					UpdateLocalSpectator(dt);
-				else
+				} else if (localPlayerIsAlive) {
 					UpdateLocalPlayer(dt);
+				} else { // update dead
+					int count = (int)roundf(player.GetTimeToRespawn());
+					if (count != lastRespawnCount) {
+						if (count > 0 && count <= 3) {
+							Handle<IAudioChunk> c = (count == 1)
+							    ? audioDevice->RegisterSound("Sounds/Feedback/Beep1.opus")
+							    : audioDevice->RegisterSound("Sounds/Feedback/Beep2.opus");
+							AudioParam param;
+							param.volume = cg_respawnSoundGain;
+							audioDevice->PlayLocal(c.GetPointerOrNull(), param);
+						}
+						lastRespawnCount = count;
+					}
+				}
+
+				// handle health updates
+				int health = player.GetHealth(); // current health
+				if (health != lastHealth) {
+					if (health < lastHealth) { // ouch!
+						static constexpr std::array<const char*, 4> snds = {
+						  "Sounds/Weapons/Impacts/FleshLocal1.opus",
+						  "Sounds/Weapons/Impacts/FleshLocal2.opus",
+						  "Sounds/Weapons/Impacts/FleshLocal3.opus",
+						  "Sounds/Weapons/Impacts/FleshLocal4.opus"
+						};
+						Handle<IAudioChunk> c = audioDevice->RegisterSound(SampleRandomElement(snds));
+						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+
+						float hpper = health / 100.0F;
+						int cnt = 18 - (int)(hpper * 8.0F);
+						hurtSprites.resize(std::max(cnt, 6));
+						for (size_t i = 0; i < hurtSprites.size(); i++) {
+							HurtSprite& spr = hurtSprites[i];
+							spr.angle = SampleRandomFloat() * M_PI_F * 2.0F;
+							spr.scale = 0.2F + SampleRandomFloat() * SampleRandomFloat() * 0.7F;
+							spr.horzShift = SampleRandomFloat();
+							spr.strength = 0.3F + SampleRandomFloat() * 0.7F;
+							if (hpper > 0.5F)
+								spr.strength *= 1.5F - hpper;
+						}
+
+						if (lastHealth > 0)
+							lastHurtTime = time;
+						lastHealTime = -100.0F;
+						damageTaken = lastHealth - health;
+					} else {
+						lastHurtTime = -100.0F;
+						if (lastHealth > 0)
+							lastHealTime = time;
+						damageTaken = 0;
+					}
+
+					lastHealth = health;
+				}
+
+				// handle score updates
+				int score = player.GetScore();
+				if (score != lastScore)
+					lastScore = score;
 			}
 
 #if 0
@@ -471,8 +533,8 @@ namespace spades {
 			PlayerInput inp = playerInput;
 			WeaponInput winp = weapInput;
 
-			bool isPlayerAlive = player.IsAlive();
 			bool isToolWeapon = player.IsToolWeapon();
+			bool isWeaponShotgun = weapon.IsReloadSlow();
 
 			// stop sprinting if player is moving too slow
 			float vel2D = player.GetVelocity().GetSquaredLength2D();
@@ -491,15 +553,14 @@ namespace spades {
 			if (!CanLocalPlayerUseTool()) {
 				winp.primary = false;
 				winp.secondary = false;
-
 				player.SetBlockCursorDragging(false);
 			}
 
 			// disable weapon while reloading (except shotgun)
-			if (isPlayerAlive && isToolWeapon) {
+			if (isToolWeapon) {
 				if (weapon.GetAmmo() == 0)
 					winp.primary = false;
-				if (weapon.IsAwaitingReloadCompletion() && !weapon.IsReloadSlow()) {
+				if (weapon.IsAwaitingReloadCompletion() && !isWeaponShotgun) {
 					winp.primary = false;
 					winp.secondary = false;
 				}
@@ -515,41 +576,38 @@ namespace spades {
 			inp.crouch = actualInput.crouch;
 
 			// send player input
-			if (isPlayerAlive) {
+			{
 				PlayerInput sentInput = inp;
 				WeaponInput sentWeaponInput = winp;
 
-				// FIXME: send only there are any changed?
 				net->SendPlayerInput(sentInput);
 				net->SendWeaponInput(sentWeaponInput);
 			}
 
-			// reload weapon
-			if (isPlayerAlive && isToolWeapon
-				&& CanLocalPlayerReloadWeapon() && reloadKeyPressed) {
+			// send weapon reload
+			if (isToolWeapon && CanLocalPlayerReloadWeapon() && reloadKeyPressed) {
 				// reset zoom when reloading (unless weapon is shotgun)
-				if (weapInput.secondary && !weapon.IsReloadSlow()) {
-					weapInput.secondary = false;
+				if (winp.secondary && !isWeaponShotgun) {
+					winp.secondary = false;
+					weapInput = winp;
+					player.SetWeaponInput(weapInput);
 					net->SendWeaponInput(weapInput);
+					actualWeapInput = weapInput;
 				}
 
 				weapon.Reload();
 				net->SendReload();
 			}
 
-			// there is a possibility that player has respawned or something.
-			if (!((isToolWeapon && actualWeapInput.secondary) && isPlayerAlive)
-				&& (isToolWeapon && !(cg_holdAimDownSight && weapInput.secondary)))
-				weapInput.secondary = false; // stop aiming down
-
 			// is the selected tool no longer usable (ex. out of ammo)?
-			if (isPlayerAlive && !player.IsToolSelectable(player.GetTool())) {
+			if (!player.IsToolSelectable(player.GetTool())) {
 				// release mouse buttons before auto-switching tools
 				winp.primary = false;
 				winp.secondary = false;
 				weapInput = winp;
+				player.SetWeaponInput(weapInput);
 				net->SendWeaponInput(weapInput);
-				actualWeapInput = winp = player.GetWeaponInput();
+				actualWeapInput = weapInput;
 
 				// select another tool
 				Player::ToolType t = player.GetTool();
@@ -564,18 +622,22 @@ namespace spades {
 				SetSelectedTool(t);
 			}
 
-			if (isPlayerAlive) {
-				// send position packet - 1 per second
+			// send position/orientaion updates
+			{
+				float POSITION_UPDATE_RATE = 1.0F;             // 1/s
+				float ORIENTATION_UPDATE_RATE = 1.0F / 120.0F; // 120/s
+
 				Vector3 curPos = player.GetPosition();
-				if (curPos != lastPosSent && time - lastPosSentTime > 1.0F) {
+				if (curPos != lastPosSent
+					&& time - lastPosSentTime > POSITION_UPDATE_RATE) {
 					lastPosSentTime = time;
 					lastPosSent = curPos;
 					net->SendPosition(curPos);
 				}
 
-				// send orientation packet - 120 per second
 				Vector3 curFront = player.GetFront();
-				if (curFront != lastFrontSent && time - lastOriSentTime > (1.0F / 120.0F)) {
+				if (curFront != lastFrontSent
+					&& time - lastOriSentTime > ORIENTATION_UPDATE_RATE) {
 					lastOriSentTime = time;
 					lastFrontSent = curFront;
 					net->SendOrientation(curFront);
@@ -583,7 +645,7 @@ namespace spades {
 			}
 
 			// show block count when building block lines.
-			if (isPlayerAlive && player.IsToolBlock() && player.IsBlockCursorDragging()) {
+			if (player.IsToolBlock() && player.IsBlockCursorDragging()) {
 				if (player.IsBlockCursorActive()) {
 					int blocks = world->CubeLineCount(player.GetBlockCursorDragPos(),
 					                                  player.GetBlockCursorPos());
@@ -596,65 +658,6 @@ namespace spades {
 					ShowAlert(msg, AlertType::Warning, 0.0F, true);
 				}
 			}
-
-			// play respawn sound
-			if (!isPlayerAlive) {
-				int count = (int)roundf(player.GetTimeToRespawn());
-				if (count != lastRespawnCount) {
-					if (count > 0 && count <= 3) {
-						Handle<IAudioChunk> c = (count == 1)
-							? audioDevice->RegisterSound("Sounds/Feedback/Beep1.opus")
-							: audioDevice->RegisterSound("Sounds/Feedback/Beep2.opus");
-						AudioParam param;
-						param.volume = cg_respawnSoundGain;
-						audioDevice->PlayLocal(c.GetPointerOrNull(), param);
-					}
-					lastRespawnCount = count;
-				}
-			}
-
-			int health = player.GetHealth(); // current health
-			if (health != lastHealth) {
-				if (health < lastHealth) { // ouch!
-					static constexpr std::array<const char*, 4> snds = {
-					  "Sounds/Weapons/Impacts/FleshLocal1.opus",
-					  "Sounds/Weapons/Impacts/FleshLocal2.opus",
-					  "Sounds/Weapons/Impacts/FleshLocal3.opus",
-					  "Sounds/Weapons/Impacts/FleshLocal4.opus"
-					};
-					Handle<IAudioChunk> c = audioDevice->RegisterSound(SampleRandomElement(snds));
-					audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
-
-					float hpper = health / 100.0F;
-					int cnt = 18 - (int)(hpper * 8.0F);
-					hurtSprites.resize(std::max(cnt, 6));
-					for (size_t i = 0; i < hurtSprites.size(); i++) {
-						HurtSprite& spr = hurtSprites[i];
-						spr.angle = SampleRandomFloat() * M_PI_F * 2.0F;
-						spr.scale = 0.2F + SampleRandomFloat() * SampleRandomFloat() * 0.7F;
-						spr.horzShift = SampleRandomFloat();
-						spr.strength = 0.3F + SampleRandomFloat() * 0.7F;
-						if (hpper > 0.5F)
-							spr.strength *= 1.5F - hpper;
-					}
-
-					if (lastHealth > 0)
-						lastHurtTime = time;
-					lastHealTime = -100.0F;
-					damageTaken = lastHealth - health;
-				} else {
-					lastHurtTime = -100.0F;
-					if (lastHealth > 0)
-						lastHealTime = time;
-					damageTaken = 0;
-				}
-
-				lastHealth = health;
-			}
-
-			int score = player.GetScore();
-			if (score != lastScore)
-				lastScore = score;
 		}
 
 #pragma mark - IWorldListener Handlers
@@ -918,7 +921,7 @@ namespace spades {
 				lastAliveTime = time;
 
 				// initialize the look-you-are-dead camera
-				if (followCameraState.enabled) {
+				if (followCameraState.enabled && !staffSpectating) {
 					Vector3 o = -victim.GetFront();
 					followAndFreeCameraState.yaw = atan2f(o.y, o.x);
 					followAndFreeCameraState.pitch = DEG2RAD(30);
@@ -945,20 +948,17 @@ namespace spades {
 				curStreak = 0;
 			} else {
 				// play hit sound for non local player: see BullethitPlayer
-				if (kt == KillTypeWeapon || kt == KillTypeHeadshot) {
-					if (!IsMuted()) {
-						static constexpr std::array<const char*, 3> snds = {
-						  "Sounds/Weapons/Impacts/Flesh1.opus",
-						  "Sounds/Weapons/Impacts/Flesh2.opus",
-						  "Sounds/Weapons/Impacts/Flesh3.opus"
-						};
-						Handle<IAudioChunk> c =
-						  audioDevice->RegisterSound(SampleRandomElement(snds));
+				if (!IsMuted() && (kt == KillTypeWeapon || kt == KillTypeHeadshot)) {
+					static constexpr std::array<const char*, 3> snds = {
+					  "Sounds/Weapons/Impacts/Flesh1.opus",
+					  "Sounds/Weapons/Impacts/Flesh2.opus",
+					  "Sounds/Weapons/Impacts/Flesh3.opus"
+					};
+					Handle<IAudioChunk> c = audioDevice->RegisterSound(SampleRandomElement(snds));
 
-						AudioParam param;
-						param.volume = 4.0F;
-						audioDevice->Play(c.GetPointerOrNull(), victim.GetEye(), param);
-					}
+					AudioParam param;
+					param.volume = 4.0F;
+					audioDevice->Play(c.GetPointerOrNull(), victim.GetEye(), param);
 				}
 
 				// register local kills

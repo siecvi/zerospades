@@ -30,6 +30,7 @@
 #include "ChatWindow.h"
 #include "ClientUI.h"
 #include "Corpse.h"
+#include "GameProperties.h"
 #include "LimboView.h"
 #include "MapView.h"
 #include "PaletteView.h"
@@ -93,6 +94,7 @@ DEFINE_SPADES_SETTING(cg_keyAutoFocus, "MiddleMouseButton");
 
 DEFINE_SPADES_SETTING(cg_keyToggleSpectatorNames, "z");
 DEFINE_SPADES_SETTING(cg_keySpectatorZoom, "e");
+DEFINE_SPADES_SETTING(cg_keyStaffSpectating, "b");
 
 SPADES_SETTING(s_volume);
 SPADES_SETTING(cg_debugHitTest);
@@ -383,35 +385,50 @@ namespace spades {
 
 				Player& p = maybePlayer.value();
 
+				bool localPlayerIsAlive = p.IsAlive();
+				bool localPlayerIsSpectator = p.IsSpectator();
+				bool localPlayerIsSpectating = localPlayerIsSpectator || staffSpectating;
+				bool isStaff = net ? net->GetGameProperties()->isStaff : false;
+
 				switch (cameraMode) {
 					case ClientCameraMode::None:
 					case ClientCameraMode::NotJoined:
 					case ClientCameraMode::FirstPersonLocal: break;
 					case ClientCameraMode::ThirdPersonLocal:
-						if (p.IsAlive())
+						if (localPlayerIsAlive)
 							break;
 					case ClientCameraMode::FirstPersonFollow:
 					case ClientCameraMode::ThirdPersonFollow:
 					case ClientCameraMode::Free: {
 						if (CheckKey(cg_keyAttack, name)) {
 							if (down) {
-								if (cameraMode == ClientCameraMode::Free ||
-								    cameraMode == ClientCameraMode::ThirdPersonLocal) {
-									// Start with the local player
-									followedPlayerId = p.GetId();
+								// reset zoom
+								if (spectatorZoom) {
+									spectatorZoom = false;
+									spectatorZoomState = 0.0F;
 								}
-								if (p.IsSpectator() || time - lastAliveTime > 1.3F)
+
+								// Start with the local player
+								if (cameraMode == ClientCameraMode::Free ||
+								    cameraMode == ClientCameraMode::ThirdPersonLocal)
+									followedPlayerId = p.GetId();
+								if (localPlayerIsSpectating || time - lastAliveTime > 1.3F)
 									FollowNextPlayer(false);
 							}
 							return;
 						} else if (CheckKey(cg_keyAltAttack, name)) {
 							if (down) {
-								if (cameraMode == ClientCameraMode::Free ||
-								    cameraMode == ClientCameraMode::ThirdPersonLocal) {
-									// Start with the local player
-									followedPlayerId = p.GetId();
+								// reset zoom
+								if (spectatorZoom) {
+									spectatorZoom = false;
+									spectatorZoomState = 0.0F;
 								}
-								if (p.IsSpectator() || time - lastAliveTime > 1.3F)
+
+								// Start with the local player
+								if (cameraMode == ClientCameraMode::Free ||
+								    cameraMode == ClientCameraMode::ThirdPersonLocal)
+									followedPlayerId = p.GetId();
+								if (localPlayerIsSpectating || time - lastAliveTime > 1.3F)
 									FollowNextPlayer(true);
 							}
 							return;
@@ -420,11 +437,8 @@ namespace spades {
 								followCameraState.firstPerson = !followCameraState.firstPerson;
 							return;
 						} else if (CheckKey(cg_keyReloadWeapon, name)
-							&& p.IsSpectator() && followCameraState.enabled) {
+							&& localPlayerIsSpectating && followCameraState.enabled) {
 							if (down) {
-								// Unfollow
-								followCameraState.enabled = false;
-
 								// reset jump
 								playerInput.jump = PlayerInput().jump;
 
@@ -433,6 +447,9 @@ namespace spades {
 									spectatorZoom = false;
 									spectatorZoomState = 0.0F;
 								}
+
+								// Unfollow
+							    followCameraState.enabled = false;
 							}
 							return;
 						}
@@ -440,8 +457,8 @@ namespace spades {
 					}
 				}
 
-				// player is not spectator
-				if (!p.IsSpectator()) {
+				// player is not spectating
+				if (!localPlayerIsSpectating) {
 					// hit debugger zoom can be toggled when dead
 					if (CheckKey(cg_keyToggleHitTestZoom, name) &&
 					    debugHitTestImage && cg_debugHitTest) {
@@ -453,7 +470,7 @@ namespace spades {
 					}
 
 					// player is alive and not spectating
-					if (p.IsAlive()) {
+					if (localPlayerIsAlive) {
 						if (p.IsToolBlock()) {
 							if (paletteView->KeyInput(name, down))
 								return;
@@ -533,31 +550,31 @@ namespace spades {
 				} else if (CheckKey(cg_keyReloadWeapon, name)) {
 					reloadKeyPressed = down;
 				} else if (CheckKey(cg_keyToolSpade, name) && down) {
-					if (!p.IsSpectator() && p.IsAlive())
+					if (!localPlayerIsSpectator && localPlayerIsAlive)
 						SetSelectedTool(Player::ToolSpade);
 				} else if (CheckKey(cg_keyToolBlock, name) && down) {
-					if (!p.IsSpectator() && p.IsAlive()) {
+					if (!localPlayerIsSpectator && localPlayerIsAlive) {
 						if (p.IsToolSelectable(Player::ToolBlock))
 							SetSelectedTool(Player::ToolBlock);
 						else
 							ShowAlert(_Tr("Client", "Out of Blocks"), AlertType::Error);
 					}
 				} else if (CheckKey(cg_keyToolWeapon, name) && down) {
-					if (!p.IsSpectator() && p.IsAlive()) {
+					if (!localPlayerIsSpectator && localPlayerIsAlive) {
 						if (p.IsToolSelectable(Player::ToolWeapon))
 							SetSelectedTool(Player::ToolWeapon);
 						else
 							ShowAlert(_Tr("Client", "Out of Ammo"), AlertType::Error);
 					}
 				} else if (CheckKey(cg_keyToolGrenade, name) && down) {
-					if (!p.IsSpectator() && p.IsAlive()) {
+					if (!localPlayerIsSpectator && localPlayerIsAlive) {
 						if (p.IsToolSelectable(Player::ToolGrenade))
 							SetSelectedTool(Player::ToolGrenade);
 						else
 							ShowAlert(_Tr("Client", "Out of Grenades"), AlertType::Error);
 					}
 				} else if (CheckKey(cg_keyLastTool, name) && down) {
-					if (!p.IsSpectator() && p.IsAlive()) {
+					if (!localPlayerIsSpectator && localPlayerIsAlive) {
 						if (hasLastTool && p.IsToolSelectable(lastTool)) {
 							hasLastTool = false;
 							SetSelectedTool(lastTool);
@@ -572,7 +589,7 @@ namespace spades {
 				} else if (CheckKey(cg_keyZoomChatLog, name)) {
 					chatWindow->SetExpanded(down);
 				} else if (CheckKey(cg_keyCaptureColor, name) && down) {
-					if (!p.IsSpectator() && p.IsAlive() && p.IsToolBlock())
+					if (!localPlayerIsSpectator && localPlayerIsAlive && p.IsToolBlock())
 						CaptureColor();
 				} else if (CheckKey(cg_keyChangeMapScale, name) && down) {
 					if (!largeMapView->IsZoomed()) {
@@ -623,6 +640,32 @@ namespace spades {
 						  audioDevice->RegisterSound("Sounds/Misc/OpenMap.opus");
 						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 					}
+				} else if (CheckKey(cg_keyStaffSpectating, name) && down && isStaff) {
+					staffSpectating = !staffSpectating;
+					
+					// enter follow camera state
+					if (staffSpectating && !localPlayerIsSpectator) {
+						weapInput = WeaponInput();
+						playerInput = PlayerInput();
+
+						// reset zoom
+						if (spectatorZoom) {
+							spectatorZoom = false;
+							spectatorZoomState = 0.0F;
+						}
+						
+						followedPlayerId = p.GetId(); // start with the local player
+						followCameraState.firstPerson = false; // force thirdperson
+						followCameraState.enabled = true;
+					}
+
+					ShowAlert(_Tr("Client", "zerovl {0}",
+						staffSpectating ? "ON" : "OFF"), AlertType::Notice);
+
+					// play sound
+					Handle<IAudioChunk> c =
+					  audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
+					audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 				} else if (CheckKey(cg_keyLimbo, name) && down) {
 					inGameLimbo = true;
 				} else if (CheckKey(cg_keySceneshot, name) && down) {
@@ -633,7 +676,7 @@ namespace spades {
 					TakeMapShot();
 				} else if (CheckKey(cg_keyFlashlight, name) && down) {
 					// spectators and dead players shouldn't be able to toggle the flashlight
-					if (!p.IsSpectator() && p.IsAlive()) {
+					if (!localPlayerIsSpectator && localPlayerIsAlive) {
 						flashlightOn = !flashlightOn;
 						flashlightOnTime = time;
 						Handle<IAudioChunk> c =
@@ -652,7 +695,8 @@ namespace spades {
 							dist = std::min(dist + 0.01F, 1.0F);
 							targetFocalLength = 1.0F / dist;
 							autoFocusEnabled = false;
-						} else if (!p.IsSpectator() && p.IsAlive() && cg_switchToolByWheel) {
+						} else if (!localPlayerIsSpectator && localPlayerIsAlive &&
+						           cg_switchToolByWheel) {
 							Player::ToolType t = p.GetTool();
 							do {
 								switch (t) {
@@ -671,7 +715,8 @@ namespace spades {
 							dist = std::max(dist - 0.01F, 1.0F / 128.0F);
 							targetFocalLength = 1.0F / dist;
 							autoFocusEnabled = false;
-						} else if (!p.IsSpectator() && p.IsAlive() && cg_switchToolByWheel) {
+						} else if (!localPlayerIsSpectator && localPlayerIsAlive &&
+						           cg_switchToolByWheel) {
 							Player::ToolType t = p.GetTool();
 							do {
 								switch (t) {

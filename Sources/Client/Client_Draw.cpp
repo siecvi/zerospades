@@ -464,6 +464,12 @@ namespace spades {
 			Vector3 dir = player.GetEye() - eye;
 
 			float dist = dir.GetSquaredLength2D();
+
+			float fadeStart = FOG_DISTANCE + 10.0F;
+			float fadeEnd = fadeStart + 10.0F;
+			float fade = (sqrtf(dist) - fadeStart) / (fadeEnd - fadeStart);
+			float alpha = Clamp(1.0F - fade, 0.1F, 1.0F);
+
 			dir = dir.Normalize();
 
 			// do map raycast
@@ -473,8 +479,11 @@ namespace spades {
 			if (dist > FOG_DISTANCE_SQ) {
 				playerColor = MakeVector4(1, 0.75, 0, 1);
 			} else if (mapResult.hit && (mapResult.hitPos - eye).GetSquaredLength2D() < dist) {
-				playerColor = ConvertColorRGBA(player.GetColor());
+				playerColor = player.IsLocalPlayer() ? MakeVector4(0, 1, 1, 1)
+				                                     : ConvertColorRGBA(player.GetColor());
 			}
+
+			playerColor.w *= alpha;
 
 			return playerColor;
 		}
@@ -516,21 +525,14 @@ namespace spades {
 				scrPos.x = floorf(scrPos.x);
 				scrPos.y = floorf(scrPos.y);
 
-				float fadeStart = FOG_DISTANCE + 10.0F;
-				float fadeEnd = fadeStart + 10.0F;
-				float fade = (dist - fadeStart) / (fadeEnd - fadeStart);
-				float alpha = Clamp(1.0F - fade, 0.1F, 1.0F);
-
 				float luminosity = color.x + color.y + color.z;
 				Vector4 shadowColor = (luminosity > 0.9F)
 					? MakeVector4(0, 0, 0, 0.8F)
 					: MakeVector4(1, 1, 1, 0.8F);
 
-				Vector4 col = color;
-				col.w = alpha * col.w;
-				shadowColor.w = 0.8F * col.w;
+				shadowColor.w *= color.w;
 
-				font.DrawShadow(str, scrPos, 1.0F, col, shadowColor);
+				font.DrawShadow(str, scrPos, 1.0F, color, shadowColor);
 			}
 		}
 
@@ -544,25 +546,94 @@ namespace spades {
 			}
 		}
 
+		void Client::DrawPlayerBox(Player& player, const Vector4& color) {
+			SPADES_MARK_FUNCTION();
+
+			// get player aabb
+			const auto& box = player.GetBox().Inflate(0.25F);
+
+			// corners of the 3d box
+			std::array<Vector3, 8> corners = {{
+				{box.min.x, box.min.y, box.min.z},
+				{box.min.x, box.max.y, box.min.z},
+				{box.max.x, box.max.y, box.min.z},
+				{box.max.x, box.min.y, box.min.z},
+				{box.max.x, box.max.y, box.max.z},
+				{box.min.x, box.max.y, box.max.z},
+				{box.min.x, box.min.y, box.max.z},
+				{box.max.x, box.min.y, box.max.z}
+			}};
+
+			float left = std::numeric_limits<float>::max();
+			float top = std::numeric_limits<float>::max();
+			float right = -std::numeric_limits<float>::max();
+			float bottom = -std::numeric_limits<float>::max();
+
+			// get screen positions
+			Vector2 scrPos;
+			for (auto const& corner : corners) {
+				if (!Project(corner, scrPos))
+					return; // offscreen or behind camera
+
+				left = std::min(left, scrPos.x);
+				right = std::max(right, scrPos.x);
+				top = std::min(top, scrPos.y);
+				bottom = std::max(bottom, scrPos.y);
+			}
+
+			// rounded for better pixel alignment
+			left = floorf(left);
+			top = floorf(top);
+			right = ceilf(right);
+			bottom = ceilf(bottom);
+
+			// draw boxes
+			Vector4 shadowP = MakeVector4(0, 0, 0, 0.25F * color.w);
+			shadowP.x *= shadowP.w;
+			shadowP.y *= shadowP.w;
+			shadowP.z *= shadowP.w;
+
+			Vector4 colorP = MakeVector4(color.x, color.y, color.z, 1.0F * color.w);
+			colorP.x *= colorP.w;
+			colorP.y *= colorP.w;
+			colorP.z *= colorP.w;
+
+			renderer->SetColorAlphaPremultiplied(shadowP);
+			renderer->DrawOutlinedRect(left - 1.0F, top - 1.0F, right + 1.0F, bottom + 1.0F);
+
+			renderer->SetColorAlphaPremultiplied(colorP);
+			renderer->DrawOutlinedRect(left, top, right, bottom);
+		}
+
 		void Client::DrawPubOVL() {
 			SPADES_MARK_FUNCTION();
 
-			auto& camTarget = GetCameraTargetPlayer();
+			auto cameraMode = GetCameraMode();
+			bool isFollowingNonLocal = FollowsNonLocalPlayer(cameraMode);
+
+			auto& focusPlayer = GetCameraTargetPlayer();
 
 			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
 				auto maybePlayer = world->GetPlayer(static_cast<unsigned int>(i));
-				if (maybePlayer == camTarget || !maybePlayer)
-					continue;
+				if (!maybePlayer)
+					continue; // player is non-existent
 				
 				Player& p = maybePlayer.value();
 				if (p.IsSpectator() || !p.IsAlive())
+					continue; // don't draw dead players or spectators
+
+				// dont draw the focused player name when following non-local players
+				if (&p == &focusPlayer && isFollowingNonLocal)
 					continue;
 
 				// Do not draw a player with an invalid state
 				if (p.GetFront().GetSquaredLength() < 0.01F)
 					continue;
 
-				DrawPlayerName(p, GetPlayerColor(p));
+				const auto& color = GetPlayerColor(p);
+				if (staffSpectating)
+					DrawPlayerBox(p, color);
+				DrawPlayerName(p, color);
 			}
 		}
 
@@ -1202,7 +1273,7 @@ namespace spades {
 
 			Player& p = world->GetLocalPlayer().value();
 
-			bool localPlayerIsSpectator = p.IsSpectator();
+			bool localPlayerIsSpectator = p.IsSpectator() || staffSpectating;
 
 			float x = sw - 8.0F;
 			float minY = sh * 0.5F;
@@ -1427,23 +1498,23 @@ namespace spades {
 			if (maybePlayer) { // joined local player
 				Player& player = maybePlayer.value();
 
-				if (cg_hurtScreenEffects) {
-					DrawHurtSprites();
-					DrawScreenEffect(true);
-				}
-
-				if (cg_healScreenEffects)
-					DrawScreenEffect(false);
-
-				bool localPlayerIsSpectator = player.IsSpectator();
+				bool localPlayerIsSpectator = player.IsSpectator() || staffSpectating;
 				if (!localPlayerIsSpectator) {
+					if (cg_hurtScreenEffects) {
+						DrawHurtSprites();
+						DrawScreenEffect(true);
+					}
+
+					if (cg_healScreenEffects)
+						DrawScreenEffect(false);
+
 					if (cg_playerNames)
 						DrawHottrackedPlayerName();
+
 					if (cg_damageIndicators)
 						DrawDamageIndicators();
-				} else {
-					if (spectatorPlayerNames)
-						DrawPubOVL();
+				} else if (spectatorPlayerNames) { // only if we are spectating
+					DrawPubOVL();
 				}
 
 				if (IsFirstPerson(GetCameraMode()))

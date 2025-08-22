@@ -259,19 +259,23 @@ namespace spades {
 
 			auto cameraMode = client->GetCameraMode();
 
+			bool isFollowing = HasTargetPlayer(cameraMode);
+			bool isFollowingNonLocal = FollowsNonLocalPlayer(cameraMode);
+			bool isFreeCamera = cameraMode == ClientCameraMode::Free;
+
 			// The player to focus on
 			stmp::optional<Player&> focusPlayerPtr;
 			Vector3 focusPlayerPos;
 			float focusPlayerAngle;
-
-			if (HasTargetPlayer(cameraMode)) {
+	
+			if (isFollowing) {
 				Player& player = client->GetCameraTargetPlayer();
 				Vector3 o = player.GetFront2D();
 
 				focusPlayerPos = player.GetPosition();
 				focusPlayerAngle = atan2f(o.y, o.x) + M_PI_F * 0.5F;
 				focusPlayerPtr = player;
-			} else if (cameraMode == ClientCameraMode::Free) {
+			} else if (isFreeCamera) {
 				focusPlayerPos = client->freeCameraState.position;
 				focusPlayerAngle = client->followAndFreeCameraState.yaw - M_PI_F * 0.5F;
 				focusPlayerPtr = world->GetLocalPlayer();
@@ -288,6 +292,7 @@ namespace spades {
 			Player& focusPlayer = focusPlayerPtr.value();
 
 			bool localPlayerIsSpectator = localPlayer.IsSpectator();
+			bool localPlayerIsSpectating = localPlayerIsSpectator || client->staffSpectating;
 
 			if (largeMap && zoomState < 0.0001F)
 				return;
@@ -423,7 +428,7 @@ namespace spades {
 				                   AABB2(fntX, fntY, 8, 8));
 			}
 			for (int i = 0; i < 8; i++) {
-				float startY = (float)i * gridSize.x;
+				float startY = (float)i * gridSize.y;
 				float endY = startY + gridSize.y;
 
 				if (startY > inRect.GetMaxY() || endY < inRect.GetMinY())
@@ -495,6 +500,9 @@ namespace spades {
 			const int colorMode = cg_minimapPlayerColor;
 			const int namesMode = cg_minimapPlayerNames;
 
+			const auto& spectatorColor = MakeIntVector3(200, 200, 200);
+			const auto& localPlayerColor = MakeIntVector3(0, 255, 255);
+
 			Handle<IImage> playerIcon = renderer.RegisterImage("Gfx/Map/Player.png");
 			Handle<IImage> playerRifleIcon = renderer.RegisterImage("Gfx/Map/Rifle.png");
 			Handle<IImage> playerSMGIcon = renderer.RegisterImage("Gfx/Map/SMG.png");
@@ -510,18 +518,18 @@ namespace spades {
 					continue; // player is non-existent
 
 				Player& p = maybePlayer.value();
-				if (!p.IsAlive())
-					continue; // player is dead
-				if (p.IsSpectator() && &p != &localPlayer)
-					continue; // don't draw other spectators
-				if (p.IsSpectator() && &p == &localPlayer && HasTargetPlayer(cameraMode))
-					continue; // don't draw white icon when spectating a player
-				if (!localPlayerIsSpectator && !localPlayer.IsTeammate(p))
+				if (p.IsSpectator() || !p.IsAlive())
+					continue; // don't draw dead players or spectators
+				if (!localPlayerIsSpectating && !localPlayer.IsTeammate(p))
 					continue; // don't draw enemies when not spectating a player
 
-				IntVector3 iconColor = p.GetColor();
-				if (&p == &localPlayer && !localPlayerIsSpectator) {
-					iconColor = MakeIntVector3(0, 255, 255);
+				// dont draw the focused player icon if we are NOT on staff spectating mode
+				if (&p == &focusPlayer && !client->staffSpectating)
+					continue;
+
+				IntVector3 iconColor = world->GetTeamColor(p.GetTeamId());
+				if (&p == &localPlayer) {
+					iconColor = localPlayerColor;
 				} else if (colorMode) {
 					int colorIndex = i % 32;
 					iconColor = MakeIntVector3(
@@ -532,32 +540,63 @@ namespace spades {
 				}
 				Vector4 iconColorF = ModifyColor(iconColor) * largeMapAlpha;
 
+
+				Handle<IImage> iconImg = playerIcon;
 				if (iconMode) {
 					switch (p.GetWeaponType()) {
-						case RIFLE_WEAPON: playerIcon = playerRifleIcon; break;
-						case SMG_WEAPON: playerIcon = playerSMGIcon; break;
-						case SHOTGUN_WEAPON: playerIcon = playerShotgunIcon; break;
+						case RIFLE_WEAPON: iconImg = playerRifleIcon; break;
+						case SMG_WEAPON: iconImg = playerSMGIcon; break;
+						case SHOTGUN_WEAPON: iconImg = playerShotgunIcon; break;
 					}
 				}
 
-				// draw the focused player view
-				if (&p == &focusPlayer) {
-					DrawIcon(focusPlayerPos,
-					         focusPlayer.IsZoomed() ? *playerADSViewIcon : *playerViewIcon,
-					         iconColorF * 0.9F, focusPlayerAngle);
-					DrawIcon(focusPlayerPos, *playerIcon, iconColorF, focusPlayerAngle);
-					continue;
-				}
-
+				// draw player icons
 				const auto& pos = p.GetPosition();
 				const auto& o = p.GetFront2D();
 				float playerAngle = atan2f(o.y, o.x) + M_PI_F * 0.5F;
-				DrawIcon(pos, *playerIcon, iconColorF, playerAngle);
+				DrawIcon(pos, *iconImg, iconColorF, playerAngle);
+
+				// dont draw the focused player name when following non-local players
+				if (&p == &focusPlayer && isFollowingNonLocal)
+					continue;
 
 				// draw player names
 				if (namesMode == 1 || (namesMode >= 2 && largeMap))
 					DrawText(smallFont, p.GetName(), pos,
 					         MakeVector4(1, 1, 1, 0.75F * largeMapAlpha));
+			}
+
+			// draw the focused player view
+			if (focusPlayer.IsAlive() || localPlayerIsSpectating) {
+				IntVector3 iconColor = world->GetTeamColor(focusPlayer.GetTeamId());
+				if (focusPlayer.IsLocalPlayer()) {
+					iconColor = localPlayerIsSpectating
+						? spectatorColor : localPlayerColor;
+				} else if (colorMode) {
+					int colorIndex = focusPlayer.GetId() % 32;
+					iconColor = MakeIntVector3(
+						palette[colorIndex][0],
+						palette[colorIndex][1],
+						palette[colorIndex][2]
+					);
+				}
+				Vector4 iconColorF = ModifyColor(iconColor) * largeMapAlpha;
+
+				Handle<IImage> iconImg = playerIcon;
+				if (iconMode && !isFreeCamera) {
+					switch (focusPlayer.GetWeaponType()) {
+						case RIFLE_WEAPON: iconImg = playerRifleIcon; break;
+						case SMG_WEAPON: iconImg = playerSMGIcon; break;
+						case SHOTGUN_WEAPON: iconImg = playerShotgunIcon; break;
+					}
+				}
+
+				float zoomState = localPlayerIsSpectating
+					? client->spectatorZoomState : client->GetAimDownState();
+				DrawIcon(focusPlayerPos, (zoomState > 0.99F)
+					? *playerADSViewIcon : *playerViewIcon,
+					iconColorF * 0.9F, focusPlayerAngle);
+				DrawIcon(focusPlayerPos, *iconImg, iconColorF, focusPlayerAngle);
 			}
 
 			// draw map objects
@@ -577,7 +616,7 @@ namespace spades {
 					// draw both flags
 					if (team2.hasIntel) {
 						stmp::optional<Player&> carrier = world->GetPlayer(team2.carrierId);
-						if (carrier && (localPlayerIsSpectator || carrier->IsTeammate(localPlayer))) {
+						if (carrier && (localPlayerIsSpectating || carrier->IsTeammate(localPlayer))) {
 							float pulse = std::max(0.5F, fabsf(sinf(world->GetTime() * 4.0F)));
 							DrawIcon(carrier->GetPosition(), *intelIcon, teamColorF * pulse);
 						}
