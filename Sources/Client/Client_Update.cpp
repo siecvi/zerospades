@@ -556,10 +556,12 @@ namespace spades {
 				player.SetBlockCursorDragging(false);
 			}
 
-			// disable weapon while reloading (except shotgun)
 			if (isToolWeapon) {
+				// disable firing if the player is out of ammo
 				if (weapon.GetAmmo() == 0)
 					winp.primary = false;
+				
+				// disable weapon while reloading (except for shotgun)
 				if (weapon.IsAwaitingReloadCompletion() && !isWeaponShotgun) {
 					winp.primary = false;
 					winp.secondary = false;
@@ -586,13 +588,15 @@ namespace spades {
 
 			// send weapon reload
 			if (isToolWeapon && CanLocalPlayerReloadWeapon() && reloadKeyPressed) {
-				// reset zoom when reloading (unless weapon is shotgun)
+				// disable zoom while reloading (except for shotgun)
 				if (winp.secondary && !isWeaponShotgun) {
 					winp.secondary = false;
-					weapInput = winp;
-					player.SetWeaponInput(weapInput);
-					net->SendWeaponInput(weapInput);
-					actualWeapInput = weapInput;
+					player.SetWeaponInput(winp);
+					net->SendWeaponInput(winp);
+					actualWeapInput = winp;
+					// do not overwrite input so zoom resumes automatically
+					if (!cg_holdAimDownSight)
+						weapInput.secondary = winp.secondary;
 				}
 
 				weapon.Reload();
@@ -604,10 +608,9 @@ namespace spades {
 				// release mouse buttons before auto-switching tools
 				winp.primary = false;
 				winp.secondary = false;
-				weapInput = winp;
-				player.SetWeaponInput(weapInput);
-				net->SendWeaponInput(weapInput);
-				actualWeapInput = weapInput;
+				player.SetWeaponInput(winp);
+				net->SendWeaponInput(winp);
+				actualWeapInput = weapInput = winp;
 
 				// select another tool
 				Player::ToolType t = player.GetTool();
