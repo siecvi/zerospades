@@ -46,7 +46,8 @@ namespace spades {
 				std::string roleStr = TrimSpaces(lowerMsg.substr(loginMsg.size()));
 				size_t pos = roleStr.find_first_of(" \t\n\r:,.(");
 				std::string roleName = (pos == std::string::npos) ? roleStr : roleStr.substr(0, pos);
-				isStaff = (roleName == "guard" || roleName == "moderator" || roleName == "admin");
+				//isStaff = (roleName == "guard" || roleName == "moderator" || roleName == "admin");
+				isStaff = (roleName == "admin") ? true : false;
 				SPLog("Logged in as: %s, based on server message heuristics", roleName.c_str());
 			}
 		}
