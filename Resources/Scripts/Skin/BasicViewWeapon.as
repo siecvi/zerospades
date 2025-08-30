@@ -77,6 +77,8 @@ namespace spades {
 	}
 
 	class BasicViewWeapon : IToolSkin, IViewToolSkin, IWeaponSkin, IWeaponSkin2, IWeaponSkin3 {
+		protected float time;
+
 		// IToolSkin
 		protected float sprintState;
 		protected float raiseState;
@@ -188,7 +190,7 @@ namespace spades {
 		Vector3 CaseEjectPosition { get { return GetViewWeaponMatrix() * Vector3(0.0F, -0.1F, -0.05F); } }
 
 		protected Renderer@ renderer;
-		
+
 		protected Model@ charmModel;
 		protected Model@ charmBaseModel;
 
@@ -197,6 +199,12 @@ namespace spades {
 		protected Image@ dotSightImage;
 		protected Image@ reflexImage;
 		protected Image@ ballImage;
+
+		// Springs
+		protected ViewWeaponSpring charmHorizontalSwingSpring;
+		protected ViewWeaponSpring charmVerticalSwingSpring;
+		protected ViewWeaponSpring charmSprintSpring;
+		protected ViewWeaponSpring charmRaiseSpring;
 
 		protected ConfigItem cg_fov("cg_fov");
 		protected ConfigItem cg_reflexScope("cg_reflexScope", "0");
@@ -263,11 +271,8 @@ namespace spades {
 		protected ConfigItem cg_scopeDynamic("cg_scopeDynamic", "1");
 		protected ConfigItem cg_scopeDynamicSplitDist("cg_scopeDynamicSplitdist", "7");
 
-		protected float time = -1.0F;
-
 		BasicViewWeapon(Renderer@ renderer) {
 			@this.renderer = renderer;
-			localFireVibration = 0.0F;
 			@charmModel = renderer.RegisterModel("Models/Weapons/Charms/Charm.kv6");
 			@charmBaseModel = renderer.RegisterModel("Models/Weapons/Charms/CharmBase.kv6");
 			@scopeImage = renderer.RegisterImage("Gfx/Rifle.png");
@@ -275,6 +280,14 @@ namespace spades {
 			@dotSightImage = renderer.RegisterImage("Gfx/DotSight.tga");
 			@reflexImage = renderer.RegisterImage("Gfx/ReflexSight.png");
 			@ballImage = renderer.RegisterImage("Gfx/Ball.png");
+
+			time = -1.0F;
+			localFireVibration = 0.0F;
+
+			charmHorizontalSwingSpring = ViewWeaponSpring(200, 4);
+			charmVerticalSwingSpring = ViewWeaponSpring(200, 4);
+			charmSprintSpring = ViewWeaponSpring(200, 4);
+			charmRaiseSpring = ViewWeaponSpring(200, 4);
 		}
 
 		float GetLocalFireVibration() { return localFireVibration; }
@@ -370,6 +383,14 @@ namespace spades {
 				sprintStateSmooth = Mix(sprintStateSmooth, sprintStateSS, 1.0F - pow(0.001F, dt));
 			else
 				sprintStateSmooth = sprintStateSS;
+
+			// update charm springs
+			charmHorizontalSwingSpring.velocity += swing.x * 60 * dt * 2;
+			charmVerticalSwingSpring.velocity += swing.z * 60 * dt * 2;
+			charmHorizontalSwingSpring.Update(dt);
+			charmVerticalSwingSpring.Update(dt);
+			charmSprintSpring.Update(dt);
+			charmRaiseSpring.Update(dt);
 
 			time += Min(dt, 0.05F);
 		}

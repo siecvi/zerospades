@@ -56,22 +56,16 @@ namespace spades {
 		private float reflexSightScale = 0.08F;
 
 		// A bunch of springs.
-		private ViewWeaponSpring reloadPitchSpring = ViewWeaponSpring(150, 12, 0);
-		private ViewWeaponSpring reloadRollSpring = ViewWeaponSpring(150, 16, 0);
-		private ViewWeaponSpring reloadOffsetSpring = ViewWeaponSpring(150, 12, 0);
+		private ViewWeaponSpring reloadPitchSpring = ViewWeaponSpring(150, 12);
+		private ViewWeaponSpring reloadRollSpring = ViewWeaponSpring(150, 16);
+		private ViewWeaponSpring reloadOffsetSpring = ViewWeaponSpring(150, 12);
 		private ViewWeaponSpring recoilVerticalSpring = ViewWeaponSpring(300, 24);
 		private ViewWeaponSpring recoilBackSpring = ViewWeaponSpring(300, 16);
 		private ViewWeaponSpring recoilRotationSpring = ViewWeaponSpring(50, 8);
 		private ViewWeaponSpring horizontalSwingSpring = ViewWeaponSpring(100, 12);
 		private ViewWeaponSpring verticalSwingSpring = ViewWeaponSpring(100, 12);
-		private ViewWeaponSpring sprintSpring = ViewWeaponSpring(100, 10, 0);
+		private ViewWeaponSpring sprintSpring = ViewWeaponSpring(100, 10);
 		private ViewWeaponSpring raiseSpring = ViewWeaponSpring(200, 20, 1);
-
-		// charm springs
-		private ViewWeaponSpring charmHorizontalSwingSpring = ViewWeaponSpring(200, 4);
-		private ViewWeaponSpring charmVerticalSwingSpring = ViewWeaponSpring(200, 4);
-		private ViewWeaponSpring charmSprintSpring = ViewWeaponSpring(200, 4);
-		private ViewWeaponSpring charmRaiseSpring = ViewWeaponSpring(200, 4);
 
 		// A bunch of events.
 		private ViewWeaponEvent magazineTouched = ViewWeaponEvent();
@@ -224,7 +218,9 @@ namespace spades {
 			// load images
 			@scopeImage = renderer.RegisterImage("Gfx/SMG.png");
 
+			// initial raise spring
 			raiseSpring.position = 1;
+			charmRaiseSpring.position = 1;
 		}
 
 		void Update(float dt) {
@@ -234,9 +230,10 @@ namespace spades {
 			reloadRollSpring.Update(dt);
 			reloadOffsetSpring.Update(dt);
 
-			recoilVerticalSpring.damping = Mix(16, 24, AimDownSightState);
-			recoilBackSpring.damping = Mix(24, 20, AimDownSightState);
-			recoilRotationSpring.damping = Mix(8, 16, AimDownSightState);
+			// smoothly increase recoil damping while aiming down sights
+			recoilVerticalSpring.damping = Mix(16, 24, AimDownSightStateSmooth);
+			recoilBackSpring.damping = Mix(24, 20, AimDownSightStateSmooth);
+			recoilRotationSpring.damping = Mix(8, 16, AimDownSightStateSmooth);
 			recoilVerticalSpring.Update(dt);
 			recoilBackSpring.Update(dt);
 			recoilRotationSpring.Update(dt);
@@ -249,19 +246,13 @@ namespace spades {
 			sprintSpring.Update(dt);
 			raiseSpring.Update(dt);
 
-			// update charm springs
-			charmHorizontalSwingSpring.velocity += swing.x * 60 * dt * 2;
-			charmVerticalSwingSpring.velocity += swing.z * 60 * dt * 2;
-			charmHorizontalSwingSpring.Update(dt);
-			charmVerticalSwingSpring.Update(dt);
-			charmSprintSpring.Update(dt);
-			charmRaiseSpring.Update(dt);
-
 			bool isSprinting = sprintState >= 1 or sprintState > lastSprintState;
 			bool isRaised = raiseState >= 1 or raiseState > lastRaiseState;
 
 			sprintSpring.desired = isSprinting ? 1 : 0;
 			raiseSpring.desired = isRaised ? 0 : 1;
+			charmSprintSpring.desired = isSprinting ? 1 : 0;
+			charmRaiseSpring.desired = isRaised ? 0 : 1;
 
 			lastSprintState = sprintState;
 			lastRaiseState = raiseState;
@@ -291,7 +282,6 @@ namespace spades {
 
 			recoilVerticalSpring.velocity += 0.75;
 			recoilBackSpring.position += 0.1;
-			//recoilBackSpring.velocity += 0.75;
 			recoilRotationSpring.velocity += (GetRandom() * 2 - 1);
 
 			charmHorizontalSwingSpring.velocity += (GetRandom() * 2 - 1) * 0.1F;
