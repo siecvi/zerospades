@@ -256,9 +256,9 @@ namespace spades {
 		protected ConfigItem cg_scopeThickness("cg_scopeThickness", "1");
 		protected ConfigItem cg_scopeTStyle("cg_scopeTStyle", "0");
 		protected ConfigItem cg_scopeDot("cg_scopeDot", "0");
-		protected ConfigItem cg_scopeDotColorR("cg_scopeDotColorR", "0");
+		protected ConfigItem cg_scopeDotColorR("cg_scopeDotColorR", "255");
 		protected ConfigItem cg_scopeDotColorG("cg_scopeDotColorG", "0");
-		protected ConfigItem cg_scopeDotColorB("cg_scopeDotColorB", "0");
+		protected ConfigItem cg_scopeDotColorB("cg_scopeDotColorB", "255");
 		protected ConfigItem cg_scopeDotAlpha("cg_scopeDotAlpha", "255");
 		protected ConfigItem cg_scopeDotThickness("cg_scopeDotThickness", "1");
 		protected ConfigItem cg_scopeOutline("cg_scopeOutline", "1");
