@@ -15,7 +15,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -356,7 +356,7 @@ namespace spades {
 			// Smooth the player orientation
 			if (!IsLocalPlayer()) {
 				orientationSmoothed = orientationSmoothed * powf(0.9F, dt * 60.0F) +
-				                      orientation * powf(0.1F, dt * 60.0F);
+									  orientation * powf(0.1F, dt * 60.0F);
 				orientationSmoothed = orientationSmoothed.Normalize();
 			}
 		}
@@ -548,9 +548,13 @@ namespace spades {
 			std::vector<Vector3> bulletVectors;
 
 			int pellets = weapon->GetPelletSize();
+
+			// get raw spread value (should match classic)
 			float spread = weapon->GetSpread();
-			if (!weapInput.secondary)
-				spread *= 2;
+
+			// halve spread when aiming
+			if (weapInput.secondary)
+				spread /= 2;
 
 			const Handle<GameMap>& map = world.GetMap();
 			SPAssert(map);
@@ -564,9 +568,9 @@ namespace spades {
 			Vector3 pelletDir = dir;
 			for (int i = 0; i < pellets; i++) {
 				// AoS 0.75's way (pelletDir shouldn't be normalized!)
-				pelletDir.x += (SampleRandomFloat() - SampleRandomFloat()) * spread;
-				pelletDir.y += (SampleRandomFloat() - SampleRandomFloat()) * spread;
-				pelletDir.z += (SampleRandomFloat() - SampleRandomFloat()) * spread;
+				pelletDir.x += ((SampleRandomInt(0, 32767) - SampleRandomInt(0, 32767)) / 16383.0F) * spread;
+				pelletDir.y += ((SampleRandomInt(0, 32767) - SampleRandomInt(0, 32767)) / 16383.0F) * spread;
+				pelletDir.z += ((SampleRandomInt(0, 32767) - SampleRandomInt(0, 32767)) / 16383.0F) * spread;
 
 				dir = pelletDir.Normalize();
 
@@ -673,7 +677,7 @@ namespace spades {
 				float hitBlockDist2D = (mapResult.hitPos - muzzle).GetLength2D();
 
 				if (mapResult.hit && hitBlockDist2D <= FOG_DISTANCE &&
-				    (!hitPlayer || hitBlockDist2D < hitPlayerDist2D)) {
+					(!hitPlayer || hitBlockDist2D < hitPlayerDist2D)) {
 					finalHitPos = mapResult.hitPos;
 
 					IntVector3 outBlockPos = mapResult.hitBlock;
@@ -854,7 +858,7 @@ namespace spades {
 
 			if (!cookingGrenade)
 				return;
-			
+
 			if (IsLocalPlayer()) {
 				Vector3 const dir = GetFront();
 				Vector3 const muzzle = GetEye() + (dir * 0.1F);
@@ -904,7 +908,7 @@ namespace spades {
 					if (!other.IsAlive() || other.IsSpectator())
 						continue; // filter deads/spectators
 					if ((other.GetEye() - muzzle).GetSquaredLength() >
-					    (MELEE_DISTANCE * MELEE_DISTANCE))
+						(MELEE_DISTANCE * MELEE_DISTANCE))
 						continue; // skip players outside attack range
 					if (!other.RayCastApprox(muzzle, dir))
 						continue; // quickly reject players unlikely to be hit
@@ -1086,9 +1090,9 @@ namespace spades {
 			float y1 = position.y + size;
 			float y2 = position.y - size;
 			if (map->ClipBox(x2, y2, nz + m) ||
-			    map->ClipBox(x2, y1, nz + m) ||
-			    map->ClipBox(x1, y2, nz + m) ||
-			    map->ClipBox(x1, y1, nz + m)) {
+				map->ClipBox(x2, y1, nz + m) ||
+				map->ClipBox(x1, y2, nz + m) ||
+				map->ClipBox(x1, y1, nz + m)) {
 				if (velocity.z >= 0.0F) {
 					wade = position.z > 61.0F;
 					airborne = false;
@@ -1247,7 +1251,7 @@ namespace spades {
 
 		bool Player::TryUncrouch() {
 			SPADES_MARK_FUNCTION();
-			
+
 			float size = 0.45F;
 
 			float x1 = position.x + size;
