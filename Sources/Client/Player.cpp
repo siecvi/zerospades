@@ -556,6 +556,10 @@ namespace spades {
 			if (weapInput.secondary)
 				spread /= 2;
 
+			// halve spread when crouching (except for shotgun)
+			if (input.crouch && weaponType != SHOTGUN_WEAPON)
+				spread /= 2;
+
 			const Handle<GameMap>& map = world.GetMap();
 			SPAssert(map);
 

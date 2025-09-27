@@ -652,6 +652,11 @@ namespace spades {
 			if (aimDownState > 0.99F)
 				spread /= 2;
 
+			// halve spread when crouching (except for shotgun)
+			PlayerInput actualInput = p.GetInput();
+			WeaponType weaponType = weapon.GetWeaponType();
+			if (actualInput.crouch && weaponType != SHOTGUN_WEAPON)
+				spread /= 2;
 
 			float fovY = tanf(lastSceneDef.fovY * 0.5F);
 			float spreadDistance = (spread * 2) * (sh * 0.5F) / fovY;
