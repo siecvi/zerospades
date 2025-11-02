@@ -59,10 +59,8 @@ namespace spades {
 			moveSteps = 0;
 
 			playerId = pId;
-			weapon.reset(Weapon::CreateWeapon(wType, *this, *w.GetGameProperties()));
 			weaponType = wType;
 			teamId = tId;
-			weapon->Reset();
 
 			health = 100;
 			grenades = 3;
@@ -89,6 +87,9 @@ namespace spades {
 			canPending = false;
 
 			respawnTime = 0.0F;
+
+			weapon.reset(Weapon::CreateWeapon(wType, *this, *w.GetGameProperties()));
+			weapon->Reset();
 		}
 
 		Player::~Player() { SPADES_MARK_FUNCTION(); }

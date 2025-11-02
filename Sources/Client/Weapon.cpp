@@ -137,7 +137,8 @@ namespace spades {
 				}
 			} else if (unejectedBrass && time >= ejectBrassTime) {
 				unejectedBrass = false;
-				world.GetListener()->PlayerEjectedBrass(owner);
+				if (world.GetListener())
+					world.GetListener()->PlayerEjectedBrass(owner);
 			}
 
 			time += dt;
