@@ -38,8 +38,11 @@ if(WIN32)
 	endif()
 endif()
 
-add_executable(OpenSpades ${AUDIO_FILES} ${AUDIO_AL_FILES} ${BINPACK_FILES} ${CLIENT_FILES} ${CORE_FILES} ${PLATFORM_FILES} ${DRAW_FILES} ${ENET_FILES} ${ENET_INCLUDE} ${GUI_FILES}
+add_library(OpenSpadesCore STATIC ${CLIENT_FILES} ${CORE_FILES} ${DRAW_FILES} ${AUDIO_FILES} ${AUDIO_AL_FILES} ${BINPACK_FILES} ${PLATFORM_FILES} ${ENET_FILES} ${ENET_INCLUDE}
 	${IMPORTS_FILES} ${KISS_FILES} ${JSON_FILES} ${JSON_INCLUDE} ${UNZIP_FILES} ${SCRIPTBINDING_FILES} ${RESOURCE_FILES})
+
+add_executable(OpenSpades ${GUI_FILES})
+target_link_libraries(OpenSpades OpenSpadesCore ${SDL2_LIBRARY})
 set_target_properties(OpenSpades PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(OpenSpades PROPERTIES OUTPUT_NAME openspades)
 set_target_properties(OpenSpades PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -57,7 +60,7 @@ execute_process(
 	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-target_compile_definitions(OpenSpades PRIVATE GIT_COMMIT_HASH="${GIT_COMMIT_HASH}")
+target_compile_definitions(OpenSpadesCore PRIVATE GIT_COMMIT_HASH="${GIT_COMMIT_HASH}")
 
 if(APPLE OR WIN32)
 	# This value is reflected to the macOS application bundle's name, so use
