@@ -15,7 +15,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -97,6 +97,9 @@ DEFINE_SPADES_SETTING(cg_keySpectatorZoom, "e");
 DEFINE_SPADES_SETTING(cg_keyStaffSpectating, "f5");
 
 SPADES_SETTING(s_volume);
+DEFINE_SPADES_SETTING(cg_keyVolumeUp, "+");
+DEFINE_SPADES_SETTING(cg_keyVolumeDown, "-");
+
 SPADES_SETTING(cg_debugHitTest);
 
 DEFINE_SPADES_SETTING(cg_keyToggleHud, "Home");
@@ -321,7 +324,7 @@ namespace spades {
 
 			if (EqualsIgnoringCase(cfg, space1) ||
 				EqualsIgnoringCase(cfg, space2) ||
-			    EqualsIgnoringCase(cfg, space3)) {
+				EqualsIgnoringCase(cfg, space3)) {
 				if (input == " ")
 					return true;
 			} else {
@@ -359,12 +362,12 @@ namespace spades {
 				}
 			} else if (world) {
 				// volume control
-				if ((name == "-" || name == "+") && down) {
+				if ((CheckKey(cg_keyVolumeDown, name) || CheckKey(cg_keyVolumeUp, name)) && down) {
 					int volume = s_volume;
 
-					if (name == "-")
+					if (CheckKey(cg_keyVolumeDown, name))
 						volume = std::max(volume - 10, 0);
-					else if (name == "+")
+					else if (CheckKey(cg_keyVolumeUp, name))
 						volume = std::min(volume + 10, 100);
 
 					s_volume = volume;
@@ -410,7 +413,7 @@ namespace spades {
 
 								// Start with the local player
 								if (cameraMode == ClientCameraMode::Free ||
-								    cameraMode == ClientCameraMode::ThirdPersonLocal)
+									cameraMode == ClientCameraMode::ThirdPersonLocal)
 									followedPlayerId = p.GetId();
 								if (localPlayerIsSpectating || time - lastAliveTime > 1.3F)
 									FollowNextPlayer(false);
@@ -426,7 +429,7 @@ namespace spades {
 
 								// Start with the local player
 								if (cameraMode == ClientCameraMode::Free ||
-								    cameraMode == ClientCameraMode::ThirdPersonLocal)
+									cameraMode == ClientCameraMode::ThirdPersonLocal)
 									followedPlayerId = p.GetId();
 								if (localPlayerIsSpectating || time - lastAliveTime > 1.3F)
 									FollowNextPlayer(true);
@@ -449,7 +452,7 @@ namespace spades {
 								}
 
 								// Unfollow
-							    followCameraState.enabled = false;
+								followCameraState.enabled = false;
 							}
 							return;
 						}
@@ -461,11 +464,11 @@ namespace spades {
 				if (!localPlayerIsSpectating) {
 					// hit debugger zoom can be toggled when dead
 					if (CheckKey(cg_keyToggleHitTestZoom, name) &&
-					    debugHitTestImage && cg_debugHitTest) {
+						debugHitTestImage && cg_debugHitTest) {
 						debugHitTestZoom = down;
 						Handle<IAudioChunk> c = debugHitTestZoom
-						    ? audioDevice->RegisterSound("Sounds/Misc/OpenMap.opus")
-						    : audioDevice->RegisterSound("Sounds/Misc/CloseMap.opus");
+							? audioDevice->RegisterSound("Sounds/Misc/OpenMap.opus")
+							: audioDevice->RegisterSound("Sounds/Misc/CloseMap.opus");
 						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 					}
 
@@ -494,7 +497,7 @@ namespace spades {
 						  audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
 						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 					} else if (CheckKey(cg_keySpectatorZoom, name) &&
-					           cameraMode == ClientCameraMode::Free) {
+							   cameraMode == ClientCameraMode::Free) {
 						spectatorZoom = down;
 					}
 				}
@@ -642,7 +645,7 @@ namespace spades {
 					}
 				} else if (CheckKey(cg_keyStaffSpectating, name) && down && isStaff) {
 					staffSpectating = !staffSpectating;
-					
+
 					// enter follow camera state
 					if (staffSpectating && !localPlayerIsSpectator) {
 						weapInput = WeaponInput();
@@ -653,7 +656,7 @@ namespace spades {
 							spectatorZoom = false;
 							spectatorZoomState = 0.0F;
 						}
-						
+
 						followedPlayerId = p.GetId(); // start with the local player
 						followCameraState.firstPerson = false; // force thirdperson
 						followCameraState.enabled = true;
@@ -696,7 +699,7 @@ namespace spades {
 							targetFocalLength = 1.0F / dist;
 							autoFocusEnabled = false;
 						} else if (!localPlayerIsSpectator && localPlayerIsAlive &&
-						           cg_switchToolByWheel) {
+								   cg_switchToolByWheel) {
 							Player::ToolType t = p.GetTool();
 							do {
 								switch (t) {
@@ -716,7 +719,7 @@ namespace spades {
 							targetFocalLength = 1.0F / dist;
 							autoFocusEnabled = false;
 						} else if (!localPlayerIsSpectator && localPlayerIsAlive &&
-						           cg_switchToolByWheel) {
+								   cg_switchToolByWheel) {
 							Player::ToolType t = p.GetTool();
 							do {
 								switch (t) {
