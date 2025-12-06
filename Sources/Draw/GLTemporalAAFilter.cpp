@@ -64,46 +64,16 @@ namespace spades {
 
 			// Calculate the current view-projection matrix.
 			const client::SceneDefinition& def = renderer.GetSceneDef();
-			Matrix4 newMatrix = Matrix4::Identity();
-			Vector3 axes[] = {def.viewAxis[0], def.viewAxis[1], def.viewAxis[2]};
-			newMatrix.m[0] = axes[0].x;
-			newMatrix.m[1] = axes[1].x;
-			newMatrix.m[2] = -axes[2].x;
-			newMatrix.m[4] = axes[0].y;
-			newMatrix.m[5] = axes[1].y;
-			newMatrix.m[6] = -axes[2].y;
-			newMatrix.m[8] = axes[0].z;
-			newMatrix.m[9] = axes[1].z;
-			newMatrix.m[10] = -axes[2].z;
+			
+			Matrix4 viewMatrix = def.ToViewMatrix();
+			Matrix4 projMatrix = def.ToOpenGLProjectionMatrix();
 
-			Matrix4 projectionMatrix;
-			{
-				// From `GLRenderer::BuildProjectionMatrix`
-				float near = def.zNear;
-				float far = def.zFar;
-				float t = near * std::tan(def.fovY * 0.5F);
-				float r = near * std::tan(def.fovX * 0.5F);
-				float a = r * 2.0F, b = t * 2.0F, c = far - near;
-				Matrix4& mat = projectionMatrix;
-				mat.m[0] = near * 2.0F / a;
-				mat.m[1] = 0.0F;
-				mat.m[2] = 0.0F;
-				mat.m[3] = 0.0F;
-				mat.m[4] = 0.0F;
-				mat.m[5] = near * 2.0F / b;
-				mat.m[6] = 0.0F;
-				mat.m[7] = 0.0F;
-				mat.m[8] = 0.0F;
-				mat.m[9] = 0.0F;
-				mat.m[10] = -(far + near) / c;
-				mat.m[11] = -1.0F;
-				mat.m[12] = 0.0F;
-				mat.m[13] = 0.0F;
-				mat.m[14] = -(far * near * 2.0F) / c;
-				mat.m[15] = 0.0F;
-			}
+			// exclude translation from view matrix
+			viewMatrix.m[12] = 0.0F;
+			viewMatrix.m[13] = 0.0F;
+			viewMatrix.m[14] = 0.0F;
 
-			newMatrix = projectionMatrix * newMatrix;
+			Matrix4 newMatrix = projMatrix * viewMatrix;
 
 			// In `y = newMatrix * x`, the coordinate space `y` belongs to must
 			// cover the clip region by range `[0, 1]` (like texture coordinates)
