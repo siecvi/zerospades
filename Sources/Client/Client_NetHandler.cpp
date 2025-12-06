@@ -105,6 +105,9 @@ namespace spades {
 			// play intro sound
 			Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Feedback/Intro.opus");
 			audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+
+			// display client version
+			ServerSentMessage(true, _Tr("Client", "You are connected with {0}", std::string(ZEROSPADES_VER_STR)));
 		}
 
 		void Client::TeamCapturedTerritory(int teamId, int terId) {
@@ -356,7 +359,7 @@ namespace spades {
 			// take a screenshot of the scoreboard
 			if (cg_autoScreenshot)
 				TakeScreenShot(false, true);
-			
+
 			std::string msg;
 			std::string teamName = world->GetTeamName(teamId);
 

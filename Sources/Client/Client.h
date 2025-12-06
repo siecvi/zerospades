@@ -38,6 +38,7 @@
 #include <Core/Math.h>
 #include <Core/ServerAddress.h>
 #include <Core/Stopwatch.h>
+#include <Core/VersionInfo.h>
 #include <Gui/View.h>
 
 namespace spades {
@@ -404,7 +405,7 @@ namespace spades {
 			void DoInit();
 
 			void ShowAlert(const std::string& contents, AlertType type);
-			void ShowAlert(const std::string& contents, AlertType type, 
+			void ShowAlert(const std::string& contents, AlertType type,
 				float timeout, bool quiet = false);
 			void PlayAlertSound();
 			void PlayScreenshotSound();
@@ -555,11 +556,11 @@ namespace spades {
 			void PlayerRestocked(Player&) override;
 
 			/** @deprecated use BulletHitPlayer */
-			void PlayerHitBlockWithSpade(Player&, Vector3 hitPos, 
+			void PlayerHitBlockWithSpade(Player&, Vector3 hitPos,
 				IntVector3 blockPos, IntVector3 normal) override;
 			void PlayerKilledPlayer(Player& killer, Player& victim, KillType) override;
 
-			void BulletHitPlayer(Player& hurtPlayer, HitType, Vector3 hitPos, Player& by, 
+			void BulletHitPlayer(Player& hurtPlayer, HitType, Vector3 hitPos, Player& by,
 				std::unique_ptr<IBulletHitScanState>& stateCell) override;
 			void BulletNearPlayer(Player& by) override;
 			void BulletHitBlock(Vector3, IntVector3 blockPos, IntVector3 normal) override;

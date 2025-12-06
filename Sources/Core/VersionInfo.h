@@ -1,5 +1,20 @@
 #pragma once
 
+#define ZEROSPADES_VERSION_MAJOR 0
+#define ZEROSPADES_VERSION_MINOR 0
+#define ZEROSPADES_VERSION_PATCH 7
+
+#define ZEROSPADES_VERSION_FULL \
+	OS_STRINGIFY(ZEROSPADES_VERSION_MAJOR) "." \
+	OS_STRINGIFY(ZEROSPADES_VERSION_MINOR) "." \
+	OS_STRINGIFY(ZEROSPADES_VERSION_PATCH)
+
+#ifdef GIT_COMMIT_HASH
+#define ZEROSPADES_VER_STR "ZeroSpades " ZEROSPADES_VERSION_FULL " " GIT_COMMIT_HASH
+#else
+#define ZEROSPADES_VER_STR "ZeroSpades " ZEROSPADES_VERSION_FULL
+#endif
+
 #if __linux__
 #define OS_PLATFORM_LINUX
 #elif TARGET_OS_MAC
@@ -12,5 +27,5 @@
 
 class VersionInfo {
 public:
-    static std::string GetVersionInfo();
+	static std::string GetVersionInfo();
 };

@@ -1497,7 +1497,7 @@ namespace spades {
 					case VersionInfoPropertyId::ApplicationNameAndVersion:
 						w.WriteByte((uint8_t)OPENSPADES_VERSION_MAJOR);
 						w.WriteByte((uint8_t)OPENSPADES_VERSION_MINOR);
-						w.WriteByte((uint8_t)OPENSPADES_VERSION_REVISION);
+						w.WriteByte((uint8_t)OPENSPADES_VERSION_PATCH);
 						w.WriteString("OpenSpades");
 						break;
 					case VersionInfoPropertyId::UserLocale:
@@ -1741,13 +1741,13 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			std::string osInfo = VersionInfo::GetVersionInfo();
-			osInfo += " | ZeroSpades 0.0.7 " GIT_COMMIT_HASH;
+			osInfo.append(" | " ZEROSPADES_VER_STR);
 
 			NetPacketWriter w(PacketTypeVersionSend);
 			w.WriteByte((uint8_t)'o');
 			w.WriteByte((uint8_t)OPENSPADES_VERSION_MAJOR);
 			w.WriteByte((uint8_t)OPENSPADES_VERSION_MINOR);
-			w.WriteByte((uint8_t)OPENSPADES_VERSION_REVISION);
+			w.WriteByte((uint8_t)OPENSPADES_VERSION_PATCH);
 			w.WriteString(osInfo);
 
 			SPLog("Sending version back.");
