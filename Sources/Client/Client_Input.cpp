@@ -94,7 +94,7 @@ DEFINE_SPADES_SETTING(cg_keyAutoFocus, "MiddleMouseButton");
 
 DEFINE_SPADES_SETTING(cg_keyToggleSpectatorNames, "z");
 DEFINE_SPADES_SETTING(cg_keySpectatorZoom, "e");
-DEFINE_SPADES_SETTING(cg_keyStaffSpectating, "b");
+DEFINE_SPADES_SETTING(cg_keyStaffSpectating, "f5");
 
 SPADES_SETTING(s_volume);
 SPADES_SETTING(cg_debugHitTest);
