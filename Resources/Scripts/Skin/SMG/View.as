@@ -27,7 +27,6 @@ namespace spades {
 		private Model@ rearSightModel;
 		private Model@ frontSightModel;
 		private Model@ frontPinSightModel;
-		private Model@ dotSightModel;
 		private Model@ reflexSightModel;
 
 		private AudioChunk@[] fireSounds(4);
@@ -195,7 +194,6 @@ namespace spades {
 			@rearSightModel = renderer.RegisterModel("Models/Weapons/SMG/SightRear.kv6");
 			@frontSightModel = renderer.RegisterModel("Models/Weapons/SMG/SightFront.kv6");
 			@frontPinSightModel = renderer.RegisterModel("Models/Weapons/SMG/SightFrontPin.kv6");
-			@dotSightModel = renderer.RegisterModel("Models/Weapons/SMG/SightDot.kv6");
 			@reflexSightModel = renderer.RegisterModel("Models/Weapons/SMG/SightReflex.kv6");
 
 			// load sounds
@@ -428,8 +426,7 @@ namespace spades {
 			param.matrix = weapMatrix
 				* CreateTranslateMatrix(frontPinSightAttachment)
 				* CreateScaleMatrix(frontPinSightScale);
-			renderer.AddModel(frontPinSightModel, param); // front pin
-			renderer.AddModel(dotSightModel, param); // front pin (emissive)
+			renderer.AddModel(frontPinSightModel, param); // front pin (emissive)
 
 			param.matrix = weapMatrix
 				* CreateTranslateMatrix(frontSightAttachment)

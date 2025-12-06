@@ -26,7 +26,6 @@ namespace spades {
 		private Model@ magazineModel;
 		private Model@ rearSightModel;
 		private Model@ frontSightModel;
-		private Model@ dotSightModel;
 		private Model@ reflexSightModel;
 
 		private AudioChunk@ fireSound;
@@ -199,7 +198,6 @@ namespace spades {
 			@magazineModel = renderer.RegisterModel("Models/Weapons/Rifle/Magazine.kv6");
 			@rearSightModel = renderer.RegisterModel("Models/Weapons/Rifle/SightRear.kv6");
 			@frontSightModel = renderer.RegisterModel("Models/Weapons/Rifle/SightFront.kv6");
-			@dotSightModel = renderer.RegisterModel("Models/Weapons/Rifle/SightDot.kv6");
 			@reflexSightModel = renderer.RegisterModel("Models/Weapons/Rifle/SightReflex.kv6");
 
 			// load sounds
@@ -425,8 +423,7 @@ namespace spades {
 			param.matrix = weapMatrix
 				* CreateTranslateMatrix(frontSightAttachment)
 				* CreateScaleMatrix(frontSightScale);
-			renderer.AddModel(frontSightModel, param); // front pin
-			renderer.AddModel(dotSightModel, param); // front pin (emissive)
+			renderer.AddModel(frontSightModel, param); // front pin (emissive)
 
 			// draw reflex sight (3D sprite)
 			int reflexMode = cg_reflexScope.IntValue;

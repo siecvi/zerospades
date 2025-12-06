@@ -272,7 +272,7 @@ namespace spades {
 
 			// load images
 			SmokeSpriteEntity::Preload(renderer.GetPointerOrNull());
-			
+
 			renderer->RegisterImage("Gfx/Bullet/7.62mm.png");
 			renderer->RegisterImage("Gfx/Bullet/9mm.png");
 			renderer->RegisterImage("Gfx/Bullet/12gauge.png");
@@ -488,7 +488,6 @@ namespace spades {
 			renderer->RegisterModel("Models/Weapons/Grenade/Grenade.kv6");
 			renderer->RegisterModel("Models/Weapons/Rifle/Casing.kv6");
 			renderer->RegisterModel("Models/Weapons/Rifle/Magazine.kv6");
-			renderer->RegisterModel("Models/Weapons/Rifle/SightDot.kv6");
 			renderer->RegisterModel("Models/Weapons/Rifle/SightFront.kv6");
 			renderer->RegisterModel("Models/Weapons/Rifle/SightRear.kv6");
 			renderer->RegisterModel("Models/Weapons/Rifle/SightReflex.kv6");
@@ -496,7 +495,6 @@ namespace spades {
 			renderer->RegisterModel("Models/Weapons/Rifle/WeaponNoMagazine.kv6");
 			renderer->RegisterModel("Models/Weapons/Shotgun/Casing.kv6");
 			renderer->RegisterModel("Models/Weapons/Shotgun/Pump.kv6");
-			renderer->RegisterModel("Models/Weapons/Shotgun/SightDot.kv6");
 			renderer->RegisterModel("Models/Weapons/Shotgun/SightFront.kv6");
 			renderer->RegisterModel("Models/Weapons/Shotgun/SightRear.kv6");
 			renderer->RegisterModel("Models/Weapons/Shotgun/SightReflex.kv6");
@@ -504,7 +502,6 @@ namespace spades {
 			renderer->RegisterModel("Models/Weapons/Shotgun/WeaponNoPump.kv6");
 			renderer->RegisterModel("Models/Weapons/SMG/Casing.kv6");
 			renderer->RegisterModel("Models/Weapons/SMG/Magazine.kv6");
-			renderer->RegisterModel("Models/Weapons/SMG/SightDot.kv6");
 			renderer->RegisterModel("Models/Weapons/SMG/SightFrontPin.kv6");
 			renderer->RegisterModel("Models/Weapons/SMG/SightFront.kv6");
 			renderer->RegisterModel("Models/Weapons/SMG/SightRear.kv6");
@@ -518,7 +515,6 @@ namespace spades {
 				SPLog("Mumble linked");
 			else
 				SPLog("Mumble link failed");
-
 			mumbleLink.SetContext(hostname.ToString(false));
 			mumbleLink.SetIdentity(playerName);
 

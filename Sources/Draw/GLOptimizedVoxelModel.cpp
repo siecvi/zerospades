@@ -345,10 +345,18 @@ namespace spades {
 						auto material = static_cast<MaterialType>(col >> 24);
 
 						col &= 0xFFFFFF;
-
+						
+						uint8_t r = (col >> 16) & 0xFF;
+						uint8_t g = (col >> 8) & 0xFF;
+						uint8_t b = col & 0xFF;
+						
+						int threshold = 250;
+						
 						// Add AOID (selector for the pre-integrated ambient occlusion texture).
 						// Use special values for certain materials.
-						if (material == MaterialType::Emissive) {
+						if (material == MaterialType::Emissive &&
+							((r >= threshold || g >= threshold || b >= threshold)
+								|| (r == 0 && g == 0 && b == 0))) {					
 							col |= ((uint32_t)255) << 24;
 						} else {
 							p3 += nn;
@@ -364,7 +372,6 @@ namespace spades {
 						}
 
 						*(pixels++) = col;
-
 						p2 += uu;
 					}
 
