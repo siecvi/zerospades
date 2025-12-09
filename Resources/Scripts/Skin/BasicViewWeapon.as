@@ -459,11 +459,8 @@ namespace spades {
 
 			Vector4 color = Vector4(1, 1, 1, 1);
 
-			float adsFadeOut = 0.99F;
-			float adsAlpha = (adsFadeOut - AimDownSightStateSmooth) / adsFadeOut;
-
 			// draw scope
-			if (AimDownSightStateSmooth > adsFadeOut) {
+			if (AimDownSightStateSmooth > 0.99F) {
 				if (scopeType > 0) {
 					IntVector3 col;
 					col.x = cg_scopeColorR.IntValue;
@@ -472,7 +469,6 @@ namespace spades {
 
 					color = ConvertColorRGBA(col);
 					color.w = Clamp(cg_scopeAlpha.IntValue, 0, 255) / 255.0F;
-					color.w *= (1.0F - adsAlpha);
 
 					if (scopeType == 1) { // draw classic png scope
 						Vector2 imgSize = Vector2(scopeImage.Width, scopeImage.Height);
@@ -480,7 +476,7 @@ namespace spades {
 						imgSize *= Min(1.0F, sh / 600.0F);
 
 						if (cg_scopeDynamic.BoolValue)
-							imgSize *= Max(0.25F * (1.0F - readyState) + 1.0F, 1.0F);
+							imgSize *= Max(Mix(1.25F, 1.0F, readyState), 1.0F);
 
 						Vector2 imgPos = scrCenter - (imgSize * 0.5F);
 
@@ -511,7 +507,6 @@ namespace spades {
 						col.z = cg_scopeDotColorB.IntValue;
 						color = ConvertColorRGBA(col);
 						color.w = Clamp(cg_scopeDotAlpha.IntValue, 0, 255) / 255.0F;
-						color.w *= (1.0F - adsAlpha);
 						param.dotColor = color;
 						param.dotThickness = Max(1.0F, cg_scopeDotThickness.FloatValue);
 
@@ -522,7 +517,6 @@ namespace spades {
 						col.z = cg_scopeOutlineColorB.IntValue;
 						color = ConvertColorRGBA(col);
 						color.w = Clamp(cg_scopeOutlineAlpha.IntValue, 0, 255) / 255.0F;
-						color.w *= (1.0F - adsAlpha);
 						param.outlineColor = color;
 						param.outlineThickness = Max(1.0F, cg_scopeOutlineThickness.FloatValue);
 
@@ -552,7 +546,6 @@ namespace spades {
 
 				color = ConvertColorRGBA(col);
 				color.w = Clamp(cg_targetAlpha.IntValue, 0, 255) / 255.0F;
-				color.w *= adsAlpha;
 
 				if (targetType == 1) { // draw default target
 					Vector2 imgSize = Vector2(sightImage.Width, sightImage.Height);
@@ -581,7 +574,6 @@ namespace spades {
 					col.z = cg_targetDotColorB.IntValue;
 					color = ConvertColorRGBA(col);
 					color.w = Clamp(cg_targetDotAlpha.IntValue, 0, 255) / 255.0F;
-					color.w *= adsAlpha;
 					param.dotColor = color;
 					param.dotThickness = Max(1.0F, cg_targetDotThickness.FloatValue);
 
@@ -592,7 +584,6 @@ namespace spades {
 					col.z = cg_targetOutlineColorB.IntValue;
 					color = ConvertColorRGBA(col);
 					color.w = Clamp(cg_targetOutlineAlpha.IntValue, 0, 255) / 255.0F;
-					color.w *= adsAlpha;
 					param.outlineColor = color;
 					param.outlineThickness = Max(1.0F, cg_targetOutlineThickness.FloatValue);
 
