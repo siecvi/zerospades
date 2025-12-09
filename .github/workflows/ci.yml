@@ -9,12 +9,12 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
 
       - name: Cache vcpkg and dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             vcpkg/installed
@@ -41,7 +41,7 @@ jobs:
           parallel: 8
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Release-Windows
           path: |
@@ -56,12 +56,12 @@ jobs:
     runs-on: macos-13
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
 
       - name: Cache vcpkg and dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             vcpkg/installed
@@ -88,7 +88,7 @@ jobs:
           parallel: 8
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Release-macOS
           path: |
@@ -100,10 +100,10 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v18
+        uses: cachix/install-nix-action@v31
 
       - name: Build Nix flake
         run: nix build
