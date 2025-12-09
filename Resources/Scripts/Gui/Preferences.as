@@ -574,6 +574,31 @@ namespace spades {
 			RadioButton::Render();
 		}
 	}
+	
+	class ConfigSimpleToggleStringButton : spades::ui::RadioButton {
+		ConfigItem@ config;
+		string value;
+		ConfigSimpleToggleStringButton(spades::ui::UIManager@ manager,
+			string caption, string configName, string value) {
+			super(manager);
+			@config = ConfigItem(configName);
+			this.Caption = caption;
+			this.value = value;
+			this.Toggle = true;
+			this.Toggled = config.StringValue == value;
+		}
+
+		void OnActivated() {
+			RadioButton::OnActivated();
+			this.Toggled = true;
+			config = value;
+		}
+
+		void Render() {
+			this.Toggled = config.StringValue == value;
+			RadioButton::Render();
+		}
+	}
 
 	class ConfigTarget : spades::ui::UIElement {
 		private ConfigItem cg_target("cg_target", "1");
@@ -975,9 +1000,9 @@ namespace spades {
 			spades::ui::UIElement@ container = CreateItem();
 
 			spades::ui::Label label(Parent.Manager);
+			@label.Font = fontManager.HeadingFont;
 			label.Text = text;
 			label.Alignment = Vector2(0.5F, 0.5F);
-			@label.Font = fontManager.HeadingFont;
 			label.Bounds = AABB2(10.0F, 0.0F, FieldX + FieldWidth - 10.0F, 32.0F);
 			container.AddChild(label);
 		}
@@ -1065,7 +1090,7 @@ namespace spades {
 		}
 
 		void AddChoiceField(string caption, string configName,
-			array<string> labels, array<int> values, bool enabled = true) {
+			array<string>@ labels, array<int>@ values, bool enabled = true) {
 			spades::ui::UIElement@ container = CreateItem();
 
 			spades::ui::Label label(Parent.Manager);
@@ -1077,6 +1102,25 @@ namespace spades {
 			float width = (FieldWidth - (labels.length - 1)) / labels.length;
 			for (uint i = 0; i < labels.length; ++i) {
 				ConfigSimpleToggleButton field(Parent.Manager, labels[i], configName, values[i]);
+				field.Bounds = AABB2(FieldX + float(i) * (width + 1.0F), 1.0F, width, 30.0F);
+				field.Enable = enabled;
+				container.AddChild(field);
+			}
+		}
+		
+		void AddChoiceStringField(string caption, string configName,
+			array<string>@ labels, array<string>@ values, bool enabled = true) {
+			spades::ui::UIElement@ container = CreateItem();
+
+			spades::ui::Label label(Parent.Manager);
+			label.Text = caption;
+			label.Alignment = Vector2(0.0F, 0.5F);
+			label.Bounds = AABB2(10.0F, 0.0F, FieldX + FieldWidth - 10.0F, 32.0F);
+			container.AddChild(label);
+
+			float width = (FieldWidth - (labels.length - 1)) / labels.length;
+			for (uint i = 0; i < labels.length; ++i) {
+				ConfigSimpleToggleStringButton field(Parent.Manager, labels[i], configName, values[i]);
 				field.Bounds = AABB2(FieldX + float(i) * (width + 1.0F), 1.0F, width, 30.0F);
 				field.Enable = enabled;
 				container.AddChild(field);
@@ -1159,6 +1203,16 @@ namespace spades {
 				"cg_playerName", not options.GameActive);
 			nameField.MaxLength = 15;
 			nameField.DenyNonAscii = false;
+			
+			layouter.AddHeading(_Tr("Preferences", "Gameplay"));
+			layouter.AddChoiceField(_Tr("Preferences", "Aiming Animation"), "cg_animations",
+									array<string> = {_Tr("Preferences", "FAST"),
+													 _Tr("Preferences", "NORMAL"),
+													 _Tr("Preferences", "OFF")},
+									array<int> = {2, 1, 0});
+			layouter.AddToggleField(_Tr("Preferences", "Full Aim Down Sight"), "cg_trueAimDownSight");
+			layouter.AddToggleField(_Tr("Preferences", "Classic Weapon Recoil"), "cg_classicWeaponRecoil");
+			layouter.AddToggleField(_Tr("Preferences", "Classic Sprinting"), "cg_classicSprinting");
 
 			layouter.AddHeading(_Tr("Preferences", "Effects"));
 			layouter.AddChoiceField(_Tr("Preferences", "Blood"), "cg_blood",
@@ -1167,16 +1221,13 @@ namespace spades {
 													 _Tr("Preferences", "OFF")},
 									array<int> = {2, 1, 0});
 			layouter.AddToggleField(_Tr("Preferences", "Ragdoll Corpses"), "cg_ragdoll");
-			layouter.AddToggleField(_Tr("Preferences", "Corpse Line Collision"), "r_corpseLineCollision");
+			layouter.AddToggleField(_Tr("Preferences", "Enhanced Ragdoll Physics"), "r_corpseLineCollision");
 			layouter.AddToggleField(_Tr("Preferences", "Bullet Tracers"), "cg_tracers");
 			layouter.AddToggleField(_Tr("Preferences", "Firstperson Tracers"), "cg_tracersFirstPerson");
+			layouter.AddToggleField(_Tr("Preferences", "Muzzle Flashes"), "cg_muzzleFire");
 			layouter.AddToggleField(_Tr("Preferences", "Eject Bullet Casings"), "cg_ejectBrass");
-			layouter.AddChoiceField(_Tr("Preferences", "Animations"), "cg_animations",
-									array<string> = {_Tr("Preferences", "FAST"),
-													 _Tr("Preferences", "NORMAL"),
-													 _Tr("Preferences", "OFF")},
-									array<int> = {2, 1, 0});
 			layouter.AddToggleField(_Tr("Preferences", "Hurt Screen Effects"), "cg_hurtScreenEffects");
+			layouter.AddToggleField(_Tr("Preferences", "Heal Screen Effects"), "cg_healScreenEffects");
 			layouter.AddChoiceField(_Tr("Preferences", "Camera Shake"), "cg_shake",
 									array<string> = {_Tr("Preferences", "MORE"),
 													 _Tr("Preferences", "NORMAL"),
@@ -1187,6 +1238,7 @@ namespace spades {
 													 _Tr("Preferences", "NORMAL"),
 													 _Tr("Preferences", "OFF")},
 									array<int> = {2, 1, 0});
+			layouter.AddToggleField(_Tr("Preferences", "Water Splash"), "cg_waterImpact");
 
 			layouter.AddHeading(_Tr("Preferences", "Feedbacks"));
 			layouter.AddChoiceField(_Tr("Preferences", "Center Messages"), "cg_centerMessage",
@@ -1205,23 +1257,24 @@ namespace spades {
 			layouter.AddVolumeSlider(_Tr("Preferences", "Respawn Beep Volume"), "cg_respawnSoundGain");
 			layouter.AddVolumeSlider(_Tr("Preferences", "Hit Feedback Volume"), "cg_hitFeedbackSoundGain");
 			layouter.AddVolumeSlider(_Tr("Preferences", "Headshot Feedback Volume"), "cg_headshotFeedbackSoundGain");
-			layouter.AddToggleField(_Tr("Preferences", "Environmental Audio"), "cg_environmentalAudio");
 			layouter.AddVolumeSlider(_Tr("Preferences", "Chat Notify Sounds"), "cg_chatBeep");
 			layouter.AddToggleField(_Tr("Preferences", "Show Alerts"), "cg_alerts");
 			layouter.AddVolumeSlider(_Tr("Preferences", "Alert Sounds"), "cg_alertSounds");
-			layouter.AddToggleField(_Tr("Preferences", "Hit Analyzer"), "cg_hitAnalyze");
+			layouter.AddToggleField(_Tr("Preferences", "Hit Log"), "cg_hitAnalyze");
 			layouter.AddToggleField(_Tr("Preferences", "Hit Indicator"), "cg_hitIndicator");
 			layouter.AddToggleField(_Tr("Preferences", "Damage Indicator"), "cg_damageIndicators");
-
-			layouter.AddHeading(_Tr("Preferences", "AoS 0.75/0.76 Compatibility"));
-			layouter.AddToggleField(_Tr("Preferences", "Allow Unicode"), "cg_unicode");
-			layouter.AddToggleField(_Tr("Preferences", "Server Alert"), "cg_serverAlert");
-
+			layouter.AddToggleField(_Tr("Preferences", "Show Hover Player Names"), "cg_playerNames");
+			layouter.AddToggleField(_Tr("Preferences", "Show Dead Player Names"), "cg_playerNamesDead");
+			
 			layouter.AddHeading(_Tr("Preferences", "Misc"));
 			layouter.AddSliderField(_Tr("Preferences", "Field of View"), "cg_fov",
 			45, 110, 1, ConfigFOVFormatter());
 			layouter.AddToggleField(_Tr("Preferences", "Horizontal FOV"), "cg_horizontalFov");
 			layouter.AddToggleField(_Tr("Preferences", "Classic Zoom"), "cg_classicZoom");
+			layouter.AddToggleField(_Tr("Preferences", "Save Final Score Screenshot"), "cg_autoScreenshot");	
+			layouter.AddChoiceStringField(_Tr("Preferences", "Screenshot Format"), "cg_screenshotFormat",
+                     array<string> = { "PNG", "JPEG", "TGA" },
+                     array<string> = { "png", "jpeg", "tga" });
 			layouter.AddToggleField(_Tr("Preferences", "Debug Hit Detection"), "cg_debugHitTest");
 			layouter.AddSliderField(_Tr("Preferences", "Hit Test Debugger Size"), "cg_dbgHitTestSize",
 			64, 256, 8, ConfigNumberFormatter(0, "px"));
@@ -1229,11 +1282,17 @@ namespace spades {
 			layouter.AddSliderField(_Tr("Preferences", "Hit Debugger Fade Time"), "cg_dbgHitTestFadeTime",
 			1, 20, 1, ConfigNumberFormatter(0, "s"));		
 			layouter.AddToggleField(_Tr("Preferences", "Debug Weapon Spread"), "cg_debugAim");
+			layouter.AddToggleField(_Tr("Preferences", "Debug Block Cursor"), "cg_debugBlockCursor");
+			layouter.AddToggleField(_Tr("Preferences", "Debug Players Hitbox"), "cg_debugPlayerHitboxes");
+			layouter.AddToggleField(_Tr("Preferences", "Debug Weapon Anchor Points"), "cg_debugToolSkinAnchors");
 			layouter.AddSliderField(_Tr("Preferences", "Viewmodel Alignment"), "cg_viewWeaponSide",
 			-1, 1, 0.1, ConfigViewmodelSideFormatter());
 			layouter.AddControl(_Tr("Preferences", "Switch Viewmodel Handedness"), "cg_keyToggleLeftHand");
 			layouter.AddToggleField(_Tr("Preferences", "Classic Viewmodel"), "cg_classicViewWeapon");
 			layouter.AddToggleField(_Tr("Preferences", "Classic Player Model"), "cg_classicPlayerModels");
+			layouter.AddToggleField(_Tr("Preferences", "Weapon Keychains"), "cg_weaponCharms");
+			layouter.AddToggleField(_Tr("Preferences", "Environmental Audio"), "cg_environmentalAudio");
+			layouter.AddToggleField(_Tr("Preferences", "Skip dead players (death cam)"), "cg_skipDeadPlayersWhenDead");
 
 			layouter.AddHeading(_Tr("Preferences", "Heads-Up Display"));
 			layouter.AddToggleField(_Tr("Preferences", "Hide HUD"), "cg_hideHud");
@@ -1246,7 +1305,7 @@ namespace spades {
 													 _Tr("Preferences", "Top"),
 													 _Tr("Preferences", "Bottom")},
 									array<int> = {0, 1, 2});
-			layouter.AddChoiceField(_Tr("Preferences", "Show Statistics"), "cg_stats",
+			layouter.AddChoiceField(_Tr("Preferences", "Show Client Statistics"), "cg_stats",
 									array<string> = {_Tr("Preferences", "OFF"),
 													 _Tr("Preferences", "Top"),
 													 _Tr("Preferences", "Bottom")},
@@ -1264,14 +1323,14 @@ namespace spades {
 			array<string> = { "cg_hudColorR", "cg_hudColorG", "cg_hudColorB"});
 			layouter.AddSliderField(_Tr("Preferences", "Chat Height"), "cg_chatHeight",
 			10, 100, 1, ConfigNumberFormatter(0, "px"));
-			layouter.AddSliderField(_Tr("Preferneces", "Killfeed Height"), "cg_killfeedHeight",
+			layouter.AddSliderField(_Tr("Preferences", "Killfeed Height"), "cg_killfeedHeight",
 			10, 100, 1, ConfigNumberFormatter(0, "px"));
 			layouter.AddSliderField(_Tr("Preferences", "Chat Fade Time"), "cg_chatFadeTime",
 			5, 20, 1, ConfigNumberFormatter(0, "s"));
 			layouter.AddSliderField(_Tr("Preferences", "Killfeed Fade Time"), "cg_killfeedFadeTime",
 			5, 20, 1, ConfigNumberFormatter(0, "s"));
 			layouter.AddToggleField(_Tr("Preferences", "Killfeed Icons"), "cg_killfeedIcons");
-			layouter.AddToggleField(_Tr("Preferences", "Show dominations"), "cg_killfeedStreaks");
+			layouter.AddToggleField(_Tr("Preferences", "Show Dominations"), "cg_killfeedStreaks");
 			layouter.AddToggleField(_Tr("Preferences", "Small HUD Font"), "cg_smallFont", not options.GameActive);
 
 			layouter.AddHeading(_Tr("Preferences", "Minimap"));
@@ -1335,6 +1394,11 @@ namespace spades {
 			layouter.AddHeading(_Tr("Preferences", "Scope"));
 			layouter.AddScopePreview();
 			layouter.AddHeading("");
+			layouter.AddChoiceField(_Tr("Preferences", "Reflex Sight"), "cg_reflexScope",
+									array<string> = {_Tr("Preferences", "OFF"),
+													 _Tr("Preferences", "Dot"),
+													 _Tr("Preferences", "Cross")},
+									array<int> = {0, 3, 4});
 			layouter.AddSliderField(_Tr("Preferences", "Scope Type"), "cg_pngScope",
 			0, 3, 1, ConfigScopeTypeFormatter());
 			layouter.AddToggleField(_Tr("Preferences", "Lines"), "cg_scopeLines");
@@ -1369,6 +1433,10 @@ namespace spades {
 			1, 4, 1, ConfigNumberFormatter(0, "px"));
 			layouter.AddToggleField(_Tr("Preferences", "T Style"), "cg_scopeTStyle");
 
+			layouter.AddHeading(_Tr("Preferences", "AoS 0.75/0.76 Compatibility"));
+			layouter.AddToggleField(_Tr("Preferences", "Allow Unicode"), "cg_unicode");
+			layouter.AddToggleField(_Tr("Preferences", "Server Alert"), "cg_serverAlert");
+
 			layouter.FinishLayout();
 		}
 	}
@@ -1393,7 +1461,8 @@ namespace spades {
 			layouter.AddToggleField(_Tr("Preferences", "Tracers Lights"), "cg_tracerLights");
 			layouter.AddToggleField(_Tr("Preferences", "Depth Prepass"), "r_depthPrepass");
 			layouter.AddToggleField(_Tr("Preferences", "Occlusion Querying"), "r_occlusionQuery");
-
+			layouter.AddToggleField(_Tr("Preferences", "Object Outlines"), "r_outlines");
+			
 			layouter.AddHeading(_Tr("Preferences", "Post-processing"));
 			layouter.AddToggleField(_Tr("Preferences", "Depth Of Field"), "r_depthOfField");
 			layouter.AddToggleField(_Tr("Preferences", "Camera Blur"), "r_cameraBlur");
@@ -1478,7 +1547,10 @@ namespace spades {
 			layouter.AddControl(_Tr("Preferences", "Save Map"), "cg_keySaveMap");
 			layouter.AddControl(_Tr("Preferences", "Save Sceneshot"), "cg_keySceneshot");
 			layouter.AddControl(_Tr("Preferences", "Save Screenshot"), "cg_keyScreenshot");
-
+			layouter.AddControl(_Tr("Preferences", "Master Volume Up"), "cg_keyVolumeUp");
+			layouter.AddControl(_Tr("Preferences", "Master Volume Down"), "cg_keyVolumeDown");
+			layouter.AddControl(_Tr("Preferences", "Force Spectator Mode"), "cg_keyStaffSpectating");
+			
 			layouter.FinishLayout();
 		}
 	}
@@ -1493,19 +1565,28 @@ namespace spades {
 			PreferenceViewOptions@ options, FontManager@ fontManager) {
 			super(manager);
 
+			StandardPreferenceLayouter layouter(this, fontManager);
+			
+			float panelX = layouter.FieldX;
+			float panelWidth = layouter.FieldWidth;
+			float panelHeight = layouter.FieldHeight - 250.0F;
+			
+			// button
 			{
 				spades::ui::Button e(Manager);
-				e.Bounds = AABB2(40.0F, 10.0F, 400.0F, 30.0F);
+				e.Bounds = AABB2(panelX * 0.5F, panelHeight - 50.0F, panelWidth, 30.0F);
 				e.Caption = _Tr("Preferences", "Enable Startup Window");
 				@e.Activated = spades::ui::EventHandler(this.OnEnableClicked);
 				AddChild(e);
 				@enableButton = e;
 			}
-
+			
+			// label
 			{
 				spades::ui::Label label(Manager);
-				label.Bounds = AABB2(40.0F, 50.0F, 0.0F, 0.0F);
 				label.Text = "Hoge";
+				label.Alignment = Vector2(0.5F, 0.5F);
+				label.Bounds = AABB2(panelX * 0.5F, panelHeight, panelWidth, 0.0F);
 				AddChild(label);
 				@msgLabel = label;
 			}

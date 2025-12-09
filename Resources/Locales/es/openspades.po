@@ -701,10 +701,15 @@ msgctxt "Preferences"
 msgid "Blood"
 msgstr "Sangre"
 
-#: Resources/Scripts/Gui/Preferences.as:646
+#: Resources/Scripts/Gui/Preferences.as:1174
 msgctxt "Preferences"
-msgid "Animations"
-msgstr "Animaciones"
+msgid "Full Aim Down Sight"
+msgstr "Apuntado completo"
+
+#: Resources/Scripts/Gui/Preferences.as:1175
+msgctxt "Preferences"
+msgid "Aiming Animation"
+msgstr "Animación de apuntado"
 
 #: Resources/Scripts/Gui/Preferences.as:647
 msgctxt "Preferences"
@@ -794,8 +799,8 @@ msgstr "Opacidad del minimapa"
 
 #: Resources/Scripts/Gui/Preferences.as:668
 msgctxt "Preferences"
-msgid "Show Statistics"
-msgstr "Mostrar estadísticas"
+msgid "Show Client Statistics"
+msgstr "Mostrar estadísticas del cliente"
 
 #: Resources/Scripts/Gui/Preferences.as:678
 msgctxt "Preferences"
@@ -1671,8 +1676,8 @@ msgstr "Cadáveres ragdoll"
 
 #: Resources/Scripts/Gui/Preferences.as:610
 msgctxt "Preferences"
-msgid "Corpse Line Collision"
-msgstr "Colisión en línea de cadáveres"
+msgid "Enhanced Ragdoll Physics"
+msgstr "Físicas de cadáveres mejoradas"
 
 #: Resources/Scripts/Gui/Preferences.as:611
 msgctxt "Preferences"
@@ -1684,6 +1689,11 @@ msgctxt "Preferences"
 msgid "Firstperson Tracers"
 msgstr "Trazadores en 1ra persona"
 
+#: Resources/Scripts/Gui/Preferences.as:1183
+msgctxt "Preferences"
+msgid "Muzzle Flashes"
+msgstr "Fogonazos del arma"
+
 #: Resources/Scripts/Gui/Preferences.as:613
 msgctxt "Preferences"
 msgid "Eject Bullet Casings"
@@ -1694,6 +1704,11 @@ msgctxt "Preferences"
 msgid "Hurt Screen Effects"
 msgstr "Efectos de daño en pantalla"
 
+#: Resources/Scripts/Gui/Preferences.as:1186
+msgctxt "Preferences"
+msgid "Heal Screen Effects"
+msgstr "Efectos de curación en pantalla"
+
 #: Resources/Scripts/Gui/Preferences.as:628
 msgctxt "Preferences"
 msgid "Ignore Chat Messages"
@@ -1701,8 +1716,8 @@ msgstr "Ignorar mensajes del chat"
 
 #: Resources/Scripts/Gui/Preferences.as:629
 msgctxt "Preferences"
-msgid "Hit Analyzer"
-msgstr "Analizador de impactos"
+msgid "Hit Log"
+msgstr "Registro de impactos"
 
 #: Resources/Scripts/Gui/Preferences.as:630
 msgctxt "Preferences"
@@ -1717,7 +1732,7 @@ msgstr "Tamaño de mensajes centrales"
 #: Resources/Scripts/Gui/Preferences.as:636
 msgctxt "Preferences"
 msgid "Chat Notify Sounds"
-msgstr "Sonidos de notificación del chat"
+msgstr "Vol. de notificación del chat"
 
 #: Resources/Scripts/Gui/Preferences.as:638
 msgctxt "Preferences"
@@ -1767,7 +1782,7 @@ msgstr "Tamaño del depurador de impactos"
 #: Resources/Scripts/Gui/Preferences.as:661
 msgctxt "Preferences"
 msgid "Toggle Hit Debugger Zoom"
-msgstr "Alternar zoom del depurador de impactos"
+msgstr "Zoom del depurador de impactos"
 
 #: Resources/Scripts/Gui/Preferences.as:1228
 msgctxt "Preferences"
@@ -1850,7 +1865,7 @@ msgid "Chat Fade Time"
 msgstr "Desvanecimiento del chat"
 
 #: Resources/Scripts/Gui/Preferences.as:679
-msgctxt "Preferneces"
+msgctxt "Preferences"
 msgid "Killfeed Height"
 msgstr "Altura del killfeed"
 
@@ -1861,7 +1876,7 @@ msgstr "Desvanecimiento del killfeed"
 
 #: Resources/Scripts/Gui/Preferences.as:1274
 msgctxt "Preferences"
-msgid "Show dominations"
+msgid "Show Dominations"
 msgstr "Mostrar dominaciones"
 
 #: Resources/Scripts/Gui/Preferences.as:692
@@ -2239,12 +2254,12 @@ msgstr "Volumen de reaparición"
 #: Resources/Scripts/Gui/Preferences.as:1161
 msgctxt "Preferences"
 msgid "Hit Feedback Volume"
-msgstr "Volumen de impacto"
+msgstr "Vol. de confirmación de impacto"
 
 #: Resources/Scripts/Gui/Preferences.as:1162
 msgctxt "Preferences"
 msgid "Headshot Feedback Volume"
-msgstr "Volumen de impacto en la cabeza"
+msgstr "Vol. de confirmación de headshot"
 
 #: Resources/Scripts/Gui/Preferences.as:1177
 msgctxt "Preferences"
@@ -2496,7 +2511,7 @@ msgstr "CABEZA"
 #: Resources/Scripts/Gui/Preferences.as:1189
 msgctxt "Preferences"
 msgid "Show Alive Player Count"
-msgstr "Mostrar recuento de jugadores vivos"
+msgstr "Mostrar jugadores vivos"
 
 #: Resources/Scripts/Gui/Preferences.as:1191
 #: Resources/Scripts/Gui/Preferences.as:1196
@@ -2525,6 +2540,16 @@ msgstr "Lado"
 msgctxt "Preferences"
 msgid "Show Player Names"
 msgstr "Mostrar nombres de jugadores"
+
+#: Resources/Scripts/Gui/Preferences.as:1226
+msgctxt "Preferences"
+msgid "Show Hover Player Names"
+msgstr "Nombres al pasar el cursor"
+
+#: Resources/Scripts/Gui/Preferences.as:1267
+msgctxt "Preferences"
+msgid "Show Dead Player Names"
+msgstr "Nombres de jugadores muertos"
 
 #: Resources/Scripts/Gui/StartupScreen/MainMenu.as:65
 msgctxt "StartupScreen"
@@ -2555,6 +2580,96 @@ msgstr "Simple"
 msgctxt "Preferences"
 msgid "Killfeed Icons"
 msgstr "Iconos del killfeed"
+
+#: Resources/Scripts/Gui/Preferences.as:1225
+msgctxt "Preferences"
+msgid "Save Final Score Screenshot"
+msgstr "Guardar captura del marcador final"
+
+#: Resources/Scripts/Gui/Preferences.as:1233
+msgctxt "Preferences"
+msgid "Weapon Keychains"
+msgstr "Llaveros del arma"
+
+#: Resources/Scripts/Gui/Preferences.as:1340
+msgctxt "Preferences"
+msgid "Reflex Sight"
+msgstr "Mira reflectora"
+
+#: Resources/Scripts/Gui/Preferences.as:1342
+msgctxt "Preferences"
+msgid "Dot"
+msgstr "Punto"
+
+#: Resources/Scripts/Gui/Preferences.as:1343
+msgctxt "Preferences"
+msgid "Cross"
+msgstr "Cruz"
+
+#: Resources/Scripts/Gui/Preferences.as:1403
+msgctxt "Preferences"
+msgid "Object Outlines"
+msgstr "Contornos de objetos"
+
+#: Resources/Scripts/Gui/Preferences.as:1489
+msgctxt "Preferences"
+msgid "Master Volume Up"
+msgstr "Subir volumen general"
+
+#: Resources/Scripts/Gui/Preferences.as:1490
+msgctxt "Preferences"
+msgid "Master Volume Down"
+msgstr "Bajar volumen general"
+
+#: Resources/Scripts/Gui/Preferences.as:1220
+msgctxt "Preferences"
+msgid "Gameplay"
+msgstr "Jugabilidad"
+
+#: Resources/Scripts/Gui/Preferences.as:1221
+msgctxt "Preferences"
+msgid "Classic Weapon Recoil"
+msgstr "Retroceso clásico del arma"
+
+#: Resources/Scripts/Gui/Preferences.as:1222
+msgctxt "Preferences"
+msgid "Classic Sprinting"
+msgstr "Sprint clásico"
+
+#: Resources/Scripts/Gui/Preferences.as:1496
+msgctxt "Preferences"
+msgid "Force Spectator Mode"
+msgstr "Forzar modo espectador"
+
+#: Resources/Scripts/Gui/Preferences.as:1226
+msgctxt "Preferences"
+msgid "Debug Block Cursor"
+msgstr "Depurar cursor de bloques"
+
+#: Resources/Scripts/Gui/Preferences.as:1227
+msgctxt "Preferences"
+msgid "Debug Weapon Anchor Points"
+msgstr "Depurar puntos de anclaje del arma"
+
+#: Resources/Scripts/Gui/Preferences.as:1228
+msgctxt "Preferences"
+msgid "Debug Players Hitbox"
+msgstr "Depurar hitbox de jugadores"
+
+#: Resources/Scripts/Gui/Preferences.as:1197
+msgctxt "Preferences"
+msgid "Water Splash"
+msgstr "Salpicaduras de agua"
+
+#: Resources/Scripts/Gui/Preferences.as:1247
+msgctxt "Preferences"
+msgid "Skip dead players (death cam)"
+msgstr "Omitir muertos (cám. de muerte)"
+
+#: Resources/Scripts/Gui/Preferences.as:1283
+msgctxt "Preferences"
+msgid "Screenshot Format"
+msgstr "Formato de captura de pantalla"
 
 #: Sources/Client/Client_Draw.cpp:958
 msgctxt "Client"
@@ -2621,3 +2736,8 @@ msgstr "[{0}/{1}] Navegar izq./derecha"
 msgctxt "Client"
 msgid "[{0}] Toggle extended palette"
 msgstr "[{0}] Alternar paleta extendida"
+
+#: Sources/Client/Client_NetHandler.cpp:111
+msgctxt "Client"
+msgid "You are connected with {0}"
+msgstr "Estás conectado con {0}"

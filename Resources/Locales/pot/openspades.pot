@@ -693,9 +693,14 @@ msgctxt "Preferences"
 msgid "Blood"
 msgstr ""
 
-#: Resources/Scripts/Gui/Preferences.as:646
+#: Resources/Scripts/Gui/Preferences.as:1174
 msgctxt "Preferences"
-msgid "Animations"
+msgid "Full Aim Down Sight"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1175
+msgctxt "Preferences"
+msgid "Aiming Animation"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:647
@@ -1596,7 +1601,7 @@ msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:610
 msgctxt "Preferences"
-msgid "Corpse Line Collision"
+msgid "Enhanced Ragdoll Physics"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:611
@@ -1609,6 +1614,11 @@ msgctxt "Preferences"
 msgid "Firstperson Tracers"
 msgstr ""
 
+#: Resources/Scripts/Gui/Preferences.as:1183
+msgctxt "Preferences"
+msgid "Muzzle Flashes"
+msgstr ""
+
 #: Resources/Scripts/Gui/Preferences.as:613
 msgctxt "Preferences"
 msgid "Eject Bullet Casings"
@@ -1617,6 +1627,11 @@ msgstr ""
 #: Resources/Scripts/Gui/Preferences.as:615
 msgctxt "Preferences"
 msgid "Hurt Screen Effects"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1186
+msgctxt "Preferences"
+msgid "Heal Screen Effects"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:628
@@ -1770,23 +1785,23 @@ msgid "Chat Height"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:1269
-msgctxt "Preferneces"
+msgctxt "Preferences"
 msgid "Chat Fade Time"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:679
-msgctxt "Preferneces"
+msgctxt "Preferences"
 msgid "Killfeed Height"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:1271
-msgctxt "Preferneces"
+msgctxt "Preferences"
 msgid "Killfeed Fade Time"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:1274
 msgctxt "Preferences"
-msgid "Show dominations"
+msgid "Show Dominations"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:692
@@ -2438,6 +2453,16 @@ msgctxt "Preferences"
 msgid "Show Player Names"
 msgstr ""
 
+#: Resources/Scripts/Gui/Preferences.as:1266
+msgctxt "Preferences"
+msgid "Show Hover Player Names"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1267
+msgctxt "Preferences"
+msgid "Show Dead Player Names"
+msgstr ""
+
 #: Resources/Scripts/Gui/StartupScreen/MainMenu.as:65
 msgctxt "StartupScreen"
 msgid "GitHub Repository"
@@ -2466,6 +2491,96 @@ msgstr ""
 #: Resources/Scripts/Gui/Preferences.as:1249
 msgctxt "Preferences"
 msgid "Killfeed Icons"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1225
+msgctxt "Preferences"
+msgid "Save Final Score Screenshot"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1233
+msgctxt "Preferences"
+msgid "Weapon Keychains"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1340
+msgctxt "Preferences"
+msgid "Reflex Sight"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1342
+msgctxt "Preferences"
+msgid "Dot"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1343
+msgctxt "Preferences"
+msgid "Cross"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1403
+msgctxt "Preferences"
+msgid "Object Outlines"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1489
+msgctxt "Preferences"
+msgid "Master Volume Up"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1490
+msgctxt "Preferences"
+msgid "Master Volume Down"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1220
+msgctxt "Preferences"
+msgid "Gameplay"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1221
+msgctxt "Preferences"
+msgid "Classic Weapon Recoil"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1222
+msgctxt "Preferences"
+msgid "Classic Sprinting"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1496
+msgctxt "Preferences"
+msgid "Force Spectator Mode"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1225
+msgctxt "Preferences"
+msgid "Debug Block Cursor"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1227
+msgctxt "Preferences"
+msgid "Debug Weapon Anchor Points"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1228
+msgctxt "Preferences"
+msgid "Debug Players Hitbox"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1197
+msgctxt "Preferences"
+msgid "Water Splash"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1247
+msgctxt "Preferences"
+msgid "Skip dead players (death cam)"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1283
+msgctxt "Preferences"
+msgid "Screenshot Format"
 msgstr ""
 
 #: Sources/Client/Client_Draw.cpp:958
@@ -2532,4 +2647,9 @@ msgstr ""
 #: Sources/Client/Client_Draw.cpp:1261
 msgctxt "Client"
 msgid "[{0}] Toggle extended palette"
+msgstr ""
+
+#: Sources/Client/Client_NetHandler.cpp:111
+msgctxt "Client"
+msgid "You are connected with {0}"
 msgstr ""
