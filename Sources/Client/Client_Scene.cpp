@@ -723,10 +723,8 @@ namespace spades {
 
 		bool Client::Project(const spades::Vector3& worldPos, spades::Vector2& scrPos) {
 			Vector4 scrHomV = lastViewProjectionScreenMatrix * worldPos;
-			if (scrHomV.z <= 0.0F) {
-				scrHomV.w = 0.001F;
+			if (scrHomV.w <= 0.0F)
 				return false;
-			}
 			scrPos = MakeVector2(scrHomV.x, scrHomV.y) / scrHomV.w;
 			return true;
 		}
