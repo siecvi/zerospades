@@ -448,6 +448,7 @@ namespace spades {
 			void DrawPlayerName(Player&, const Vector4&);
 			void DrawHottrackedPlayerName();
 			void DrawPubOVL();
+			void DrawDeadPlayers();
 
 			void DrawBlockPaletteHUD(float y);
 			void DrawAlivePlayersCount();
