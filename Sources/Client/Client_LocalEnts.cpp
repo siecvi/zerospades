@@ -50,6 +50,7 @@ DEFINE_SPADES_SETTING(cg_particlesBloodNum, "4");
 DEFINE_SPADES_SETTING(cg_particlesGrenadeNum, "64");
 DEFINE_SPADES_SETTING(cg_waterImpact, "1");
 DEFINE_SPADES_SETTING(cg_muzzleFire, "0");
+
 SPADES_SETTING(cg_manualFocus);
 DEFINE_SPADES_SETTING(cg_autoFocusSpeed, "0.4");
 
@@ -147,7 +148,7 @@ namespace spades {
 			int particleLevel = cg_particles;
 			if (!particleLevel)
 				return;
-			
+
 			// distance cull
 			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
 			if (distSqr > FOG_DISTANCE_SQ)
@@ -315,9 +316,9 @@ namespace spades {
 				return;
 
 			DynamicLightParam l;
+			l.type = DynamicLightTypePoint;
 			l.origin = pos;
 			l.radius = 5.0F;
-			l.type = DynamicLightTypePoint;
 			l.color = MakeVector3(3.0F, 1.6F, 0.5F);
 			flashDlights.push_back(l);
 
@@ -365,9 +366,9 @@ namespace spades {
 				return;
 
 			DynamicLightParam l;
+			l.type = DynamicLightTypePoint;
 			l.origin = pos;
 			l.radius = 16.0F;
-			l.type = DynamicLightTypePoint;
 			l.color = MakeVector3(3.0F, 1.6F, 0.5F);
 			l.useLensFlare = true;
 			flashDlights.push_back(l);
@@ -606,6 +607,41 @@ namespace spades {
 			// TODO: wave?
 		}
 
+		void Client::EmitSnowflakes(spades::Vector3 pos) {
+			SPADES_MARK_FUNCTION();
+
+			if (time - lastSnowDropTime < 0.2F)
+				return;
+
+			// fragments
+			Handle<IImage> img = renderer->RegisterImage("Gfx/White.tga");
+
+			Vector4 color = MakeVector4(1, 1, 1, 0.9F);
+
+			const float spawnRange = 140.0F;
+			const float spawnHeight = 64.0F;
+			const int particlesNum = 20;
+
+			for (int i = 0; i < particlesNum; ++i) {
+				Vector3 spawnPos;
+				spawnPos.x = pos.x + (SampleRandomFloat() * 2.0F - 1.0F) * spawnRange;
+				spawnPos.y = pos.y + (SampleRandomFloat() * 2.0F - 1.0F) * spawnRange;
+				spawnPos.z = pos.z - spawnHeight;
+
+				Vector3 vel = RandomVector() * 8.0F;
+				vel.z = Mix(0.5F, 1.0F, SampleRandomFloat());
+
+				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
+				ent->SetTrajectory(spawnPos, vel, 0.8F, 0.1F);
+				ent->SetRadius(0.3F + SampleRandomFloat() * SampleRandomFloat() * 0.2F);
+				ent->SetLifeTime(10.0F, 0.5F, 1.0F);
+				ent->SetBlockHitAction(BlockHitAction::Stick);
+				localEntities.emplace_back(std::move(ent));
+			}
+
+			lastSnowDropTime = time;
+		}
+
 #pragma mark - Camera Control
 
 		enum { AutoFocusPoints = 4 };
@@ -631,7 +667,7 @@ namespace spades {
 
 						if (std::isfinite(dist) && dist > 0.8F)
 							distances[numValidDistances++] = dist;
-		
+
 						camDir2 += camDY;
 					}
 

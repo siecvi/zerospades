@@ -91,19 +91,27 @@ namespace spades {
 			// TODO: control clip action
 			if (blockHitAction != BlockHitAction::Ignore && map) {
 				IntVector3 lp = position.Floor();
+
+				if (lp.z >= 64 && blockHitAction == BlockHitAction::Stick)
+					return false;
+
 				if (map->ClipWorld(lp.x, lp.y, lp.z)) {
 					if (blockHitAction == BlockHitAction::Delete) {
 						return false;
+					} else if (blockHitAction == BlockHitAction::Stick) {
+						position = lastPos; // set back to old position
+						velocity *= 0.46F;  // lose some velocity due to friction
+						rotationVelocity *= 0.5F;
 					} else {
 						IntVector3 lp2 = lastPos.Floor();
-						if (lp.z != lp2.z && ((lp.x == lp2.x && lp.y == lp2.y)
-							|| !map->ClipWorld(lp.x, lp.y, lp2.z)))
+						if (lp.z != lp2.z &&
+							((lp.x == lp2.x && lp.y == lp2.y) || !map->ClipWorld(lp.x, lp.y, lp2.z)))
 							velocity.z = -velocity.z;
-						else if (lp.x != lp2.x && ((lp.y == lp2.y && lp.z == lp2.z)
-							|| !map->ClipWorld(lp2.x, lp.y, lp.z)))
+						else if (lp.x != lp2.x &&
+							((lp.y == lp2.y && lp.z == lp2.z) || !map->ClipWorld(lp2.x, lp.y, lp.z)))
 							velocity.x = -velocity.x;
-						else if (lp.y != lp2.y && ((lp.x == lp2.x && lp.z == lp2.z)
-							|| !map->ClipWorld(lp.x, lp2.y, lp.z)))
+						else if (lp.y != lp2.y &&
+							((lp.x == lp2.x && lp.z == lp2.z) || !map->ClipWorld(lp.x, lp2.y, lp.z)))
 							velocity.y = -velocity.y;
 
 						position = lastPos; // set back to old position

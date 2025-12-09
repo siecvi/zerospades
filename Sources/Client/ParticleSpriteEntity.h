@@ -28,7 +28,7 @@ namespace spades {
 	namespace client {
 		class IImage;
 
-		enum class BlockHitAction { Delete, Ignore, BounceWeak };
+		enum class BlockHitAction { Delete, Ignore, BounceWeak, Stick };
 
 		class ParticleSpriteEntity : public ILocalEntity {
 		private:

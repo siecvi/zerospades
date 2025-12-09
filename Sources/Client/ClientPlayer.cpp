@@ -637,19 +637,19 @@ namespace spades {
 
 				// add flash light
 				DynamicLightParam light;
-				Handle<IImage> img = renderer.RegisterImage("Gfx/Spotlight.jpg");
-				light.origin = (eyeMatrix * MakeVector3(0.0F, 0.0F, 0.0F)).GetXYZ();
-				light.color = MakeVector3(1.0F, 0.7F, 0.5F) * brightness;
-				light.radius = 60.0F;
 				light.type = DynamicLightTypeSpotlight;
+				light.origin = eyeMatrix.GetOrigin();
+				light.radius = 60.0F;
+				light.color = MakeVector3(1.0F, 0.7F, 0.5F) * brightness;
 				light.spotAngle = DEG2RAD(90);
 				light.spotAxis = GetFlashlightAxes();
+				Handle<IImage> img = renderer.RegisterImage("Gfx/Spotlight.jpg");
 				light.image = img.GetPointerOrNull();
 				renderer.AddLight(light);
 
-				light.color *= 0.3F;
-				light.radius = 10.0F;
 				light.type = DynamicLightTypePoint;
+				light.radius = 10.0F;
+				light.color *= 0.3F;
 				light.image = nullptr;
 				renderer.AddLight(light);
 			}
@@ -1149,7 +1149,9 @@ namespace spades {
 
 			// Head
 			{
-				model = renderer.RegisterModel((modelPath + "Head.kv6").c_str());
+				model = client.isChristmasOn
+					? renderer.RegisterModel("Models/Player/XmasHat.kv6")
+					: renderer.RegisterModel((modelPath + "Head.kv6").c_str());
 
 				param.matrix = head * scaler;
 				renderer.RenderModel(*model, param);
@@ -1172,7 +1174,9 @@ namespace spades {
 			if (mode && mode->ModeType() == IGameMode::m_CTF) {
 				auto& ctf = static_cast<CTFGameMode&>(mode.value());
 				if (ctf.PlayerHasIntel(p)) {
-					model = renderer.RegisterModel("Models/MapObjects/Intel.kv6");
+					model = client.isChristmasOn
+						? renderer.RegisterModel("Models/MapObjects/XmasGift.kv6")
+						: renderer.RegisterModel("Models/MapObjects/Intel.kv6");
 					param.customColor = ConvertColorRGB(world->GetTeamColor(1 - p.GetTeamId()));
 					Matrix4 const briefcase = torso
 						* (inp.crouch ? Matrix4::Translate(0, 0.8F, 0.4F)

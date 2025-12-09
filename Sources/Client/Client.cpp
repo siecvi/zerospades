@@ -105,6 +105,8 @@ namespace spades {
 		      scoreboardVisible(false),
 		      hudVisible(true),
 		      flashlightOn(false),
+			  isChristmasOn(false),
+			  lastSnowDropTime(0.0F),
 		      hotBarIconState(0.0F),
 		      hitFeedbackIconState(0.0F),
 		      hitFeedbackFriendly(false),
@@ -510,6 +512,20 @@ namespace spades {
 			renderer->RegisterModel("Models/Weapons/SMG/WeaponNoMagazine.kv6");
 			renderer->RegisterModel("Models/Weapons/Charms/Charm.kv6");
 			renderer->RegisterModel("Models/Weapons/Charms/CharmBase.kv6");
+
+			// detect seasonal events & load assets
+			time_t t;
+			struct tm tm;
+			::time(&t);
+			tm = *localtime(&t);
+			int month = tm.tm_mon + 1;
+			int day = tm.tm_mday;
+			isChristmasOn = (month == 12 && day >= 20 && day <= 27);
+			if (isChristmasOn) {
+				renderer->RegisterModel("Models/MapObjects/XmasTree.kv6");
+				renderer->RegisterModel("Models/MapObjects/XmasGift.kv6");
+				renderer->RegisterModel("Models/Player/XmasHat.kv6");
+			}
 
 			if (mumbleLink.Init())
 				SPLog("Mumble linked");

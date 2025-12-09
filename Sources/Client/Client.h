@@ -243,8 +243,12 @@ namespace spades {
 			bool hudVisible;
 			bool flashlightOn;
 			float flashlightOnTime;
+
 			CoherentNoiseSampler1D coherentNoiseSamplers[3];
 			void KickCamera(float strength);
+
+			bool isChristmasOn;
+			float lastSnowDropTime;
 
 			float hotBarIconState;
 
@@ -365,6 +369,7 @@ namespace spades {
 			void GrenadeExplosionUnderwater(Vector3);
 			void MuzzleFire(Vector3);
 			void BulletHitWaterSurface(Vector3);
+			void EmitSnowflakes(Vector3);
 
 			// drawings
 			Handle<FontManager> fontManager;

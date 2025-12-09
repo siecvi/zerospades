@@ -557,8 +557,12 @@ namespace spades {
 			if (!mode)
 				return;
 
-			Handle<IModel> base = renderer->RegisterModel("Models/MapObjects/CheckPoint.kv6");
-			Handle<IModel> intel = renderer->RegisterModel("Models/MapObjects/Intel.kv6");
+			Handle<IModel> base = isChristmasOn
+				? renderer->RegisterModel("Models/MapObjects/XmasTree.kv6")
+				: renderer->RegisterModel("Models/MapObjects/CheckPoint.kv6");
+			Handle<IModel> intel = isChristmasOn
+				? renderer->RegisterModel("Models/MapObjects/XmasGift.kv6")
+				: renderer->RegisterModel("Models/MapObjects/Intel.kv6");
 
 			if (mode->ModeType() == IGameMode::m_CTF) {
 				auto& ctf = dynamic_cast<CTFGameMode&>(mode.value());
@@ -568,17 +572,32 @@ namespace spades {
 					ModelRenderParam param;
 					param.customColor = ConvertColorRGB(world->GetTeamColor(tId));
 
-					// draw base
-					param.matrix = Matrix4::Translate(team.basePos);
-					param.matrix = param.matrix * Matrix4::Scale(0.3F);
-					renderer->RenderModel(*base, param);
-
 					// draw both flags
 					if (!ctf.GetTeam(1 - tId).hasIntel) {
 						param.matrix = Matrix4::Translate(team.flagPos);
 						param.matrix = param.matrix * Matrix4::Rotate(MakeVector3(0, 0, 1), time);
 						param.matrix = param.matrix * Matrix4::Scale(0.1F);
 						renderer->RenderModel(*intel, param);
+					}
+
+					// draw base
+					param.matrix = Matrix4::Translate(team.basePos);
+					if (isChristmasOn) { // cheap trick
+						float angle = ((int)time % 4) * (M_PI_F / 2.0F);
+						param.matrix = param.matrix * Matrix4::Rotate(MakeVector3(0, 0, 1), angle);
+					}
+					param.matrix = param.matrix * Matrix4::Scale(0.3F);
+					renderer->RenderModel(*base, param);
+
+					// add light
+					if (isChristmasOn) {
+						DynamicLightParam l;
+						l.type = DynamicLightTypePoint;
+						l.origin = param.matrix.GetOrigin() - MakeVector3(0.0F, 0.0F, 4.0F);
+						l.radius = 5.0F;
+						l.color = MakeVector3(2.0F, 2.0F, 0.0F);
+						l.useLensFlare = true;
+						flashDlights.push_back(l);
 					}
 				}
 			} else if (mode->ModeType() == IGameMode::m_TC) {
@@ -683,32 +702,35 @@ namespace spades {
 						}
 					}
 				}
+
+				// draw player hottrack
+				// FIXME: don't use debug line
+				if (cg_debugPlayerHitboxes) {
+					auto hottracked = HotTrackedPlayer();
+					if (hottracked) {
+						Player& player = std::get<0>(*hottracked);
+						hitTag_t tag = std::get<1>(*hottracked);
+
+						Vector4 col = MakeVector4(1, 1, 1, 1);
+						Vector4 col2 = ConvertColorRGBA(player.GetColor());
+
+						Player::HitBoxes hb = player.GetHitBoxes(cg_orientationSmoothing); // interpolated
+						AddDebugObjectToScene(hb.head, (tag & hit_Head) ? col : col2);
+						AddDebugObjectToScene(hb.torso, (tag & hit_Torso) ? col : col2);
+						AddDebugObjectToScene(hb.limbs[0], (tag & hit_Legs) ? col : col2);
+						AddDebugObjectToScene(hb.limbs[1], (tag & hit_Legs) ? col : col2);
+						AddDebugObjectToScene(hb.limbs[2], (tag & hit_Arms) ? col : col2);
+					}
+				}
+
+				if (isChristmasOn)
+					EmitSnowflakes(lastSceneDef.viewOrigin);
 			}
 
 			for (const auto& lights : flashDlights)
 				renderer->AddLight(lights);
 			flashDlightsOld.clear();
 			flashDlightsOld.swap(flashDlights);
-
-			// draw player hottrack
-			// FIXME: don't use debug line
-			if (cg_debugPlayerHitboxes) {
-				auto hottracked = HotTrackedPlayer();
-				if (hottracked) {
-					Player& player = std::get<0>(*hottracked);
-					hitTag_t tag = std::get<1>(*hottracked);
-
-					Vector4 col = MakeVector4(1, 1, 1, 1);
-					Vector4 col2 = ConvertColorRGBA(player.GetColor());
-
-					Player::HitBoxes hb = player.GetHitBoxes(cg_orientationSmoothing); // interpolated
-					AddDebugObjectToScene(hb.head, (tag & hit_Head) ? col : col2);
-					AddDebugObjectToScene(hb.torso, (tag & hit_Torso) ? col : col2);
-					AddDebugObjectToScene(hb.limbs[0], (tag & hit_Legs) ? col : col2);
-					AddDebugObjectToScene(hb.limbs[1], (tag & hit_Legs) ? col : col2);
-					AddDebugObjectToScene(hb.limbs[2], (tag & hit_Arms) ? col : col2);
-				}
-			}
 
 			renderer->EndScene();
 		}
