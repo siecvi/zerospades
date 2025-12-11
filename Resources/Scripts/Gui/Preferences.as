@@ -1260,7 +1260,7 @@ namespace spades {
 			layouter.AddVolumeSlider(_Tr("Preferences", "Chat Notify Sounds"), "cg_chatBeep");
 			layouter.AddToggleField(_Tr("Preferences", "Show Alerts"), "cg_alerts");
 			layouter.AddVolumeSlider(_Tr("Preferences", "Alert Sounds"), "cg_alertSounds");
-			layouter.AddToggleField(_Tr("Preferences", "Hit Log"), "cg_hitAnalyze");
+			layouter.AddToggleField(_Tr("Preferences", "Hit Log"), "cg_hitLog");
 			layouter.AddToggleField(_Tr("Preferences", "Hit Indicator"), "cg_hitIndicator");
 			layouter.AddToggleField(_Tr("Preferences", "Damage Indicator"), "cg_damageIndicators");
 			layouter.AddToggleField(_Tr("Preferences", "Show Hover Player Names"), "cg_playerNames");

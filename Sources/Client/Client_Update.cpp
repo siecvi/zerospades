@@ -59,7 +59,7 @@ DEFINE_SPADES_SETTING(cg_killSoundsPitch, "1");
 DEFINE_SPADES_SETTING(cg_killSoundsGain, "0.2");
 DEFINE_SPADES_SETTING(cg_tracers, "1");
 DEFINE_SPADES_SETTING(cg_tracersFirstPerson, "1");
-DEFINE_SPADES_SETTING(cg_hitAnalyze, "0");
+DEFINE_SPADES_SETTING(cg_hitLog, "0");
 DEFINE_SPADES_SETTING(cg_killfeedIcons, "1");
 DEFINE_SPADES_SETTING(cg_killfeedStreaks, "1");
 DEFINE_SPADES_SETTING(cg_classicSprinting, "0");
@@ -1272,7 +1272,7 @@ namespace spades {
 					damageIndicators.push_back(damages);
 				}
 
-				if ((bool)cg_hitAnalyze) {
+				if ((bool)cg_hitLog) {
 					char buf[32];
 					std::string str;
 
@@ -1283,7 +1283,7 @@ namespace spades {
 						hurtPlayer.GetName(), std::string(buf));
 
 					// add delta time since last hit
-					if ((int)cg_hitAnalyze >= 2) {
+					if ((int)cg_hitLog >= 2) {
 						float dt = world->GetTime() - lastHitTime;
 						if (dt <= 0.0F) {
 							str += "dT: NA ";
