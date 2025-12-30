@@ -166,4 +166,35 @@ if(UNIX)
 	target_link_libraries(OpenSpades pthread)
 endif()
 
+# macOS-specific post-build steps
+if(APPLE)
+	# Fix library paths for YSRSpades if enabled
+	if(OPENSPADES_YSR)
+		add_custom_command(TARGET OpenSpades POST_BUILD
+			# Add rpath (ignore error if rpath already exists)
+			COMMAND bash -c "install_name_tool -add_rpath '@executable_path/../Resources' '$<TARGET_FILE:OpenSpades>' || exit 0"
+			# Change library reference to use @rpath
+			COMMAND install_name_tool -change "/usr/local/lib/libysrspades.dylib" "@rpath/libysrspades.dylib" "$<TARGET_FILE:OpenSpades>"
+			COMMENT "Fixing library paths for macOS bundle"
+		)
+		add_dependencies(OpenSpades OpenSpades_YSRSpades_Prebuilt)
+	endif()
+
+	# Add optional code signing (can be configured via MACOSX_CODESIGN_IDENTITY)
+	# To sign: cmake -DMACOSX_CODESIGN_IDENTITY="Developer ID Application: Your Name" ..
+	# Note: Code signing must happen AFTER all binary modifications (install_name_tool, etc.)
+	if(MACOSX_CODESIGN_IDENTITY)
+		add_custom_command(TARGET OpenSpades POST_BUILD
+			COMMAND codesign --force --deep --sign "${MACOSX_CODESIGN_IDENTITY}" "$<TARGET_BUNDLE_DIR:OpenSpades>"
+			COMMENT "Code signing macOS bundle with identity: ${MACOSX_CODESIGN_IDENTITY}"
+		)
+	else()
+		# Ad-hoc signing for local development (allows the app to run without Gatekeeper issues)
+		add_custom_command(TARGET OpenSpades POST_BUILD
+			COMMAND codesign --force --deep --sign - "$<TARGET_BUNDLE_DIR:OpenSpades>" || echo "Warning: Code signing failed"
+			COMMENT "Ad-hoc code signing macOS bundle for local development"
+		)
+	endif()
+endif()
+
 #install(TARGETS OpenSpades DESTINATION bin)

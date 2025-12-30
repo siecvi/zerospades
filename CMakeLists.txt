@@ -195,7 +195,12 @@ endif()
 
 option(OPENSPADES_RESOURCES "Build game assets" ON)
 option(OPENSPADES_NONFREE_RESOURCES "Download non-GPL game assets" ON)
-option(OPENSPADES_YSR "Download YSRSpades (closed-source audio backend; macOS only)" ON)
+# YSRSpades is only available for x86_64 macOS (not compatible with Apple Silicon)
+if(APPLE AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+	option(OPENSPADES_YSR "Download YSRSpades (closed-source audio backend; macOS x86_64 only)" ON)
+else()
+	option(OPENSPADES_YSR "Download YSRSpades (closed-source audio backend; macOS x86_64 only)" OFF)
+endif()
 
 # note that all paths are without trailing slash
 set(OPENSPADES_INSTALL_DOC       "share/doc/openspades" CACHE STRING "Directory for installing documentation. ")
@@ -301,10 +306,17 @@ if(UNIX AND NOT APPLE)
 endif(UNIX AND NOT APPLE)
 
 if(APPLE)
+	# Configure Info.plist with CMake variables
+	configure_file(
+		"${CMAKE_CURRENT_SOURCE_DIR}/XSpades/XSpades-Info.plist.in"
+		"${CMAKE_CURRENT_BINARY_DIR}/XSpades-Info.plist"
+		@ONLY
+	)
+
 	# Create a macOS application bundle
 	set_target_properties(OpenSpades PROPERTIES
 		MACOSX_BUNDLE ON
-		MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/XSpades/XSpades-Info.plist
+		MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_BINARY_DIR}/XSpades-Info.plist
 		MACOSX_BUNDLE_BUNDLE_VERSION ${OPENSPADES_VERSION_FULL}
 		MACOSX_BUNDLE_LONG_VERSION_STRING ${OPENSPADES_VERSION_FULL}
 		MACOSX_BUNDLE_SHORT_VERSION_STRING ${OPENSPADES_VERSION_FULL}
@@ -322,9 +334,10 @@ if(APPLE)
 
 	if (OPENSPADES_YSR)
 		list(APPEND BUNDLE_RESOURCES ${CMAKE_CURRENT_BINARY_DIR}/libysrspades.dylib)
+		set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/libysrspades.dylib
+			PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
 		# Download `libysrspades.dylib` automatically
-		add_dependencies(OpenSpades OpenSpades_YSRSpades_Prebuilt)
 		add_custom_target(OpenSpades_YSRSpades_Prebuilt ALL COMMENT "Downloading libysrspades.dylib"
 			DEPENDS ${PROJECT_BINARY_DIR}/libysrspades.dylib)
 		add_custom_command(
@@ -333,6 +346,12 @@ if(APPLE)
 			COMMAND
 				wget -c
 				https://openspadesmedia.yvt.jp/development-packages/YSRSpades/libysrspades.dylib
+			COMMAND
+				# Strip i386 architecture (32-bit is no longer supported on macOS)
+				lipo libysrspades.dylib -remove i386 -output libysrspades.dylib || true
+			COMMAND
+				# Fix install path to use @rpath instead of absolute path
+				install_name_tool -id "@rpath/libysrspades.dylib" libysrspades.dylib
 			)
 	endif (OPENSPADES_YSR)
 
