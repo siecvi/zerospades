@@ -369,11 +369,9 @@ namespace spades {
 					// Check for errors but don't crash
 					ALenum err = al::qalGetError();
 					if (err != AL_NO_ERROR) {
-						// Get source state for debugging
-						ALint state = 0;
-						al::qalGetSourcei(handle, AL_SOURCE_STATE, &state);
-						SPLog("Warning: alSourcePlay failed with error %d (0x%X) for buffer %u on source %u (state: %d)",
-						      (int)err, (unsigned int)err, buffer, handle, state);
+						// Just log the error without making additional AL calls to avoid recursion
+						SPLog("Warning: alSourcePlay failed with error %d (0x%X) for buffer %u on source %u",
+						      (int)err, (unsigned int)err, buffer, handle);
 					}
 				}
 			};
