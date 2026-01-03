@@ -30,18 +30,26 @@
             pname = "openspades";
             version = "0.1.5-beta";
 
-            src = ./.;
+            src = pkgs.lib.cleanSourceWith {
+              src = ./.;
+              filter = path: type:
+                let baseName = baseNameOf path;
+                in !(baseName == ".git" && type == "directory");
+            };
 
-            nativeBuildInputs = with pkgs; [ cmake imagemagick unzip zip file ];
+            nativeBuildInputs = with pkgs; [ cmake imagemagick unzip zip file git ];
 
-            buildInputs = with pkgs; 
+            buildInputs = with pkgs;
               ([
-                freetype SDL2 SDL2_image libGL zlib curl glew opusfile openal libogg
+                freetype SDL2 SDL2_image libGL zlib curl glew opusfile libogg
               ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
                 darwin.apple_sdk.frameworks.Cocoa
               ]);
 
-            cmakeFlags = [ "-DOPENSPADES_INSTALL_BINARY=bin" ];
+            cmakeFlags = [
+              "-DOPENSPADES_INSTALL_BINARY=bin"
+              "-DCMAKE_CXX_STANDARD=20"
+            ];
 
             inherit notoFontPak;
           
