@@ -30,14 +30,9 @@
             pname = "openspades";
             version = "0.1.5-beta";
 
-            src = pkgs.lib.cleanSourceWith {
-              src = ./.;
-              filter = path: type:
-                let baseName = baseNameOf path;
-                in !(baseName == ".git" && type == "directory");
-            };
+            src = self;
 
-            nativeBuildInputs = with pkgs; [ cmake imagemagick unzip zip file git ];
+            nativeBuildInputs = with pkgs; [ cmake imagemagick unzip zip file ];
 
             buildInputs = with pkgs;
               ([
@@ -48,15 +43,15 @@
 
             cmakeFlags = [
               "-DOPENSPADES_INSTALL_BINARY=bin"
-              "-DCMAKE_CXX_STANDARD=20"
+              "-DCMAKE_CXX_STANDARD=17"
             ];
 
             inherit notoFontPak;
-          
+
             # Used by `downloadpak.sh`. Instructs the script to copy the
             # development package from this path instead of downloading it.
             OPENSPADES_DEVPAK_PATH = devPackage;
-          
+
             postPatch = ''
               patchShebangs Resources
             '';
@@ -64,8 +59,6 @@
             postInstall = ''
               cp $notoFontPak $out/share/games/openspades/Resources/
             '';
-
-            NIX_CFLAGS_LINK = "-lopenal";
           };
         });
 }
