@@ -36,7 +36,7 @@
 
             buildInputs = with pkgs;
               ([
-                freetype SDL2 SDL2_image libGL zlib curl glew opusfile libogg
+                freetype SDL2 SDL2_image libGL zlib curl glew opusfile libogg openal
               ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
                 darwin.apple_sdk.frameworks.Cocoa
               ]);
@@ -44,6 +44,7 @@
             cmakeFlags = [
               "-DOPENSPADES_INSTALL_BINARY=bin"
               "-DCMAKE_CXX_STANDARD=17"
+              "-DUSE_INTERNAL_OPENAL=OFF"
             ];
 
             inherit notoFontPak;
