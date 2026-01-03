@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <string.h>
 #include "scriptdictionary.h"
-#include "../scriptarray/scriptarray.h"
+#include "scriptarray.h"
 
 BEGIN_AS_NAMESPACE
 

@@ -5,7 +5,7 @@
 #include <fstream>
 #include <set>
 #include <stdlib.h>
-#include "../autowrapper/aswrappedcall.h"
+#include "aswrappedcall.h"
 
 using namespace std;
 

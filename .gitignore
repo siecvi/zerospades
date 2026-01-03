@@ -124,3 +124,13 @@ ipch/
 *.sln
 *.vcxproj
 OpenSpades.rc
+# Script binding backup/temp files
+*.bak
+*.bak2
+*.bak3
+*.propfinal*
+*.propfix*
+*-e
+
+# vcpkg build artifacts
+vcpkg/

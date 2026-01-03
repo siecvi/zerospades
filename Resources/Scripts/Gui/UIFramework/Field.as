@@ -54,7 +54,8 @@ namespace spades {
 				super(manager);
 				IsMouseInteractive = true;
 				AcceptsFocus = true;
-				@this.Cursor = Cursor(Manager, manager.Renderer.RegisterImage("Gfx/UI/IBeam.png"), Vector2(16.0F, 16.0F));
+						spades::Image@ img = manager.Renderer.RegisterImage("Gfx/UI/IBeam.png");
+			@this.Cursor = spades::ui::Cursor(Manager, img, Vector2(16.0F, 16.0F));
 			}
 
 			string Text {

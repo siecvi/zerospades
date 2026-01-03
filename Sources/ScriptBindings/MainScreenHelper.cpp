@@ -81,7 +81,7 @@ namespace spades {
 					  "MainScreenHelper", "string GetPendingErrorMessage()",
 					  asMETHOD(gui::MainScreenHelper, GetPendingErrorMessage), asCALL_THISCALL);
 					manager->CheckError(r);
-					r = eng->RegisterObjectMethod("MainScreenHelper", "string get_Credits()",
+					r = eng->RegisterObjectMethod("MainScreenHelper", "string get_Credits() property",
 					                              asMETHOD(gui::MainScreenHelper, GetCredits),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
@@ -93,43 +93,43 @@ namespace spades {
 					  "MainScreenServerItem", asBEHAVE_RELEASE, "void f()",
 					  asMETHOD(gui::MainScreenServerItem, Release), asCALL_THISCALL);
 					manager->CheckError(r);
-					r = eng->RegisterObjectMethod("MainScreenServerItem", "string get_Name()",
+					r = eng->RegisterObjectMethod("MainScreenServerItem", "string get_Name() property",
 					                              asMETHOD(gui::MainScreenServerItem, GetName),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
-					r = eng->RegisterObjectMethod("MainScreenServerItem", "string get_Address()",
+					r = eng->RegisterObjectMethod("MainScreenServerItem", "string get_Address() property",
 					                              asMETHOD(gui::MainScreenServerItem, GetAddress),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
-					r = eng->RegisterObjectMethod("MainScreenServerItem", "string get_MapName()",
+					r = eng->RegisterObjectMethod("MainScreenServerItem", "string get_MapName() property",
 					                              asMETHOD(gui::MainScreenServerItem, GetMapName),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
-					r = eng->RegisterObjectMethod("MainScreenServerItem", "string get_GameMode()",
+					r = eng->RegisterObjectMethod("MainScreenServerItem", "string get_GameMode() property",
 					                              asMETHOD(gui::MainScreenServerItem, GetGameMode),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
-					r = eng->RegisterObjectMethod("MainScreenServerItem", "string get_Country()",
+					r = eng->RegisterObjectMethod("MainScreenServerItem", "string get_Country() property",
 					                              asMETHOD(gui::MainScreenServerItem, GetCountry),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
-					r = eng->RegisterObjectMethod("MainScreenServerItem", "string get_Protocol()",
+					r = eng->RegisterObjectMethod("MainScreenServerItem", "string get_Protocol() property",
 					                              asMETHOD(gui::MainScreenServerItem, GetProtocol),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
-					r = eng->RegisterObjectMethod("MainScreenServerItem", "int get_Ping()",
+					r = eng->RegisterObjectMethod("MainScreenServerItem", "int get_Ping() property",
 					                              asMETHOD(gui::MainScreenServerItem, GetPing),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
 					r = eng->RegisterObjectMethod(
-					  "MainScreenServerItem", "int get_NumPlayers()",
+					  "MainScreenServerItem", "int get_NumPlayers() property",
 					  asMETHOD(gui::MainScreenServerItem, GetNumPlayers), asCALL_THISCALL);
 					manager->CheckError(r);
 					r = eng->RegisterObjectMethod(
-					  "MainScreenServerItem", "int get_MaxPlayers()",
+					  "MainScreenServerItem", "int get_MaxPlayers() property",
 					  asMETHOD(gui::MainScreenServerItem, GetMaxPlayers), asCALL_THISCALL);
 					manager->CheckError(r);
-					r = eng->RegisterObjectMethod("MainScreenServerItem", "bool get_Favorite()",
+					r = eng->RegisterObjectMethod("MainScreenServerItem", "bool get_Favorite() property",
 					                              asMETHOD(gui::MainScreenServerItem, IsFavorite),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);

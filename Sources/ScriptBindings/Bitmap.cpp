@@ -98,10 +98,10 @@ namespace spades {
 					r = eng->RegisterObjectMethod("Bitmap", "void SetPixel(int, int, uint)",
 					                              asFUNCTION(SetPixel), asCALL_CDECL_OBJLAST);
 					manager->CheckError(r);
-					r = eng->RegisterObjectMethod("Bitmap", "int get_Width()",
+					r = eng->RegisterObjectMethod("Bitmap", "int get_Width() property",
 					                              asMETHOD(Bitmap, GetWidth), asCALL_THISCALL);
 					manager->CheckError(r);
-					r = eng->RegisterObjectMethod("Bitmap", "int get_Height()",
+					r = eng->RegisterObjectMethod("Bitmap", "int get_Height() property",
 					                              asMETHOD(Bitmap, GetHeight), asCALL_THISCALL);
 					manager->CheckError(r);
 

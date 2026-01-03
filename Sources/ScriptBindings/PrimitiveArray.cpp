@@ -373,13 +373,15 @@ namespace spades {
 					  asCALL_THISCALL);
 					manager->CheckError(r);
 
-					r = eng->RegisterObjectMethod(ATN(), F("uint get_length()"),
-					                              asMETHOD(ArrayType, GetSize), asCALL_THISCALL);
-					manager->CheckError(r);
+					// Note: length property is now automatically provided by AngelScript
+					// for all array types, so we don't need to register it manually
+					// r = eng->RegisterObjectMethod(ATN(), F("uint get_length() property"),
+					//                               asMETHOD(ArrayType, GetSize), asCALL_THISCALL);
+					// manager->CheckError(r);
 
-					r = eng->RegisterObjectMethod(ATN(), F("void set_length(uint)"),
-					                              asMETHOD(ArrayType, Resize), asCALL_THISCALL);
-					manager->CheckError(r);
+					// r = eng->RegisterObjectMethod(ATN(), F("void set_length(uint) property"),
+					//                               asMETHOD(ArrayType, Resize), asCALL_THISCALL);
+					// manager->CheckError(r);
 
 					r = eng->RegisterObjectMethod(ATN(), F("bool isEmpty()"),
 					                              asMETHOD(ArrayType, IsEmpty), asCALL_THISCALL);

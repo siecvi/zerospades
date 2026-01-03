@@ -122,7 +122,7 @@ namespace spades {
 					  asMETHOD(gui::StartupScreenHelper, OpenLinkInBrowser), asCALL_THISCALL);
 					manager->CheckError(r);
 					r = eng->RegisterObjectMethod(
-					  "StartupScreenHelper", "string get_OperatingSystemType()",
+					  "StartupScreenHelper", "string get_OperatingSystemType() property",
 					  asMETHOD(gui::StartupScreenHelper, GetOperatingSystemType), asCALL_THISCALL);
 					manager->CheckError(r);
 					break;

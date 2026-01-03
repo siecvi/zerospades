@@ -84,7 +84,7 @@ namespace spades {
 		bool WantsClientToBeClosed() { return shouldExit; }
 		bool NeedsInput() { return activeUI !is null; }
 
-		void set_ActiveUI(spades::ui::UIElement@ value) {
+		void set_ActiveUI(spades::ui::UIElement@ value) property {
 			if (activeUI !is null)
 				manager.RootElement.RemoveChild(activeUI);
 			@activeUI = value;
@@ -94,7 +94,7 @@ namespace spades {
 			}
 			manager.KeyPanic();
 		}
-		spades::ui::UIElement@ get_ActiveUI() { return activeUI; }
+		spades::ui::UIElement@ get_ActiveUI() property { return activeUI; }
 
 		void EnterClientMenu() { @ActiveUI = clientMenu; }
 		void EnterTeamChatWindow() {
