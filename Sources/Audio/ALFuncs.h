@@ -17,16 +17,22 @@
  along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
 
  */
+// When using OpenAL Soft directly, we don't need NO_PROTOTYPES
+#ifndef OPENAL_SOFT
 #define AL_NO_PROTOTYPES
 #define ALC_NO_PROTOTYPES
+#endif
 
-#include "AL/al.h"
-#include "AL/alc.h"
-#include "AL/efx-creative.h"
-#include "AL/efx-presets.h"
-#include "AL/efx.h"
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/efx-creative.h>
+#include <AL/efx-presets.h>
+#include <AL/efx.h>
 
+// Only include macOS extensions if using system OpenAL (not OpenAL Soft)
+#if defined(__APPLE__) && !defined(OPENAL_SOFT)
 #include "AL/MacOSX_OALExtensions.h"
+#endif
 
 namespace al {
 	extern LPALENABLE qalEnable;
@@ -138,8 +144,9 @@ namespace al {
 	extern LPALGETAUXILIARYEFFECTSLOTF qalGetAuxiliaryEffectSlotf;
 	extern LPALGETAUXILIARYEFFECTSLOTFV qalGetAuxiliaryEffectSlotfv;
 
-	// Mac OS X Extensions
+	// Mac OS X Extensions (only available with system OpenAL)
 	// ALC_EXT_MAC_OSX
+#if defined(__APPLE__) && !defined(OPENAL_SOFT)
 	extern alcMacOSXRenderingQualityProcPtr qalcMacOSXRenderingQuality;
 	extern alMacOSXRenderChannelCountProcPtr qalMacOSXRenderChannelCount;
 	extern alcMacOSXMixerMaxiumumBussesProcPtr qalcMacOSXMixerMaxiumumBusses;
@@ -148,11 +155,14 @@ namespace al {
 	extern alMacOSXGetRenderChannelCountProcPtr qalMacOSXGetRenderChannelCount;
 	extern alcMacOSXGetMixerMaxiumumBussesProcPtr qalcMacOSXGetMixerMaxiumumBusses;
 	extern alcMacOSXGetMixerOutputRateProcPtr qalcMacOSXGetMixerOutputRate;
-	// ALC_EXT_ASA
+#endif
+	// ALC_EXT_ASA (only available with system OpenAL)
+#if defined(__APPLE__) && !defined(OPENAL_SOFT)
 	extern alcASAGetSourceProcPtr qalcASAGetSource;
 	extern alcASASetSourceProcPtr qalcASASetSource;
 	extern alcASAGetListenerProcPtr qalcASAGetListener;
 	extern alcASASetListenerProcPtr qalcASASetListener;
+#endif
 
 	extern LPALCCREATECONTEXT qalcCreateContext;
 	extern LPALCMAKECONTEXTCURRENT qalcMakeContextCurrent;

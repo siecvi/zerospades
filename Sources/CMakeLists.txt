@@ -147,6 +147,8 @@ endif()
 if(OPENAL_FOUND)
 	target_link_libraries(OpenSpades ${OPENAL_LIBRARY})
 	include_directories(${OPENAL_INCLUDE_DIRS})
+	# Define OPENAL_SOFT to indicate we're using OpenAL Soft
+	target_compile_definitions(OpenSpades PRIVATE OPENAL_SOFT=1)
 endif()
 
 if(WIN32)
@@ -168,6 +170,18 @@ endif()
 
 # macOS-specific post-build steps
 if(APPLE)
+	# Copy OpenAL Soft dylib into the bundle and fix paths
+	add_custom_command(TARGET OpenSpades POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:OpenSpades>/Frameworks"
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			"${CMAKE_BINARY_DIR}/Sources/Externals/openal-soft/libopenal.1.dylib"
+			"$<TARGET_BUNDLE_CONTENT_DIR:OpenSpades>/Frameworks/"
+		COMMAND install_name_tool -change "@rpath/libopenal.1.dylib"
+			"@executable_path/../Frameworks/libopenal.1.dylib"
+			"$<TARGET_FILE:OpenSpades>"
+		COMMENT "Embedding OpenAL Soft into macOS bundle"
+	)
+
 	# Fix library paths for YSRSpades if enabled
 	if(OPENSPADES_YSR)
 		add_custom_command(TARGET OpenSpades POST_BUILD

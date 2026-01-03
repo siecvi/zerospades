@@ -97,6 +97,22 @@ else()
 	endif()
 endif()
 
+# Add OpenAL Soft as a subdirectory
+option(ALSOFT_UTILS "Build utility programs" OFF)
+option(ALSOFT_NO_CONFIG_UTIL "Disable building the alsoft-config utility" ON)
+option(ALSOFT_EXAMPLES "Build example programs" OFF)
+option(ALSOFT_INSTALL "Install headers and libraries" OFF)
+option(ALSOFT_INSTALL_CONFIG "Install alsoft.conf sample configuration file" OFF)
+option(ALSOFT_INSTALL_HRTF_DATA "Install HRTF data files" OFF)
+option(ALSOFT_INSTALL_AMBDEC_PRESETS "Install AmbiDec preset files" OFF)
+option(ALSOFT_INSTALL_EXAMPLES "Install example programs (alplay, alstream, ...)" OFF)
+option(ALSOFT_INSTALL_UTILS "Install utility programs (openal-info, alsoft-config, ...)" OFF)
+add_subdirectory(Sources/Externals/openal-soft)
+
+# Use OpenAL Soft instead of system OpenAL
+set(OPENAL_FOUND TRUE)
+set(OPENAL_LIBRARY OpenAL)
+set(OPENAL_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Externals/openal-soft/include)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
 	# GCC C++11 support
