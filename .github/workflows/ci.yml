@@ -146,10 +146,8 @@ jobs:
             -D OPENSPADES_YSR=ON
           parallel: 8
 
-      - name: Sign app bundle
-        run: |
-          codesign --force --deep --sign - "${{ runner.workspace }}/openspades.mk/bin/OpenSpades.app" || echo "Ad-hoc signing failed, continuing anyway"
-          codesign -dv --verbose=4 "${{ runner.workspace }}/openspades.mk/bin/OpenSpades.app" || true
+      - name: Sign application bundle
+        run: codesign --force --deep --sign - ${{ runner.workspace }}/openspades.mk/bin/OpenSpades.app
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v5
@@ -159,11 +157,56 @@ jobs:
             ${{ runner.workspace }}/openspades.mk/bin
           if-no-files-found: warn
 
-  # Apple Silicon build disabled: YSRSpades audio library and AngelScript don't support ARM64
-  # build-macos-arm:
-  #   name: Build (macOS Apple Silicon)
-  #   runs-on: macos-14
-  #   ...
+  build-macos-arm:
+    name: Build (macOS Apple Silicon)
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Cache vcpkg and dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            vcpkg/installed
+            vcpkg/buildtrees
+          key: macos-arm-${{ hashFiles('vcpkg_x86_64-darwin.txt', '.gitmodules') }}
+          restore-keys: |
+            macos-arm-
+
+      - name: Bootstrap vcpkg
+        run: vcpkg/bootstrap-vcpkg.sh -disableMetrics
+
+      - name: Build dependencies
+        run: |
+          sed 's/$/:arm64-osx/' vcpkg_x86_64-darwin.txt > vcpkg_arm64-osx.txt
+          vcpkg/vcpkg install --recurse @vcpkg_arm64-osx.txt
+
+      - name: Build application
+        uses: ashutoshvarma/action-cmake-build@master
+        with:
+          build-dir: ${{ runner.workspace }}/openspades.mk
+          build-type: Release
+          configure-options: >
+            -D CMAKE_BUILD_TYPE=Release
+            -D CMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+            -D VCPKG_TARGET_TRIPLET=arm64-osx
+            -D CMAKE_OSX_ARCHITECTURES=arm64
+            -D CMAKE_CXX_STANDARD=17
+          parallel: 8
+
+      - name: Sign application bundle
+        run: codesign --force --deep --sign - ${{ runner.workspace }}/openspades.mk/bin/OpenSpades.app
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: zerospades-macos-arm64
+          path: |
+            ${{ runner.workspace }}/openspades.mk/bin
+          if-no-files-found: warn
 
   build-linux-nix:
     name: Build (Linux + Nix)
