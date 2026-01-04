@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2016 Andreas Jonsson
+   Copyright (c) 2003-2025 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -80,7 +80,7 @@ public:
 	const char      *GetNamespace() const;
 	asITypeInfo     *GetBaseType() const { return 0; }
 	bool             DerivesFrom(const asITypeInfo *objType) const { UNUSED_VAR(objType); return 0; }
-	asDWORD          GetFlags() const;
+	asQWORD          GetFlags() const;
 	asUINT           GetSize() const;
 	int              GetTypeId() const;
 	int              GetSubTypeId(asUINT subtypeIndex = 0) const { UNUSED_VAR(subtypeIndex); return -1; }
@@ -105,7 +105,7 @@ public:
 
 	// Properties
 	asUINT      GetPropertyCount() const { return 0; }
-	int         GetProperty(asUINT index, const char **name, int *typeId, bool *isPrivate, bool *isProtected, int *offset, bool *isReference, asDWORD *accessMask) const;
+	int         GetProperty(asUINT index, const char **name, int *typeId, bool *isPrivate, bool *isProtected, int *offset, bool *isReference, asDWORD *accessMask, int *compositeOffset, bool *isCompositeIndirect, bool *isConst) const;
 	const char *GetPropertyDeclaration(asUINT index, bool includeNamespace = false) const { UNUSED_VAR(index); UNUSED_VAR(includeNamespace); return 0; }
 
 	// Behaviours
@@ -150,17 +150,17 @@ public:
 	bool IsShared() const;
 
 	// These can be safely used on null pointers (which will return null)
-	asCObjectType  *CastToObjectType();
-	asCEnumType    *CastToEnumType();
-	asCTypedefType *CastToTypedefType();
-	asCFuncdefType *CastToFuncdefType();
+	friend asCObjectType  *CastToObjectType(asCTypeInfo *);
+	friend asCEnumType    *CastToEnumType(asCTypeInfo *);
+	friend asCTypedefType *CastToTypedefType(asCTypeInfo *);
+	friend asCFuncdefType *CastToFuncdefType(asCTypeInfo *);
 
 
 	asCString                    name;
 	asSNameSpace                *nameSpace;
 	int                          size;
 	mutable int                  typeId;
-	asDWORD                      flags;
+	asQWORD                      flags;
 	asDWORD                      accessMask;
 
 	// Store the script section where the code was declared
@@ -176,6 +176,7 @@ protected:
 	friend class asCScriptEngine;
 	friend class asCConfigGroup;
 	friend class asCModule;
+	friend class asCObjectType;
 	asCTypeInfo();
 
 	mutable asCAtomic externalRefCount;

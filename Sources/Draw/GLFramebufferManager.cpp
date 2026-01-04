@@ -185,6 +185,7 @@ namespace spades {
 			dev.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMinFilter, IGLDevice::Nearest);
 			dev.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureWrapS, IGLDevice::ClampToEdge);
 			dev.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureWrapT, IGLDevice::ClampToEdge);
+			dev.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureCompareMode, IGLDevice::None);
 
 			dev.FramebufferTexture2D(IGLDevice::Framebuffer, IGLDevice::DepthAttachment,
 			                         IGLDevice::Texture2D, renderDepthTexture, 0);
@@ -309,6 +310,8 @@ namespace spades {
 				                 IGLDevice::ClampToEdge);
 				dev.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureWrapT,
 				                 IGLDevice::ClampToEdge);
+				dev.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureCompareMode,
+				                 IGLDevice::None);
 
 				dev.FramebufferTexture2D(IGLDevice::Framebuffer, IGLDevice::DepthAttachment,
 				                         IGLDevice::Texture2D, mirrorDepthTexture, 0);

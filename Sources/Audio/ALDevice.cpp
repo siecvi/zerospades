@@ -360,8 +360,19 @@ namespace spades {
 					ALCheckErrorPrecise();
 					al::qalSourcei(handle, AL_SAMPLE_OFFSET, 0);
 					ALCheckErrorPrecise();
+
+					// Clear any pending errors before alSourcePlay
+					al::qalGetError();
+
 					al::qalSourcePlay(handle);
-					ALCheckError();
+
+					// Check for errors but don't crash
+					ALenum err = al::qalGetError();
+					if (err != AL_NO_ERROR) {
+						// Just log the error without making additional AL calls to avoid recursion
+						SPLog("Warning: alSourcePlay failed with error %d (0x%X) for buffer %u on source %u",
+						      (int)err, (unsigned int)err, buffer, handle);
+					}
 				}
 			};
 
@@ -457,6 +468,11 @@ namespace spades {
 				SPLog("  Vendor: %s", al::qalGetString(AL_VENDOR));
 				SPLog("  Version: %s", al::qalGetString(AL_VERSION));
 				SPLog("  Renderer: %s", al::qalGetString(AL_RENDERER));
+#ifdef OPENAL_SOFT
+				SPLog("  Using OpenAL Soft (built-in)");
+#else
+				SPLog("  Using system OpenAL");
+#endif
 
 				if ((ext = al::qalcGetString(alDevice, ALC_EXTENSIONS))) {
 					std::vector<std::string> strs = Split(ext, " ");

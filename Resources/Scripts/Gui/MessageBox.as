@@ -134,7 +134,7 @@ namespace spades {
 			super(owner, text, array<string> = {_Tr("MessageBox", "OK"), _Tr("MessageBox", "Cancel")}, height);
 		}
 
-		bool get_Result() { return ResultIndex == 0; }
+		bool get_Result() property { return ResultIndex == 0; }
 
 		void HotKey(string key) {
 			if (IsEnabled and key == "Enter") {

@@ -70,6 +70,8 @@ namespace spades {
 				                    IGLDevice::ClampToEdge);
 				device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureWrapT,
 				                    IGLDevice::ClampToEdge);
+				device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureCompareMode,
+				                    IGLDevice::None);
 
 				framebuffer[i] = device.GenFramebuffer();
 				device.BindFramebuffer(IGLDevice::Framebuffer, framebuffer[i]);

@@ -441,15 +441,15 @@ namespace spades {
 						  eng->RegisterObjectMethod("Renderer", "Model@ CreateModel(VoxelModel@+)",
 						                            asFUNCTION(CreateModel), asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);
-						r = eng->RegisterObjectMethod("Renderer", "void set_GameMap(GameMap@+)",
+						r = eng->RegisterObjectMethod("Renderer", "void set_GameMap(GameMap@+) property",
 						                              asFUNCTION(SetGameMap), asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);
-						r = eng->RegisterObjectMethod("Renderer", "void set_FogDistance(float)",
+						r = eng->RegisterObjectMethod("Renderer", "void set_FogDistance(float) property",
 						                              asMETHOD(IRenderer, SetFogDistance),
 						                              asCALL_THISCALL);
 						manager->CheckError(r);
 						r = eng->RegisterObjectMethod(
-						  "Renderer", "void set_FogColor(const Vector3& in)",
+						  "Renderer", "void set_FogColor(const Vector3& in) property",
 						  asFUNCTION(SetFogColor), asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);
 						r = eng->RegisterObjectMethod(
@@ -488,19 +488,19 @@ namespace spades {
 						  asFUNCTION(MultiplyScreenColor), asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);
 						r =
-						  eng->RegisterObjectMethod("Renderer", "void set_Color(const Vector4&in)",
+						  eng->RegisterObjectMethod("Renderer", "void set_Color(const Vector4&in) property",
 						                            asFUNCTION(SetColor), asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);
 						r = eng->RegisterObjectMethod(
-						  "Renderer", "void set_ColorOpaque(const Vector3&in)",
+						  "Renderer", "void set_ColorOpaque(const Vector3&in) property",
 						  asFUNCTION(SetColorOpaque), asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);
 						r = eng->RegisterObjectMethod(
-						  "Renderer", "void set_ColorP(const Vector4&in)",
+						  "Renderer", "void set_ColorP(const Vector4&in) property",
 						  asFUNCTION(SetColorAlphaPremultiplied), asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);
 						r = eng->RegisterObjectMethod(
-						  "Renderer", "void set_ColorNP(const Vector4&in)",
+						  "Renderer", "void set_ColorNP(const Vector4&in) property",
 						  asFUNCTION(SetColorAlphaNonPremultiplied), asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);
 						r = eng->RegisterObjectMethod("Renderer",
@@ -545,11 +545,11 @@ namespace spades {
 						r = eng->RegisterObjectMethod("Renderer", "Bitmap@ ReadBitmap()",
 						                              asFUNCTION(ReadBitmap), asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);
-						r = eng->RegisterObjectMethod("Renderer", "float get_ScreenWidth()",
+						r = eng->RegisterObjectMethod("Renderer", "float get_ScreenWidth() property property",
 						                              asMETHOD(IRenderer, ScreenWidth),
 						                              asCALL_THISCALL);
 						manager->CheckError(r);
-						r = eng->RegisterObjectMethod("Renderer", "float get_ScreenHeight()",
+						r = eng->RegisterObjectMethod("Renderer", "float get_ScreenHeight() property property",
 						                              asMETHOD(IRenderer, ScreenHeight),
 						                              asCALL_THISCALL);
 						manager->CheckError(r);

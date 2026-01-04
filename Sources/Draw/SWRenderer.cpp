@@ -72,6 +72,11 @@ namespace spades {
 			SPLog("creating image manager");
 			imageManager = std::make_shared<SWImageManager>();
 
+			SPLog("creating white image");
+			Handle<Bitmap> whiteBmp = Handle<Bitmap>::New(1, 1);
+			whiteBmp->GetPixels()[0] = 0xFFFFFFFF;
+			whiteImage = Handle<SWImage>::New(*whiteBmp);
+
 			SPLog("creating image renderer");
 			imageRenderer = std::make_shared<SWImageRenderer>(featureLevel);
 			imageRenderer->ResetPixelStatistics();
@@ -976,8 +981,15 @@ namespace spades {
 			Vector2 outBottomRight = outTopRight + outBottomLeft - outTopLeft;
 
 			SWImage* img = dynamic_cast<SWImage*>(image.get_pointer());
-			if (img == nullptr && image != nullptr) // not SWImage
-				SPInvalidArgument("image");
+			if (!img) {
+				if (!image) {
+					// Use white image for solid color fills
+					img = whiteImage.GetPointerOrNull();
+				} else {
+					// Invalid type: not SWImage
+					SPInvalidArgument("image");
+				}
+			}
 
 			imageRenderer->SetShaderType(SWImageRenderer::ShaderType::Image);
 
@@ -1000,13 +1012,12 @@ namespace spades {
 			vtx[1].position = MakeVector4(outTopRight.x, outTopRight.y, 1.0F, 1.0F);
 			vtx[2].position = MakeVector4(outBottomLeft.x, outBottomLeft.y, 1.0F, 1.0F);
 			vtx[3].position = MakeVector4(outBottomRight.x, outBottomRight.y, 1.0F, 1.0F);
-			if (img) {
-				Vector2 scl = {img->GetInvWidth(), img->GetInvHeight()};
-				vtx[0].uv = MakeVector2(inRect.min.x, inRect.min.y) * scl;
-				vtx[1].uv = MakeVector2(inRect.max.x, inRect.min.y) * scl;
-				vtx[2].uv = MakeVector2(inRect.min.x, inRect.max.y) * scl;
-				vtx[3].uv = MakeVector2(inRect.max.x, inRect.max.y) * scl;
-			}
+
+			Vector2 scl = {img->GetInvWidth(), img->GetInvHeight()};
+			vtx[0].uv = MakeVector2(inRect.min.x, inRect.min.y) * scl;
+			vtx[1].uv = MakeVector2(inRect.max.x, inRect.min.y) * scl;
+			vtx[2].uv = MakeVector2(inRect.min.x, inRect.max.y) * scl;
+			vtx[3].uv = MakeVector2(inRect.max.x, inRect.max.y) * scl;
 
 			imageRenderer->DrawPolygon(img, vtx[0], vtx[1], vtx[2]);
 			imageRenderer->DrawPolygon(img, vtx[1], vtx[3], vtx[2]);

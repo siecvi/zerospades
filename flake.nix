@@ -30,25 +30,29 @@
             pname = "openspades";
             version = "0.1.5-beta";
 
-            src = ./.;
+            src = self;
 
             nativeBuildInputs = with pkgs; [ cmake imagemagick unzip zip file ];
 
-            buildInputs = with pkgs; 
+            buildInputs = with pkgs;
               ([
-                freetype SDL2 SDL2_image libGL zlib curl glew opusfile openal libogg
+                freetype SDL2 SDL2_image libGL zlib curl glew opusfile libogg openal
               ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
                 darwin.apple_sdk.frameworks.Cocoa
               ]);
 
-            cmakeFlags = [ "-DOPENSPADES_INSTALL_BINARY=bin" ];
+            cmakeFlags = [
+              "-DOPENSPADES_INSTALL_BINARY=bin"
+              "-DCMAKE_CXX_STANDARD=17"
+              "-DUSE_INTERNAL_OPENAL=OFF"
+            ];
 
             inherit notoFontPak;
-          
+
             # Used by `downloadpak.sh`. Instructs the script to copy the
             # development package from this path instead of downloading it.
             OPENSPADES_DEVPAK_PATH = devPackage;
-          
+
             postPatch = ''
               patchShebangs Resources
             '';
@@ -56,8 +60,6 @@
             postInstall = ''
               cp $notoFontPak $out/share/games/openspades/Resources/
             '';
-
-            NIX_CFLAGS_LINK = "-lopenal";
           };
         });
 }

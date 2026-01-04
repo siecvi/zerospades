@@ -563,7 +563,7 @@ namespace spades {
 
     class StartupScreenComplexConfigDialog : spades::ui::UIElement {
         StartupScreenComplexConfig@ config;
-        float ContentsTop = 50.0F;
+        float ContentsTop;
         float ContentsHeight;
         string Title;
 
@@ -576,6 +576,7 @@ namespace spades {
         StartupScreenComplexConfigDialog(spades::ui::UIManager@ manager, StartupScreenComplexConfig@ config) {
             super(manager);
             @this.config = config;
+            ContentsTop = 50.0F;
             Vector2 size = manager.RootElement.Size;
             ContentsHeight = size.y - ContentsTop * 2.0F;
 

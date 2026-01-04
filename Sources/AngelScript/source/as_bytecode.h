@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2015 Andreas Jonsson
+   Copyright (c) 2003-2024 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -72,6 +72,7 @@ public:
 	void OptimizeLocally(const asCArray<int> &tempVariableOffsets);
 	void ExtractLineNumbers();
 	void ExtractObjectVariableInfo(asCScriptFunction *outFunc);
+	void ExtractTryCatchInfo(asCScriptFunction *outFunc);
 	int  ResolveJumpAddresses();
 	int  FindLabel(int label, asCByteInstruction *from, asCByteInstruction **dest, int *positionDelta);
 
@@ -86,6 +87,7 @@ public:
 	void DebugOutput(const char *name, asCScriptFunction *func);
 #endif
 
+	asCByteInstruction *GetFirstInstr();
 	int  GetLastInstr();
 	int  RemoveLastInstr();
 	asDWORD GetLastInstrValueDW();
@@ -100,6 +102,8 @@ public:
 	void Line(int line, int column, int scriptIdx);
 	void ObjInfo(int offset, int info);
 	void Block(bool start);
+	void TryBlock(short catchLabel);
+
 	void VarDecl(int varDeclIdx);
 	void Call(asEBCInstr bc, int funcID, int pop);
 	void CallPtr(asEBCInstr bc, int funcPtrVar, int pop);

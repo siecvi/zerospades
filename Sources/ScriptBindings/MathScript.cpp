@@ -204,12 +204,12 @@ namespace spades {
 					manager->CheckError(r);
 
 					// Register the object methods
-					r = eng->RegisterObjectMethod("IntVector3", "int get_ManhattanLength() const",
+					r = eng->RegisterObjectMethod("IntVector3", "int get_ManhattanLength() const property",
 					                              asMETHOD(IntVector3, GetManhattanLength),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
 
-					r = eng->RegisterObjectMethod("IntVector3", "int get_ChebyshevLength() const",
+					r = eng->RegisterObjectMethod("IntVector3", "int get_ChebyshevLength() const property",
 					                              asMETHOD(IntVector3, GetChebyshevLength),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
@@ -330,26 +330,26 @@ namespace spades {
 					manager->CheckError(r);
 
 					// Register the object methods
-					r = eng->RegisterObjectMethod("Vector2", "float get_Length() const",
+					r = eng->RegisterObjectMethod("Vector2", "float get_Length() const property",
 					                              asMETHOD(Vector2, GetLength), asCALL_THISCALL);
 					manager->CheckError(r);
 
-					r = eng->RegisterObjectMethod("Vector2", "float get_LengthPowered() const",
+					r = eng->RegisterObjectMethod("Vector2", "float get_LengthPowered() const property",
 					                              asMETHOD(Vector2, GetSquaredLength),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
 
-					r = eng->RegisterObjectMethod("Vector2", "float get_ManhattanLength() const",
+					r = eng->RegisterObjectMethod("Vector2", "float get_ManhattanLength() const property",
 					                              asMETHOD(Vector2, GetManhattanLength),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
 
-					r = eng->RegisterObjectMethod("Vector2", "float get_ChebyshevLength() const",
+					r = eng->RegisterObjectMethod("Vector2", "float get_ChebyshevLength() const property",
 					                              asMETHOD(Vector2, GetChebyshevLength),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
 
-					r = eng->RegisterObjectMethod("Vector2", "Vector2 get_Normalized() const",
+					r = eng->RegisterObjectMethod("Vector2", "Vector2 get_Normalized() const property",
 					                              asMETHOD(Vector2, Normalize), asCALL_THISCALL);
 					manager->CheckError(r);
 
@@ -488,26 +488,26 @@ namespace spades {
 					manager->CheckError(r);
 
 					// Register the object methods
-					r = eng->RegisterObjectMethod("Vector3", "float get_Length() const",
+					r = eng->RegisterObjectMethod("Vector3", "float get_Length() const property",
 					                              asMETHOD(Vector3, GetLength), asCALL_THISCALL);
 					manager->CheckError(r);
 
-					r = eng->RegisterObjectMethod("Vector3", "float get_LengthPowered() const",
+					r = eng->RegisterObjectMethod("Vector3", "float get_LengthPowered() const property",
 					                              asMETHOD(Vector3, GetSquaredLength),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
 
-					r = eng->RegisterObjectMethod("Vector3", "float get_ManhattanLength() const",
+					r = eng->RegisterObjectMethod("Vector3", "float get_ManhattanLength() const property",
 					                              asMETHOD(Vector3, GetManhattanLength),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
 
-					r = eng->RegisterObjectMethod("Vector3", "float get_ChebyshevLength() const",
+					r = eng->RegisterObjectMethod("Vector3", "float get_ChebyshevLength() const property",
 					                              asMETHOD(Vector3, GetChebyshevLength),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
 
-					r = eng->RegisterObjectMethod("Vector3", "Vector3 get_Normalized() const",
+					r = eng->RegisterObjectMethod("Vector3", "Vector3 get_Normalized() const property",
 					                              asMETHOD(Vector3, Normalize), asCALL_THISCALL);
 					manager->CheckError(r);
 
@@ -658,26 +658,26 @@ namespace spades {
 					manager->CheckError(r);
 
 					// Register the object methods
-					r = eng->RegisterObjectMethod("Vector4", "float get_Length() const",
+					r = eng->RegisterObjectMethod("Vector4", "float get_Length() const property",
 					                              asMETHOD(Vector4, GetLength), asCALL_THISCALL);
 					manager->CheckError(r);
 
-					r = eng->RegisterObjectMethod("Vector4", "float get_LengthPowered() const",
+					r = eng->RegisterObjectMethod("Vector4", "float get_LengthPowered() const property",
 					                              asMETHOD(Vector4, GetSquaredLength),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
 
-					r = eng->RegisterObjectMethod("Vector4", "float get_ManhattanLength() const",
+					r = eng->RegisterObjectMethod("Vector4", "float get_ManhattanLength() const property",
 					                              asMETHOD(Vector4, GetManhattanLength),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
 
-					r = eng->RegisterObjectMethod("Vector4", "float get_ChebyshevLength() const",
+					r = eng->RegisterObjectMethod("Vector4", "float get_ChebyshevLength() const property",
 					                              asMETHOD(Vector4, GetChebyshevLength),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
 
-					r = eng->RegisterObjectMethod("Vector4", "Vector4 get_Normalized() const",
+					r = eng->RegisterObjectMethod("Vector4", "Vector4 get_Normalized() const property",
 					                              asMETHOD(Vector4, Normalize), asCALL_THISCALL);
 					manager->CheckError(r);
 
@@ -769,15 +769,15 @@ namespace spades {
 					manager->CheckError(r);
 
 					// Register the object methods
-					r = eng->RegisterObjectMethod("Matrix4", "Matrix4 get_Transposed() const",
+					r = eng->RegisterObjectMethod("Matrix4", "Matrix4 get_Transposed() const property",
 					                              asMETHOD(Matrix4, Transposed), asCALL_THISCALL);
 					manager->CheckError(r);
 
-					r = eng->RegisterObjectMethod("Matrix4", "Matrix4 get_Inverted() const",
+					r = eng->RegisterObjectMethod("Matrix4", "Matrix4 get_Inverted() const property",
 					                              asMETHOD(Matrix4, Inversed), asCALL_THISCALL);
 					manager->CheckError(r);
 
-					r = eng->RegisterObjectMethod("Matrix4", "float get_InvertedFast() const",
+					r = eng->RegisterObjectMethod("Matrix4", "float get_InvertedFast() const property",
 					                              asMETHOD(Matrix4, InversedFast), asCALL_THISCALL);
 					manager->CheckError(r);
 
