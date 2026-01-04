@@ -20,6 +20,10 @@
 
 #pragma once
 
+// Configure AngelScript string addon to use property accessors
+// This is required for compatibility with ZeroSpades scripts that access string.length as a property
+#define AS_USE_ACCESSORS 1
+
 #include <AngelScript/include/angelscript.h>
 #include <AngelScript/addons/scriptany.h>
 #include <AngelScript/addons/scriptarray.h>

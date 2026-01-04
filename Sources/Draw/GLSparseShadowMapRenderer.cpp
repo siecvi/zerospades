@@ -70,6 +70,8 @@ namespace spades {
 			                    IGLDevice::ClampToEdge);
 			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureWrapT,
 			                    IGLDevice::ClampToEdge);
+			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureCompareMode,
+			                    IGLDevice::None);
 
 			pagetableTexture = device.GenTexture();
 			device.BindTexture(IGLDevice::Texture2D, pagetableTexture);

@@ -135,13 +135,13 @@ namespace spades {
 					  eng->RegisterObjectMethod("VoxelModel", "void SetSolid(int, int, int, uint)",
 					                            asFUNCTION(SetSolid), asCALL_CDECL_OBJLAST);
 					manager->CheckError(r);
-					r = eng->RegisterObjectMethod("VoxelModel", "int get_Width()",
+					r = eng->RegisterObjectMethod("VoxelModel", "int get_Width() property",
 					                              asMETHOD(VoxelModel, GetWidth), asCALL_THISCALL);
 					manager->CheckError(r);
-					r = eng->RegisterObjectMethod("VoxelModel", "int get_Height()",
+					r = eng->RegisterObjectMethod("VoxelModel", "int get_Height() property",
 					                              asMETHOD(VoxelModel, GetHeight), asCALL_THISCALL);
 					manager->CheckError(r);
-					r = eng->RegisterObjectMethod("VoxelModel", "int get_Depth()",
+					r = eng->RegisterObjectMethod("VoxelModel", "int get_Depth() property",
 					                              asMETHOD(VoxelModel, GetDepth), asCALL_THISCALL);
 					manager->CheckError(r);
 					break;

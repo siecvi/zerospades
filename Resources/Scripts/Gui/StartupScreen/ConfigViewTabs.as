@@ -758,7 +758,8 @@ namespace spades {
 		}
 
 		private void OnResetSettingsConfirmed(spades::ui::UIElement@ sender) {
-			if (!cast<ConfirmScreen>(sender).Result)
+			ConfirmScreen@ confirm = cast<ConfirmScreen>(sender);
+			if (confirm is null || !confirm.Result)
 				return;
 
 			ResetAllSettings();

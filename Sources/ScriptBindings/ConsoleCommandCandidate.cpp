@@ -96,7 +96,7 @@ namespace spades {
 					manager->CheckError(r);
 					r = eng->RegisterObjectMethod(
 					  "ConsoleCommandCandidateIterator",
-					  "const ConsoleCommandCandidate &get_Current()",
+					  "const ConsoleCommandCandidate &get_Current() property",
 					  asMETHOD(gui::ConsoleCommandCandidateIterator, GetCurrent), asCALL_THISCALL);
 					manager->CheckError(r);
 					break;
