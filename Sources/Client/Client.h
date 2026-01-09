@@ -29,6 +29,7 @@
 #include <unordered_map>
 
 #include "ClientCameraMode.h"
+#include "DemoNetClient.h"
 #include "ILocalEntity.h"
 #include "IRenderer.h"
 #include "IWorldListener.h"
@@ -104,6 +105,10 @@ namespace spades {
 			FPSCounter upsCounter;
 
 			std::unique_ptr<NetClient> net;
+			std::unique_ptr<DemoNetClient> demoNet;
+			bool isDemoMode;
+			std::string demoFilePath;
+			int recordGameCount;
 			std::string playerName;
 			std::unique_ptr<IStream> logStream;
 
@@ -491,7 +496,11 @@ namespace spades {
 
 		public:
 			Client(Handle<IRenderer>, Handle<IAudioDevice>,
-				const ServerAddress& host, Handle<FontManager>);
+				const ServerAddress& host, Handle<FontManager>,
+				const std::string& demoPath = "");
+
+			bool IsDemoMode() const { return isDemoMode; }
+			DemoNetClient* GetDemoNetClient() { return demoNet.get(); }
 
 			void RunFrame(float dt) override;
 			void RunFrameLate(float dt) override;

@@ -1641,10 +1641,13 @@ namespace spades {
 
 				// --- end "player is there" render
 			} else {
-				// world exists, but no local player: not joined
+				// world exists, but no local player: not joined (or demo mode)
 
-				scoreboard->Draw();
-				DrawPlayingTime();
+				// In demo mode, only show scoreboard when toggled
+				if (!isDemoMode || scoreboardVisible) {
+					scoreboard->Draw();
+					DrawPlayingTime();
+				}
 				centerMessageView->Draw();
 				DrawAlert();
 			}
@@ -1676,7 +1679,8 @@ namespace spades {
 			renderer->DrawImage(nullptr, AABB2(prgBarX, prgBarY, prgBarW, prgBarH));
 
 			// draw progress bar
-			if (net->GetStatus() == NetClientStatusReceivingMap) {
+			NetClientStatus status = isDemoMode ? demoNet->GetStatus() : net->GetStatus();
+			if (status == NetClientStatusReceivingMap) {
 				float progress = mapReceivingProgressSmoothed;
 				float prgBarMaxWidth = prgBarW * progress;
 
@@ -1699,7 +1703,7 @@ namespace spades {
 			}
 
 			// draw net status
-			auto statusStr = net->GetStatusString();
+			auto statusStr = isDemoMode ? demoNet->GetStatusString() : net->GetStatusString();
 			IFont& font = fontManager->GetGuiFont();
 			Vector2 size = font.Measure(statusStr);
 			Vector2 pos = MakeVector2((sw - size.x) * 0.5F, (prgBarY - 10.0F) - size.y);

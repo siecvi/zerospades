@@ -388,7 +388,8 @@ namespace spades {
 					if (toolRaiseState < 0.0F) {
 						toolRaiseState = 0.0F;
 						currentTool = player.GetTool();
-						client.net->SendTool();
+						if (!client.IsDemoMode())
+							client.net->SendTool();
 
 						// play tool change sound
 						IAudioDevice& audioDevice = client.GetAudioDevice();

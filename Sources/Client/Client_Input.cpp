@@ -95,6 +95,9 @@ DEFINE_SPADES_SETTING(cg_keyAutoFocus, "MiddleMouseButton");
 DEFINE_SPADES_SETTING(cg_keyToggleSpectatorNames, "z");
 DEFINE_SPADES_SETTING(cg_keySpectatorZoom, "e");
 DEFINE_SPADES_SETTING(cg_keyStaffSpectating, "f5");
+DEFINE_SPADES_SETTING(cg_keyDemoPlayPause, "P");
+DEFINE_SPADES_SETTING(cg_keyDemoSeekForward, "Right");
+DEFINE_SPADES_SETTING(cg_keyDemoSeekBackward, "Left");
 
 SPADES_SETTING(s_volume);
 DEFINE_SPADES_SETTING(cg_keyVolumeUp, "+");
@@ -383,6 +386,141 @@ namespace spades {
 				auto cameraMode = GetCameraMode();
 
 				stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
+
+				// In demo mode, we're always spectating without a local player
+				if (isDemoMode) {
+					// Handle demo playback controls (play/pause)
+					if (CheckKey(cg_keyDemoPlayPause, name) && down) {
+						if (demoNet) {
+							if (demoNet->IsFinished()) {
+								// Demo finished - seek to beginning and resume
+								demoNet->SeekToBeginning();
+							} else {
+								// Toggle pause
+								demoNet->TogglePause();
+							}
+						}
+						return;
+					}
+
+					// Handle demo seeking (arrow keys)
+					if (CheckKey(cg_keyDemoSeekForward, name) && down) {
+						if (demoNet) {
+							float newTime = demoNet->GetTime() + 5.0f;
+							demoNet->Seek(newTime);
+						}
+						return;
+					}
+					if (CheckKey(cg_keyDemoSeekBackward, name) && down) {
+						if (demoNet) {
+							float newTime = demoNet->GetTime() - 5.0f;
+							demoNet->Seek(std::max(0.0f, newTime));
+						}
+						return;
+					}
+
+					// Handle demo spectator controls
+					if (cameraMode == ClientCameraMode::Free) {
+						if (CheckKey(cg_keyAttack, name)) {
+							if (down) {
+								// reset zoom
+								if (spectatorZoom) {
+									spectatorZoom = false;
+									spectatorZoomState = 0.0F;
+								}
+								// Start following the recorded player
+								if (demoNet)
+									followedPlayerId = demoNet->GetRecordedLocalPlayerId();
+								FollowNextPlayer(false);
+							}
+							return;
+						} else if (CheckKey(cg_keyAltAttack, name)) {
+							if (down) {
+								// reset zoom
+								if (spectatorZoom) {
+									spectatorZoom = false;
+									spectatorZoomState = 0.0F;
+								}
+								// Start following the recorded player
+								if (demoNet)
+									followedPlayerId = demoNet->GetRecordedLocalPlayerId();
+								FollowNextPlayer(true);
+							}
+							return;
+						} else if (CheckKey(cg_keyToggleSpectatorNames, name) && down) {
+							spectatorPlayerNames = !spectatorPlayerNames;
+							Handle<IAudioChunk> c =
+							  audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
+							audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+							return;
+						} else if (CheckKey(cg_keySpectatorZoom, name)) {
+							spectatorZoom = down;
+							return;
+						}
+					} else if (cameraMode == ClientCameraMode::FirstPersonFollow ||
+					           cameraMode == ClientCameraMode::ThirdPersonFollow) {
+						if (CheckKey(cg_keyAttack, name)) {
+							if (down) {
+								if (spectatorZoom) {
+									spectatorZoom = false;
+									spectatorZoomState = 0.0F;
+								}
+								FollowNextPlayer(false);
+							}
+							return;
+						} else if (CheckKey(cg_keyAltAttack, name)) {
+							if (down) {
+								if (spectatorZoom) {
+									spectatorZoom = false;
+									spectatorZoomState = 0.0F;
+								}
+								FollowNextPlayer(true);
+							}
+							return;
+						} else if (CheckKey(cg_keyJump, name)) {
+							if (down && GetCameraTargetPlayer().IsAlive())
+								followCameraState.firstPerson = !followCameraState.firstPerson;
+							return;
+						} else if (CheckKey(cg_keyReloadWeapon, name) && followCameraState.enabled) {
+							if (down) {
+								playerInput.jump = PlayerInput().jump;
+								if (spectatorZoom) {
+									spectatorZoom = false;
+									spectatorZoomState = 0.0F;
+								}
+								followCameraState.enabled = false;
+							}
+							return;
+						}
+					}
+
+					// Handle movement for demo spectator free camera
+					if (CheckKey(cg_keyMoveLeft, name)) {
+						playerInput.moveLeft = down;
+						keypadInput.left = down;
+						playerInput.moveRight = down ? false : keypadInput.right;
+					} else if (CheckKey(cg_keyMoveRight, name)) {
+						playerInput.moveRight = down;
+						keypadInput.right = down;
+						playerInput.moveLeft = down ? false : keypadInput.left;
+					} else if (CheckKey(cg_keyMoveForward, name)) {
+						playerInput.moveForward = down;
+						keypadInput.forward = down;
+						playerInput.moveBackward = down ? false : keypadInput.backward;
+					} else if (CheckKey(cg_keyMoveBackward, name)) {
+						playerInput.moveBackward = down;
+						keypadInput.backward = down;
+						playerInput.moveForward = down ? false : keypadInput.forward;
+					} else if (CheckKey(cg_keyCrouch, name)) {
+						playerInput.crouch = down;
+					} else if (CheckKey(cg_keySprint, name)) {
+						playerInput.sprint = down;
+					} else if (CheckKey(cg_keyJump, name)) {
+						playerInput.jump = down;
+					}
+					return;
+				}
+
 				if (!maybePlayer)
 					return;
 

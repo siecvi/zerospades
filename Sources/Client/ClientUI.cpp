@@ -63,7 +63,8 @@ namespace spades {
 		void ClientUI::SendChat(const std::string& msg, bool isGlobal) {
 			if (!client)
 				return;
-			client->net->SendChat(msg, isGlobal);
+			if (!client->IsDemoMode())
+				client->net->SendChat(msg, isGlobal);
 		}
 
 		void ClientUI::AlertNotice(const std::string& msg) {
