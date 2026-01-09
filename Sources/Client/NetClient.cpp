@@ -41,6 +41,7 @@
 #include <Core/DeflateStream.h>
 #include <Core/Exception.h>
 #include <Core/Math.h>
+#include <Core/DynamicMemoryStream.h>
 #include <Core/MemoryStream.h>
 #include <Core/Settings.h>
 #include <Core/Strings.h>
@@ -370,6 +371,8 @@ namespace spades {
 			ENetPacket* CreatePacket(int flag = ENET_PACKET_FLAG_RELIABLE) {
 				return enet_packet_create(data.data(), data.size(), flag);
 			}
+
+			const std::vector<char>& GetData() const { return data; }
 		};
 
 		NetClient::NetClient(Client* c) : client(c), host(nullptr), peer(nullptr) {
@@ -402,14 +405,19 @@ namespace spades {
 			std::fill(savedPlayerTeam.begin(), savedPlayerTeam.end(), -1);
 
 			bandwidthMonitor.reset(new BandwidthMonitor(host));
+			demoRecorder.reset(new DemoRecorder());
 		}
 		NetClient::~NetClient() {
 			SPADES_MARK_FUNCTION();
+
+			if (demoRecorder && demoRecorder->IsRecording())
+				demoRecorder->StopRecording();
 
 			Disconnect();
 			if (host)
 				enet_host_destroy(host);
 			bandwidthMonitor.reset();
+			demoRecorder.reset();
 			SPLog("ENet host destroyed");
 		}
 
@@ -538,6 +546,12 @@ namespace spades {
 				if (event.type == ENET_EVENT_TYPE_RECEIVE) {
 					readerOrNone.reset(event.packet);
 					auto& reader = readerOrNone.value();
+
+					// Record packet for demo if recording is active
+					if (demoRecorder && demoRecorder->IsRecording()) {
+						auto data = reader.GetData();
+						demoRecorder->RecordPacket(data.data(), data.size());
+					}
 
 					try {
 						if (HandleHandshakePackets(reader))
@@ -1578,6 +1592,13 @@ namespace spades {
 			NetPacketWriter w(PacketTypeInputData);
 			w.WriteByte((uint8_t)GetLocalPlayer().GetId());
 			w.WriteByte(bits);
+
+			// Record to demo before sending (server doesn't echo this back)
+			if (demoRecorder && demoRecorder->IsRecording()) {
+				const auto& data = w.GetData();
+				demoRecorder->RecordPacket(data.data(), data.size());
+			}
+
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
 
@@ -1594,6 +1615,13 @@ namespace spades {
 			NetPacketWriter w(PacketTypeWeaponInput);
 			w.WriteByte((uint8_t)GetLocalPlayer().GetId());
 			w.WriteByte(bits);
+
+			// Record to demo before sending (server doesn't echo this back)
+			if (demoRecorder && demoRecorder->IsRecording()) {
+				const auto& data = w.GetData();
+				demoRecorder->RecordPacket(data.data(), data.size());
+			}
+
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
 
@@ -1621,6 +1649,13 @@ namespace spades {
 			w.WriteFloat(g.GetFuse());
 			w.WriteVector3(g.GetPosition());
 			w.WriteVector3(g.GetVelocity());
+
+			// Record to demo before sending (server doesn't echo this back)
+			if (demoRecorder && demoRecorder->IsRecording()) {
+				const auto& data = w.GetData();
+				demoRecorder->RecordPacket(data.data(), data.size());
+			}
+
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
 
@@ -1637,6 +1672,13 @@ namespace spades {
 				case Player::ToolGrenade: w.WriteByte((uint8_t)3); break;
 				default: SPInvalidEnum("tool", type);
 			}
+
+			// Record to demo before sending (server doesn't echo this back)
+			if (demoRecorder && demoRecorder->IsRecording()) {
+				const auto& data = w.GetData();
+				demoRecorder->RecordPacket(data.data(), data.size());
+			}
+
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
 
@@ -1646,6 +1688,13 @@ namespace spades {
 			NetPacketWriter w(PacketTypeSetColour);
 			w.WriteByte((uint8_t)GetLocalPlayer().GetId());
 			w.WriteColor(GetLocalPlayer().GetBlockColor());
+
+			// Record to demo before sending (server doesn't echo this back)
+			if (demoRecorder && demoRecorder->IsRecording()) {
+				const auto& data = w.GetData();
+				demoRecorder->RecordPacket(data.data(), data.size());
+			}
+
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
 
@@ -1693,6 +1742,13 @@ namespace spades {
 			w.WriteByte((uint8_t)GetLocalPlayer().GetId());
 			w.WriteByte((uint8_t)0); // clip_ammo; not used?
 			w.WriteByte((uint8_t)0); // reserve_ammo; not used?
+
+			// Record to demo before sending (server response is delayed)
+			if (demoRecorder && demoRecorder->IsRecording()) {
+				const auto& data = w.GetData();
+				demoRecorder->RecordPacket(data.data(), data.size());
+			}
+
 			enet_peer_send(peer, 0, w.CreatePacket());
 		}
 
@@ -1891,6 +1947,229 @@ namespace spades {
 			}
 
 			return text;
+		}
+
+		void NetClient::WriteInitialDemoState() {
+			SPADES_MARK_FUNCTION();
+
+			if (!demoRecorder || !demoRecorder->IsRecording())
+				return;
+
+			World* world = GetWorld() ? &GetWorld().value() : nullptr;
+			if (!world) {
+				SPLog("Cannot write initial demo state: no world");
+				return;
+			}
+
+			GameMap* map = world->GetMap().GetPointerOrNull();
+			if (!map) {
+				SPLog("Cannot write initial demo state: no map");
+				return;
+			}
+
+			SPLog("Writing initial demo state...");
+
+			// Step 1: Compress and write map data
+			{
+				// Save map to memory stream
+				DynamicMemoryStream rawMapStream;
+				map->Save(&rawMapStream);
+				rawMapStream.SetPosition(0);
+
+				// Compress the map data
+				DynamicMemoryStream compressedStream;
+				{
+					DeflateStream deflate(&compressedStream, CompressModeCompress, false);
+					const size_t bufSize = 65536;
+					std::vector<char> buf(bufSize);
+					size_t read;
+					while ((read = rawMapStream.Read(buf.data(), bufSize)) > 0) {
+						deflate.Write(buf.data(), read);
+					}
+					deflate.DeflateEnd();
+				}
+				compressedStream.SetPosition(0);
+				size_t compressedSize = compressedStream.GetLength();
+
+				// Write MapStart packet
+				{
+					NetPacketWriter w(PacketTypeMapStart);
+					w.WriteInt(static_cast<uint32_t>(compressedSize));
+					const auto& data = w.GetData();
+					demoRecorder->RecordPacket(data.data(), data.size());
+				}
+
+				// Write MapChunk packets (8KB chunks like the server does)
+				const size_t chunkSize = 8192;
+				std::vector<char> chunkBuf(chunkSize + 1);
+				chunkBuf[0] = static_cast<char>(PacketTypeMapChunk);
+				size_t read;
+				while ((read = compressedStream.Read(chunkBuf.data() + 1, chunkSize)) > 0) {
+					demoRecorder->RecordPacket(chunkBuf.data(), read + 1);
+				}
+			}
+
+			// Step 2: Write StateData packet
+			{
+				NetPacketWriter w(PacketTypeStateData);
+
+				// Local player ID
+				int localPlayerId = world->GetLocalPlayerIndex().value_or(0);
+				w.WriteByte(static_cast<uint8_t>(localPlayerId));
+
+				// Fog color (BGR format)
+				w.WriteColor(world->GetFogColor());
+
+				// Team colors and names
+				for (int t = 0; t < 2; t++) {
+					w.WriteColor(world->GetTeam(t).color);
+				}
+				for (int t = 0; t < 2; t++) {
+					w.WriteString(world->GetTeam(t).name, 10);
+				}
+
+				// Game mode
+				stmp::optional<IGameMode&> mode = world->GetMode();
+				if (mode && mode->ModeType() == IGameMode::m_CTF) {
+					auto& ctf = dynamic_cast<CTFGameMode&>(*mode);
+					w.WriteByte(0); // CTF mode
+
+					CTFGameMode::Team& team1 = ctf.GetTeam(0);
+					CTFGameMode::Team& team2 = ctf.GetTeam(1);
+
+					w.WriteByte(static_cast<uint8_t>(team1.score));
+					w.WriteByte(static_cast<uint8_t>(team2.score));
+					w.WriteByte(static_cast<uint8_t>(ctf.GetCaptureLimit()));
+
+					int intelFlags = (team1.hasIntel ? 1 : 0) | (team2.hasIntel ? 2 : 0);
+					w.WriteByte(static_cast<uint8_t>(intelFlags));
+
+					// Team 2's intel (blue team's flag)
+					if (team2.hasIntel) {
+						w.WriteByte(static_cast<uint8_t>(team2.carrierId));
+						// Padding
+						for (int i = 0; i < 11; i++) w.WriteByte(0);
+					} else {
+						w.WriteVector3(team1.flagPos);
+					}
+
+					// Team 1's intel (green team's flag)
+					if (team1.hasIntel) {
+						w.WriteByte(static_cast<uint8_t>(team1.carrierId));
+						// Padding
+						for (int i = 0; i < 11; i++) w.WriteByte(0);
+					} else {
+						w.WriteVector3(team2.flagPos);
+					}
+
+					// Base positions
+					w.WriteVector3(team1.basePos);
+					w.WriteVector3(team2.basePos);
+				} else if (mode && mode->ModeType() == IGameMode::m_TC) {
+					auto& tc = dynamic_cast<TCGameMode&>(*mode);
+					w.WriteByte(1); // TC mode
+
+					int numTerritories = tc.GetNumTerritories();
+					w.WriteByte(static_cast<uint8_t>(numTerritories));
+					for (int i = 0; i < numTerritories; i++) {
+						TCGameMode::Territory& t = tc.GetTerritory(i);
+						w.WriteVector3(t.pos);
+						w.WriteByte(static_cast<uint8_t>(t.ownerTeamId));
+					}
+				} else {
+					// Default to CTF with empty state
+					w.WriteByte(0);
+					for (int i = 0; i < 52; i++) w.WriteByte(0);
+				}
+
+				const auto& data = w.GetData();
+				demoRecorder->RecordPacket(data.data(), data.size());
+			}
+
+			// Step 3: Write ExistingPlayer packets for all players
+			for (unsigned int i = 0; i < world->GetNumPlayerSlots(); i++) {
+				stmp::optional<Player&> maybePlayer = world->GetPlayer(i);
+				if (!maybePlayer)
+					continue;
+
+				Player& p = *maybePlayer;
+
+				NetPacketWriter w(PacketTypeExistingPlayer);
+				w.WriteByte(static_cast<uint8_t>(i));  // Player ID
+				w.WriteByte(static_cast<uint8_t>(p.GetTeamId()));  // Team
+				w.WriteByte(static_cast<uint8_t>(p.GetWeaponType()));  // Weapon
+
+				// Tool
+				int tool = 0;
+				switch (p.GetTool()) {
+					case Player::ToolSpade: tool = 0; break;
+					case Player::ToolBlock: tool = 1; break;
+					case Player::ToolWeapon: tool = 2; break;
+					case Player::ToolGrenade: tool = 3; break;
+				}
+				w.WriteByte(static_cast<uint8_t>(tool));
+
+				// Kill count (score)
+				w.WriteInt(static_cast<uint32_t>(world->GetPlayerPersistent(i).score));
+
+				// Block color
+				w.WriteColor(p.GetBlockColor());
+
+				// Name
+				w.WriteString(world->GetPlayerPersistent(i).name);
+
+				const auto& data = w.GetData();
+				demoRecorder->RecordPacket(data.data(), data.size());
+			}
+
+			SPLog("Initial demo state written successfully");
+		}
+
+		bool NetClient::StartDemoRecording(const std::string& filename) {
+			SPADES_MARK_FUNCTION();
+
+			if (!demoRecorder) {
+				SPLog("Demo recorder not initialized");
+				return false;
+			}
+
+			if (status != NetClientStatusConnected) {
+				SPLog("Cannot start demo recording: not connected to a server");
+				return false;
+			}
+
+			std::string fname = filename.empty() ? DemoRecorder::GenerateFilename() : filename;
+			if (!demoRecorder->StartRecording(fname, protocolVersion))
+				return false;
+
+			// Write initial game state (map, players, etc.) to the demo
+			WriteInitialDemoState();
+
+			return true;
+		}
+
+		void NetClient::StopDemoRecording() {
+			SPADES_MARK_FUNCTION();
+
+			if (demoRecorder && demoRecorder->IsRecording())
+				demoRecorder->StopRecording();
+		}
+
+		bool NetClient::IsDemoRecording() const {
+			return demoRecorder && demoRecorder->IsRecording();
+		}
+
+		float NetClient::GetDemoRecordingTime() const {
+			return demoRecorder ? demoRecorder->GetRecordingTime() : 0.0f;
+		}
+
+		uint64_t NetClient::GetDemoPacketCount() const {
+			return demoRecorder ? demoRecorder->GetPacketCount() : 0;
+		}
+
+		const std::string& NetClient::GetDemoFilename() const {
+			static std::string empty;
+			return demoRecorder ? demoRecorder->GetFilename() : empty;
 		}
 	} // namespace client
 } // namespace spades

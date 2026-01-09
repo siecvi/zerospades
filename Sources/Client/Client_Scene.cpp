@@ -67,8 +67,12 @@ namespace spades {
 			if (!world)
 				return ClientCameraMode::None;
 			stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
-			if (!maybePlayer)
+			if (!maybePlayer) {
+				// In demo mode, use free camera (spectator) instead of NotJoined
+				if (isDemoMode)
+					return ClientCameraMode::Free;
 				return ClientCameraMode::NotJoined;
+			}
 
 			Player& p = maybePlayer.value();
 
@@ -199,20 +203,25 @@ namespace spades {
 					case ClientCameraMode::None: SPUnreachable();
 					case ClientCameraMode::NotJoined: {
 						// get highest solid block at map's center
-						IntVector3 mapPos;
-						mapPos.x = map->Width() / 2;
-						mapPos.y = map->Height() / 2;
-						mapPos.z = map->GetTop(mapPos.x, mapPos.y) - map->Depth();
+						if (map) {
+							IntVector3 mapPos;
+							mapPos.x = map->Width() / 2;
+							mapPos.y = map->Height() / 2;
+							mapPos.z = map->GetTop(mapPos.x, mapPos.y) - map->Depth();
 
-						def.viewOrigin.x = static_cast<float>(mapPos.x);
-						def.viewOrigin.y = static_cast<float>(mapPos.y);
-						def.viewOrigin.z = static_cast<float>(mapPos.z);
+							def.viewOrigin.x = static_cast<float>(mapPos.x);
+							def.viewOrigin.y = static_cast<float>(mapPos.y);
+							def.viewOrigin.z = static_cast<float>(mapPos.z);
+						} else {
+							// Map not loaded yet, use default position
+							def.viewOrigin = MakeVector3(256.0F, 256.0F, 5.0F);
+						}
 						def.viewAxis[0] = MakeVector3(1, 0, 0);
 						def.viewAxis[1] = MakeVector3(0, -1, 0);
 						def.viewAxis[2] = MakeVector3(0, 0, 1);
 
 						def.zNear = 0.05F;
-						def.skipWorld = false;
+						def.skipWorld = !map;
 						break;
 					}
 					case ClientCameraMode::FirstPersonLocal:

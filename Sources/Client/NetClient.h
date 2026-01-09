@@ -28,6 +28,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "DemoRecorder.h"
 #include "PhysicsConstants.h"
 #include "Player.h"
 #include <Core/Debug.h>
@@ -120,6 +121,8 @@ namespace spades {
 
 			std::unique_ptr<BandwidthMonitor> bandwidthMonitor;
 
+			std::unique_ptr<DemoRecorder> demoRecorder;
+
 			std::vector<Vector3> savedPlayerPos;
 			std::vector<Vector3> savedPlayerFront;
 			std::vector<int> savedPlayerTeam;
@@ -145,6 +148,9 @@ namespace spades {
 			std::string DisconnectReasonString(uint32_t);
 
 			void MapLoaded();
+
+			/** Writes the initial game state to the demo recorder (map, players, etc.) */
+			void WriteInitialDemoState();
 
 			void SendMapCached();
 			void SendVersion();
@@ -204,6 +210,14 @@ namespace spades {
 
 			double GetDownlinkBps() { return bandwidthMonitor->GetDownlinkBps(); }
 			double GetUplinkBps() { return bandwidthMonitor->GetUplinkBps(); }
+
+			// Demo recording
+			bool StartDemoRecording(const std::string& filename = "");
+			void StopDemoRecording();
+			bool IsDemoRecording() const;
+			float GetDemoRecordingTime() const;
+			uint64_t GetDemoPacketCount() const;
+			const std::string& GetDemoFilename() const;
 		};
 	} // namespace client
 } // namespace spades

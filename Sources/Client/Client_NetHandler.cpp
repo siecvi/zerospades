@@ -49,6 +49,8 @@ DEFINE_SPADES_SETTING(cg_centerMessage, "2");
 DEFINE_SPADES_SETTING(cg_autoScreenshot, "0");
 
 namespace spades {
+	extern std::string g_recordDemoPath;
+
 	namespace client {
 
 #pragma mark - Server Packet Handlers
@@ -87,14 +89,19 @@ namespace spades {
 			followCameraState.enabled = false;
 
 			// get highest solid block at map's center
-			IntVector3 mapPos;
-			mapPos.x = map->Width() / 2;
-			mapPos.y = map->Height() / 2;
-			mapPos.z = map->GetTop(mapPos.x, mapPos.y) - map->Depth();
+			if (map) {
+				IntVector3 mapPos;
+				mapPos.x = map->Width() / 2;
+				mapPos.y = map->Height() / 2;
+				mapPos.z = map->GetTop(mapPos.x, mapPos.y) - map->Depth();
 
-			freeCameraState.position.x = static_cast<float>(mapPos.x);
-			freeCameraState.position.y = static_cast<float>(mapPos.y);
-			freeCameraState.position.z = static_cast<float>(mapPos.z);
+				freeCameraState.position.x = static_cast<float>(mapPos.x);
+				freeCameraState.position.y = static_cast<float>(mapPos.y);
+				freeCameraState.position.z = static_cast<float>(mapPos.z);
+			} else {
+				// Map not loaded yet, use default position
+				freeCameraState.position = MakeVector3(256.0F, 256.0F, 5.0F);
+			}
 			freeCameraState.velocity = MakeVector3(0, 0, 0);
 			followAndFreeCameraState.yaw = DEG2RAD(90);
 			followAndFreeCameraState.pitch = DEG2RAD(89);
@@ -112,6 +119,15 @@ namespace spades {
 			std::string archInfo = VersionInfo::GetAppArchitecture();
 			std::string s = _Tr("Client", "You are connected with {0} ({2}) on {1}", verStr, osInfo, archInfo);
 			chatWindow->AddMessage(ChatWindow::ColoredMessage(s, MsgColorSysInfo));
+
+			// start recording if --record was specified
+			if (!g_recordDemoPath.empty() && net) {
+				recordGameCount++;
+				std::string filename = g_recordDemoPath + "_" + std::to_string(recordGameCount) + ".dem";
+				if (net->StartDemoRecording(filename)) {
+					SPLog("Started recording demo: %s", net->GetDemoFilename().c_str());
+				}
+			}
 		}
 
 		void Client::TeamCapturedTerritory(int teamId, int terId) {
@@ -355,7 +371,14 @@ namespace spades {
 		}
 
 		void Client::PlayerSpawned(Player& p) {
-			if (net->GetGameProperties()->isGameModeArena || cg_corpseClearOnRespawn)
+			// In demo mode, net is null - use demoNet's properties instead
+			bool isArena = false;
+			if (net) {
+				isArena = net->GetGameProperties()->isGameModeArena;
+			} else if (demoNet) {
+				isArena = demoNet->GetGameProperties()->isGameModeArena;
+			}
+			if (isArena || cg_corpseClearOnRespawn)
 				RemoveCorpseForPlayer(p.GetId());
 		}
 
