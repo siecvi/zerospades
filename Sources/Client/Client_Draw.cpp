@@ -63,6 +63,9 @@ SPADES_SETTING(cg_keyAltAttack);
 SPADES_SETTING(cg_keyCrouch);
 SPADES_SETTING(cg_keyLimbo);
 SPADES_SETTING(cg_keyToggleSpectatorNames);
+SPADES_SETTING(cg_keyDemoPlayPause);
+SPADES_SETTING(cg_keyDemoSeekForward);
+SPADES_SETTING(cg_keyDemoSeekBackward);
 DEFINE_SPADES_SETTING(cg_screenshotFormat, "jpeg");
 DEFINE_SPADES_SETTING(cg_stats, "0");
 DEFINE_SPADES_SETTING(cg_statsSmallFont, "0");
@@ -607,7 +610,8 @@ namespace spades {
 			auto cameraMode = GetCameraMode();
 			bool isFollowingNonLocal = FollowsNonLocalPlayer(cameraMode);
 
-			auto& focusPlayer = GetCameraTargetPlayer();
+			int focusPlayerId = GetCameraTargetPlayerId();
+			auto maybeFocusPlayer = world->GetPlayer(focusPlayerId);
 
 			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
 				auto maybePlayer = world->GetPlayer(static_cast<unsigned int>(i));
@@ -619,7 +623,7 @@ namespace spades {
 					continue; // don't draw dead players or spectators
 
 				// dont draw the focused player name when following non-local players
-				if (&p == &focusPlayer && isFollowingNonLocal)
+				if (maybeFocusPlayer && &p == &maybeFocusPlayer.value() && isFollowingNonLocal)
 					continue;
 
 				// Do not draw a player with an invalid state
@@ -1339,9 +1343,11 @@ namespace spades {
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
-			Player& p = world->GetLocalPlayer().value();
+			stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
 
-			bool localPlayerIsSpectator = p.IsSpectator() || staffSpectating;
+			// In demo mode there's no local player, treat as spectator
+			bool localPlayerIsSpectator = isDemoMode || staffSpectating ||
+				(maybePlayer && maybePlayer->IsSpectator());
 
 			float x = sw - 8.0F;
 			float minY = sh * 0.5F;
@@ -1368,10 +1374,11 @@ namespace spades {
 			auto cameraMode = GetCameraMode();
 
 			int playerId = GetCameraTargetPlayerId();
-			auto& camTarget = world->GetPlayer(playerId).value();
+			auto maybeCamTarget = world->GetPlayer(playerId);
 
 			// Help messages (make sure to synchronize these with the keyboard input handler)
-			if (FollowsNonLocalPlayer(cameraMode)) {
+			if (FollowsNonLocalPlayer(cameraMode) && maybeCamTarget) {
+				Player& camTarget = maybeCamTarget.value();
 				if (HasTargetPlayer(cameraMode)) {
 					addLine(_Tr("Client", "Following {0} [#{1}]",
 						world->GetPlayerName(playerId), playerId));
@@ -1391,7 +1398,7 @@ namespace spades {
 
 				if (localPlayerIsSpectator)
 					addLine(_Tr("Client", "[{0}] Unfollow", TrKey(cg_keyReloadWeapon)));
-			} else {
+			} else if (!FollowsNonLocalPlayer(cameraMode)) {
 				addLine(_Tr("Client", "[{0}/{1}] Follow a player",
 					TrKey(cg_keyAttack), TrKey(cg_keyAltAttack)));
 			}
@@ -1406,8 +1413,14 @@ namespace spades {
 
 			y += lh * 0.5F;
 
-			if (!inGameLimbo)
+			if (isDemoMode) {
+				// Demo playback controls
+				addLine(_Tr("Client", "[{0}] Play/Pause", TrKey(cg_keyDemoPlayPause)));
+				addLine(_Tr("Client", "[{0}/{1}] Seek fwd/back",
+					TrKey(cg_keyDemoSeekForward), TrKey(cg_keyDemoSeekBackward)));
+			} else if (!inGameLimbo) {
 				addLine(_Tr("Client", "[{0}] Select Team/Weapon", TrKey(cg_keyLimbo)));
+			}
 		}
 
 		void Client::DrawBlockPaletteHUD(float winY) {
@@ -1642,6 +1655,31 @@ namespace spades {
 				// --- end "player is there" render
 			} else {
 				// world exists, but no local player: not joined (or demo mode)
+
+				if (isDemoMode && shouldDrawHUD) {
+					// Draw spectator HUD elements in demo mode
+					if (spectatorPlayerNames)
+						DrawPubOVL();
+
+					tcView->Draw();
+
+					if (cg_hudPlayerCount)
+						DrawAlivePlayersCount();
+
+					// Draw map
+					bool largeMap = largeMapView->IsZoomed();
+					if (!largeMap)
+						mapView->Draw();
+
+					DrawSpectateHUD();
+
+					chatWindow->Draw();
+					killfeedWindow->Draw();
+
+					// Large map view should come in front
+					if (largeMap)
+						largeMapView->Draw();
+				}
 
 				// In demo mode, only show scoreboard when toggled
 				if (!isDemoMode || scoreboardVisible) {
