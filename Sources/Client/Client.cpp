@@ -23,6 +23,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
 
 #include "Client.h"
 #include "Fonts.h"
@@ -542,9 +543,17 @@ namespace spades {
 
 			if (isDemoMode) {
 				SPLog("Starting demo playback: '%s'", demoFilePath.c_str());
+
+				// Check if file exists
+				std::ifstream testFile(demoFilePath);
+				if (!testFile.good()) {
+					SPRaise("Demo file not found: %s", demoFilePath.c_str());
+				}
+				testFile.close();
+
 				demoNet = stmp::make_unique<DemoNetClient>(this);
 				if (!demoNet->OpenDemo(demoFilePath)) {
-					SPRaise("Failed to open demo file: %s", demoFilePath.c_str());
+					SPRaise("Failed to open demo file (invalid format?): %s", demoFilePath.c_str());
 				}
 			} else {
 				SPLog("Started connecting to '%s'", hostname.ToString().c_str());
