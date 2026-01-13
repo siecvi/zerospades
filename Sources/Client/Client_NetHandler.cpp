@@ -42,14 +42,17 @@
 #include "GameMap.h"
 #include "World.h"
 
+#include "DemoRecorder.h"
 #include "NetClient.h"
 
 DEFINE_SPADES_SETTING(cg_corpseClearOnRespawn, "0");
 DEFINE_SPADES_SETTING(cg_centerMessage, "2");
 DEFINE_SPADES_SETTING(cg_autoScreenshot, "0");
+DEFINE_SPADES_SETTING(cg_autoRecord, "0");
 
 namespace spades {
 	extern std::string g_recordDemoPath;
+	extern bool g_autoRecordDemo;
 
 	namespace client {
 
@@ -120,12 +123,35 @@ namespace spades {
 			std::string s = _Tr("Client", "You are connected with {0} ({2}) on {1}", verStr, osInfo, archInfo);
 			chatWindow->AddMessage(ChatWindow::ColoredMessage(s, MsgColorSysInfo));
 
-			// start recording if --record was specified
-			if (!g_recordDemoPath.empty() && net) {
-				recordGameCount++;
-				std::string filename = g_recordDemoPath + "_" + std::to_string(recordGameCount) + ".dem";
-				if (net->StartDemoRecording(filename)) {
-					SPLog("Started recording demo: %s", net->GetDemoFilename().c_str());
+			// build sanitized hostname string for use in demo filenames
+			auto buildHostContext = [&]() -> std::string {
+				std::string host = hostname.ToString(false);
+				std::string ctx;
+				for (char c : host) {
+					if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
+						ctx += c;
+					else
+						ctx += '_';
+					if (ctx.size() >= 32)
+						break;
+				}
+				return ctx;
+			};
+
+			// start recording if --record was specified, or auto-record is enabled
+			if (net) {
+				const bool doAutoRecord = g_autoRecordDemo || (int)cg_autoRecord != 0;
+				if (!g_recordDemoPath.empty()) {
+					recordGameCount++;
+					std::string filename = g_recordDemoPath + "_" + std::to_string(recordGameCount) + ".dem";
+					if (net->StartDemoRecording(filename)) {
+						SPLog("Started recording demo: %s", net->GetDemoFilename().c_str());
+					}
+				} else if (doAutoRecord) {
+					if (net->StartDemoRecording("", buildHostContext())) {
+						SPLog("Started auto-recording demo: %s", net->GetDemoFilename().c_str());
+						DemoRecorder::PruneOldRecordings(10);
+					}
 				}
 			}
 		}

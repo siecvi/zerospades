@@ -24,6 +24,7 @@
 #include <fstream>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <Core/Stopwatch.h>
 
@@ -95,10 +96,22 @@ namespace spades {
 			const std::string& GetFilename() const { return filename; }
 
 			/**
-			 * Generates a unique filename for a new demo.
-			 * Format: demo_YYYYMMDD_HHMMSS.dem
+			 * Generates a unique filename for a new demo in the Demos/ directory.
+			 * @param context Optional context appended to the filename (e.g. sanitized server address).
+			 *                Format: Demos/YYYYMMDD_HHMMSS[_context].dem
 			 */
-			static std::string GenerateFilename();
+			static std::string GenerateFilename(const std::string& context = "");
+
+			/**
+			 * Removes the oldest .dem files in Demos/ so at most maxCount remain.
+			 * Files are ordered by name (which matches recording order given the timestamp prefix).
+			 */
+			static void PruneOldRecordings(size_t maxCount);
+
+			/**
+			 * Returns a sorted list of .dem file paths found in Demos/.
+			 */
+			static std::vector<std::string> ListRecordings();
 
 		private:
 			std::ofstream file;

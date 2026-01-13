@@ -2131,7 +2131,7 @@ namespace spades {
 			SPLog("Initial demo state written successfully");
 		}
 
-		bool NetClient::StartDemoRecording(const std::string& filename) {
+		bool NetClient::StartDemoRecording(const std::string& filename, const std::string& context) {
 			SPADES_MARK_FUNCTION();
 
 			if (!demoRecorder) {
@@ -2144,7 +2144,7 @@ namespace spades {
 				return false;
 			}
 
-			std::string fname = filename.empty() ? DemoRecorder::GenerateFilename() : filename;
+			std::string fname = filename.empty() ? DemoRecorder::GenerateFilename(context) : filename;
 			if (!demoRecorder->StartRecording(fname, protocolVersion))
 				return false;
 

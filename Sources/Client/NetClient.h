@@ -213,7 +213,7 @@ namespace spades {
 			double GetUplinkBps() { return bandwidthMonitor->GetUplinkBps(); }
 
 			// Demo recording
-			bool StartDemoRecording(const std::string& filename = "");
+			bool StartDemoRecording(const std::string& filename = "", const std::string& context = "");
 			void StopDemoRecording();
 			bool IsDemoRecording() const;
 			float GetDemoRecordingTime() const;
