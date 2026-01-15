@@ -633,6 +633,8 @@ namespace spades {
 		StartupScreenUI@ ui;
 		StartupScreenHelper@ helper;
 		StartupScreenLocaleEditor@ editLocale;
+		private spades::ui::CheckBox@ buttonAutoRecord;
+		private ConfigItem cg_autoRecord("cg_autoRecord");
 
 		StartupScreenGenericTab(StartupScreenUI@ ui, Vector2 size) {
 			super(ui.manager);
@@ -673,9 +675,26 @@ namespace spades {
 				@button.Activated = spades::ui::EventHandler(this.OnBrowseUserDirectoryPressed);
 				AddChild(button);
 			}
+
+			AddLabel(0.0F, 108.0F, 24.0F, _Tr("StartupScreen", "Demo Recording"));
+			{
+				spades::ui::CheckBox chk(Manager);
+				chk.Caption = _Tr("StartupScreen", "Automatically record every game");
+				chk.Bounds = AABB2(160.0F, 108.0F, 350.0F, 24.0F);
+				@chk.Activated = spades::ui::EventHandler(this.OnAutoRecordChanged);
+				AddChild(chk);
+				@buttonAutoRecord = chk;
+			}
 		}
 
-		void LoadConfig() { editLocale.LoadConfig(); }
+		void LoadConfig() {
+			editLocale.LoadConfig();
+			buttonAutoRecord.Toggled = cg_autoRecord.IntValue != 0;
+		}
+
+		private void OnAutoRecordChanged(spades::ui::UIElement@) {
+			cg_autoRecord.IntValue = buttonAutoRecord.Toggled ? 1 : 0;
+		}
 
 		private void OnBrowseUserDirectoryPressed(spades::ui::UIElement@) {
 			if (helper.BrowseUserDirectory())
