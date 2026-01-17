@@ -96,9 +96,17 @@ namespace spades {
 			const std::string& GetFilename() const { return filename; }
 
 			/**
+			 * Sanitizes a single filename component (map name, server address, etc.).
+			 * Lowercases alphanumeric characters; collapses runs of other characters
+			 * to a single '_'. The '-' separator between components is never emitted.
+			 */
+			static std::string SanitizeComponent(const std::string& s);
+
+			/**
 			 * Generates a unique filename for a new demo in the Demos/ directory.
-			 * @param context Optional context appended to the filename (e.g. sanitized server address).
-			 *                Format: Demos/YYYYMMDD_HHMMSS[_context].dem
+			 * @param context Pre-sanitized context string appended after the timestamp.
+			 *                Individual fields must be joined with '-' by the caller.
+			 *                Format: Demos/YYYY-MM-DD-HH-MM[-context].dem
 			 */
 			static std::string GenerateFilename(const std::string& context = "");
 

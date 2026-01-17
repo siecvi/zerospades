@@ -53,6 +53,8 @@ DEFINE_SPADES_SETTING(cg_autoRecord, "0");
 namespace spades {
 	extern std::string g_recordDemoPath;
 	extern bool g_autoRecordDemo;
+	extern std::string g_pendingMapName;
+	extern std::string g_pendingServerName;
 
 	namespace client {
 
@@ -123,18 +125,27 @@ namespace spades {
 			std::string s = _Tr("Client", "You are connected with {0} ({2}) on {1}", verStr, osInfo, archInfo);
 			chatWindow->AddMessage(ChatWindow::ColoredMessage(s, MsgColorSysInfo));
 
-			// build sanitized hostname string for use in demo filenames
+			// build demo filename context: gamemode-mapname-serveraddress
 			auto buildHostContext = [&]() -> std::string {
-				std::string host = hostname.ToString(false);
-				std::string ctx;
-				for (char c : host) {
-					if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))
-						ctx += c;
-					else
-						ctx += '_';
-					if (ctx.size() >= 32)
-						break;
+				// game mode
+				std::string modeName = "game";
+				if (world) {
+					auto gmode = world->GetMode();
+					if (gmode) {
+						switch (gmode->ModeType()) {
+							case IGameMode::m_CTF: modeName = "ctf"; break;
+							case IGameMode::m_TC: modeName = "tc"; break;
+						}
+					}
 				}
+				if (net && net->GetGameProperties()->isGameModeArena)
+					modeName = "arena";
+
+				std::string ctx = modeName;
+				if (!g_pendingMapName.empty())
+					ctx += "-" + DemoRecorder::SanitizeComponent(g_pendingMapName);
+				if (!g_pendingServerName.empty())
+					ctx += "-" + DemoRecorder::SanitizeComponent(g_pendingServerName);
 				return ctx;
 			};
 

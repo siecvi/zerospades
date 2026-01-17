@@ -79,6 +79,7 @@ namespace spades {
 
 		ServerListModel@ currentServerListModel;
 		int serverListUpdateTimer = 5;
+		string selectedMapName;
 
 		private ConfigItem cg_protocolVersion("cg_protocolVersion", "3");
 		private ConfigItem cg_lastQuickConnectHost("cg_lastQuickConnectHost", "127.0.0.1");
@@ -300,6 +301,7 @@ namespace spades {
 		void ServerListItemActivated(ServerListModel@ sender, MainScreenServerItem@ item) {
 			addressField.Text = item.Address;
 			cg_lastQuickConnectHost = addressField.Text;
+			selectedMapName = item.MapName;
 			if (item.Protocol == "0.75") {
 				SetProtocolVersion(3);
 			} else if (item.Protocol == "0.76") {
@@ -435,6 +437,7 @@ namespace spades {
 
 		private void OnAddressChanged(spades::ui::UIElement@ sender) {
 			cg_lastQuickConnectHost = addressField.Text;
+			selectedMapName = "";
 		}
 
 		private void SetProtocolVersion(int ver) {
@@ -479,7 +482,7 @@ namespace spades {
 		}
 
 		private void Connect() {
-			string msg = helper.ConnectServer(addressField.Text, cg_protocolVersion.IntValue);
+			string msg = helper.ConnectServer(addressField.Text, cg_protocolVersion.IntValue, selectedMapName);
 			if (msg.length > 0) {
 				// failde to initialize client.
 				AlertScreen al(this, msg);
