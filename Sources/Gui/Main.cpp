@@ -177,6 +177,8 @@ namespace {
 namespace spades {
 	std::string g_recordDemoPath;
 	bool g_autoRecordDemo = false;
+	std::string g_pendingMapName;
+	std::string g_pendingServerName;
 }
 
 namespace {
@@ -199,7 +201,7 @@ namespace {
 		printf("  --replay FILE        play back a demo recording\n");
 		printf("  -r FILE              play back a demo recording (short form)\n");
 		printf("  --record [FILE]      record demos; FILE is used as base name (FILE_1.dem etc.)\n");
-		printf("                       omit FILE to auto-name recordings as Demos/YYYYMMDD_HHMMSS_host.dem\n");
+		printf("                       omit FILE to auto-name recordings as Demos/YYYY-MM-DD-HH-MM-gamemode.dem\n");
 		printf("  --record-list        list recordings in the Demos/ folder\n");
 		printf("  -h, --help           show this help message\n");
 		printf("  -v, --version        show version information\n");

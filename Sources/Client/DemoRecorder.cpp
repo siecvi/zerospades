@@ -133,16 +133,29 @@ namespace spades {
 			return static_cast<float>(const_cast<Stopwatch&>(stopwatch).GetTime());
 		}
 
+		std::string DemoRecorder::SanitizeComponent(const std::string& s) {
+			std::string out;
+			out.reserve(s.size());
+			for (unsigned char c : s) {
+				if (std::isalnum(c))
+					out += static_cast<char>(std::tolower(c));
+				else if (!out.empty() && out.back() != '_')
+					out += '_';
+			}
+			while (!out.empty() && out.back() == '_')
+				out.pop_back();
+			return out;
+		}
+
 		std::string DemoRecorder::GenerateFilename(const std::string& context) {
 			auto now = std::chrono::system_clock::now();
 			auto time = std::chrono::system_clock::to_time_t(now);
 			auto tm = std::localtime(&time);
 
 			std::ostringstream oss;
-			oss << "Demos/" << std::put_time(tm, "%Y%m%d_%H%M%S");
-			if (!context.empty()) {
-				oss << "_" << context;
-			}
+			oss << "Demos/" << std::put_time(tm, "%Y-%m-%d-%H-%M");
+			if (!context.empty())
+				oss << "-" << context;
 			oss << ".dem";
 
 			// Ensure the Demos directory exists

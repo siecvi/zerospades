@@ -39,6 +39,9 @@
 DEFINE_SPADES_SETTING(cl_serverListUrl, "http://services.buildandshoot.com/serverlist.json");
 
 namespace spades {
+	extern std::string g_pendingMapName;
+	extern std::string g_pendingServerName;
+
 	namespace {
 		struct CURLEasyDeleter {
 			void operator()(CURL *ptr) const { curl_easy_cleanup(ptr); }
@@ -406,9 +409,20 @@ namespace spades {
 			return result.get().ping.value_or(-1);
 		}
 
-		std::string MainScreenHelper::ConnectServer(std::string hostname, int protocolVersion) {
+		std::string MainScreenHelper::ConnectServer(std::string hostname, int protocolVersion,
+		                                             std::string mapName) {
 			if (mainScreen == NULL) {
 				return "mainScreen == NULL";
+			}
+			g_pendingMapName = mapName;
+			g_pendingServerName = "";
+			if (result) {
+				for (const auto& item : result->list) {
+					if (item->GetAddress() == hostname) {
+						g_pendingServerName = item->GetName();
+						break;
+					}
+				}
 			}
 			return mainScreen->Connect(ServerAddress(
 			  hostname, protocolVersion == 3 ? ProtocolVersion::v075 : ProtocolVersion::v076));
