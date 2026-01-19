@@ -76,7 +76,6 @@ namespace spades {
 					   const std::string& demoPath)
 			: isDemoMode(!demoPath.empty()),
 			  demoFilePath(demoPath),
-			  recordGameCount(0),
 			  playerName(cg_playerName.operator std::string().substr(0, 15)),
 			  logStream(nullptr),
 			  hostname(host),
