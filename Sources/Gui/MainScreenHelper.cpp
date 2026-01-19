@@ -29,6 +29,7 @@
 
 #include "MainScreen.h"
 #include "MainScreenHelper.h"
+#include <Client/DemoRecorder.h>
 #include <Core/FileManager.h>
 #include <Core/IStream.h>
 #include <Core/Settings.h>
@@ -432,6 +433,23 @@ namespace spades {
 			if (result == NULL)
 				return "";
 			return result->message;
+		}
+
+		CScriptArray *MainScreenHelper::GetDemoList() {
+			auto recordings = client::DemoRecorder::ListRecordings();
+			asIScriptEngine *eng = ScriptManager::GetInstance()->GetEngine();
+			asITypeInfo *t = eng->GetTypeInfoByDecl("array<string>");
+			SPAssert(t != NULL);
+			CScriptArray *arr = CScriptArray::Create(t, static_cast<asUINT>(recordings.size()));
+			for (size_t i = 0; i < recordings.size(); i++)
+				arr->SetValue((asUINT)i, &recordings[i]);
+			return arr;
+		}
+
+		std::string MainScreenHelper::PlayDemo(std::string filename) {
+			if (mainScreen == NULL)
+				return "mainScreen == NULL";
+			return mainScreen->PlayDemo(filename);
 		}
 
 		std::string MainScreenHelper::GetPendingErrorMessage() {

@@ -110,6 +110,9 @@ namespace spades {
 			std::string GetPendingErrorMessage();
 
 			std::string GetCredits();
+
+		CScriptArray *GetDemoList();
+		std::string PlayDemo(std::string filename);
 		};
 	}
 }

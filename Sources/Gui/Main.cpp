@@ -175,8 +175,6 @@ namespace {
 #endif
 
 namespace spades {
-	std::string g_recordDemoPath;
-	bool g_autoRecordDemo = false;
 	std::string g_pendingMapName;
 	std::string g_pendingServerName;
 }
@@ -191,42 +189,18 @@ namespace {
 
 	bool g_printVersion = false;
 	bool g_printHelp = false;
-	bool g_printRecordList = false;
 
 	void printHelp(char* binaryName) {
-		printf("usage: %s [server_address] [v=protocol_version] [--replay demo.dem] [--record [FILE]] [-h|--help] [-v|--version]\n",
+		printf("usage: %s [server_address] [v=protocol_version] [--replay demo.dem] [-h|--help] [-v|--version]\n",
 		       binaryName);
 		printf("  server_address       aos:// server address to connect to\n");
 		printf("  v=0.75 or v=0.76     protocol version (default: 0.75)\n");
 		printf("  --replay FILE        play back a demo recording\n");
 		printf("  -r FILE              play back a demo recording (short form)\n");
-		printf("  --record [FILE]      record demos; FILE is used as base name (FILE_1.dem etc.)\n");
-		printf("                       omit FILE to auto-name recordings as Demos/YYYY-MM-DD-HH-MM-gamemode.dem\n");
-		printf("  --record-list        list recordings in the Demos/ folder\n");
 		printf("  -h, --help           show this help message\n");
 		printf("  -v, --version        show version information\n");
-		printf("\nAuto-recording can also be enabled permanently with the cg_autoRecord setting.\n");
+		printf("\nAuto-recording can be enabled with the cg_autoRecord setting.\n");
 		printf("Recordings are kept in the Demos/ folder; only the last 10 are retained.\n");
-	}
-
-	void printRecordList() {
-		auto files = spades::client::DemoRecorder::ListRecordings();
-		if (files.empty()) {
-			printf("No recordings found in Demos/\n");
-			return;
-		}
-		printf("%zu recording(s) in Demos/:\n", files.size());
-		for (const auto& path : files) {
-			FILE* f = fopen(path.c_str(), "rb");
-			if (f) {
-				fseek(f, 0, SEEK_END);
-				long kb = ftell(f) / 1024;
-				fclose(f);
-				printf("  %s  (%ld KB)\n", path.c_str(), kb);
-			} else {
-				printf("  %s\n", path.c_str());
-			}
-		}
 	}
 
 	std::regex const hostNameRegex{"aos://.*"};
@@ -263,26 +237,6 @@ namespace {
 					return ++i;
 				}
 				return 0;
-			}
-			if (!strcasecmp(a, "--record-list") || !strcasecmp(a, "--record-ls")) {
-				g_printRecordList = true;
-				return ++i;
-			}
-			if (!strcasecmp(a, "--record")) {
-				++i;
-				if (i < argc && argv[i][0] != '-') {
-					spades::g_recordDemoPath = argv[i++];
-				} else {
-					spades::g_autoRecordDemo = true;
-				}
-				return i;
-			}
-			// Handle bare .dem file path
-			size_t len = strlen(a);
-			if (len > 4 && !strcasecmp(a + len - 4, ".dem")) {
-				g_replayDemo = true;
-				g_replayDemoPath = a;
-				return ++i;
 			}
 		}
 
@@ -395,11 +349,6 @@ int main(int argc, char** argv) {
 
 	if (g_printHelp) {
 		printHelp(argv[0]);
-		return 0;
-	}
-
-	if (g_printRecordList) {
-		printRecordList();
 		return 0;
 	}
 
