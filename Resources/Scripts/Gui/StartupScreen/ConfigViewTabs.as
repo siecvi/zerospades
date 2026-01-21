@@ -634,7 +634,9 @@ namespace spades {
 		StartupScreenHelper@ helper;
 		StartupScreenLocaleEditor@ editLocale;
 		private spades::ui::CheckBox@ buttonAutoRecord;
+		private spades::ui::Field@ fieldMaxDemos;
 		private ConfigItem cg_autoRecord("cg_autoRecord");
+		private ConfigItem cg_maxDemos("cg_maxDemos");
 
 		StartupScreenGenericTab(StartupScreenUI@ ui, Vector2 size) {
 			super(ui.manager);
@@ -685,15 +687,31 @@ namespace spades {
 				AddChild(chk);
 				@buttonAutoRecord = chk;
 			}
+			AddLabel(0.0F, 138.0F, 24.0F, _Tr("StartupScreen", "Max stored demos"));
+			{
+				spades::ui::Field fld(Manager);
+				fld.Bounds = AABB2(160.0F, 138.0F, 80.0F, 24.0F);
+				fld.DenyNonAscii = true;
+				@fld.Changed = spades::ui::EventHandler(this.OnMaxDemosChanged);
+				AddChild(fld);
+				@fieldMaxDemos = fld;
+			}
 		}
 
 		void LoadConfig() {
 			editLocale.LoadConfig();
 			buttonAutoRecord.Toggled = cg_autoRecord.IntValue != 0;
+			fieldMaxDemos.Text = cg_maxDemos.StringValue;
 		}
 
 		private void OnAutoRecordChanged(spades::ui::UIElement@) {
 			cg_autoRecord.IntValue = buttonAutoRecord.Toggled ? 1 : 0;
+		}
+
+		private void OnMaxDemosChanged(spades::ui::UIElement@) {
+			int v = ParseInt(fieldMaxDemos.Text);
+			if (v >= 1)
+				cg_maxDemos.IntValue = v;
 		}
 
 		private void OnBrowseUserDirectoryPressed(spades::ui::UIElement@) {
