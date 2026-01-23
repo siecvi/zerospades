@@ -94,6 +94,11 @@ namespace spades {
 		DemoListModel@ currentDemoListModel;
 		string selectedDemoPath;
 
+		// Demo list column widths (pixels)
+		private float demoDateColWidth;
+		private float demoModeColWidth;
+		private float demoMapColWidth;
+
 		private ConfigItem cg_protocolVersion("cg_protocolVersion", "3");
 		private ConfigItem cg_lastQuickConnectHost("cg_lastQuickConnectHost", "127.0.0.1");
 		private ConfigItem cg_serverlistSort("cg_serverlistSort", "16385");
@@ -103,6 +108,10 @@ namespace spades {
 			@this.ui = ui;
 			@this.helper = ui.helper;
 			@this.Font = ui.fontManager.GuiFont;
+
+			demoDateColWidth = 130.0F;
+			demoModeColWidth = 65.0F;
+			demoMapColWidth  = 185.0F;
 
 			float sw = Manager.ScreenWidth;
 			float sh = Manager.ScreenHeight;
@@ -297,10 +306,33 @@ namespace spades {
 					demoPanel.AddChild(playButton);
 				}
 				{
-					DemoListHeader header(Manager);
-					header.Bounds = AABB2(contentsLeft, headerPos, contentsWidth, headerHeight);
-					header.Text = _Tr("MainScreen", "Demo File");
-					demoPanel.AddChild(header);
+					// Column order: Server | Map | Mode | Date
+					// Server is variable-width; the three rightmost columns are fixed.
+					float serverColWidth = contentsWidth - demoMapColWidth - demoModeColWidth - demoDateColWidth;
+					{
+						DemoListHeader header(Manager);
+						header.Bounds = AABB2(contentsLeft, headerPos, serverColWidth, headerHeight);
+						header.Text = _Tr("MainScreen", "Server");
+						demoPanel.AddChild(header);
+					}
+					{
+						DemoListHeader header(Manager);
+						header.Bounds = AABB2(contentsLeft + serverColWidth, headerPos, demoMapColWidth, headerHeight);
+						header.Text = _Tr("MainScreen", "Map");
+						demoPanel.AddChild(header);
+					}
+					{
+						DemoListHeader header(Manager);
+						header.Bounds = AABB2(contentsLeft + serverColWidth + demoMapColWidth, headerPos, demoModeColWidth, headerHeight);
+						header.Text = _Tr("MainScreen", "Mode");
+						demoPanel.AddChild(header);
+					}
+					{
+						DemoListHeader header(Manager);
+						header.Bounds = AABB2(contentsLeft + serverColWidth + demoMapColWidth + demoModeColWidth, headerPos, demoDateColWidth, headerHeight);
+						header.Text = _Tr("MainScreen", "Date");
+						demoPanel.AddChild(header);
+					}
 				}
 				{
 					@demoList = spades::ui::ListView(Manager);
@@ -371,7 +403,7 @@ namespace spades {
 			string[] reversed;
 			for (int i = int(demos.length) - 1; i >= 0; i--)
 				reversed.insertLast(demos[i]);
-			DemoListModel model(Manager, reversed);
+			DemoListModel model(Manager, reversed, demoDateColWidth, demoModeColWidth, demoMapColWidth);
 			@demoList.Model = model;
 			@model.ItemActivated = DemoListItemEventHandler(this.DemoListItemActivated);
 			@model.ItemDoubleClicked = DemoListItemEventHandler(this.DemoListItemDoubleClicked);
