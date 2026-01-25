@@ -385,13 +385,15 @@ namespace spades {
 
 			switch (packetType) {
 				case PacketTypePositionData: {
-					auto p = GetLocalPlayerOrNull();
-					if (!p) break;
 					if (r.GetLength() != 13) break;
+					if (recordedLocalPlayerId < 0) break;
+					auto p = GetPlayerOrNull(recordedLocalPlayerId);
+					if (!p) break;
 					p->RepositionPlayer(r.ReadVector3());
 				} break;
 				case PacketTypeOrientationData: {
-					auto p = GetLocalPlayerOrNull();
+					if (recordedLocalPlayerId < 0) break;
+					auto p = GetPlayerOrNull(recordedLocalPlayerId);
 					if (!p) break;
 					Vector3 o = r.ReadVector3();
 					if (o.GetSquaredLength() < 0.01F) break;
@@ -459,7 +461,8 @@ namespace spades {
 					}
 					break;
 				case PacketTypeSetHP: {
-					auto p = GetLocalPlayerOrNull();
+					if (recordedLocalPlayerId < 0) break;
+					auto p = GetPlayerOrNull(recordedLocalPlayerId);
 					if (!p) break;
 					int hp = r.ReadByte();
 					int type = r.ReadByte();
@@ -905,8 +908,10 @@ namespace spades {
 				} break;
 				case PacketTypeRestock: {
 					r.ReadByte();
-					auto p = GetLocalPlayerOrNull();
-					if (p) p->Restock();
+					if (recordedLocalPlayerId >= 0) {
+						auto p = GetPlayerOrNull(recordedLocalPlayerId);
+						if (p) p->Restock();
+					}
 				} break;
 				case PacketTypeFogColour: {
 					if (GetWorld()) {
@@ -915,15 +920,18 @@ namespace spades {
 					}
 				} break;
 				case PacketTypeWeaponReload: {
-					auto p = GetPlayerOrNull(r.ReadByte());
+					int pId = r.ReadByte();
+					auto p = GetPlayerOrNull(pId);
 					if (!p) break;
-					auto localPlayer = GetLocalPlayerOrNull();
-					if (&*p != localPlayer) {
-						p->Reload();
-					} else {
-						int clip = r.ReadByte();
-						int reserve = r.ReadByte();
+					int clip = r.ReadByte();
+					int reserve = r.ReadByte();
+					// For the recorded player, apply real ammo counts from external demos.
+					// Our own demos record the client-sent packet (zeros), so non-zero
+					// values reliably indicate a server-sent response.
+					if (pId == recordedLocalPlayerId && (clip != 0 || reserve != 0)) {
 						p->ReloadDone(clip, reserve);
+					} else {
+						p->Reload();
 					}
 				} break;
 				case PacketTypeChangeTeam:
