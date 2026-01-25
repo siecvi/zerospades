@@ -547,10 +547,22 @@ namespace spades {
 					readerOrNone.reset(event.packet);
 					auto& reader = readerOrNone.value();
 
-					// Record packet for demo if recording is active
+					// Record packet for demo if recording is active.
+					// Skip the server's WeaponReload echo for the local player: the
+					// client-sent packet is already recorded in SendReload(), so
+					// recording the server response would produce a double reload.
 					if (demoRecorder && demoRecorder->IsRecording()) {
 						auto data = reader.GetData();
-						demoRecorder->RecordPacket(data.data(), data.size());
+						bool skip = false;
+						if (data.size() >= 2 &&
+						    static_cast<uint8_t>(data[0]) == PacketTypeWeaponReload) {
+							auto localPlayer = GetLocalPlayerOrNull();
+							if (localPlayer &&
+							    static_cast<uint8_t>(data[1]) == static_cast<uint8_t>(localPlayer->GetId()))
+								skip = true;
+						}
+						if (!skip)
+							demoRecorder->RecordPacket(data.data(), data.size());
 					}
 
 					try {
