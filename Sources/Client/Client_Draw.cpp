@@ -66,6 +66,7 @@ SPADES_SETTING(cg_keyToggleSpectatorNames);
 SPADES_SETTING(cg_keyDemoPlayPause);
 SPADES_SETTING(cg_keyDemoSeekForward);
 SPADES_SETTING(cg_keyDemoSeekBackward);
+SPADES_SETTING(cg_keyDemoRecord);
 DEFINE_SPADES_SETTING(cg_screenshotFormat, "jpeg");
 DEFINE_SPADES_SETTING(cg_stats, "0");
 DEFINE_SPADES_SETTING(cg_statsSmallFont, "0");
@@ -251,6 +252,34 @@ namespace spades {
 			Vector2 size = font.Measure(str);
 			Vector2 pos = (MakeVector2(sw, sh) - 16.0F) - size;
 			font.DrawShadow(str, pos, 1.0F, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.5));
+		}
+
+		void Client::DrawRecordingIndicator() {
+			if (!net || !net->IsDemoRecording())
+				return;
+
+			float sw = renderer->ScreenWidth();
+
+			float recTime = net->GetDemoRecordingTime();
+			int mins = static_cast<int>(recTime) / 60;
+			int secs = static_cast<int>(recTime) % 60;
+			char timeBuf[16];
+			snprintf(timeBuf, sizeof(timeBuf), "%d:%02d", mins, secs);
+
+			IFont& font = fontManager->GetGuiFont();
+
+			// Blinking red dot: visible 0.6 s, hidden 0.4 s
+			bool dotVisible = fmodf(time, 1.0F) < 0.6F;
+
+			std::string label = std::string(dotVisible ? "\xe2\x97\x8f " : "  ") + "REC " + timeBuf;
+
+			Vector2 size = font.Measure(label);
+			float x = (sw - size.x) * 0.5F;
+			float y = 8.0F;
+
+			Vector4 red = MakeVector4(1, 0.15F, 0.15F, 1);
+			Vector4 shadow = MakeVector4(0, 0, 0, 0.5F);
+			font.DrawShadow(label, MakeVector2(x, y), 1.0F, red, shadow);
 		}
 
 		void Client::DrawPlayingTime() {
@@ -1692,6 +1721,8 @@ namespace spades {
 
 			if (cg_stats && shouldDrawHUD)
 				DrawStats();
+
+			DrawRecordingIndicator();
 
 			// draw limbo view (above everything)
 			if (IsLimboViewActive() && !scriptedUI->NeedsInput())
