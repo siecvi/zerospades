@@ -59,6 +59,27 @@ namespace spades {
 
 #pragma mark - Server Packet Handlers
 
+		std::string Client::BuildDemoContext() {
+			std::string modeName = "game";
+			if (world) {
+				auto gmode = world->GetMode();
+				if (gmode) {
+					switch (gmode->ModeType()) {
+						case IGameMode::m_CTF: modeName = "ctf"; break;
+						case IGameMode::m_TC: modeName = "tc"; break;
+					}
+				}
+			}
+			if (net && net->GetGameProperties()->isGameModeArena)
+				modeName = "arena";
+			std::string ctx = modeName;
+			if (!g_pendingMapName.empty())
+				ctx += "-" + DemoRecorder::SanitizeComponent(g_pendingMapName);
+			if (!g_pendingServerName.empty())
+				ctx += "-" + DemoRecorder::SanitizeComponent(g_pendingServerName);
+			return ctx;
+		}
+
 		void Client::LocalPlayerCreated() {
 			Player& p = world->GetLocalPlayer().value();
 
@@ -124,33 +145,9 @@ namespace spades {
 			std::string s = _Tr("Client", "You are connected with {0} ({2}) on {1}", verStr, osInfo, archInfo);
 			chatWindow->AddMessage(ChatWindow::ColoredMessage(s, MsgColorSysInfo));
 
-			// build demo filename context: gamemode-mapname-serveraddress
-			auto buildHostContext = [&]() -> std::string {
-				// game mode
-				std::string modeName = "game";
-				if (world) {
-					auto gmode = world->GetMode();
-					if (gmode) {
-						switch (gmode->ModeType()) {
-							case IGameMode::m_CTF: modeName = "ctf"; break;
-							case IGameMode::m_TC: modeName = "tc"; break;
-						}
-					}
-				}
-				if (net && net->GetGameProperties()->isGameModeArena)
-					modeName = "arena";
-
-				std::string ctx = modeName;
-				if (!g_pendingMapName.empty())
-					ctx += "-" + DemoRecorder::SanitizeComponent(g_pendingMapName);
-				if (!g_pendingServerName.empty())
-					ctx += "-" + DemoRecorder::SanitizeComponent(g_pendingServerName);
-				return ctx;
-			};
-
 			// start recording if auto-record is enabled
 			if (net && (int)cg_autoRecord != 0) {
-				if (net->StartDemoRecording("", buildHostContext())) {
+				if (net->StartDemoRecording("", BuildDemoContext())) {
 					SPLog("Started auto-recording demo: %s", net->GetDemoFilename().c_str());
 					int maxDemos = (int)cg_maxDemos;
 				if (maxDemos < 1)

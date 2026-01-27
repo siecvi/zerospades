@@ -464,6 +464,7 @@ namespace spades {
 			void DrawBlockPaletteHUD(float y);
 			void DrawAlivePlayersCount();
 			void DrawPlayingTime();
+			void DrawRecordingIndicator();
 			void DrawHurtSprites();
 			void DrawScreenEffect(bool hurt, float fadeTime = 0.35F);
 			void DrawAlert();
@@ -484,6 +485,8 @@ namespace spades {
 
 			std::string ScreenShotPath();
 			void TakeScreenShot(bool sceneOnly, bool scoreboardOnly = false);
+
+			std::string BuildDemoContext();
 
 			std::string MapShotPath();
 			void TakeMapShot();

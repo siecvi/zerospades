@@ -98,6 +98,8 @@ DEFINE_SPADES_SETTING(cg_keyStaffSpectating, "f5");
 DEFINE_SPADES_SETTING(cg_keyDemoPlayPause, "P");
 DEFINE_SPADES_SETTING(cg_keyDemoSeekForward, "Right");
 DEFINE_SPADES_SETTING(cg_keyDemoSeekBackward, "Left");
+DEFINE_SPADES_SETTING(cg_keyDemoRecord, "F9");
+SPADES_SETTING(cg_maxDemos);
 
 SPADES_SETTING(s_volume);
 DEFINE_SPADES_SETTING(cg_keyVolumeUp, "+");
@@ -625,6 +627,29 @@ namespace spades {
 						}
 						break;
 					}
+				}
+
+				// demo record toggle â accessible for both players and spectators
+				if (CheckKey(cg_keyDemoRecord, name) && down && net) {
+					if (net->IsDemoRecording()) {
+						net->StopDemoRecording();
+						chatWindow->AddMessage(ChatWindow::ColoredMessage(
+						  _Tr("Client", "Demo recording stopped."), MsgColorSysInfo));
+					} else {
+						if (net->StartDemoRecording("", BuildDemoContext())) {
+							int maxDemos = (int)cg_maxDemos;
+							if (maxDemos < 1)
+								maxDemos = 1;
+							DemoRecorder::PruneOldRecordings(static_cast<size_t>(maxDemos));
+							chatWindow->AddMessage(ChatWindow::ColoredMessage(
+							  _Tr("Client", "Demo recording started: {0}", net->GetDemoFilename()),
+							  MsgColorSysInfo));
+						} else {
+							chatWindow->AddMessage(ChatWindow::ColoredMessage(
+							  _Tr("Client", "Failed to start demo recording."), MsgColorSysInfo));
+						}
+					}
+					return;
 				}
 
 				// player is not spectating
