@@ -99,6 +99,8 @@ DEFINE_SPADES_SETTING(cg_keyDemoPlayPause, "P");
 DEFINE_SPADES_SETTING(cg_keyDemoSeekForward, "Right");
 DEFINE_SPADES_SETTING(cg_keyDemoSeekBackward, "Left");
 DEFINE_SPADES_SETTING(cg_keyDemoRecord, "F9");
+DEFINE_SPADES_SETTING(cg_keyDemoSpeedUp, "]");
+DEFINE_SPADES_SETTING(cg_keyDemoSlowDown, "[");
 SPADES_SETTING(cg_maxDemos);
 
 SPADES_SETTING(s_volume);
@@ -417,6 +419,34 @@ namespace spades {
 						if (demoNet) {
 							float newTime = demoNet->GetTime() - 5.0f;
 							demoNet->Seek(std::max(0.0f, newTime));
+						}
+						return;
+					}
+
+					// Speed control: step through preset multipliers
+					static const float speedSteps[] = {0.25f, 0.5f, 1.0f, 2.0f, 4.0f};
+					static const int numSpeedSteps = 5;
+					if (CheckKey(cg_keyDemoSpeedUp, name) && down) {
+						if (demoNet) {
+							float cur = demoNet->GetSpeed();
+							for (int i = 0; i < numSpeedSteps - 1; i++) {
+								if (cur < speedSteps[i] * 1.1f) {
+									demoNet->SetSpeed(speedSteps[i + 1]);
+									break;
+								}
+							}
+						}
+						return;
+					}
+					if (CheckKey(cg_keyDemoSlowDown, name) && down) {
+						if (demoNet) {
+							float cur = demoNet->GetSpeed();
+							for (int i = numSpeedSteps - 1; i > 0; i--) {
+								if (cur > speedSteps[i] * 0.9f) {
+									demoNet->SetSpeed(speedSteps[i - 1]);
+									break;
+								}
+							}
 						}
 						return;
 					}

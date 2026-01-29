@@ -67,6 +67,8 @@ SPADES_SETTING(cg_keyDemoPlayPause);
 SPADES_SETTING(cg_keyDemoSeekForward);
 SPADES_SETTING(cg_keyDemoSeekBackward);
 SPADES_SETTING(cg_keyDemoRecord);
+SPADES_SETTING(cg_keyDemoSpeedUp);
+SPADES_SETTING(cg_keyDemoSlowDown);
 DEFINE_SPADES_SETTING(cg_screenshotFormat, "jpeg");
 DEFINE_SPADES_SETTING(cg_stats, "0");
 DEFINE_SPADES_SETTING(cg_statsSmallFont, "0");
@@ -252,6 +254,76 @@ namespace spades {
 			Vector2 size = font.Measure(str);
 			Vector2 pos = (MakeVector2(sw, sh) - 16.0F) - size;
 			font.DrawShadow(str, pos, 1.0F, MakeVector4(1, 1, 1, 1), MakeVector4(0, 0, 0, 0.5));
+		}
+
+		void Client::DrawDemoPlaybackHUD() {
+			if (!isDemoMode || !demoNet)
+				return;
+
+			float sw = renderer->ScreenWidth();
+			float sh = renderer->ScreenHeight();
+
+			float duration = demoNet->GetDuration();
+			float cur = demoNet->GetTime();
+			float progress = (duration > 0.0f) ? (cur / duration) : 0.0f;
+
+			IFont& font = fontManager->GetGuiFont();
+
+			// --- progress bar geometry ---
+			const float barH = 4.0F;
+			const float margin = 8.0F;
+			const float barY = sh - margin - barH;
+			const float barW = sw - 2.0F * margin;
+
+			// background
+			renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.5F));
+			renderer->DrawFilledRect(margin, barY, margin + barW, barY + barH);
+
+			// filled portion
+			bool isPaused = demoNet->IsPaused();
+			Vector4 barColor = isPaused
+				? MakeVector4(0.7F, 0.7F, 0.7F, 1)
+				: MakeVector4(0.2F, 0.8F, 1.0F, 1);
+			renderer->SetColorAlphaPremultiplied(barColor);
+			renderer->DrawFilledRect(margin, barY, margin + barW * progress, barY + barH);
+
+			// --- time labels ---
+			auto fmtTime = [](float t) -> std::string {
+				int mins = static_cast<int>(t) / 60;
+				int secs = static_cast<int>(t) % 60;
+				char buf[16];
+				snprintf(buf, sizeof(buf), "%d:%02d", mins, secs);
+				return buf;
+			};
+
+			std::string curStr = fmtTime(cur);
+			std::string durStr = fmtTime(duration);
+
+			Vector4 white = MakeVector4(1, 1, 1, 1);
+			Vector4 shadow = MakeVector4(0, 0, 0, 0.5F);
+
+			float textY = barY - font.Measure(curStr).y - 4.0F;
+
+			// current time (left)
+			font.DrawShadow(curStr, MakeVector2(margin, textY), 1.0F, white, shadow);
+
+			// duration (right)
+			Vector2 durSize = font.Measure(durStr);
+			font.DrawShadow(durStr, MakeVector2(margin + barW - durSize.x, textY), 1.0F, white, shadow);
+
+			// speed indicator (center)
+			char speedBuf[16];
+			float spd = demoNet->GetSpeed();
+			if (spd == 1.0f)
+				snprintf(speedBuf, sizeof(speedBuf), "%.0fx", spd);
+			else
+				snprintf(speedBuf, sizeof(speedBuf), "%.2gx", spd);
+			std::string speedStr = isPaused
+				? std::string("|| ") + speedBuf
+				: std::string("> ") + speedBuf;
+			Vector2 speedSize = font.Measure(speedStr);
+			font.DrawShadow(speedStr, MakeVector2((sw - speedSize.x) * 0.5F, textY), 1.0F,
+				isPaused ? MakeVector4(0.8F, 0.8F, 0.8F, 1) : white, shadow);
 		}
 
 		void Client::DrawRecordingIndicator() {
@@ -1444,9 +1516,18 @@ namespace spades {
 
 			if (isDemoMode) {
 				// Demo playback controls
-				addLine(_Tr("Client", "[{0}] Play/Pause", TrKey(cg_keyDemoPlayPause)));
-				addLine(_Tr("Client", "[{0}/{1}] Seek fwd/back",
+				std::string pauseLabel = (demoNet && demoNet->IsPaused())
+					? _Tr("Client", "[{0}] Resume", TrKey(cg_keyDemoPlayPause))
+					: _Tr("Client", "[{0}] Pause", TrKey(cg_keyDemoPlayPause));
+				addLine(pauseLabel);
+				addLine(_Tr("Client", "[{0}/{1}] Seek +/-5s",
 					TrKey(cg_keyDemoSeekForward), TrKey(cg_keyDemoSeekBackward)));
+
+				char speedBuf[16];
+				float spd = demoNet ? demoNet->GetSpeed() : 1.0f;
+				snprintf(speedBuf, sizeof(speedBuf), "%.2gx", spd);
+				addLine(_Tr("Client", "[{0}/{1}] Speed: {2}",
+					TrKey(cg_keyDemoSlowDown), TrKey(cg_keyDemoSpeedUp), std::string(speedBuf)));
 			} else if (!inGameLimbo) {
 				addLine(_Tr("Client", "[{0}] Select Team/Weapon", TrKey(cg_keyLimbo)));
 			}
@@ -1722,6 +1803,7 @@ namespace spades {
 			if (cg_stats && shouldDrawHUD)
 				DrawStats();
 
+			DrawDemoPlaybackHUD();
 			DrawRecordingIndicator();
 
 			// draw limbo view (above everything)
