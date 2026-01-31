@@ -72,11 +72,15 @@ namespace spades {
 			}
 			if (net && net->GetGameProperties()->isGameModeArena)
 				modeName = "arena";
-			std::string ctx = modeName;
-			if (!g_pendingMapName.empty())
-				ctx += "-" + DemoRecorder::SanitizeComponent(g_pendingMapName);
+
+			// Field order: server-map-gamemode
+			// Each field is sanitized so '-' never appears within a field.
+			std::string ctx;
 			if (!g_pendingServerName.empty())
-				ctx += "-" + DemoRecorder::SanitizeComponent(g_pendingServerName);
+				ctx += DemoRecorder::SanitizeComponent(g_pendingServerName) + "-";
+			if (!g_pendingMapName.empty())
+				ctx += DemoRecorder::SanitizeComponent(g_pendingMapName) + "-";
+			ctx += modeName;
 			return ctx;
 		}
 
