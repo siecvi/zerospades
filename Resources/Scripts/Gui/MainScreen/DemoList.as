@@ -37,7 +37,7 @@ namespace spades {
 		return c >= uint8(0x30) and c <= uint8(0x39); // '0'..'9'
 	}
 
-	// Replace underscores with spaces for display.
+	// Replace underscores with spaces for display (unescape '-'-encoded fields).
 	string DemoUnderscoreToSpace(string s) {
 		for (uint i = 0; i < s.length; i++) {
 			if (s[i] == uint8(0x5F)) // '_'
@@ -77,6 +77,17 @@ namespace spades {
 		return result;
 	}
 
+	// Format a file size in bytes as a human-readable string.
+	string DemoFormatFileSize(int64 bytes) {
+		if (bytes < 0)
+			return "";
+		if (bytes < 1024)
+			return bytes + " B";
+		if (bytes < 1024 * 1024)
+			return (bytes / 1024) + " KB";
+		return (bytes / (1024 * 1024)) + " MB";
+	}
+
 	// -------------------------------------------------------------------------
 	// Parsed demo metadata
 
@@ -87,17 +98,25 @@ namespace spades {
 		string gameMode;    // display-ready mode, e.g. "CTF" — only when structured
 		string mapName;     // display-ready map name — only when structured
 		string serverName;  // display-ready server name — only when structured
+		string fileSize;    // human-readable size, e.g. "1 MB" — always set
 
 		DemoInfo() { structured = false; }
 	}
 
-	// Parse a full demo path (e.g. "Demos/2025-03-14-14-30-ctf-dust-myserver.dem")
+	// Parse a full demo path (e.g. "Demos/2025-03-14-14-30-myserver-dust-ctf.dem")
 	// into a DemoInfo.  Falls back to displayName-only when the name does not
-	// conform to the expected YYYY-MM-DD-HH-MM[-mode[-map[-server]]] format.
-	DemoInfo ParseDemoFilename(string path) {
+	// conform to the expected YYYY-MM-DD-HH-MM[-server[-map[-gamemode]]] format.
+	//
+	// Escaping: '-' is the field separator and is never emitted within a field
+	// (SanitizeComponent replaces it with '_').  DemoUnderscoreToSpace reverses
+	// this for display.
+	DemoInfo ParseDemoFilename(string path, MainScreenHelper@ helper) {
 		DemoInfo info;
 		info.displayName = StripDemoPath(path);
 		string name = info.displayName;
+
+		int64 sz = helper.GetDemoFileSize(path);
+		info.fileSize = DemoFormatFileSize(sz);
 
 		// The timestamp prefix occupies exactly 16 characters:
 		//   YYYY-MM-DD-HH-MM  (positions 0-15)
@@ -123,21 +142,29 @@ namespace spades {
 				                 name.substr(11, 2) + ":" +
 				                 name.substr(14, 2);
 
-				// Parse optional context: mode[-map[-server]]
+				// Parse optional context: server[-map[-gamemode]]
 				if (name.length > 17) {
 					string context = name.substr(17);
 					string[] parts = DemoSplitByDash(context);
 
-					if (parts.length >= 1 and parts[0].length > 0)
+					// server: all parts except the last two
+					// map:    second-to-last part
+					// mode:   last part
+					// Minimum: just gamemode (1 part), server+gamemode (2 parts),
+					// server+map+gamemode (3+ parts).
+					if (parts.length == 1) {
 						info.gameMode = DemoFormatGameMode(parts[0]);
-					if (parts.length >= 2 and parts[1].length > 0)
-						info.mapName = DemoUnderscoreToSpace(parts[1]);
-					if (parts.length >= 3) {
-						// Remaining parts form the server name (joined with space).
-						string server = parts[2];
-						for (uint i = 3; i < parts.length; i++)
-							server += "_" + parts[i];
+					} else if (parts.length == 2) {
+						info.serverName = DemoUnderscoreToSpace(parts[0]);
+						info.gameMode   = DemoFormatGameMode(parts[1]);
+					} else {
+						// server = parts[0..n-3] joined with space, map = parts[n-2], mode = parts[n-1]
+						string server = parts[0];
+						for (uint i = 1; i < parts.length - 2; i++)
+							server += " " + parts[i];
 						info.serverName = DemoUnderscoreToSpace(server);
+						info.mapName    = DemoUnderscoreToSpace(parts[parts.length - 2]);
+						info.gameMode   = DemoFormatGameMode(parts[parts.length - 1]);
 					}
 				}
 
@@ -157,16 +184,18 @@ namespace spades {
 		float colDateWidth;
 		float colModeWidth;
 		float colMapWidth;
+		float colSizeWidth;
 
 		DemoListItem(spades::ui::UIManager@ manager, string filename,
 		             DemoInfo info,
-		             float colDateWidth, float colModeWidth, float colMapWidth) {
+		             float colDateWidth, float colModeWidth, float colMapWidth, float colSizeWidth) {
 			super(manager);
-			this.filename    = filename;
-			this.info        = info;
+			this.filename     = filename;
+			this.info         = info;
 			this.colDateWidth = colDateWidth;
 			this.colModeWidth = colModeWidth;
 			this.colMapWidth  = colMapWidth;
+			this.colSizeWidth = colSizeWidth;
 		}
 
 		void Render() {
@@ -187,13 +216,20 @@ namespace spades {
 			r.DrawImage(null, AABB2(pos.x + 1.0F, pos.y + 1.0F, size.x, size.y));
 
 			if (info.structured) {
-				// Column order (left to right): Server | Map | Mode | Date
-				// Server takes whatever space is left; the three rightmost columns are fixed-width.
-				float serverWidth = size.x - colMapWidth - colModeWidth - colDateWidth;
-				Font.Draw(info.serverName, pos + Vector2(4.0F, 2.0F), 1.0F, fgcolor);
-				Font.Draw(info.mapName,    pos + Vector2(serverWidth + 4.0F, 2.0F), 1.0F, fgcolor);
-				Font.Draw(info.gameMode,   pos + Vector2(serverWidth + colMapWidth + 4.0F, 2.0F), 1.0F, fgcolor);
-				Font.Draw(info.timestamp,  pos + Vector2(serverWidth + colMapWidth + colModeWidth + 4.0F, 2.0F), 1.0F, fgcolor);
+				// Column order (left to right): Server | Map | Mode | Timestamp | Size
+				// Server is variable-width; the four rightmost columns are fixed-width.
+				float fixedRight = colMapWidth + colModeWidth + colDateWidth + colSizeWidth;
+				float serverWidth = size.x - fixedRight;
+				float x = pos.x + 4.0F;
+				Font.Draw(info.serverName, Vector2(x, pos.y + 2.0F), 1.0F, fgcolor);
+				x = pos.x + serverWidth + 4.0F;
+				Font.Draw(info.mapName,    Vector2(x, pos.y + 2.0F), 1.0F, fgcolor);
+				x += colMapWidth;
+				Font.Draw(info.gameMode,   Vector2(x, pos.y + 2.0F), 1.0F, fgcolor);
+				x += colModeWidth;
+				Font.Draw(info.timestamp,  Vector2(x, pos.y + 2.0F), 1.0F, fgcolor);
+				x += colDateWidth;
+				Font.Draw(info.fileSize,   Vector2(x, pos.y + 2.0F), 1.0F, fgcolor);
 			} else {
 				// Filename does not match the structured format; display it as-is.
 				Font.Draw(info.displayName, pos + Vector2(4.0F, 2.0F), 1.0F, fgcolor);
@@ -205,22 +241,27 @@ namespace spades {
 
 	class DemoListModel : spades::ui::ListViewModel {
 		spades::ui::UIManager@ manager;
+		MainScreenHelper@ helper;
 		string[] list;
 		DemoListItem@[] itemElements;
 		float colDateWidth;
 		float colModeWidth;
 		float colMapWidth;
+		float colSizeWidth;
 
 		DemoListItemEventHandler@ ItemActivated;
 		DemoListItemEventHandler@ ItemDoubleClicked;
 
-		DemoListModel(spades::ui::UIManager@ manager, string[]@ list,
-		              float colDateWidth, float colModeWidth, float colMapWidth) {
-			@this.manager = manager;
-			this.list = list;
+		DemoListModel(spades::ui::UIManager@ manager, MainScreenHelper@ helper,
+		              string[]@ list,
+		              float colDateWidth, float colModeWidth, float colMapWidth, float colSizeWidth) {
+			@this.manager    = manager;
+			@this.helper     = helper;
+			this.list        = list;
 			this.colDateWidth = colDateWidth;
 			this.colModeWidth = colModeWidth;
 			this.colMapWidth  = colMapWidth;
+			this.colSizeWidth = colSizeWidth;
 
 			itemElements.resize(list.length);
 		}
@@ -243,8 +284,8 @@ namespace spades {
 
 		spades::ui::UIElement@ CreateElement(int row) {
 			if (itemElements[row] is null) {
-				DemoInfo info = ParseDemoFilename(list[row]);
-				DemoListItem i(manager, list[row], info, colDateWidth, colModeWidth, colMapWidth);
+				DemoInfo info = ParseDemoFilename(list[row], helper);
+				DemoListItem i(manager, list[row], info, colDateWidth, colModeWidth, colMapWidth, colSizeWidth);
 				@i.Activated     = spades::ui::EventHandler(this.OnItemClicked);
 				@i.DoubleClicked = spades::ui::EventHandler(this.OnItemDoubleClicked);
 				@itemElements[row] = i;

@@ -22,7 +22,9 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cstdint>
 #include <memory>
+#include <sys/stat.h>
 
 #include <curl/curl.h>
 #include <json/json.h>
@@ -444,6 +446,13 @@ namespace spades {
 			for (size_t i = 0; i < recordings.size(); i++)
 				arr->SetValue((asUINT)i, &recordings[i]);
 			return arr;
+		}
+
+		int64_t MainScreenHelper::GetDemoFileSize(std::string filename) {
+			struct stat st;
+			if (stat(filename.c_str(), &st) == 0)
+				return static_cast<int64_t>(st.st_size);
+			return -1;
 		}
 
 		std::string MainScreenHelper::PlayDemo(std::string filename) {

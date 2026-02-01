@@ -93,6 +93,10 @@ namespace spades {
 					                              asMETHOD(gui::MainScreenHelper, PlayDemo),
 					                              asCALL_THISCALL);
 					manager->CheckError(r);
+					r = eng->RegisterObjectMethod("MainScreenHelper", "int64 GetDemoFileSize(string)",
+					                              asMETHOD(gui::MainScreenHelper, GetDemoFileSize),
+					                              asCALL_THISCALL);
+					manager->CheckError(r);
 					r = eng->RegisterObjectBehaviour(
 					  "MainScreenServerItem", asBEHAVE_ADDREF, "void f()",
 					  asMETHOD(gui::MainScreenServerItem, AddRef), asCALL_THISCALL);
