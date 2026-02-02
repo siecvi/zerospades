@@ -310,7 +310,7 @@ namespace spades {
 	void Settings::Item::Set(int v) {
 		SPADES_MARK_FUNCTION_DEBUG();
 		char buf[256];
-		sprintf(buf, "%d", v);
+		snprintf(buf, sizeof(buf), "%d", v);
 		string = buf;
 		intValue = v;
 		value = (float)v;
@@ -322,7 +322,7 @@ namespace spades {
 	void Settings::Item::Set(float v) {
 		SPADES_MARK_FUNCTION_DEBUG();
 		char buf[256];
-		sprintf(buf, "%f", v);
+		snprintf(buf, sizeof(buf), "%f", v);
 		string = buf;
 		intValue = (int)v;
 		value = v;

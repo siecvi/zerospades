@@ -842,7 +842,7 @@ namespace spades {
 			char buf[32];
 			const int maxShotIndex = 10000;
 			for (int i = 0; i < maxShotIndex; i++) {
-				sprintf(buf, "Mapshots/shot%04d.vxl", nextMapShotIndex);
+				snprintf(buf, sizeof(buf), "Mapshots/shot%04d.vxl", nextMapShotIndex);
 				if (FileManager::FileExists(buf)) {
 					nextMapShotIndex++;
 					if (nextMapShotIndex >= maxShotIndex)

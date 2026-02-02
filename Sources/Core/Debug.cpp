@@ -141,7 +141,7 @@ namespace spades {
 					if (ind != std::string::npos)
 						fn = fn.substr(ind + 1);
 
-					sprintf(buf, "%s at %s:%d\n", func.GetName(), fn.c_str(), func.GetLineNumber());
+					snprintf(buf, sizeof(buf), "%s at %s:%d\n", func.GetName(), fn.c_str(), func.GetLineNumber());
 					message += buf;
 				}
 			}

@@ -264,13 +264,13 @@ namespace spades {
 				std::string str;
 
 				int bytes = (int)data.size();
-				sprintf(buf, "Packet 0x%02x [len=%d]", (int)GetType(), bytes);
+				snprintf(buf, sizeof(buf), "Packet 0x%02x [len=%d]", (int)GetType(), bytes);
 				str += buf;
 
 				if (bytes > 64)
 					bytes = 64;
 				for (int i = 0; i < bytes; i++) {
-					sprintf(buf, " %02x", (unsigned int)(unsigned char)data[i]);
+					snprintf(buf, sizeof(buf), " %02x", (unsigned int)(unsigned char)data[i]);
 					str += buf;
 				}
 

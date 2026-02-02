@@ -331,7 +331,7 @@ namespace spades {
 				float colX = left + col * colWidth;
 
 				// draw player id
-				sprintf(buf, "#%d", ent.id); // FIXME: 1-base?
+				snprintf(buf, sizeof(buf), "#%d", ent.id); // FIXME: 1-base?
 				size = font.Measure(buf);
 				if (colorMode) {
 					int colorIndex = ent.id % 32;
@@ -361,7 +361,7 @@ namespace spades {
 				font.Draw(ent.name, MakeVector2(colX + 40.0F, rowY), 1.0F, color);
 
 				// draw player score
-				sprintf(buf, "%d", ent.score);
+				snprintf(buf, sizeof(buf), "%d", ent.score);
 				size = font.Measure(buf);
 				font.Draw(buf, MakeVector2(colX + colWidth - 5.0F - size.x, rowY), 1.0F, white);
 
@@ -408,7 +408,7 @@ namespace spades {
 				numSpectators++;
 
 				// Measure total width in pixels so that we can center align all the spectators
-				sprintf(buf, "#%d", ent.id);
+				snprintf(buf, sizeof(buf), "#%d", ent.id);
 				totalPixelWidth += font.Measure(buf).x + font.Measure(ent.name).x + xPixelSpectatorOffset;
 			}
 
@@ -426,7 +426,7 @@ namespace spades {
 			float yOffset = pos.y + sizeSpecString.y + 10.0F;
 
 			for (const auto& ent : entries) {
-				sprintf(buf, "#%d", ent.id);
+				snprintf(buf, sizeof(buf), "#%d", ent.id);
 				font.Draw(buf, MakeVector2(currentXoffset, yOffset), 1.0F, spectatorIdColor);
 
 				auto sizeName = font.Measure(ent.name);
