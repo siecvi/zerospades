@@ -56,16 +56,10 @@ namespace spades {
 				"Model [%d model(s), %d unique model type(s)]",
 				modelCount, (int)models.size());
 
-			int numModels = 0;
 			for (const auto& m : models) {
 				GLModel* model = m.model;
 				model->RenderShadowMapPass(m.params);
-				numModels += (int)m.params.size();
 			}
-#if 0
-			printf("Model types: %d, Number of models: %d\n",
-				   (int)models.size(), numModels);
-#endif
 		}
 
 		void GLModelRenderer::Prerender(bool ghostPass) {
@@ -75,11 +69,9 @@ namespace spades {
 				"Model [%d model(s), %d unique model type(s)]",
 				modelCount, (int)models.size());
 
-			int numModels = 0;
 			for (const auto& m : models) {
 				GLModel* model = m.model;
 				model->Prerender(m.params, ghostPass);
-				numModels += (int)m.params.size();
 			}
 			device.ColorMask(true, true, true, true);
 		}

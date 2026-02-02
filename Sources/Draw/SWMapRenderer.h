@@ -45,7 +45,7 @@ namespace spades {
 			int w, h;
 			SWRenderer& renderer;
 
-			SWFeatureLevel level;
+			[[maybe_unused]] SWFeatureLevel level;
 			client::SceneDefinition sceneDef;
 			Handle<client::GameMap> map;
 			// TODO: The following fields are only used during a function call
