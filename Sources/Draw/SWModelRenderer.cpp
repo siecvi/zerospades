@@ -99,7 +99,7 @@ namespace spades {
 								break;
 						}
 						for (int z = 0; z < 3; z++) {
-							auto d3 = d;
+							auto d3 = d2;
 							auto cnt3 = cnt2;
 							switch (y) {
 								case 0:

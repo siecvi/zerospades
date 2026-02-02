@@ -381,7 +381,6 @@ namespace spades {
 		void GLRadiosityRenderer::UpdateDirtyChunks() {
 			int dirtyChunkIds[256];
 			int numDirtyChunks = 0;
-			int nearDirtyChunks = 0;
 
 			// first, check only chunks in near range
 			const auto& viewOrigin = renderer.GetSceneDef().viewOrigin;
@@ -402,7 +401,6 @@ namespace spades {
 					continue;
 				if (c.dirty) {
 					dirtyChunkIds[numDirtyChunks++] = static_cast<int>(i);
-					nearDirtyChunks++;
 					if (numDirtyChunks >= 256)
 						break;
 				}

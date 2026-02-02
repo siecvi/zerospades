@@ -253,7 +253,6 @@ namespace spades {
 		void GLAmbientShadowRenderer::UpdateDirtyChunks() {
 			std::array<std::size_t, 256> dirtyChunkIds;
 			std::size_t numDirtyChunks = 0;
-			int nearDirtyChunks = 0;
 
 			// first, check only chunks in near range
 			const auto& viewOrigin = renderer.GetSceneDef().viewOrigin;
@@ -274,7 +273,6 @@ namespace spades {
 					continue;
 				if (c.dirty) {
 					dirtyChunkIds[numDirtyChunks++] = static_cast<int>(i);
-					nearDirtyChunks++;
 					if (numDirtyChunks >= dirtyChunkIds.size())
 						break;
 				}
