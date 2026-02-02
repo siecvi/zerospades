@@ -162,8 +162,8 @@ namespace spades {
 				subsamplePosition = 0;
 		}
 
-		while (remainingBytes >= channels * 4) {
-			uint64_t numSamples = remainingBytes / (channels * 4);
+		while (remainingBytes >= static_cast<uint64_t>(channels * 4)) {
+			uint64_t numSamples = remainingBytes / static_cast<uint64_t>(channels * 4);
 
 			// 64-bit sample count might doesn't fit in int which op_read_float's third parameter
 			// accepts

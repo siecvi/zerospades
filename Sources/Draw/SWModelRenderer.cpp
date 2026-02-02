@@ -183,7 +183,7 @@ namespace spades {
 				auto v2 = v1;
 				for (int y = 0; y < h; y++) {
 					auto* mp = &model.renderData[model.renderDataAddr[x + y * w]];
-					while (*mp != -1) {
+					while (*mp != 0xFFFFFFFFu) {
 						uint32_t data = *(mp++);
 						uint32_t normal = *(mp++);
 						int z = static_cast<int>(data >> 24);
