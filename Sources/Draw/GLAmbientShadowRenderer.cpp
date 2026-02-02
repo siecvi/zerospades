@@ -352,31 +352,31 @@ namespace spades {
 						// bit 1: contact (by-surface voxel)
 						wFlags[z][y][x] =
 						  to_b(map->IsSolidWrapped(pos.x, pos.y, pos.z), 0) |
-						  to_b(map->IsSolidWrapped(pos.x - 1, pos.y - 1, pos.z - 1) |
-						         map->IsSolidWrapped(pos.x - 1, pos.y - 1, pos.z) |
-						         map->IsSolidWrapped(pos.x - 1, pos.y - 1, pos.z + 1) |
-						         map->IsSolidWrapped(pos.x - 1, pos.y, pos.z - 1) |
-						         map->IsSolidWrapped(pos.x - 1, pos.y, pos.z) |
-						         map->IsSolidWrapped(pos.x - 1, pos.y, pos.z + 1) |
-						         map->IsSolidWrapped(pos.x - 1, pos.y + 1, pos.z - 1) |
-						         map->IsSolidWrapped(pos.x - 1, pos.y + 1, pos.z) |
-						         map->IsSolidWrapped(pos.x - 1, pos.y + 1, pos.z + 1) |
-						         map->IsSolidWrapped(pos.x - 1, pos.y - 1, pos.z - 1) |
-						         map->IsSolidWrapped(pos.x, pos.y - 1, pos.z) |
-						         map->IsSolidWrapped(pos.x, pos.y - 1, pos.z + 1) |
-						         map->IsSolidWrapped(pos.x, pos.y, pos.z - 1) |
-						         map->IsSolidWrapped(pos.x, pos.y, pos.z + 1) |
-						         map->IsSolidWrapped(pos.x, pos.y + 1, pos.z - 1) |
-						         map->IsSolidWrapped(pos.x, pos.y + 1, pos.z) |
-						         map->IsSolidWrapped(pos.x, pos.y + 1, pos.z + 1) |
-						         map->IsSolidWrapped(pos.x + 1, pos.y - 1, pos.z - 1) |
-						         map->IsSolidWrapped(pos.x + 1, pos.y - 1, pos.z) |
-						         map->IsSolidWrapped(pos.x + 1, pos.y - 1, pos.z + 1) |
-						         map->IsSolidWrapped(pos.x + 1, pos.y, pos.z - 1) |
-						         map->IsSolidWrapped(pos.x + 1, pos.y, pos.z) |
-						         map->IsSolidWrapped(pos.x + 1, pos.y, pos.z + 1) |
-						         map->IsSolidWrapped(pos.x + 1, pos.y + 1, pos.z - 1) |
-						         map->IsSolidWrapped(pos.x + 1, pos.y + 1, pos.z) |
+						  to_b(map->IsSolidWrapped(pos.x - 1, pos.y - 1, pos.z - 1) ||
+						         map->IsSolidWrapped(pos.x - 1, pos.y - 1, pos.z) ||
+						         map->IsSolidWrapped(pos.x - 1, pos.y - 1, pos.z + 1) ||
+						         map->IsSolidWrapped(pos.x - 1, pos.y, pos.z - 1) ||
+						         map->IsSolidWrapped(pos.x - 1, pos.y, pos.z) ||
+						         map->IsSolidWrapped(pos.x - 1, pos.y, pos.z + 1) ||
+						         map->IsSolidWrapped(pos.x - 1, pos.y + 1, pos.z - 1) ||
+						         map->IsSolidWrapped(pos.x - 1, pos.y + 1, pos.z) ||
+						         map->IsSolidWrapped(pos.x - 1, pos.y + 1, pos.z + 1) ||
+						         map->IsSolidWrapped(pos.x - 1, pos.y - 1, pos.z - 1) ||
+						         map->IsSolidWrapped(pos.x, pos.y - 1, pos.z) ||
+						         map->IsSolidWrapped(pos.x, pos.y - 1, pos.z + 1) ||
+						         map->IsSolidWrapped(pos.x, pos.y, pos.z - 1) ||
+						         map->IsSolidWrapped(pos.x, pos.y, pos.z + 1) ||
+						         map->IsSolidWrapped(pos.x, pos.y + 1, pos.z - 1) ||
+						         map->IsSolidWrapped(pos.x, pos.y + 1, pos.z) ||
+						         map->IsSolidWrapped(pos.x, pos.y + 1, pos.z + 1) ||
+						         map->IsSolidWrapped(pos.x + 1, pos.y - 1, pos.z - 1) ||
+						         map->IsSolidWrapped(pos.x + 1, pos.y - 1, pos.z) ||
+						         map->IsSolidWrapped(pos.x + 1, pos.y - 1, pos.z + 1) ||
+						         map->IsSolidWrapped(pos.x + 1, pos.y, pos.z - 1) ||
+						         map->IsSolidWrapped(pos.x + 1, pos.y, pos.z) ||
+						         map->IsSolidWrapped(pos.x + 1, pos.y, pos.z + 1) ||
+						         map->IsSolidWrapped(pos.x + 1, pos.y + 1, pos.z - 1) ||
+						         map->IsSolidWrapped(pos.x + 1, pos.y + 1, pos.z) ||
 						         map->IsSolidWrapped(pos.x + 1, pos.y + 1, pos.z + 1),
 						       1);
 					}
