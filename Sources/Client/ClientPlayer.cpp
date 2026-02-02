@@ -614,7 +614,6 @@ namespace spades {
 			Player& p = player;
 			Weapon& w = p.GetWeapon();
 			IRenderer& renderer = client.GetRenderer();
-			World* world = client.GetWorld();
 			Matrix4 eyeMatrix = GetEyeMatrix();
 			Vector3 vel = p.GetVelocity();
 

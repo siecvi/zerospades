@@ -1284,8 +1284,6 @@ namespace spades {
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
 
-			Player& p = world->GetLocalPlayer().value();
-
 			// draw respawn time
 			std::string msg = (lastRespawnCount > 0)
 				? _Tr("Client", "You will respawn in: {0}", lastRespawnCount)
