@@ -217,7 +217,6 @@ namespace spades {
 			float sw = renderer.ScreenWidth();
 			float sh = renderer.ScreenHeight();
 
-			float winW = GetWidth();
 			float winH = expanded ? GetBufferHeight() : GetNormalHeight();
 			float winX = 8.0F;
 			float winY = killfeed ? 8.0F : (sh - 64.0F) - winH;
