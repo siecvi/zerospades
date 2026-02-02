@@ -91,7 +91,7 @@ namespace spades {
 				case GL_OUT_OF_MEMORY: return "Out of Memory";
 				default: {
 					char buf[256];
-					sprintf(buf, "0x%08x", (unsigned int)err);
+					snprintf(buf, sizeof(buf), "0x%08x", (unsigned int)err);
 					return buf;
 				}
 			}
