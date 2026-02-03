@@ -418,11 +418,11 @@ namespace spades {
 				return "mainScreen == NULL";
 			}
 			g_pendingMapName = mapName;
-			g_pendingServerName = "";
+			g_pendingServerName = hostname; // fallback: use address as server name
 			if (result) {
 				for (const auto& item : result->list) {
 					if (item->GetAddress() == hostname) {
-						g_pendingServerName = item->GetName();
+						g_pendingServerName = item->GetName(); // prefer human-readable name
 						break;
 					}
 				}
