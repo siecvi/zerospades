@@ -425,7 +425,7 @@ namespace spades {
 			std::vector<Handle<IAudioChunk>> killSounds;
 			void LoadKillSounds();
 
-			void UpdateWorld(float dt);
+			void UpdateWorld(float dt, float gameplayDt);
 			void UpdateLocalSpectator(float dt);
 			void UpdateLocalPlayer(float dt);
 			void UpdateAutoFocus(float dt);

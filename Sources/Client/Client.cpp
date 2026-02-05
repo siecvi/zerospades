@@ -640,7 +640,8 @@ namespace spades {
 			UpdateAutoFocus(dt);
 
 			if (world) {
-				UpdateWorld(dt);
+				float gameplayDt = (isDemoMode && demoNet) ? dt * demoNet->GetSpeed() : dt;
+				UpdateWorld(dt, gameplayDt);
 				mumbleLink.Update(world->GetLocalPlayer().get_pointer());
 			} else {
 				renderer->SetFogColor(MakeVector3(0, 0, 0));

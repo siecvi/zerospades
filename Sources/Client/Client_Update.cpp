@@ -207,7 +207,7 @@ namespace spades {
 
 #pragma mark - World Update
 
-		void Client::UpdateWorld(float dt) {
+		void Client::UpdateWorld(float dt, float gameplayDt) {
 			SPADES_MARK_FUNCTION();
 
 			stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
@@ -316,9 +316,9 @@ namespace spades {
 #else
 				// accurately resembles server's physics
 				// but not smooth
-				if (dt > 0.0F) {
-					worldSubFrame += dt;
-					worldSubFrameFast += dt;
+				if (gameplayDt > 0.0F) {
+					worldSubFrame += gameplayDt;
+					worldSubFrameFast += gameplayDt;
 				}
 
 				// these run at exactly ~60fps
@@ -329,7 +329,7 @@ namespace spades {
 				}
 
 				// these run at min. ~60fps but as fast as possible
-				float step = std::min(dt, frameStep);
+				float step = std::min(gameplayDt, frameStep);
 				while (worldSubFrameFast >= step) {
 					world->UpdatePlayer(step, false); // smooth orientation update
 					worldSubFrameFast -= step;
@@ -339,7 +339,7 @@ namespace spades {
 				// update player view (doesn't affect physics/game logics)
 				for (const auto& clientPlayer : clientPlayers) {
 					if (clientPlayer)
-						clientPlayer->Update(dt);
+						clientPlayer->Update(gameplayDt);
 				}
 
 				// corpse never accesses audio nor renderer, so
@@ -357,7 +357,7 @@ namespace spades {
 						}
 					}
 				};
-				CorpseUpdateDispatch corpseDispatch{*this, dt};
+				CorpseUpdateDispatch corpseDispatch{*this, gameplayDt};
 				corpseDispatch.Start();
 
 				// local entities should be done in the client thread
@@ -365,14 +365,14 @@ namespace spades {
 					decltype(localEntities)::iterator it;
 					std::vector<decltype(it)> its;
 					for (it = localEntities.begin(); it != localEntities.end(); it++) {
-						if (!(*it)->Update(dt))
+						if (!(*it)->Update(gameplayDt))
 							its.push_back(it);
 					}
 					for (const auto& it : its)
 						localEntities.erase(it);
 				}
 
-				bloodMarks->Update(dt);
+				bloodMarks->Update(gameplayDt);
 				corpseDispatch.Join();
 			}
 
