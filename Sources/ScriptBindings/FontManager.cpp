@@ -60,21 +60,21 @@ namespace spades {
 						                                 asCALL_THISCALL);
 						manager->CheckError(r);
 						r =
-						  eng->RegisterObjectMethod("FontManager", "Font@ get_SmallFont()",
+						  eng->RegisterObjectMethod("FontManager", "Font@ get_SmallFont() property",
 						                            asFUNCTION(GetSmallFont), asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);
-						r = eng->RegisterObjectMethod("FontManager", "Font@ get_GuiFont()",
+						r = eng->RegisterObjectMethod("FontManager", "Font@ get_GuiFont() property property",
 						                              asFUNCTION(GetGuiFont), asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);
-						r = eng->RegisterObjectMethod("FontManager", "Font@ get_HeadingFont()",
+						r = eng->RegisterObjectMethod("FontManager", "Font@ get_HeadingFont() property",
 						                              asFUNCTION(GetHeadingFont),
 						                              asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);
 						r =
-						  eng->RegisterObjectMethod("FontManager", "Font@ get_LargeFont()",
+						  eng->RegisterObjectMethod("FontManager", "Font@ get_LargeFont() property",
 						                            asFUNCTION(GetLargeFont), asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);
-						r = eng->RegisterObjectMethod("FontManager", "Font@ get_SquareDesignFont()",
+						r = eng->RegisterObjectMethod("FontManager", "Font@ get_SquareDesignFont() property",
 						                              asFUNCTION(GetSquareDesignFont),
 						                              asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);

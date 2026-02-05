@@ -43,10 +43,10 @@ namespace spades {
 						manager->CheckError(r);
 						break;
 					case PhaseObjectMember:
-						r = eng->RegisterObjectMethod("Image", "float get_Width()",
+						r = eng->RegisterObjectMethod("Image", "float get_Width() property property",
 						                              asMETHOD(IImage, GetWidth), asCALL_THISCALL);
 						manager->CheckError(r);
-						r = eng->RegisterObjectMethod("Image", "float get_Height()",
+						r = eng->RegisterObjectMethod("Image", "float get_Height() property property",
 						                              asMETHOD(IImage, GetHeight), asCALL_THISCALL);
 						manager->CheckError(r);
 						break;

@@ -147,6 +147,8 @@ endif()
 if(OPENAL_FOUND)
 	target_link_libraries(OpenSpades ${OPENAL_LIBRARY})
 	include_directories(${OPENAL_INCLUDE_DIRS})
+	# Define OPENAL_SOFT to indicate we're using OpenAL Soft
+	target_compile_definitions(OpenSpades PRIVATE OPENAL_SOFT=1)
 endif()
 
 if(WIN32)
@@ -164,6 +166,49 @@ if(UNIX)
 		endif()
 	endif()
 	target_link_libraries(OpenSpades pthread)
+endif()
+
+# macOS-specific post-build steps
+if(APPLE)
+	# Copy OpenAL Soft dylib into the bundle and fix paths
+	add_custom_command(TARGET OpenSpades POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:OpenSpades>/Frameworks"
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			"${CMAKE_BINARY_DIR}/Sources/Externals/openal-soft/libopenal.1.dylib"
+			"$<TARGET_BUNDLE_CONTENT_DIR:OpenSpades>/Frameworks/"
+		COMMAND install_name_tool -change "@rpath/libopenal.1.dylib"
+			"@executable_path/../Frameworks/libopenal.1.dylib"
+			"$<TARGET_FILE:OpenSpades>"
+		COMMENT "Embedding OpenAL Soft into macOS bundle"
+	)
+
+	# Fix library paths for YSRSpades if enabled
+	if(OPENSPADES_YSR)
+		add_custom_command(TARGET OpenSpades POST_BUILD
+			# Add rpath (ignore error if rpath already exists)
+			COMMAND bash -c "install_name_tool -add_rpath '@executable_path/../Resources' '$<TARGET_FILE:OpenSpades>' || exit 0"
+			# Change library reference to use @rpath
+			COMMAND install_name_tool -change "/usr/local/lib/libysrspades.dylib" "@rpath/libysrspades.dylib" "$<TARGET_FILE:OpenSpades>"
+			COMMENT "Fixing library paths for macOS bundle"
+		)
+		add_dependencies(OpenSpades OpenSpades_YSRSpades_Prebuilt)
+	endif()
+
+	# Add optional code signing (can be configured via MACOSX_CODESIGN_IDENTITY)
+	# To sign: cmake -DMACOSX_CODESIGN_IDENTITY="Developer ID Application: Your Name" ..
+	# Note: Code signing must happen AFTER all binary modifications (install_name_tool, etc.)
+	if(MACOSX_CODESIGN_IDENTITY)
+		add_custom_command(TARGET OpenSpades POST_BUILD
+			COMMAND codesign --force --deep --sign "${MACOSX_CODESIGN_IDENTITY}" "$<TARGET_BUNDLE_DIR:OpenSpades>"
+			COMMENT "Code signing macOS bundle with identity: ${MACOSX_CODESIGN_IDENTITY}"
+		)
+	else()
+		# Ad-hoc signing for local development (allows the app to run without Gatekeeper issues)
+		add_custom_command(TARGET OpenSpades POST_BUILD
+			COMMAND codesign --force --deep --sign - "$<TARGET_BUNDLE_DIR:OpenSpades>" || echo "Warning: Code signing failed"
+			COMMENT "Ad-hoc code signing macOS bundle for local development"
+		)
+	endif()
 endif()
 
 #install(TARGETS OpenSpades DESTINATION bin)

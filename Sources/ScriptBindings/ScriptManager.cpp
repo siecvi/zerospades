@@ -44,32 +44,64 @@ namespace spades {
 		SPLog("%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message);
 	}
 
-	class ScriptBuilder : public CScriptBuilder {
-	public:
-		ScriptBuilder() {}
+	// Helper function to normalize paths (resolve .. and .)
+	static std::string NormalizePath(const std::string& path) {
+		std::vector<std::string> parts;
+		std::stringstream ss(path);
+		std::string part;
 
-	protected:
-		int LoadScriptSection(const char* filename) override {
-			if (filename[0] != '/') {
-				SPLog("Invalid script path detected: not starting with '/'");
-				return -1;
+		while (std::getline(ss, part, '/')) {
+			if (part == ".." && !parts.empty()) {
+				parts.pop_back();
+			} else if (!part.empty() && part != ".") {
+				parts.push_back(part);
 			}
-
-			// path validation should be done by filesystem...
-			std::string data;
-			try {
-				std::string fn = "Scripts";
-				fn += filename;
-				data = FileManager::ReadAllBytes(fn.c_str());
-			} catch (const std::exception& ex) {
-				SPLog("Failed to include '%s':%s", filename, ex.what());
-				return -1;
-			}
-
-			SPLog("Loading script '%s'", filename);
-			return ProcessScriptSection(data.c_str(), (unsigned int)(data.length()), filename, 0);
 		}
-	};
+
+		std::string result = "/";
+		for (size_t i = 0; i < parts.size(); i++) {
+			if (i > 0) result += "/";
+			result += parts[i];
+		}
+		return result;
+	}
+
+	// Callback function for handling script includes
+	static int IncludeCallback(const char* include, const char* from, CScriptBuilder* builder, void* userParam) {
+		SPADES_MARK_FUNCTION();
+
+		std::string includePath = include;
+
+		// Handle relative paths - resolve relative to the current file's directory
+		if (includePath[0] != '/') {
+			std::string fromPath = from;
+			size_t lastSlash = fromPath.find_last_of('/');
+			if (lastSlash != std::string::npos) {
+				// Get the directory of the 'from' file and append the include path
+				includePath = fromPath.substr(0, lastSlash + 1) + includePath;
+			} else {
+				// No directory in 'from', treat as root-relative
+				includePath = "/" + includePath;
+			}
+		}
+
+		// Normalize the path (resolve .. and .)
+		includePath = NormalizePath(includePath);
+
+		// path validation should be done by filesystem...
+		std::string data;
+		try {
+			std::string fn = "Scripts";
+			fn += includePath;
+			data = FileManager::ReadAllBytes(fn.c_str());
+		} catch (const std::exception& ex) {
+			SPLog("Failed to include '%s':%s", includePath.c_str(), ex.what());
+			return -1;
+		}
+
+		SPLog("Loading script '%s'", includePath.c_str());
+		return builder->AddSectionFromMemory(includePath.c_str(), data.c_str(), (unsigned int)(data.length()), 0);
+	}
 
 	ScriptManager::ScriptManager() {
 		SPADES_MARK_FUNCTION();
@@ -99,17 +131,21 @@ namespace spades {
 			ScriptObjectRegistrar::RegisterAll(this, ScriptObjectRegistrar::PhaseGlobalFunction);
 			ScriptObjectRegistrar::RegisterAll(this, ScriptObjectRegistrar::PhaseObjectMember);
 
-			SPLog("Loading scripts");
-			engine->SetDefaultNamespace("");
-			ScriptBuilder builder;
-			if (builder.StartNewModule(engine, "Client") < 0)
-				SPRaise("Failed to create script module.");
-			builder.DefineWord("CLIENT");
-			if (builder.AddSectionFromFile("/Main.as") < 0)
-				SPRaise("Failed to load '/Main.as'.");
-			SPLog("Building");
-			if (builder.BuildModule() < 0)
-				SPRaise("Failed to build at least one of the scripts.");
+		SPLog("Loading scripts");
+		engine->SetDefaultNamespace("");
+		CScriptBuilder builder;
+		builder.SetIncludeCallback(IncludeCallback, NULL);
+		if (builder.StartNewModule(engine, "Client") < 0)
+			SPRaise("Failed to create script module.");
+		builder.DefineWord("CLIENT");
+
+		std::string mainScript = FileManager::ReadAllBytes("Scripts/Main.as");
+		if (builder.AddSectionFromMemory("/Main.as", mainScript.c_str(), (unsigned int)(mainScript.length()), 0) < 0)
+			SPRaise("Failed to load '/Main.as'.");
+
+		SPLog("Building");
+		if (builder.BuildModule() < 0)
+			SPRaise("Failed to build at least one of the scripts.");
 		} catch (...) {
 			engine->Release();
 			throw;

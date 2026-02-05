@@ -1,4 +1,5 @@
-AngelScript
-===========
+# AngelScript 2.38.0
 
-This directory includes the source code of AngelScript 2.31.1.
+AngelScript scripting library.
+
+https://www.angelcode.com/angelscript/

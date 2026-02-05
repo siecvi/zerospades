@@ -34,7 +34,9 @@ set(ANGELSCRIPT_HEADERS
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
 
-add_definitions("-D_CRT_SECURE_NO_WARNINGS -DANGELSCRIPT_EXPORT -D_LIB")
+# Enable property accessor mode for string and array length
+# This is required for compatibility with ZeroSpades scripts
+add_definitions("-D_CRT_SECURE_NO_WARNINGS -DANGELSCRIPT_EXPORT -D_LIB -DAS_USE_ACCESSORS=1")
 
 # Fix x64 issues on Linux
 if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64" AND NOT APPLE)

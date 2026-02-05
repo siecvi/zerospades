@@ -779,10 +779,10 @@ namespace spades {
 
 		class Cursor {
 			private UIManager@ manager;
-			private Image@ image;
+			private spades::Image@ image;
 			private Vector2 hotSpot;
 
-			Cursor(UIManager@ manager, Image@ image, Vector2 hotSpot) {
+			Cursor(UIManager@ manager, spades::Image@ image, Vector2 hotSpot) {
 				@this.manager = manager;
 				@this.image = image;
 				this.hotSpot = hotSpot;
@@ -810,8 +810,8 @@ namespace spades {
 				return idx;
 			}
 
-			UIElement@ get_opIndex(int idx) const { return arr[MapIndex(idx)]; }
-			void set_opIndex(int idx, UIElement@ e) { @arr[MapIndex(idx)] = e; }
+			UIElement@ get_opIndex(int idx) const property { return arr[MapIndex(idx)]; }
+			void set_opIndex(int idx, UIElement@ e) property { @arr[MapIndex(idx)] = e; }
 
 			void Reserve(int c) {
 				if (int(arr.length) >= c)

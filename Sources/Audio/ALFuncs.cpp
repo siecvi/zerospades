@@ -24,8 +24,15 @@
 #include <Core/Math.h>
 #include <Core/Settings.h>
 
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#include <libgen.h>
+#include <climits>
+#endif
+
 #if defined(__APPLE__)
-DEFINE_SPADES_SETTING(s_alDriver, "/System/Library/Frameworks/OpenAL.framework/OpenAL");
+// Use embedded OpenAL Soft from the app bundle
+DEFINE_SPADES_SETTING(s_alDriver, "@executable_path/../Frameworks/libopenal.1.dylib;/System/Library/Frameworks/OpenAL.framework/OpenAL");
 #elif defined(WIN32)
 DEFINE_SPADES_SETTING(s_alDriver, "OpenAL32.dll");
 #else
@@ -126,8 +133,9 @@ namespace al {
 	LPALGETAUXILIARYEFFECTSLOTF qalGetAuxiliaryEffectSlotf;
 	LPALGETAUXILIARYEFFECTSLOTFV qalGetAuxiliaryEffectSlotfv;
 
-	// Mac OS X Extensions
+	// Mac OS X Extensions (only available with system OpenAL)
 	// ALC_EXT_MAC_OSX
+#if defined(__APPLE__) && !defined(OPENAL_SOFT)
 	alcMacOSXRenderingQualityProcPtr qalcMacOSXRenderingQuality;
 	alMacOSXRenderChannelCountProcPtr qalMacOSXRenderChannelCount;
 	alcMacOSXMixerMaxiumumBussesProcPtr qalcMacOSXMixerMaxiumumBusses;
@@ -136,11 +144,14 @@ namespace al {
 	alMacOSXGetRenderChannelCountProcPtr qalMacOSXGetRenderChannelCount;
 	alcMacOSXGetMixerMaxiumumBussesProcPtr qalcMacOSXGetMixerMaxiumumBusses;
 	alcMacOSXGetMixerOutputRateProcPtr qalcMacOSXGetMixerOutputRate;
-	// ALC_EXT_ASA
+#endif
+	// ALC_EXT_ASA (only available with system OpenAL)
+#if defined(__APPLE__) && !defined(OPENAL_SOFT)
 	alcASAGetSourceProcPtr qalcASAGetSource;
 	alcASASetSourceProcPtr qalcASASetSource;
 	alcASAGetListenerProcPtr qalcASAGetListener;
 	alcASASetListenerProcPtr qalcASASetListener;
+#endif
 
 	LPALCCREATECONTEXT qalcCreateContext;
 	LPALCMAKECONTEXTCURRENT qalcMakeContextCurrent;
@@ -171,10 +182,24 @@ namespace al {
 			std::string errors;
 			for (const std::string &path : paths) {
 				auto trimmedPath = spades::TrimSpaces(path);
+
+				// Resolve @executable_path on macOS
+				std::string resolvedPath = trimmedPath;
+#ifdef __APPLE__
+				if (trimmedPath.find("@executable_path") == 0) {
+					char execPath[PATH_MAX];
+					uint32_t size = sizeof(execPath);
+					if (_NSGetExecutablePath(execPath, &size) == 0) {
+						char *dir = dirname(execPath);
+						resolvedPath = std::string(dir) + trimmedPath.substr(16); // Remove @executable_path
+					}
+				}
+#endif
+
 				try {
-					alLibrary = new spades::DynamicLibrary(trimmedPath.c_str());
+					alLibrary = new spades::DynamicLibrary(resolvedPath.c_str());
 					if (alLibrary) {
-						SPLog("'%s' loaded", trimmedPath.c_str());
+						SPLog("'%s' loaded", resolvedPath.c_str());
 						break;
 					}
 				} catch (const std::exception &ex) {
@@ -246,6 +271,82 @@ namespace al {
 	}
 
 	void Link(void) {
+#ifdef OPENAL_SOFT
+		SPLog("Using OpenAL Soft - direct linking, initializing function pointers.");
+		// Directly assign function pointers to OpenAL Soft functions
+		qalEnable = alEnable;
+		qalDisable = alDisable;
+		qalIsEnabled = alIsEnabled;
+		qalGetString = alGetString;
+		qalGetBooleanv = alGetBooleanv;
+		qalGetIntegerv = alGetIntegerv;
+		qalGetFloatv = alGetFloatv;
+		qalGetDoublev = alGetDoublev;
+		qalGetBoolean = alGetBoolean;
+		qalGetInteger = alGetInteger;
+		qalGetFloat = alGetFloat;
+		qalGetDouble = alGetDouble;
+		qalGetError = alGetError;
+		qalIsExtensionPresent = alIsExtensionPresent;
+		qalGetProcAddress = alGetProcAddress;
+		qalGetEnumValue = alGetEnumValue;
+		qalListenerf = alListenerf;
+		qalListener3f = alListener3f;
+		qalListenerfv = alListenerfv;
+		qalListeneri = alListeneri;
+		qalGetListenerf = alGetListenerf;
+		qalGetListener3f = alGetListener3f;
+		qalGetListenerfv = alGetListenerfv;
+		qalGetListeneri = alGetListeneri;
+		qalGenSources = alGenSources;
+		qalDeleteSources = alDeleteSources;
+		qalIsSource = alIsSource;
+		qalSourcef = alSourcef;
+		qalSource3f = alSource3f;
+		qalSourcefv = alSourcefv;
+		qalSourcei = alSourcei;
+		qalSource3i = alSource3i;
+		qalGetSourcef = alGetSourcef;
+		qalGetSource3f = alGetSource3f;
+		qalGetSourcefv = alGetSourcefv;
+		qalGetSourcei = alGetSourcei;
+		qalSourcePlayv = alSourcePlayv;
+		qalSourceStopv = alSourceStopv;
+		qalSourceRewindv = alSourceRewindv;
+		qalSourcePausev = alSourcePausev;
+		qalSourcePlay = alSourcePlay;
+		qalSourceStop = alSourceStop;
+		qalSourceRewind = alSourceRewind;
+		qalSourcePause = alSourcePause;
+		qalSourceQueueBuffers = alSourceQueueBuffers;
+		qalSourceUnqueueBuffers = alSourceUnqueueBuffers;
+		qalGenBuffers = alGenBuffers;
+		qalDeleteBuffers = alDeleteBuffers;
+		qalIsBuffer = alIsBuffer;
+		qalBufferData = alBufferData;
+		qalGetBufferf = alGetBufferf;
+		qalGetBufferi = alGetBufferi;
+		qalDopplerFactor = alDopplerFactor;
+		qalDopplerVelocity = alDopplerVelocity;
+		qalDistanceModel = alDistanceModel;
+
+		qalcCreateContext = alcCreateContext;
+		qalcMakeContextCurrent = alcMakeContextCurrent;
+		qalcProcessContext = alcProcessContext;
+		qalcSuspendContext = alcSuspendContext;
+		qalcDestroyContext = alcDestroyContext;
+		qalcGetCurrentContext = alcGetCurrentContext;
+		qalcGetContextsDevice = alcGetContextsDevice;
+		qalcOpenDevice = alcOpenDevice;
+		qalcCloseDevice = alcCloseDevice;
+		qalcGetError = alcGetError;
+		qalcIsExtensionPresent = alcIsExtensionPresent;
+		qalcGetProcAddress = alcGetProcAddress;
+		qalcGetEnumValue = alcGetEnumValue;
+		qalcGetString = alcGetString;
+		qalcGetIntegerv = alcGetIntegerv;
+		return;
+#else
 		SPLog("Linking with OpenAL library.");
 		L(alEnable);
 		L(alDisable);
@@ -318,6 +419,7 @@ namespace al {
 		L(alcGetEnumValue);
 		L(alcGetString);
 		L(alcGetIntegerv);
+#endif // !OPENAL_SOFT
 	}
 
 	const char *DescribeError(ALenum e) {

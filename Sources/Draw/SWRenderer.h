@@ -60,6 +60,7 @@ namespace spades {
 
 			std::shared_ptr<SWImageManager> imageManager;
 			std::shared_ptr<SWModelManager> modelManager;
+			Handle<SWImage> whiteImage;
 
 			std::shared_ptr<SWImageRenderer> imageRenderer;
 			std::shared_ptr<SWModelRenderer> modelRenderer;

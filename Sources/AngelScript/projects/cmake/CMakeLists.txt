@@ -56,6 +56,28 @@ if(ANDROID)
         endif(CMAKE_ASM_COMPILER_WORKS)
 endif()
 
+# Add ARM64 support for macOS (Apple Silicon M1/M2/M3)
+if(APPLE AND CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64")
+        enable_language(ASM)
+        if(CMAKE_ASM_COMPILER_WORKS)
+                set(ANGELSCRIPT_SOURCE ${ANGELSCRIPT_SOURCE} ../../source/as_callfunc_arm64.cpp ../../source/as_callfunc_arm64_xcode.S)
+                message(STATUS "Building AngelScript with ARM64 support for macOS")
+        else()
+                message(FATAL_ERROR "macOS ARM64 target requires a working assembler")
+        endif()
+endif()
+
+# Add ARM64 support for Linux
+if(UNIX AND NOT APPLE AND NOT ANDROID AND CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64")
+        enable_language(ASM)
+        if(CMAKE_ASM_COMPILER_WORKS)
+                set(ANGELSCRIPT_SOURCE ${ANGELSCRIPT_SOURCE} ../../source/as_callfunc_arm64.cpp ../../source/as_callfunc_arm64_gcc.S)
+                message(STATUS "Building AngelScript with ARM64 support for Linux")
+        else()
+                message(FATAL_ERROR "Linux ARM64 target requires a working assembler")
+        endif()
+endif()
+
 set(ANGELSCRIPT_HEADERS
         ../../include/angelscript.h
         ../../source/as_array.h

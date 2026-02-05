@@ -1,16 +1,15 @@
 #ifndef SCRIPTANY_H
 #define SCRIPTANY_H
 
-#ifndef ANGELSCRIPT_H 
+#ifndef ANGELSCRIPT_H
 // Avoid having to inform include path if header is already include before
-#include "angelscript.h"
+#include <angelscript.h>
 #endif
 
-#include <atomic>
 
 BEGIN_AS_NAMESPACE
 
-class CScriptAny 
+class CScriptAny
 {
 public:
 	// Constructors
@@ -49,7 +48,7 @@ protected:
 	virtual ~CScriptAny();
 	void FreeObject();
 
-	mutable std::atomic<int> refCount;
+	mutable int refCount;
 	mutable bool gcFlag;
 	asIScriptEngine *engine;
 

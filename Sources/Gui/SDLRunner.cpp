@@ -48,9 +48,11 @@ DEFINE_SPADES_SETTING(r_fullscreen, "0");
 DEFINE_SPADES_SETTING(r_vsync, "1");
 DEFINE_SPADES_SETTING(r_allowSoftwareRendering, "0");
 DEFINE_SPADES_SETTING(r_renderer, "gl");
-#ifdef __APPLE__
+#if defined(__APPLE__) && defined(__x86_64__)
+// YSR is only available on x86_64 macOS
 DEFINE_SPADES_SETTING(s_audioDriver, "ysr");
 #else
+// Use OpenAL on Apple Silicon and other platforms
 DEFINE_SPADES_SETTING(s_audioDriver, "openal");
 #endif
 DEFINE_SPADES_SETTING(cl_fps, "0");

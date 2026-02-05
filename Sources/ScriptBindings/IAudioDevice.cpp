@@ -66,7 +66,7 @@ namespace spades {
 						  "AudioDevice", "AudioChunk@ RegisterSound(const string& in)",
 						  asFUNCTION(RegisterSound), asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);
-						r = eng->RegisterObjectMethod("AudioDevice", "void set_GameMap(GameMap@+)",
+						r = eng->RegisterObjectMethod("AudioDevice", "void set_GameMap(GameMap@+) property",
 						                              asMETHOD(IAudioDevice, SetGameMap),
 						                              asCALL_THISCALL);
 						manager->CheckError(r);

@@ -2,10 +2,11 @@ name: CI
 on:
   pull_request:
   push:
+  workflow_dispatch:
 
 jobs:
-  build-windows:
-    name: Build (Windows)
+  build-windows-x86:
+    name: Build (Windows x86)
     runs-on: windows-2022
     steps:
       - name: Checkout
@@ -18,8 +19,10 @@ jobs:
         with:
           path: |
             vcpkg/installed
-            !.git
-          key: ${{ runner.os }}-${{ hashFiles('vcpkg_x86-windows.txt', '.gitmodules') }}
+            vcpkg/buildtrees
+          key: windows-x86-${{ hashFiles('vcpkg_x86-windows.txt', '.gitmodules') }}
+          restore-keys: |
+            windows-x86-
 
       - name: Bootstrap vcpkg
         run: vcpkg\bootstrap-vcpkg.bat -disableMetrics
@@ -43,7 +46,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v5
         with:
-          name: Release-Windows
+          name: zerospades-windows-x86
           path: |
             ${{ runner.workspace }}\openspades.mk\bin\Release
             !${{ runner.workspace }}\**\*.lib
@@ -51,8 +54,59 @@ jobs:
             !${{ runner.workspace }}\**\*.pdb
           if-no-files-found: warn
 
-  build-macos:
-    name: Build (macOS)
+  build-windows-x64:
+    name: Build (Windows x64)
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Cache vcpkg and dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            vcpkg/installed
+            vcpkg/buildtrees
+          key: windows-x64-${{ hashFiles('vcpkg_x86-windows.txt', '.gitmodules') }}
+          restore-keys: |
+            windows-x64-
+
+      - name: Bootstrap vcpkg
+        run: vcpkg\bootstrap-vcpkg.bat -disableMetrics
+
+      - name: Build dependencies
+        run: |
+          (Get-Content vcpkg_x86-windows.txt) -replace 'x86-windows-static', 'x64-windows-static' | Set-Content vcpkg_x64-windows.txt
+          vcpkg\vcpkg install @vcpkg_x64-windows.txt
+
+      - name: Build application
+        uses: ashutoshvarma/action-cmake-build@master
+        with:
+          build-dir: ${{ runner.workspace }}\openspades.mk
+          build-type: Release
+          configure-options: >
+            -A x64
+            -D CMAKE_BUILD_TYPE=Release
+            -D CMAKE_TOOLCHAIN_FILE=${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake
+            -D VCPKG_TARGET_TRIPLET=x64-windows-static
+            -D CMAKE_CXX_STANDARD=17
+          parallel: 8
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: zerospades-windows-x64
+          path: |
+            ${{ runner.workspace }}\openspades.mk\bin\Release
+            !${{ runner.workspace }}\**\*.lib
+            !${{ runner.workspace }}\**\*.exp
+            !${{ runner.workspace }}\**\*.pdb
+          if-no-files-found: warn
+
+  build-macos-intel:
+    name: Build (macOS Intel)
     runs-on: macos-14
     steps:
       - name: Checkout
@@ -65,14 +119,18 @@ jobs:
         with:
           path: |
             vcpkg/installed
-            !.git
-          key: ${{ runner.os }}-${{ hashFiles('vcpkg_x86_64-darwin.txt', '.gitmodules') }}
+            vcpkg/buildtrees
+          key: macos-intel-${{ hashFiles('vcpkg_x86_64-darwin.txt', '.gitmodules') }}
+          restore-keys: |
+            macos-intel-
 
       - name: Bootstrap vcpkg
         run: vcpkg/bootstrap-vcpkg.sh -disableMetrics
 
       - name: Build dependencies
-        run: vcpkg/vcpkg install @vcpkg_x86_64-darwin.txt
+        run: |
+          sed 's/$/:x64-osx/' vcpkg_x86_64-darwin.txt > vcpkg_x64-osx.txt
+          vcpkg/vcpkg install --recurse @vcpkg_x64-osx.txt
 
       - name: Build application
         uses: ashutoshvarma/action-cmake-build@master
@@ -85,22 +143,79 @@ jobs:
             -D VCPKG_TARGET_TRIPLET=x64-osx
             -D CMAKE_OSX_ARCHITECTURES=x86_64
             -D CMAKE_CXX_STANDARD=17
+            -D OPENSPADES_YSR=ON
           parallel: 8
+
+      - name: Sign application bundle
+        run: codesign --force --deep --sign - ${{ runner.workspace }}/openspades.mk/bin/OpenSpades.app
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v5
         with:
-          name: Release-macOS
+          name: zerospades-macos-intel
           path: |
             ${{ runner.workspace }}/openspades.mk/bin
           if-no-files-found: warn
-  
-  build-nix:
+
+  build-macos-arm:
+    name: Build (macOS Apple Silicon)
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Cache vcpkg and dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            vcpkg/installed
+            vcpkg/buildtrees
+          key: macos-arm-${{ hashFiles('vcpkg_x86_64-darwin.txt', '.gitmodules') }}
+          restore-keys: |
+            macos-arm-
+
+      - name: Bootstrap vcpkg
+        run: vcpkg/bootstrap-vcpkg.sh -disableMetrics
+
+      - name: Build dependencies
+        run: |
+          sed 's/$/:arm64-osx/' vcpkg_x86_64-darwin.txt > vcpkg_arm64-osx.txt
+          vcpkg/vcpkg install --recurse @vcpkg_arm64-osx.txt
+
+      - name: Build application
+        uses: ashutoshvarma/action-cmake-build@master
+        with:
+          build-dir: ${{ runner.workspace }}/openspades.mk
+          build-type: Release
+          configure-options: >
+            -D CMAKE_BUILD_TYPE=Release
+            -D CMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+            -D VCPKG_TARGET_TRIPLET=arm64-osx
+            -D CMAKE_OSX_ARCHITECTURES=arm64
+            -D CMAKE_CXX_STANDARD=17
+          parallel: 8
+
+      - name: Sign application bundle
+        run: codesign --force --deep --sign - ${{ runner.workspace }}/openspades.mk/bin/OpenSpades.app
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: zerospades-macos-arm64
+          path: |
+            ${{ runner.workspace }}/openspades.mk/bin
+          if-no-files-found: warn
+
+  build-linux-nix:
     name: Build (Linux + Nix)
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          submodules: true
 
       - name: Install Nix
         uses: cachix/install-nix-action@v31
@@ -108,3 +223,52 @@ jobs:
       - name: Build Nix flake
         run: nix build
 
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: zerospades-linux-nix
+          path: |
+            result/
+          if-no-files-found: warn
+
+  build-linux-ubuntu:
+    name: Build (Linux Ubuntu)
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libglew-dev \
+            libfreetype6-dev \
+            libcurl4-openssl-dev \
+            libogg-dev \
+            libopus-dev \
+            libopusfile-dev \
+            zlib1g-dev
+
+      - name: Build application
+        run: |
+          mkdir -p build
+          cd build
+          cmake .. \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D CMAKE_CXX_STANDARD=17
+          make -j$(nproc)
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: zerospades-linux-ubuntu
+          path: |
+            build/bin/
+          if-no-files-found: warn

@@ -156,13 +156,13 @@ namespace spades {
 						  eng->RegisterObjectMethod("GameMap", "void SetSolid(int, int, int, uint)",
 						                            asFUNCTION(SetSolid), asCALL_CDECL_OBJLAST);
 						manager->CheckError(r);
-						r = eng->RegisterObjectMethod("GameMap", "int get_Width()",
+						r = eng->RegisterObjectMethod("GameMap", "int get_Width() property",
 						                              asMETHOD(GameMap, Width), asCALL_THISCALL);
 						manager->CheckError(r);
-						r = eng->RegisterObjectMethod("GameMap", "int get_Height()",
+						r = eng->RegisterObjectMethod("GameMap", "int get_Height() property",
 						                              asMETHOD(GameMap, Height), asCALL_THISCALL);
 						manager->CheckError(r);
-						r = eng->RegisterObjectMethod("GameMap", "int get_Depth()",
+						r = eng->RegisterObjectMethod("GameMap", "int get_Depth() property",
 						                              asMETHOD(GameMap, Depth), asCALL_THISCALL);
 						manager->CheckError(r);
 						r = eng->RegisterObjectMethod(

@@ -210,7 +210,7 @@ namespace spades {
 			private TextViewerModel@ textmodel;
 			private TextViewerSelectionState selection;
 			private bool dragging = false;
-			private Image@ image;
+			private spades::Image@ image;
 
 			/**
 			 * The maximum number of lines. This affects the behavior of the
@@ -303,8 +303,9 @@ namespace spades {
 			}
 
 			void MouseEnter() {
-				if (textmodel !is null)
-					@this.Cursor = Cursor(Manager, image, Vector2(16.0F, 16.0F));
+				if (textmodel !is null) {
+							@this.Cursor = spades::ui::Cursor(Manager, image, Vector2(16.0F, 16.0F));
+				}
 			}
 
 			void MouseLeave() {

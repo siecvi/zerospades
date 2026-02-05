@@ -468,6 +468,7 @@ namespace spades {
 			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureMinFilter, IGLDevice::Nearest);
 			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureWrapS, IGLDevice::ClampToEdge);
 			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureWrapT, IGLDevice::ClampToEdge);
+			device.TexParamater(IGLDevice::Texture2D, IGLDevice::TextureCompareMode, IGLDevice::None);
 
 			tempFramebuffer = device.GenFramebuffer();
 			device.BindFramebuffer(IGLDevice::Framebuffer, tempFramebuffer);
