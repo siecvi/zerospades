@@ -111,12 +111,12 @@ if(USE_INTERNAL_OPENAL)
 	option(ALSOFT_INSTALL_AMBDEC_PRESETS "Install AmbiDec preset files" OFF)
 	option(ALSOFT_INSTALL_EXAMPLES "Install example programs (alplay, alstream, ...)" OFF)
 	option(ALSOFT_INSTALL_UTILS "Install utility programs (openal-info, alsoft-config, ...)" OFF)
-	add_subdirectory(Sources/Externals/openal-soft)
+	add_subdirectory(openal-soft)
 
 	# Use OpenAL Soft instead of system OpenAL
 	set(OPENAL_FOUND TRUE)
 	set(OPENAL_LIBRARY OpenAL)
-	set(OPENAL_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Externals/openal-soft/include)
+	set(OPENAL_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/openal-soft/include)
 else()
 	# Use system OpenAL
 	find_package(OpenAL REQUIRED)
