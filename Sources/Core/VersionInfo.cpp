@@ -1,9 +1,34 @@
 #include "VersionInfo.h"
 
 #if defined(OS_PLATFORM_WINDOWS)
+	#define WIN32_LEAN_AND_MEAN
 	#include <Windows.h>
-	#include <sstream>
-	#include <VersionHelpers.h> // Requires windows 8.1 sdk at least
+
+	typedef LONG (WINAPI* RtlGetVersionPtr)(PRTL_OSVERSIONINFOW);
+
+	static bool GetWindowsVersion(RTL_OSVERSIONINFOW& info) {
+		HMODULE hNtdll = GetModuleHandleW(L"ntdll.dll");
+		if (!hNtdll)
+			return false;
+
+		auto fn = reinterpret_cast<RtlGetVersionPtr>(
+			GetProcAddress(hNtdll, "RtlGetVersion"));
+		if (!fn)
+			return false;
+
+		info.dwOSVersionInfoSize = sizeof(info);
+		return fn(&info) == 0;
+	}
+
+	static bool IsWindowsServer(const RTL_OSVERSIONINFOW& info) {
+		OSVERSIONINFOEXW ex = {};
+		ex.dwOSVersionInfoSize = sizeof(ex);
+		ex.wProductType = VER_NT_WORKSTATION;
+
+		DWORDLONG mask = VerSetConditionMask(0, VER_PRODUCT_TYPE, VER_EQUAL);
+		
+		return !VerifyVersionInfoW(&ex, VER_PRODUCT_TYPE, mask);
+	}
 #endif
 
 std::string VersionInfo::GetVersionInfo() {
@@ -14,24 +39,32 @@ std::string VersionInfo::GetVersionInfo() {
 #elif defined(OS_PLATFORM_MAC)
 	result = "Mac OS X";
 #elif defined(OS_PLATFORM_WINDOWS)
-	if (IsWindowsXPOrGreater() && !IsWindowsVistaOrGreater()) {
-		result = "Windows XP";
-	} else if (IsWindowsVistaOrGreater() && !IsWindows7OrGreater()) {
-		result = "Windows Vista";
-	} else if (IsWindows7OrGreater() && !IsWindows8OrGreater()) {
-		result = "Windows 7";
-	} else if (IsWindows8OrGreater() && !IsWindows8Point1OrGreater()) {
-		result = "Windows 8";
-	} else if (IsWindows8Point1OrGreater() && !IsWindows10OrGreater()) {
-		result = "Windows 8.1";
-	} else if (IsWindows10OrGreater()) {
-		result = "Windows 10";
-	} else {
-		result = "Windows 11";
-	}
+	RTL_OSVERSIONINFOW osv = {};
+	if (!GetWindowsVersion(osv))
+		return "Windows (Unknown)";
 
-	if (IsWindowsServer())
+	const int major = osv.dwMajorVersion;
+	const int minor = osv.dwMinorVersion;
+	const int build = osv.dwBuildNumber;
+
+	if (major == 5)
+		result = "Windows XP";
+	else if (major == 6 && minor == 0)
+		result = "Windows Vista";
+	else if (major == 6 && minor == 1)
+		result = "Windows 7";
+	else if (major == 6 && minor == 2)
+		result = "Windows 8";
+	else if (major == 6 && minor == 3)
+		result = "Windows 8.1";
+	else if (major == 10)
+		result = (build >= 22000) ? "Windows 11" :  "Windows 10";
+	else
+		result = "Windows (Unknown)";
+
+	if (IsWindowsServer(osv))
 		result += " Server";
+
 #elif defined(__FreeBSD__)
 	result = "FreeBSD";
 #elif defined(__DragonFly__)
