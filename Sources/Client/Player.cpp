@@ -688,6 +688,9 @@ namespace spades {
 					if (map->IsValidMapCoord(outBlockPos.x, outBlockPos.y, outBlockPos.z)) {
 						SPAssert(map->IsSolid(outBlockPos.x, outBlockPos.y, outBlockPos.z));
 
+						if (listener)
+							listener->BulletHitBlock(finalHitPos, outBlockPos, mapResult.normal);
+
 						// damage block
 						if (outBlockPos.z < map->GroundDepth()) {
 							uint32_t col = map->GetColor(outBlockPos.x, outBlockPos.y, outBlockPos.z);
@@ -700,14 +703,11 @@ namespace spades {
 							}
 
 							if (map->IsSolid(outBlockPos.x, outBlockPos.y, outBlockPos.z)) {
-								col = (col & 0xFFFFFF) | ((health & 0xFF) << 24);
+								col = (col & 0xFFFFFF) | ((std::max(health, 0) & 0xFF) << 24);
 								map->Set(outBlockPos.x, outBlockPos.y, outBlockPos.z, true, col);
 								world.MarkBlockForRegeneration(outBlockPos);
 							}
 						}
-
-						if (listener)
-							listener->BulletHitBlock(finalHitPos, outBlockPos, mapResult.normal);
 					}
 				} else if (hitPlayer) {
 					finalHitPos = muzzle + dir * hitPlayerDist3D;
@@ -933,11 +933,15 @@ namespace spades {
 				if (map->IsValidMapCoord(outBlockPos.x, outBlockPos.y, outBlockPos.z)) {
 					SPAssert(map->IsSolid(outBlockPos.x, outBlockPos.y, outBlockPos.z));
 
+					if (listener)
+						listener->PlayerHitBlockWithSpade(*this,
+							mapResult.hitPos, outBlockPos, outBlockNormal);
+
 					// damage block
 					if (outBlockPos.z < map->GroundDepth()) {
 						if (!dig) {
 							uint32_t col = map->GetColor(outBlockPos.x, outBlockPos.y, outBlockPos.z);
-							int health = (col >> 24) - 55;
+							int health = (col >> 24) - 50;
 							if (health <= 0) {
 								health = 0;
 								if (listener && IsLocalPlayer()) // send destroy cmd for local
@@ -954,10 +958,6 @@ namespace spades {
 								listener->LocalPlayerBlockAction(outBlockPos, BlockActionDig);
 						}
 					}
-
-					if (listener)
-						listener->PlayerHitBlockWithSpade(*this,
-							mapResult.hitPos, outBlockPos, outBlockNormal);
 				}
 			} else if (hitPlayer && !dig) {
 				// The custom state data, optionally set by `BulletHitPlayer`'s implementation

@@ -886,7 +886,13 @@ namespace spades {
 				Vector3 shiftedHitPos = origin + (MakeVector3(normal) * 0.6F);
 
 				uint32_t col = map->GetColor(blockPos.x, blockPos.y, blockPos.z);
-				col = map->GetColorJit(col); // jit the colour
+				
+				// apply block darkening
+				int health = col >> 24;
+				uint32_t f = (std::max(health, 32) << 8) / 100;
+				col = DarkenColor(col, f);
+				
+				col = map->GetColorJit(col); // randomize color
 				EmitBlockFragments(shiftedHitPos, IntVectorFromColor(col));
 
 				if (!IsMuted()) {
@@ -1371,7 +1377,13 @@ namespace spades {
 				}
 			} else {
 				uint32_t col = map->GetColor(blockPos.x, blockPos.y, blockPos.z);
-				col = map->GetColorJit(col); // jit the colour
+				
+				// apply block darkening
+				int health = col >> 24;
+				uint32_t f = (std::max(health, 32) << 8) / 100;
+				col = DarkenColor(col, f);
+				
+				col = map->GetColorJit(col); // randomize color
 				EmitBlockFragments(shiftedHitPos, IntVectorFromColor(col));
 
 				if (!IsMuted()) {

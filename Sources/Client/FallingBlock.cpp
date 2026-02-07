@@ -79,8 +79,14 @@ namespace spades {
 
 			for (const auto& v : blocks) {
 				uint32_t col = map->GetColor(v.x, v.y, v.z);
-				col = map->GetColorJit(col); // jit the colour
-				col &= 0xFFFFFF; // use the default material
+
+				// apply block darkening
+				int health = col >> 24;
+				uint32_t f = (std::max(health, 32) << 8) / 100;
+				col = DarkenColor(col, f);
+				
+				col = map->GetColorJit(col); // randomize color
+				col &= 0xFFFFFF; // use the default material			
 				vmodel->SetSolid(v.x - minX, v.y - minY, v.z - minZ, col);
 			}
 
