@@ -1684,10 +1684,10 @@ msgctxt "Preferences"
 msgid "Bullet Tracers"
 msgstr "Trazadores de bala"
 
-#: Resources/Scripts/Gui/Preferences.as:612
+#: Resources/Scripts/Gui/Preferences.as:1232
 msgctxt "Preferences"
-msgid "Firstperson Tracers"
-msgstr "Trazadores en 1ra persona"
+msgid "3rd Person"
+msgstr "3ra persona"
 
 #: Resources/Scripts/Gui/Preferences.as:1183
 msgctxt "Preferences"
