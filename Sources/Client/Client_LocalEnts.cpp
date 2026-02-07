@@ -49,7 +49,6 @@ DEFINE_SPADES_SETTING(cg_particles, "2");
 DEFINE_SPADES_SETTING(cg_particlesBloodNum, "4");
 DEFINE_SPADES_SETTING(cg_particlesGrenadeNum, "64");
 DEFINE_SPADES_SETTING(cg_waterImpact, "1");
-DEFINE_SPADES_SETTING(cg_muzzleFire, "0");
 
 SPADES_SETTING(cg_manualFocus);
 DEFINE_SPADES_SETTING(cg_autoFocusSpeed, "0.4");
@@ -306,10 +305,7 @@ namespace spades {
 			}
 		}
 
-		void Client::MuzzleFire(spades::Vector3 pos) {
-			if (!cg_muzzleFire)
-				return;
-
+		void Client::MuzzleFire(spades::Vector3 pos, bool smoke) {
 			// distance cull
 			float distSqr = (pos - lastSceneDef.viewOrigin).GetSquaredLength2D();
 			if (distSqr > FOG_DISTANCE_SQ)
@@ -322,7 +318,7 @@ namespace spades {
 			l.color = MakeVector3(3.0F, 1.6F, 0.5F);
 			flashDlights.push_back(l);
 
-			if ((int)cg_particles < 2)
+			if ((int)cg_particles < 2 || !smoke)
 				return;
 
 			Vector3 velBias = {0, 0, -0.5F};

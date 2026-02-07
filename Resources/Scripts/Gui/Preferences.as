@@ -1222,8 +1222,12 @@ namespace spades {
 									array<int> = {2, 1, 0});
 			layouter.AddToggleField(_Tr("Preferences", "Ragdoll Corpses"), "cg_ragdoll");
 			layouter.AddToggleField(_Tr("Preferences", "Enhanced Ragdoll Physics"), "r_corpseLineCollision");
-			layouter.AddToggleField(_Tr("Preferences", "Muzzle Flashes"), "cg_muzzleFire");
 			layouter.AddChoiceField(_Tr("Preferences", "Bullet Tracers"), "cg_tracers",
+									array<string> = {_Tr("Preferences", "ON"),
+													 _Tr("Preferences", "3rd Person"),
+													 _Tr("Preferences", "OFF")},
+									array<int> = {1, 2, 0});
+			layouter.AddChoiceField(_Tr("Preferences", "Muzzle Flashes"), "cg_muzzleFire",
 									array<string> = {_Tr("Preferences", "ON"),
 													 _Tr("Preferences", "3rd Person"),
 													 _Tr("Preferences", "OFF")},
