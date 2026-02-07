@@ -93,6 +93,9 @@ namespace spades {
 		spades::ui::ListView@ demoList;
 		DemoListModel@ currentDemoListModel;
 		string selectedDemoPath;
+		spades::ui::Field@ demoNameField;
+		spades::ui::Button@ demoPlayButton;
+		spades::ui::Button@ demoDeleteButton;
 
 		// Demo list column widths (pixels)
 		private float demoDateColWidth;
@@ -301,11 +304,28 @@ namespace spades {
 
 				// --- Demo panel contents ---
 				{
-					spades::ui::Button playButton(Manager);
-					playButton.Caption = _Tr("MainScreen", "Play");
-					playButton.Bounds = AABB2(contentsLeft + contentsWidth - 150.0F, 200.0F, 150.0F, 30.0F);
-					@playButton.Activated = spades::ui::EventHandler(this.OnPlayDemoPressed);
-					demoPanel.AddChild(playButton);
+					// Selected demo name display (mirrors the server address field)
+					@demoNameField = spades::ui::Field(Manager);
+					demoNameField.Bounds = AABB2(contentsLeft, 200.0F, contentsWidth - 270.0F, 30.0F);
+					demoNameField.Placeholder = _Tr("MainScreen", "Select a demo");
+					demoNameField.AcceptsFocus = false;
+					demoNameField.IsMouseInteractive = false;
+					demoPanel.AddChild(demoNameField);
+				}
+				{
+					@demoDeleteButton = spades::ui::Button(Manager);
+					demoDeleteButton.Caption = _Tr("MainScreen", "Delete");
+					demoDeleteButton.Bounds = AABB2(contentsLeft + contentsWidth - 270.0F, 200.0F, 110.0F, 30.0F);
+					@demoDeleteButton.Activated = spades::ui::EventHandler(this.OnDeleteDemoPressed);
+					demoPanel.AddChild(demoDeleteButton);
+				}
+				{
+					@demoPlayButton = spades::ui::Button(Manager);
+					demoPlayButton.Caption = _Tr("MainScreen", "Play");
+					demoPlayButton.HotKeyText = _Tr("Client", "[Enter]");
+					demoPlayButton.Bounds = AABB2(contentsLeft + contentsWidth - 150.0F, 200.0F, 150.0F, 30.0F);
+					@demoPlayButton.Activated = spades::ui::EventHandler(this.OnPlayDemoPressed);
+					demoPanel.AddChild(demoPlayButton);
 				}
 				{
 					// Column order: Server | Map | Mode | Timestamp | Size
@@ -432,10 +452,12 @@ namespace spades {
 
 		void DemoListItemActivated(DemoListModel@ sender, string filename) {
 			selectedDemoPath = filename;
+			demoNameField.Text = StripDemoPath(filename);
 		}
 
 		void DemoListItemDoubleClicked(DemoListModel@ sender, string filename) {
 			selectedDemoPath = filename;
+			demoNameField.Text = StripDemoPath(filename);
 			PlaySelectedDemo();
 		}
 
@@ -451,6 +473,16 @@ namespace spades {
 
 		private void OnPlayDemoPressed(spades::ui::UIElement@ sender) {
 			PlaySelectedDemo();
+		}
+
+		private void OnDeleteDemoPressed(spades::ui::UIElement@ sender) {
+			if (selectedDemoPath.length == 0)
+				return;
+			if (!helper.DeleteDemo(selectedDemoPath))
+				return;
+			selectedDemoPath = "";
+			demoNameField.Text = "";
+			LoadDemoList();
 		}
 
 		void ServerListItemActivated(ServerListModel@ sender, MainScreenServerItem@ item) {

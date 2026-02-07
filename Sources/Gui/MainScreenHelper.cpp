@@ -22,6 +22,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cstdio>
 #include <cstdint>
 #include <memory>
 #include <sys/stat.h>
@@ -459,6 +460,10 @@ namespace spades {
 			if (mainScreen == NULL)
 				return "mainScreen == NULL";
 			return mainScreen->PlayDemo(filename);
+		}
+
+		bool MainScreenHelper::DeleteDemo(std::string filename) {
+			return std::remove(filename.c_str()) == 0;
 		}
 
 		std::string MainScreenHelper::GetPendingErrorMessage() {
