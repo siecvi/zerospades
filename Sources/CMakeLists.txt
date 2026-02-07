@@ -151,6 +151,14 @@ if(OPENAL_FOUND)
 	target_compile_definitions(OpenSpades PRIVATE OPENAL_SOFT=1)
 endif()
 
+# Copy OpenAL32.dll into the executable directory
+if(WIN32 AND USE_INTERNAL_OPENAL)
+	add_custom_command(TARGET OpenSpades POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			$<TARGET_FILE:OpenAL>
+			$<TARGET_FILE_DIR:OpenSpades>)
+endif()
+
 if(WIN32)
 	target_link_libraries(OpenSpades ws2_32.lib winmm.lib)
 elseif(UNIX AND NOT APPLE)
