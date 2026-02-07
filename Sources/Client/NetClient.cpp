@@ -1741,8 +1741,11 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			std::string osInfo = VersionInfo::GetVersionInfo();
-			osInfo.append(" | " ZEROSPADES_VER_STR);
+			std::string archInfo = VersionInfo::GetAppArchitecture();
 
+			osInfo.append(" | " ZEROSPADES_VER_STR);
+			osInfo.append(" (" + archInfo + ")");
+			
 			NetPacketWriter w(PacketTypeVersionSend);
 			w.WriteByte((uint8_t)'o');
 			w.WriteByte((uint8_t)OPENSPADES_VERSION_MAJOR);

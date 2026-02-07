@@ -10,17 +10,17 @@
 	OS_STRINGIFY(ZEROSPADES_VERSION_PATCH)
 
 #ifdef GIT_COMMIT_HASH
-#define ZEROSPADES_VER_STR "ZeroSpades " ZEROSPADES_VERSION_FULL " " GIT_COMMIT_HASH
+	#define ZEROSPADES_VER_STR "ZeroSpades " ZEROSPADES_VERSION_FULL " " GIT_COMMIT_HASH
 #else
-#define ZEROSPADES_VER_STR "ZeroSpades " ZEROSPADES_VERSION_FULL
+	#define ZEROSPADES_VER_STR "ZeroSpades " ZEROSPADES_VERSION_FULL
 #endif
 
 #if __linux__
-#define OS_PLATFORM_LINUX
+	#define OS_PLATFORM_LINUX
 #elif TARGET_OS_MAC
-#define OS_PLATFORM_MAC
+	#define OS_PLATFORM_MAC
 #elif defined _WIN32 || defined _WIN64
-#define OS_PLATFORM_WINDOWS
+	#define OS_PLATFORM_WINDOWS
 #endif
 
 #include <string>
@@ -28,4 +28,5 @@
 class VersionInfo {
 public:
 	static std::string GetVersionInfo();
+	static std::string GetAppArchitecture();
 };
