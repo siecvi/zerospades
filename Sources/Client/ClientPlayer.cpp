@@ -1277,17 +1277,20 @@ namespace spades {
 		}
 
 		Vector3 ClientPlayer::GetMuzzlePositionInFirstPersonView() {
+			if (cg_trueAimDownSight && cg_pngScope && aimDownState > 0.99F)
+				return (GetEyeMatrix() * MakeVector3(0.0F, 0.5F, 0.0F)).GetXYZ();
+
 			if (cg_classicViewWeapon) {
 				const Vector3 origin = classicViewWeaponOrigin;
 
 				Vector3 muzzle = MakeVector3(0.0F, 0.0F, 0.0F);
 				switch (player.GetWeaponType()) {
-					case RIFLE_WEAPON: muzzle = MakeVector3(0.0F, -0.55F, 0.075F); break;
-					case SMG_WEAPON: muzzle = MakeVector3(0.0F, -0.25F, 0.075F); break;
-					case SHOTGUN_WEAPON: muzzle = MakeVector3(0.0F, -0.4F, 0.075F); break;
+					case RIFLE_WEAPON: muzzle = MakeVector3(0.0F, 0.55F, -0.075F); break;
+					case SMG_WEAPON: muzzle = MakeVector3(0.0F, 0.25F, -0.075F); break;
+					case SHOTGUN_WEAPON: muzzle = MakeVector3(0.0F, 0.4F, -0.075F); break;
 				}
 
-				return (GetEyeMatrix() * (origin - muzzle)).GetXYZ();
+				return (GetEyeMatrix() * (origin + muzzle)).GetXYZ();
 			}
 
 			ScriptIWeaponSkin3 interface(weaponViewSkin);
@@ -1321,12 +1324,12 @@ namespace spades {
 
 				Vector3 caseEject = MakeVector3(0.0F, 0.0F, 0.0F);
 				switch (player.GetWeaponType()) {
-					case RIFLE_WEAPON: caseEject = MakeVector3(0.0F, 0.125F, 0.1F); break;
-					case SMG_WEAPON: caseEject = MakeVector3(0.0F, 0.2F, 0.1F); break;
-					case SHOTGUN_WEAPON: caseEject = MakeVector3(0.0F, 0.0F, 0.1F); break;
+					case RIFLE_WEAPON: caseEject = MakeVector3(0.0F, 0.125F, -0.1F); break;
+					case SMG_WEAPON: caseEject = MakeVector3(0.0F, 0.2F, -0.1F); break;
+					case SHOTGUN_WEAPON: caseEject = MakeVector3(0.0F, 0.0F, -0.1F); break;
 				}
 
-				return (GetEyeMatrix() * (origin - caseEject)).GetXYZ();
+				return (GetEyeMatrix() * (origin + caseEject)).GetXYZ();
 			}
 
 			ScriptIWeaponSkin3 interface(weaponViewSkin);
