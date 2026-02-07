@@ -1609,9 +1609,9 @@ msgctxt "Preferences"
 msgid "Bullet Tracers"
 msgstr ""
 
-#: Resources/Scripts/Gui/Preferences.as:612
+#: Resources/Scripts/Gui/Preferences.as:1232
 msgctxt "Preferences"
-msgid "Firstperson Tracers"
+msgid "3rd Person"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:1183

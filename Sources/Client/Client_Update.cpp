@@ -58,7 +58,6 @@ DEFINE_SPADES_SETTING(cg_killSounds, "0");
 DEFINE_SPADES_SETTING(cg_killSoundsPitch, "1");
 DEFINE_SPADES_SETTING(cg_killSoundsGain, "0.2");
 DEFINE_SPADES_SETTING(cg_tracers, "1");
-DEFINE_SPADES_SETTING(cg_tracersFirstPerson, "1");
 DEFINE_SPADES_SETTING(cg_hitLog, "0");
 DEFINE_SPADES_SETTING(cg_killfeedIcons, "1");
 DEFINE_SPADES_SETTING(cg_killfeedStreaks, "1");
@@ -1393,7 +1392,8 @@ namespace spades {
 			spades::Vector3 muzzlePos, spades::Vector3 hitPos) {
 			SPADES_MARK_FUNCTION();
 
-			if (!cg_tracers)
+			int tracersMode = cg_tracers;
+			if (tracersMode == 0)
 				return;
 
 			// distance cull
@@ -1403,7 +1403,7 @@ namespace spades {
 
 			// If disabled, do not display bullet tracers when in firstperson perspective
 			bool isFirstPerson = IsInFirstPersonView(player.GetId());
-			if (!cg_tracersFirstPerson && isFirstPerson)
+			if (tracersMode == 2 && isFirstPerson)
 				return;
 
 			// The line segment containing `muzzlePos` and `hitPos` represents the accurate
