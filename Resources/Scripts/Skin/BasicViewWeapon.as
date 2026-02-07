@@ -208,6 +208,7 @@ namespace spades {
 
 		protected ConfigItem cg_fov("cg_fov");
 		protected ConfigItem cg_reflexScope("cg_reflexScope", "0");
+		protected ConfigItem cg_trueAimDownSight("cg_trueAimDownSight");
 		protected ConfigItem cg_weaponCharms("cg_weaponCharms", "1");
 
 		protected ConfigItem cg_viewWeaponX("cg_viewWeaponX");
@@ -352,7 +353,11 @@ namespace spades {
 
 			// add weapon offset
 			Vector3 trans(0.0F, 0.0F, 0.0F);
-			trans += Vector3(-0.13F * sp, 0.5F, GetZPos());
+
+			if (cg_trueAimDownSight.BoolValue and cg_pngScope.BoolValue)
+				trans += Vector3(Mix(-0.26F, -0.13F, sp), 0.5F * sp, Mix(0.3F, 0.2F, sp));
+			else
+				trans += Vector3(-0.13F * sp, 0.5F, GetZPos());
 
 			// manual adjustment
 			trans.x += cg_viewWeaponX.FloatValue * sp;

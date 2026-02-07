@@ -338,7 +338,11 @@ namespace spades {
 			Vector3 offset = reflexScope ? Vector3(sightAttachment.x, 0.0F, -0.05F) : Vector3(sightAttachment.x, 0.0F, 0.05F);
 			Vector3 sightPos = (sightAttachment - offset) * globalScale;
 			float sightZ = reflexScope ? (sightPos.z + 0.0125F) : sightPos.z;
-			trans += Vector3(-0.13F * sp, 0.5F, GetZPos(-sightZ));
+
+			if (cg_trueAimDownSight.BoolValue and cg_pngScope.BoolValue)
+				trans += Vector3(Mix(-0.26F, -0.13F, sp), 0.5F * sp, Mix(0.3F, 0.2F, sp));
+			else
+				trans += Vector3(-0.13F * sp, 0.5F, GetZPos(-sightZ));
 
 			// manual adjustment
 			trans.x += cg_viewWeaponX.FloatValue * sp;
@@ -357,7 +361,7 @@ namespace spades {
 			swingRot.x -= 2.0F * verticalSwingSpring.position;
 			mat = mat * CreateEulerAnglesMatrix(swingRot * sp);
 
-			if (AimDownSightStateSmooth > 0.0F)
+			if ((cg_trueAimDownSight.BoolValue and not cg_pngScope.BoolValue) and AimDownSightStateSmooth > 0.0F)
 				mat = AdjustToAlignSight(mat, sightPos, AimDownSightStateSmooth);
 
 			// reload animation
@@ -471,7 +475,7 @@ namespace spades {
 
 			// draw reflex sight (3D sprite)
 			int reflexMode = cg_reflexScope.IntValue;
-			if ((reflexMode >= 1 and reflexMode < 3) and AimDownSightStateSmooth > 0.8F) {
+			if ((reflexMode >= 1 and reflexMode < 3) and not cg_pngScope.BoolValue and AimDownSightStateSmooth > 0.8F) {
 				bool dotReflex = reflexMode == 1;
 				float reflexSize = dotReflex ? 0.02F : 0.125F;
 				Vector3 sightPos = reflexSightAttachment - Vector3(reflexSightAttachment.x, 0.0F, -0.05F);
