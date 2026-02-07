@@ -34,14 +34,8 @@
 namespace spades {
 	namespace client {
 
-		static uint32_t swapColor(uint32_t col) {
-			union {
-				uint8_t bytes[4];
-				uint32_t c;
-			} u;
-			u.c = col;
-			std::swap(u.bytes[0], u.bytes[2]);
-			return (u.c & 0xFFFFFF) | (100UL << 24);
+		static uint32_t swapColorMap(uint32_t col) {
+			return swapColor(col) | (100UL << 24);
 		}
 
 		GameMap::GameMap() {
@@ -52,7 +46,7 @@ namespace spades {
 				solidMap[x][y] = 1; // ground only
 				for (int z = 0; z < DefaultDepth; z++) {
 					uint32_t col = GetDirtColor(x, y, z);
-					colorMap[x][y][z] = swapColor(col);
+					colorMap[x][y][z] = swapColorMap(col);
 				}
 			}
 		}
@@ -421,7 +415,7 @@ namespace spades {
 
 						size_t colorOffset = pos + 4;
 						for (z = top_color_start; z <= top_color_end; z++) {
-							uint32_t col = swapColor(view.Read<uint32_t>(colorOffset));
+							uint32_t col = swapColorMap(view.Read<uint32_t>(colorOffset));
 							map->Set(x, y, z, true, col, true);
 							colorOffset += 4;
 						}
@@ -448,7 +442,7 @@ namespace spades {
 						int bottom_color_start = bottom_color_end - len_top;
 
 						for (z = bottom_color_start; z < bottom_color_end; z++) {
-							uint32_t col = swapColor(view.Read<uint32_t>(colorOffset));
+							uint32_t col = swapColorMap(view.Read<uint32_t>(colorOffset));
 							map->Set(x, y, z, true, col, true);
 							colorOffset += 4;
 						}
