@@ -4,6 +4,6 @@
 [submodule "vcpkg"]
 	path = vcpkg
 	url = https://github.com/microsoft/vcpkg.git
-[submodule "Sources/Externals/openal-soft"]
-	path = Sources/Externals/openal-soft
+[submodule "openal-soft"]
+	path = openal-soft
 	url = https://github.com/kcat/openal-soft.git

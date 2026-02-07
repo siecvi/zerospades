@@ -204,7 +204,7 @@ if(APPLE)
 	add_custom_command(TARGET OpenSpades POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:OpenSpades>/Frameworks"
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			"${CMAKE_BINARY_DIR}/Sources/Externals/openal-soft/libopenal.1.dylib"
+		"${CMAKE_BINARY_DIR}/openal-soft/libopenal.1.dylib"
 			"$<TARGET_BUNDLE_CONTENT_DIR:OpenSpades>/Frameworks/"
 		COMMAND install_name_tool -change "@rpath/libopenal.1.dylib"
 			"@executable_path/../Frameworks/libopenal.1.dylib"
