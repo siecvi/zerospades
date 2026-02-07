@@ -38,15 +38,24 @@ if(WIN32)
 	endif()
 endif()
 
-add_executable(OpenSpades ${AUDIO_FILES} ${AUDIO_AL_FILES} ${BINPACK_FILES} ${CLIENT_FILES} ${CORE_FILES} ${PLATFORM_FILES} ${DRAW_FILES} ${ENET_FILES} ${ENET_INCLUDE} ${GUI_FILES}
-	${IMPORTS_FILES} ${KISS_FILES} ${JSON_FILES} ${JSON_INCLUDE} ${UNZIP_FILES} ${SCRIPTBINDING_FILES} ${RESOURCE_FILES})
-set_target_properties(OpenSpades PROPERTIES LINKER_LANGUAGE CXX)
-set_target_properties(OpenSpades PROPERTIES OUTPUT_NAME openspades)
-set_target_properties(OpenSpades PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set_target_properties(OpenSpades PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set_target_properties(OpenSpades PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+add_executable(OpenSpades
+	${AUDIO_FILES} ${AUDIO_AL_FILES} ${BINPACK_FILES} ${CLIENT_FILES}
+	${CORE_FILES} ${PLATFORM_FILES} ${DRAW_FILES} ${ENET_FILES}
+	${ENET_INCLUDE} ${GUI_FILES} ${IMPORTS_FILES} ${KISS_FILES}
+	${JSON_FILES} ${JSON_INCLUDE} ${UNZIP_FILES} ${SCRIPTBINDING_FILES}
+	${RESOURCE_FILES})
 
-set_target_properties(OpenSpades PROPERTIES WIN32_EXECUTABLE TRUE)
+set_target_properties(OpenSpades PROPERTIES
+	LINKER_LANGUAGE CXX
+	OUTPUT_NAME openspades
+	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+	LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+	ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
+if(WIN32)
+	set_target_properties(OpenSpades PROPERTIES WIN32_EXECUTABLE TRUE)
+endif()
 
 set(GIT_COMMIT_HASH "?")
 
@@ -102,7 +111,13 @@ if(WIN32)
 	foreach(LIB ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY})
 		string(REGEX REPLACE "\\.lib$" ".dll" SDL_DLL ${LIB})
 		if(EXISTS "${SDL_DLL}")
-			add_custom_command(TARGET OpenSpades POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${SDL_DLL}" "${CMAKE_BINARY_DIR}/bin/\$\(Configuration\)/")
+			add_custom_command(
+				TARGET OpenSpades
+				POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different
+					"${SDL_DLL}"
+					"${CMAKE_BINARY_DIR}/bin/\$\(Configuration\)/"
+			)
 			install(PROGRAMS ${SDL_DLL} DESTINATION bin)
 		endif()
 	endforeach()
@@ -113,7 +128,11 @@ if(WIN32)
 	endif()
 	if(MSVC)
 		#lm: this sucks, msvc fucks up some linking (conflicts)
-		set_target_properties(OpenSpades PROPERTIES LINK_FLAGS_RELEASE "/NODEFAULTLIB:\"msvcrt.lib\" /NODEFAULTLIB:\"libcmtd.lib\" /NODEFAULTLIB:\"msvcrtd.lib\"")
+		set_target_properties(
+			OpenSpades PROPERTIES
+			LINK_FLAGS_RELEASE
+			"/NODEFAULTLIB:\"msvcrt.lib\" /NODEFAULTLIB:\"libcmtd.lib\" /NODEFAULTLIB:\"msvcrtd.lib\""
+		)
 	endif()
 endif()
 
@@ -134,7 +153,10 @@ source_group("libs\\json\\include" FILES ${JSON_INCLUDE})
 source_group("ScriptBindings" FILES ${SCRIPTBINDING_FILES})
 source_group("libs\\unzip" FILES ${UNZIP_FILES})
 
-target_link_libraries(OpenSpades ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${OPENGL_LIBRARIES} ${ZLIB_LIBRARIES} ${CURL_LIBRARY} ${FREETYPE_LIBRARIES} ${CMAKE_DL_LIBS} ${ANGELSCRIPT_LIBS} ${Ogg_LIBRARY} ${OpusFile_LIBRARY})
+target_link_libraries(OpenSpades
+	${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${OPENGL_LIBRARIES} ${ZLIB_LIBRARIES}
+	${CURL_LIBRARY} ${FREETYPE_LIBRARIES} ${CMAKE_DL_LIBS} ${ANGELSCRIPT_LIBS}
+	${Ogg_LIBRARY} ${OpusFile_LIBRARY})
 if(NOT APPLE)
 	target_link_libraries(OpenSpades ${GLEW_LIBRARY})
 endif()
