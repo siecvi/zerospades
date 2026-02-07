@@ -78,16 +78,6 @@ namespace spades {
 			float xpivot, ypivot, zpivot;
 			uint32_t blklen;
 		};
-
-		uint32_t swapColor(uint32_t col) {
-			union {
-				uint8_t bytes[4];
-				uint32_t c;
-			} u;
-			u.c = col;
-			std::swap(u.bytes[0], u.bytes[2]);
-			return (u.c & 0xFFFFFF);
-		}
 	} // namespace
 
 	void VoxelModel::HollowFill() {

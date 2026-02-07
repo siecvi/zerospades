@@ -502,6 +502,10 @@ namespace spades {
 		uint32_t g = ((col & 0xFF00) * f) >> 8;
 		return (rb & 0xFF00FF) | (g & 0xFF00) | (col & 0xFF000000);
 	}
+	
+	static inline uint32_t swapColor(uint32_t col) {
+		return ((col & 0xFF) << 16) | (col & 0xFF00) | ((col >> 16) & 0xFF);
+	}
 
 	static inline uint32_t IntVectorToColor(const IntVector3& v) {
 		return v.x | v.y << 8 | v.z << 16;

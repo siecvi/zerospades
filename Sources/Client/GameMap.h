@@ -181,31 +181,42 @@ namespace spades {
 			};
 			RayCastResult CastRay2(Vector3 v0, Vector3 dir, int maxSteps) const;
 
-			// adapted from VOXLAP5.C by Ken Silverman <http://advsys.net/ken/>
+			// adapted from VOXLAP5.C by Ken Silverman <https://advsys.net/ken/>
+			// https://github.com/Ericson2314/Voxlap/blob/no-asm/source/voxlap5.cpp#L454
 			uint32_t gkrand = 0;
 			inline uint32_t GetColorJit(uint32_t col, uint32_t amount = 0x70707) {
 				gkrand = 0x1A4E86D * gkrand + 1;
 				return col ^ (gkrand & amount);
 			}
 
-			int groundCols[9] = {
+			// adapted from GAME.C by Ken Silverman <https://advsys.net/ken/>
+			// https://github.com/Ericson2314/Voxlap/blob/no-asm/source/game.cpp#L329
+			uint32_t groundColors[9] = {
 				0x506050, 0x605848, 0x705040,
 				0x804838, 0x704030, 0x603828,
 				0x503020, 0x402818, 0x302010
 			};
-
 			inline uint32_t GetDirtColor(int x, int y, int z) {
-				int j = groundCols[(z >> 3) + 1];
-				int i = groundCols[(z >> 3)];
-				i += ((j - i) * (z & 7)) >> 3;
+				const int layer = z >> 3; // vertical layer
+				uint32_t i = groundColors[layer];
+				uint32_t j = groundColors[layer + 1];
 
-				IntVector3 col;
-				col.x = abs((x & 7) - 4);
-				col.y = abs((y & 7) - 4);
-				col.z = abs((z & 7) - 4);
-				i += 4 * (col.x << 16 | col.y << 8 | col.z);
+				// interpolate between current and next layer color
+				const int frac = z & 7;
+				int rb = (i & 0xFF00FF) + ((((j & 0xFF00FF) - (i & 0xFF00FF)) * frac) >> 3);
+				int g = (i & 0xFF00) + ((((j & 0xFF00) - (i & 0xFF00)) * frac) >> 3);
+				i = (rb & 0xFF00FF) | (g & 0xFF00);
 
-				return i + (0x10101 * (rand() % 7));
+				// add corner darkening
+				int dx = abs((x & 7) - 4);
+				int dy = abs((y & 7) - 4);
+				int dz = abs((z & 7) - 4);
+				i += 4 * ((dx << 16) + (dy << 8) + dz);
+
+				// add subtle noise
+				i += 0x10101 * static_cast<uint32_t>(SampleRandom() & 7);
+
+				return i;
 			}
 
 		private:
