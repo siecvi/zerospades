@@ -48,3 +48,19 @@ std::string VersionInfo::GetVersionInfo() {
 
 	return result;
 }
+
+std::string VersionInfo::GetAppArchitecture() {
+	std::string result;
+
+#if defined(__i386__) || defined(_M_IX86)
+	result = "x86";
+#elif defined(__amd64__) || defined(__x86_64__) || defined(_M_X64)
+	result = "x64";
+#elif defined(__aarch64__) || defined(_M_ARM64)
+	result = "ARM64";
+#else
+	result = "Unknown Arch";
+#endif
+
+	return result;
+}
