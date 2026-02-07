@@ -657,8 +657,11 @@ namespace spades {
 							spectatorZoomState = 0.0F;
 						}
 
-						followedPlayerId = p.GetId(); // start with the local player
-						followCameraState.firstPerson = false; // force thirdperson
+						// fallback to local player if the last player being followed doesn't exist
+						if (!world->GetPlayer(followedPlayerId))
+							followedPlayerId = p.GetId();
+						
+						followCameraState.firstPerson = true; // force firstperson
 						followCameraState.enabled = true;
 					}
 
