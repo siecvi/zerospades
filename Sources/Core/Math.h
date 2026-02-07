@@ -496,6 +496,12 @@ namespace spades {
 	static inline Vector3 MakeVector3(IntVector3 v) {
 		return Vector3::Make(static_cast<float>(v.x), static_cast<float>(v.y), static_cast<float>(v.z));
 	}
+	
+	static inline uint32_t DarkenColor(uint32_t col, uint32_t f) {
+		uint32_t rb = ((col & 0xFF00FF) * f) >> 8;
+		uint32_t g = ((col & 0xFF00) * f) >> 8;
+		return (rb & 0xFF00FF) | (g & 0xFF00) | (col & 0xFF000000);
+	}
 
 	static inline uint32_t IntVectorToColor(const IntVector3& v) {
 		return v.x | v.y << 8 | v.z << 16;

@@ -247,13 +247,10 @@ namespace spades {
 
 						uint32_t col = map->GetColor(xx, yy, zz);
 
-						// damaged block?
+						// apply block darkening
 						int health = col >> 24;
-						if (health < 100) {
-							col &= 0xFFFFFF;
-							col &= 0xFEFEFE;
-							col >>= 1;
-						}
+						uint32_t f = (std::max(health, 32) << 8) / 100;
+						col = DarkenColor(col, f);
 
 						if (!IsSolid(xx, yy, zz + 1))
 							EmitVertex(x + 1, y, z + 1, xx, yy, zz + 1, -1, 0, 0, 1, col, 0, 0, 1);
