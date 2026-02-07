@@ -367,7 +367,7 @@ namespace spades {
 			void EmitBlockDestroyFragments(IntVector3 pos);
 			void GrenadeExplosion(Vector3);
 			void GrenadeExplosionUnderwater(Vector3);
-			void MuzzleFire(Vector3);
+			void MuzzleFire(Vector3, bool smoke = true);
 			void BulletHitWaterSurface(Vector3);
 			void EmitSnowflakes(Vector3);
 

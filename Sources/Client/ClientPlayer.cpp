@@ -65,8 +65,11 @@ DEFINE_SPADES_SETTING(cg_hideBody, "0");
 DEFINE_SPADES_SETTING(cg_hideArms, "0");
 DEFINE_SPADES_SETTING(cg_debugToolSkinAnchors, "0");
 DEFINE_SPADES_SETTING(cg_trueAimDownSight, "1");
+DEFINE_SPADES_SETTING(cg_muzzleFire, "0");
 
 SPADES_SETTING(cg_orientationSmoothing);
+
+SPADES_SETTING(cg_pngScope);
 
 namespace spades {
 	namespace client {
@@ -1442,15 +1445,18 @@ namespace spades {
 
 			bool isThirdPerson = ShouldRenderInThirdPersonView();
 
-			Vector3 muzzle = isThirdPerson
-				? GetMuzzlePosition()
-				: GetMuzzlePositionInFirstPersonView();
-
 			// make dlight
-			client.MuzzleFire(muzzle);
+			int muzzleMode = cg_muzzleFire;
+			if (muzzleMode == 1 || (muzzleMode == 2 && isThirdPerson)) {
+				Vector3 muzzle = isThirdPerson
+					? GetMuzzlePosition()
+					: GetMuzzlePositionInFirstPersonView();
 
-			// sound ambience estimation
-			auto ambience = ComputeAmbience();
+				bool showMuzzleSmoke = true;
+				if (cg_trueAimDownSight && cg_pngScope && aimDownState > 0.99F)
+					showMuzzleSmoke = false;
+				client.MuzzleFire(muzzle, isThirdPerson || showMuzzleSmoke);
+			}
 
 			// FIXME: what if current tool isn't weapon?
 			asIScriptObject* skin = isThirdPerson ? weaponSkin : weaponViewSkin;
@@ -1458,6 +1464,8 @@ namespace spades {
 			{
 				ScriptIWeaponSkin2 interface(skin);
 				if (interface.ImplementsInterface()) {
+					// sound ambience estimation
+					auto ambience = ComputeAmbience();
 					interface.SetSoundEnvironment(ambience.room, ambience.size, ambience.distance);
 					interface.SetSoundOrigin(p.GetEye());
 				} else if (isThirdPerson && !hasValidOriginMatrix) {
@@ -1534,12 +1542,11 @@ namespace spades {
 			// FIXME: what if current tool isn't weapon?
 			asIScriptObject* skin = isThirdPerson ? weaponSkin : weaponViewSkin;
 
-			// sound ambience estimation
-			auto ambience = ComputeAmbience();
-
 			{
 				ScriptIWeaponSkin2 interface(skin);
 				if (interface.ImplementsInterface()) {
+					// sound ambience estimation
+					auto ambience = ComputeAmbience();
 					interface.SetSoundEnvironment(ambience.room, ambience.size, ambience.distance);
 					interface.SetSoundOrigin(player.GetEye());
 				} else if (isThirdPerson && !hasValidOriginMatrix) {
