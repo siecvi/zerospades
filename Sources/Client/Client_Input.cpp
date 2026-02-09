@@ -102,6 +102,7 @@ DEFINE_SPADES_SETTING(cg_keyDemoRecord, "F9");
 DEFINE_SPADES_SETTING(cg_keyDemoSpeedUp, "]");
 DEFINE_SPADES_SETTING(cg_keyDemoSlowDown, "[");
 SPADES_SETTING(cg_maxDemos);
+SPADES_SETTING(cg_autoPruneDemos);
 
 SPADES_SETTING(s_volume);
 DEFINE_SPADES_SETTING(cg_keyVolumeUp, "+");
@@ -667,10 +668,11 @@ namespace spades {
 						  _Tr("Client", "Demo recording stopped."), MsgColorSysInfo));
 					} else {
 						if (net->StartDemoRecording("", BuildDemoContext())) {
-							int maxDemos = (int)cg_maxDemos;
-							if (maxDemos < 1)
-								maxDemos = 1;
-							DemoRecorder::PruneOldRecordings(static_cast<size_t>(maxDemos));
+							if ((int)cg_autoPruneDemos != 0) {
+								int maxDemos = (int)cg_maxDemos;
+								if (maxDemos >= 1)
+									DemoRecorder::PruneOldRecordings(static_cast<size_t>(maxDemos));
+							}
 							chatWindow->AddMessage(ChatWindow::ColoredMessage(
 							  _Tr("Client", "Demo recording started: {0}", net->GetDemoFilename()),
 							  MsgColorSysInfo));
