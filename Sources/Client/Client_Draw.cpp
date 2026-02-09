@@ -191,9 +191,9 @@ namespace spades {
 			char bufJpg[32], bufTga[32], bufPng[32];
 			const int maxShotIndex = 10000;
 			for (int i = 0; i < maxShotIndex; i++) {
-				sprintf(bufJpg, "Screenshots/shot%04d.jpg", nextScreenShotIndex);
-				sprintf(bufTga, "Screenshots/shot%04d.tga", nextScreenShotIndex);
-				sprintf(bufPng, "Screenshots/shot%04d.png", nextScreenShotIndex);
+				snprintf(bufJpg, sizeof(bufJpg), "Screenshots/shot%04d.jpg", nextScreenShotIndex);
+				snprintf(bufTga, sizeof(bufTga), "Screenshots/shot%04d.tga", nextScreenShotIndex);
+				snprintf(bufPng, sizeof(bufPng), "Screenshots/shot%04d.png", nextScreenShotIndex);
 				if (FileManager::FileExists(bufJpg) ||
 					FileManager::FileExists(bufTga) ||
 					FileManager::FileExists(bufPng)) {
@@ -267,9 +267,9 @@ namespace spades {
 
 			char buf[16];
 			if (hrs > 0)
-				sprintf(buf, "%d:%02d:%02d", hrs, mins, secs);
+				snprintf(buf, sizeof(buf), "%d:%02d:%02d", hrs, mins, secs);
 			else
-				sprintf(buf, "%d:%02d", mins, secs);
+				snprintf(buf, sizeof(buf), "%d:%02d", mins, secs);
 
 			IFont& font = fontManager->GetHeadingFont();
 			Vector2 size = font.Measure(buf);
@@ -506,7 +506,7 @@ namespace spades {
 				const float dist = (origin - lastSceneDef.viewOrigin).GetLength2D();
 				if ((int)cg_playerNames < 2 && dist <= FOG_DISTANCE) {
 					char buf[32];
-					sprintf(buf, " [%.1f]", dist);
+					snprintf(buf, sizeof(buf), " [%.1f]", dist);
 					str += buf;
 				}
 
@@ -1222,7 +1222,7 @@ namespace spades {
 			addLine(_Tr("Client", "Accuracy: {0}%", accPerc));
 
 			char buf[32];
-			sprintf(buf, "%.3g", curKills / float(std::max(1, curDeaths)));
+			snprintf(buf, sizeof(buf), "%.3g", curKills / float(std::max(1, curDeaths)));
 			addLine(_Tr("Client", "Kill/Death Ratio: {0}", std::string(buf)));
 			addLine(_Tr("Client", "Kill Streak: {0}, Best: {1}", curStreak, bestStreak));
 			addLine(_Tr("Client", "Melee Kills: {0}", meleeKills));
@@ -1283,8 +1283,6 @@ namespace spades {
 
 			float sw = renderer->ScreenWidth();
 			float sh = renderer->ScreenHeight();
-
-			Player& p = world->GetLocalPlayer().value();
 
 			// draw respawn time
 			std::string msg = (lastRespawnCount > 0)
@@ -1423,7 +1421,7 @@ namespace spades {
 				IntVector3 color = world->GetLocalPlayer()->GetBlockColor();
 
 				char buf[8];
-				sprintf(buf, "%02X%02X%02X", color.x, color.y, color.z);
+				snprintf(buf, sizeof(buf), "%02X%02X%02X", color.x, color.y, color.z);
 				lines.push_back(_Tr("Client", "#{0} / RGB({1}, {2}, {3})",
 					std::string(buf), color.x, color.y, color.z));
 			}
@@ -1716,7 +1714,7 @@ namespace spades {
 				if (fps <= 0) {
 					str += "FPS: NA";
 				} else {
-					sprintf(buf, "%.0fFPS", fps);
+					snprintf(buf, sizeof(buf), "%.0fFPS", fps);
 					str += buf;
 				}
 			}
@@ -1726,28 +1724,28 @@ namespace spades {
 				if (ups <= 0) {
 					str += ", UPS: NA";
 				} else {
-					sprintf(buf, ", %.0fUPS", ups);
+					snprintf(buf, sizeof(buf), ", %.0fUPS", ups);
 					str += buf;
 				}
 			}
 
 			if (net) {
 				auto ping = net->GetPing();
-				sprintf(buf, ", ping: %dms", ping);
+				snprintf(buf, sizeof(buf), ", ping: %dms", ping);
 				str += buf;
 
 				auto upbps = net->GetUplinkBps() / 1000;
 				auto downbps = net->GetDownlinkBps() / 1000;
-				sprintf(buf, ", up/down: %.02f/%.02fkbps", upbps, downbps);
+				snprintf(buf, sizeof(buf), ", up/down: %.02f/%.02fkbps", upbps, downbps);
 				str += buf;
 
 				auto loss = net->GetPacketLoss() * 100.0F;
-				sprintf(buf, ", loss: %.0f%%", loss);
+				snprintf(buf, sizeof(buf), ", loss: %.0f%%", loss);
 				str += buf;
 
 				auto throttle = net->GetPacketThrottle();
 				auto choke = (1.0F - throttle) * 100.0F;
-				sprintf(buf, ", choke: %.0f%%", choke);
+				snprintf(buf, sizeof(buf), ", choke: %.0f%%", choke);
 				str += buf;
 			}
 

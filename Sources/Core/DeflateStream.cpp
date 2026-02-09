@@ -63,10 +63,8 @@ namespace spades {
 		if (valid) {
 			if (mode == CompressModeCompress) {
 				deflateEnd(&zstream);
-			} else if (mode == CompressModeDecompress) {
-				inflateEnd(&zstream);
 			} else {
-				SPUnreachable();
+				inflateEnd(&zstream);
 			}
 		}
 		if (autoClose) {

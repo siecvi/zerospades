@@ -744,6 +744,7 @@ namespace spades {
 								else if (hitPart == HitBodyPart::Leg2)
 									playerHits[hitPlayer->playerId].numLimbHits[1]++;
 								break;
+							default: break;
 						}
 					}
 
@@ -806,6 +807,7 @@ namespace spades {
 							}
 							break;
 						case ProtocolVersion::v076:
+						default:
 							switch (weaponType) {
 								case RIFLE_WEAPON: rec = MakeVector2(0.0001F, 0.075F); break;
 								case SMG_WEAPON: rec = MakeVector2(0.00005F, 0.0125F); break;

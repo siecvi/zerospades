@@ -98,10 +98,10 @@ namespace spades {
 		      meleeKills(0),
 		      grenadeKills(0),
 		      placedBlocks(0),
+		      reloadKeyPressed(false),
 		      localFireVibrationTime(-1.0F),
 		      grenadeVibration(0.0F),
 		      grenadeVibrationSlow(0.0F),
-		      reloadKeyPressed(false),
 		      scoreboardVisible(false),
 		      hudVisible(true),
 		      flashlightOn(false),
@@ -114,8 +114,6 @@ namespace spades {
 		      debugHitTestZoom(false),
 		      spectatorZoomState(0.0F),
 		      spectatorZoom(false),
-		      spectatorPlayerNames(true),
-		      staffSpectating(false),
 		      focalLength(20.0F),
 		      targetFocalLength(20.0F),
 		      autoFocusEnabled(true),
@@ -126,7 +124,9 @@ namespace spades {
 		      corpseSoftLimit(6),
 		      corpseHardLimit(16),
 		      nextScreenShotIndex(0),
-		      nextMapShotIndex(0) {
+		      nextMapShotIndex(0),
+		      staffSpectating(false),
+		      spectatorPlayerNames(true) {
 			SPADES_MARK_FUNCTION();
 			SPLog("Initializing...");
 
@@ -842,7 +842,7 @@ namespace spades {
 			char buf[32];
 			const int maxShotIndex = 10000;
 			for (int i = 0; i < maxShotIndex; i++) {
-				sprintf(buf, "Mapshots/shot%04d.vxl", nextMapShotIndex);
+				snprintf(buf, sizeof(buf), "Mapshots/shot%04d.vxl", nextMapShotIndex);
 				if (FileManager::FileExists(buf)) {
 					nextMapShotIndex++;
 					if (nextMapShotIndex >= maxShotIndex)

@@ -39,12 +39,12 @@ namespace spades {
 
 			for (int i = 0; i < 180; i++) {
 				char buf[256];
-				sprintf(buf, "Textures/Smoke1/%03d.png", i);
+				snprintf(buf, sizeof(buf), "Textures/Smoke1/%03d.png", i);
 				lastSeq[i] = r->RegisterImage(buf);
 			}
 			for (int i = 0; i < 48; i++) {
 				char buf[256];
-				sprintf(buf, "Textures/Smoke2/%03d.png", i);
+				snprintf(buf, sizeof(buf), "Textures/Smoke2/%03d.png", i);
 				lastSeq2[i] = r->RegisterImage(buf);
 			}
 

@@ -32,7 +32,7 @@ namespace spades {
 	};
 
 	class PingTester {
-		class Private;
+		struct Private;
 		std::unique_ptr<Private> priv;
 
 	public:

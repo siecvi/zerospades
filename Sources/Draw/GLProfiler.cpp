@@ -498,7 +498,7 @@ namespace spades {
 					std::fill(buf, buf + timeColumn, ' ');
 					std::strcpy(buf + indent, phase.description.c_str());
 					buf[std::strlen(buf)] = ' ';
-					std::sprintf(buf + timeColumn, "%7.3fms", time * 1000.0);
+					std::snprintf(buf + timeColumn, sizeof(buf) - timeColumn, "%7.3fms", time * 1000.0);
 					DrawText(buf);
 
 					double subphaseTime = 0.0;
@@ -534,7 +534,7 @@ namespace spades {
 				void Draw(Phase& root) {
 					renderer.SetColorAlphaPremultiplied(Vector4{1.0F, 1.0F, 0.0F, 1.0F});
 					DrawText("[GLProfiler result] ");
-					std::sprintf(buf, "%d sampled frame(s). Showing the per-frame timing.\n",
+					std::snprintf(buf, sizeof(buf), "%d sampled frame(s). Showing the per-frame timing.\n",
 					             (*root.measurementSaved).totalNumFrames);
 					DrawText(buf);
 					DrawText("Legends: ");
