@@ -50,6 +50,7 @@ DEFINE_SPADES_SETTING(cg_centerMessage, "2");
 DEFINE_SPADES_SETTING(cg_autoScreenshot, "0");
 DEFINE_SPADES_SETTING(cg_autoRecord, "0");
 DEFINE_SPADES_SETTING(cg_maxDemos, "10");
+DEFINE_SPADES_SETTING(cg_autoPruneDemos, "1");
 
 namespace spades {
 	extern std::string g_pendingMapName;
@@ -153,10 +154,11 @@ namespace spades {
 			if (net && (int)cg_autoRecord != 0) {
 				if (net->StartDemoRecording("", BuildDemoContext())) {
 					SPLog("Started auto-recording demo: %s", net->GetDemoFilename().c_str());
-					int maxDemos = (int)cg_maxDemos;
-				if (maxDemos < 1)
-					maxDemos = 1;
-				DemoRecorder::PruneOldRecordings(static_cast<size_t>(maxDemos));
+					if ((int)cg_autoPruneDemos != 0) {
+						int maxDemos = (int)cg_maxDemos;
+						if (maxDemos >= 1)
+							DemoRecorder::PruneOldRecordings(static_cast<size_t>(maxDemos));
+					}
 				}
 			}
 		}

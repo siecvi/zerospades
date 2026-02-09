@@ -36,6 +36,7 @@ namespace spades {
 		StartupScreenGraphicsTab@ graphicsTab;
 		StartupScreenAudioTab@ audioTab;
 		StartupScreenGenericTab@ genericTab;
+		StartupScreenRecordingTab@ recordingTab;
 		StartupScreenSystemInfoTab@ systemInfoTab;
 		StartupScreenAdvancedTab@ advancedTab;
 
@@ -84,21 +85,25 @@ namespace spades {
 			StartupScreenGraphicsTab graphicsTab(ui, clientArea.max - clientArea.min);
 			StartupScreenAudioTab audioTab(ui, clientArea.max - clientArea.min);
 			StartupScreenGenericTab genericTab(ui, clientArea.max - clientArea.min);
+			StartupScreenRecordingTab recordingTab(ui, clientArea.max - clientArea.min);
 			StartupScreenSystemInfoTab profileTab(ui, clientArea.max - clientArea.min);
 			StartupScreenAdvancedTab advancedTab(ui, clientArea.max - clientArea.min);
 			graphicsTab.Bounds = clientArea;
 			audioTab.Bounds = clientArea;
 			genericTab.Bounds = clientArea;
+			recordingTab.Bounds = clientArea;
 			profileTab.Bounds = clientArea;
 			advancedTab.Bounds = clientArea;
 			AddChild(graphicsTab);
 			AddChild(audioTab);
 			AddChild(genericTab);
+			AddChild(recordingTab);
 			AddChild(profileTab);
 			AddChild(advancedTab);
 			audioTab.Visible = false;
 			profileTab.Visible = false;
 			genericTab.Visible = false;
+			recordingTab.Visible = false;
 			advancedTab.Visible = false;
 
 			@this.graphicsTab = graphicsTab;
@@ -106,6 +111,7 @@ namespace spades {
 			@this.advancedTab = advancedTab;
 			@this.systemInfoTab = profileTab;
 			@this.genericTab = genericTab;
+			@this.recordingTab = recordingTab;
 
 			{
 				spades::ui::SimpleTabStrip tabStrip(Manager);
@@ -114,6 +120,7 @@ namespace spades {
 				tabStrip.AddItem(_Tr("StartupScreen", "Graphics"), graphicsTab);
 				tabStrip.AddItem(_Tr("StartupScreen", "Audio"), audioTab);
 				tabStrip.AddItem(_Tr("StartupScreen", "Generic"), genericTab);
+				tabStrip.AddItem(_Tr("StartupScreen", "Recording"), recordingTab);
 				tabStrip.AddItem(_Tr("StartupScreen", "System Info"), profileTab);
 				tabStrip.AddItem(_Tr("StartupScreen", "Advanced"), advancedTab);
 				@tabStrip.Changed = spades::ui::EventHandler(this.OnTabChanged);
@@ -149,6 +156,7 @@ namespace spades {
 			this.graphicsTab.LoadConfig();
 			this.audioTab.LoadConfig();
 			this.genericTab.LoadConfig();
+			this.recordingTab.LoadConfig();
 			this.advancedTab.LoadConfig();
 		}
 
@@ -160,10 +168,12 @@ namespace spades {
 				state.ActiveTabIndex = 1;
 			} else if (this.genericTab.Visible) {
 				state.ActiveTabIndex = 2;
-			} else if (this.systemInfoTab.Visible) {
+			} else if (this.recordingTab.Visible) {
 				state.ActiveTabIndex = 3;
-			} else if (this.advancedTab.Visible) {
+			} else if (this.systemInfoTab.Visible) {
 				state.ActiveTabIndex = 4;
+			} else if (this.advancedTab.Visible) {
+				state.ActiveTabIndex = 5;
 			}
 			return state;
 		}
@@ -172,8 +182,9 @@ namespace spades {
 			this.graphicsTab.Visible = state.ActiveTabIndex == 0;
 			this.audioTab.Visible = state.ActiveTabIndex == 1;
 			this.genericTab.Visible = state.ActiveTabIndex == 2;
-			this.systemInfoTab.Visible = state.ActiveTabIndex == 3;
-			this.advancedTab.Visible = state.ActiveTabIndex == 4;
+			this.recordingTab.Visible = state.ActiveTabIndex == 3;
+			this.systemInfoTab.Visible = state.ActiveTabIndex == 4;
+			this.advancedTab.Visible = state.ActiveTabIndex == 5;
 		}
 
 		private void OnBypassStartupWindowCheckChanged(spades::ui::UIElement@ sender) {
