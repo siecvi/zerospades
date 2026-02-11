@@ -42,6 +42,16 @@
 namespace spades {
 	namespace client {
 
+		static std::string s_baseDir;
+
+		void DemoRecorder::SetBaseDirectory(const std::string& dir) {
+			s_baseDir = dir;
+		}
+
+		std::string DemoRecorder::GetDemosDirectory() {
+			return s_baseDir.empty() ? "Demos" : s_baseDir + "/Demos";
+		}
+
 		DemoRecorder::DemoRecorder()
 		    : recording(false), packetCount(0), fileSize(0) {}
 
@@ -152,38 +162,41 @@ namespace spades {
 			auto time = std::chrono::system_clock::to_time_t(now);
 			auto tm = std::localtime(&time);
 
+			std::string demosDir = GetDemosDirectory();
+
+			// Ensure the Demos directory exists
+			MKDIR(demosDir.c_str());
+
 			std::ostringstream oss;
-			oss << "Demos/" << std::put_time(tm, "%Y-%m-%d-%H-%M");
+			oss << demosDir << "/" << std::put_time(tm, "%Y-%m-%d-%H-%M");
 			if (!context.empty())
 				oss << "-" << context;
 			oss << ".dem";
-
-			// Ensure the Demos directory exists
-			MKDIR("Demos");
 
 			return oss.str();
 		}
 
 		static std::vector<std::string> ScanDemosDir() {
+			std::string demosDir = DemoRecorder::GetDemosDirectory();
 			std::vector<std::string> files;
 #ifdef _WIN32
 			WIN32_FIND_DATAA fd;
-			HANDLE hFind = FindFirstFileA("Demos\\*.dem", &fd);
+			HANDLE hFind = FindFirstFileA((demosDir + "\\*.dem").c_str(), &fd);
 			if (hFind != INVALID_HANDLE_VALUE) {
 				do {
 					if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-						files.push_back(std::string("Demos/") + fd.cFileName);
+						files.push_back(demosDir + "/" + fd.cFileName);
 				} while (FindNextFileA(hFind, &fd));
 				FindClose(hFind);
 			}
 #else
-			DIR* dir = opendir("Demos");
+			DIR* dir = opendir(demosDir.c_str());
 			if (dir) {
 				struct dirent* entry;
 				while ((entry = readdir(dir)) != nullptr) {
 					std::string name = entry->d_name;
 					if (name.size() > 4 && name.substr(name.size() - 4) == ".dem")
-						files.push_back(std::string("Demos/") + name);
+						files.push_back(demosDir + "/" + name);
 				}
 				closedir(dir);
 			}

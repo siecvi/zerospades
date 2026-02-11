@@ -121,6 +121,16 @@ namespace spades {
 			 */
 			static std::vector<std::string> ListRecordings();
 
+			/**
+			 * Sets the base directory under which the Demos/ subfolder is created.
+			 * Must be called before any recording or listing takes place.
+			 * Defaults to the current working directory if never called.
+			 */
+			static void SetBaseDirectory(const std::string& dir);
+
+			/** Returns the absolute path to the Demos directory. */
+			static std::string GetDemosDirectory();
+
 		private:
 			std::ofstream file;
 			Stopwatch stopwatch;

@@ -491,6 +491,9 @@ int main(int argc, char** argv) {
 
 #endif
 
+		// Set the demos base directory now that g_userResourceDirectory is final.
+		spades::client::DemoRecorder::SetBaseDirectory(spades::g_userResourceDirectory);
+
 		// start log output to SystemMessages.log
 		try {
 			spades::StartLog();
