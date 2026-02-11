@@ -24,9 +24,14 @@ namespace spades {
 	// Filename helpers
 
 	string StripDemoPath(string path) {
-		// Remove "Demos/" prefix
-		if (path.length > 6 and path.substr(0, 6) == "Demos/")
-			path = path.substr(6);
+		// Remove everything up to and including the last '/' (handles both
+		// relative "Demos/name.dem" and absolute "/some/dir/Demos/name.dem").
+		for (int i = int(path.length) - 1; i >= 0; i--) {
+			if (path[i] == uint8(0x2F)) { // '/'
+				path = path.substr(i + 1);
+				break;
+			}
+		}
 		// Remove ".dem" suffix
 		if (path.length > 4 and path.substr(path.length - 4) == ".dem")
 			path = path.substr(0, path.length - 4);
