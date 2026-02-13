@@ -669,9 +669,10 @@ namespace spades {
 		}
 
 		private void Connect() {
+			// Pass selectedMapName if known (server clicked in list); otherwise pass empty
+			// and let ConnectServer resolve it from the cached server list on the C++ side.
 			string msg = helper.ConnectServer(addressField.Text, cg_protocolVersion.IntValue, selectedMapName);
 			if (msg.length > 0) {
-				// failde to initialize client.
 				AlertScreen al(this, msg);
 				al.Run();
 			}
