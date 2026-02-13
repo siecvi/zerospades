@@ -424,6 +424,8 @@ namespace spades {
 				for (const auto& item : result->list) {
 					if (item->GetAddress() == hostname) {
 						g_pendingServerName = item->GetName(); // prefer human-readable name
+						if (g_pendingMapName.empty())
+							g_pendingMapName = item->GetMapName(); // resolve from cached list
 						break;
 					}
 				}
