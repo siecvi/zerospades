@@ -102,6 +102,7 @@ namespace spades {
 		private float demoModeColWidth;
 		private float demoMapColWidth;
 		private float demoSizeColWidth;
+		private float demoContentsWidth;
 
 		private ConfigItem cg_protocolVersion("cg_protocolVersion", "3");
 		private ConfigItem cg_lastQuickConnectHost("cg_lastQuickConnectHost", "127.0.0.1");
@@ -114,7 +115,7 @@ namespace spades {
 			@this.Font = ui.fontManager.GuiFont;
 
 			demoDateColWidth = 130.0F;
-			demoModeColWidth = 65.0F;
+			demoModeColWidth = 85.0F;
 			demoMapColWidth  = 185.0F;
 			demoSizeColWidth = 70.0F;
 
@@ -125,6 +126,7 @@ namespace spades {
 			float maxContentsWidth = 750.0F;
 			if (contentsWidth > maxContentsWidth)
 				contentsWidth = maxContentsWidth;
+			demoContentsWidth = contentsWidth;
 
 			float contentsLeft = (sw - contentsWidth) * 0.5F;
 			float footerPos = sh - 50.0F;
@@ -350,7 +352,7 @@ namespace spades {
 					{
 						DemoListHeader header(Manager);
 						header.Bounds = AABB2(x, headerPos, demoModeColWidth, headerHeight);
-						header.Text = _Tr("MainScreen", "Mode");
+						header.Text = _Tr("MainScreen", "Game Mode");
 						demoPanel.AddChild(header);
 						x += demoModeColWidth;
 					}
@@ -437,7 +439,7 @@ namespace spades {
 			string[] reversed;
 			for (int i = int(demos.length) - 1; i >= 0; i--)
 				reversed.insertLast(demos[i]);
-			DemoListModel model(Manager, helper, reversed, demoDateColWidth, demoModeColWidth, demoMapColWidth, demoSizeColWidth);
+			DemoListModel model(Manager, helper, reversed, demoDateColWidth, demoModeColWidth, demoMapColWidth, demoSizeColWidth, demoContentsWidth);
 			@demoList.Model = model;
 			@model.ItemActivated = DemoListItemEventHandler(this.DemoListItemActivated);
 			@model.ItemDoubleClicked = DemoListItemEventHandler(this.DemoListItemDoubleClicked);

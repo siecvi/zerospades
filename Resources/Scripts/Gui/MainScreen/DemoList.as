@@ -190,10 +190,12 @@ namespace spades {
 		float colModeWidth;
 		float colMapWidth;
 		float colSizeWidth;
+		float totalWidth;
 
 		DemoListItem(spades::ui::UIManager@ manager, string filename,
 		             DemoInfo info,
-		             float colDateWidth, float colModeWidth, float colMapWidth, float colSizeWidth) {
+		             float colDateWidth, float colModeWidth, float colMapWidth, float colSizeWidth,
+		             float totalWidth) {
 			super(manager);
 			this.filename     = filename;
 			this.info         = info;
@@ -201,6 +203,7 @@ namespace spades {
 			this.colModeWidth = colModeWidth;
 			this.colMapWidth  = colMapWidth;
 			this.colSizeWidth = colSizeWidth;
+			this.totalWidth   = totalWidth;
 		}
 
 		void Render() {
@@ -223,11 +226,14 @@ namespace spades {
 			if (info.structured) {
 				// Column order (left to right): Server | Map | Mode | Timestamp | Size
 				// Server is variable-width; the four rightmost columns are fixed-width.
+				// Use totalWidth (= contentsWidth from the layout) so that fixed-column
+				// positions match the headers, which are also sized from contentsWidth.
+				// (size.x is narrower by the ListView scrollbar width.)
 				float fixedRight = colMapWidth + colModeWidth + colDateWidth + colSizeWidth;
-				float serverWidth = size.x - fixedRight;
-				float x = pos.x + 4.0F;
+				float serverWidth = totalWidth - fixedRight;
+				float x = pos.x + 2.0F;
 				Font.Draw(info.serverName, Vector2(x, pos.y + 2.0F), 1.0F, fgcolor);
-				x = pos.x + serverWidth + 4.0F;
+				x = pos.x + serverWidth + 2.0F;
 				Font.Draw(info.mapName,    Vector2(x, pos.y + 2.0F), 1.0F, fgcolor);
 				x += colMapWidth;
 				Font.Draw(info.gameMode,   Vector2(x, pos.y + 2.0F), 1.0F, fgcolor);
@@ -237,7 +243,7 @@ namespace spades {
 				Font.Draw(info.fileSize,   Vector2(x, pos.y + 2.0F), 1.0F, fgcolor);
 			} else {
 				// Filename does not match the structured format; display it as-is.
-				Font.Draw(info.displayName, pos + Vector2(4.0F, 2.0F), 1.0F, fgcolor);
+				Font.Draw(info.displayName, pos + Vector2(2.0F, 2.0F), 1.0F, fgcolor);
 			}
 		}
 	}
@@ -253,13 +259,15 @@ namespace spades {
 		float colModeWidth;
 		float colMapWidth;
 		float colSizeWidth;
+		float totalWidth;
 
 		DemoListItemEventHandler@ ItemActivated;
 		DemoListItemEventHandler@ ItemDoubleClicked;
 
 		DemoListModel(spades::ui::UIManager@ manager, MainScreenHelper@ helper,
 		              string[]@ list,
-		              float colDateWidth, float colModeWidth, float colMapWidth, float colSizeWidth) {
+		              float colDateWidth, float colModeWidth, float colMapWidth, float colSizeWidth,
+		              float totalWidth) {
 			@this.manager    = manager;
 			@this.helper     = helper;
 			this.list        = list;
@@ -267,6 +275,7 @@ namespace spades {
 			this.colModeWidth = colModeWidth;
 			this.colMapWidth  = colMapWidth;
 			this.colSizeWidth = colSizeWidth;
+			this.totalWidth   = totalWidth;
 
 			itemElements.resize(list.length);
 		}
@@ -290,7 +299,7 @@ namespace spades {
 		spades::ui::UIElement@ CreateElement(int row) {
 			if (itemElements[row] is null) {
 				DemoInfo info = ParseDemoFilename(list[row], helper);
-				DemoListItem i(manager, list[row], info, colDateWidth, colModeWidth, colMapWidth, colSizeWidth);
+				DemoListItem i(manager, list[row], info, colDateWidth, colModeWidth, colMapWidth, colSizeWidth, totalWidth);
 				@i.Activated     = spades::ui::EventHandler(this.OnItemClicked);
 				@i.DoubleClicked = spades::ui::EventHandler(this.OnItemDoubleClicked);
 				@itemElements[row] = i;
