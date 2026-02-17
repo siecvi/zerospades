@@ -504,6 +504,7 @@ namespace spades {
 
 			bool IsDemoMode() const { return isDemoMode; }
 			DemoNetClient* GetDemoNetClient() { return demoNet.get(); }
+			void ReloadDemo();
 
 			void RunFrame(float dt) override;
 			void RunFrameLate(float dt) override;

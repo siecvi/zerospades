@@ -398,8 +398,8 @@ namespace spades {
 					if (CheckKey(cg_keyDemoPlayPause, name) && down) {
 						if (demoNet) {
 							if (demoNet->IsFinished()) {
-								// Demo finished - seek to beginning and resume
-								demoNet->SeekToBeginning();
+								// Demo finished - reload from file to reset world state
+								ReloadDemo();
 							} else {
 								// Toggle pause
 								demoNet->TogglePause();

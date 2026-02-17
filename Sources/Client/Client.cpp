@@ -229,6 +229,18 @@ namespace spades {
 			worldSetTime = time;
 		}
 
+		void Client::ReloadDemo() {
+			if (!isDemoMode || demoFilePath.empty())
+				return;
+
+			SetWorld(nullptr);
+			demoNet.reset();
+
+			demoNet = stmp::make_unique<DemoNetClient>(this);
+			if (!demoNet->OpenDemo(demoFilePath))
+				SPRaise("Failed to reload demo file: %s", demoFilePath.c_str());
+		}
+
 		Client::~Client() {
 			SPADES_MARK_FUNCTION();
 
