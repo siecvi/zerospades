@@ -346,8 +346,19 @@ namespace spades {
 			std::string label = std::string(dotVisible ? "\xe2\x97\x8f " : "  ") + "REC " + timeBuf;
 
 			Vector2 size = font.Measure(label);
-			float x = (sw - size.x) * 0.5F;
-			float y = 8.0F;
+
+			// Place top-right, just below the minimap, to avoid overlapping it or
+			// the centered playing-time clock. Mirror the minimap's y offset for
+			// the stats bar, then add the minimap height and a gap.
+			const float margin = 8.0F;
+			float minimapY = margin;
+			const int statsMode = cg_stats;
+			if (statsMode == 2 || (statsMode >= 3 && scoreboardVisible))
+				minimapY += cg_statsSmallFont ? 10.0F : 20.0F;
+			float minimapSize = Clamp((float)cg_minimapSize, 32.0F, 256.0F);
+			// Align with the minimap top, placed to its left
+			float y = minimapY;
+			float x = sw - margin - minimapSize - margin - size.x;
 
 			Vector4 red = MakeVector4(1, 0.15F, 0.15F, 1);
 			Vector4 shadow = MakeVector4(0, 0, 0, 0.5F);
