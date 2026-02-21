@@ -1549,18 +1549,6 @@ msgctxt "StartupScreen"
 msgid "Uses an OpenAL-capable sound card to process sound. In most cases where there isn't such a sound card, software emulation is used."
 msgstr "Usa uma placa de som capaz de processar som com OpenAL. Em alguns casos, quando não existe nenhuma, a emulação por software é usada."
 
-#: Resources/Scripts/Gui/StartupScreen.as:1508
-#: Resources/Scripts/Gui/StartupScreen.as:1508
-msgctxt "StartupScreen"
-msgid "YSR"
-msgstr "YSR"
-
-#: Resources/Scripts/Gui/StartupScreen.as:1512
-#: Resources/Scripts/Gui/StartupScreen.as:1512
-msgctxt "StartupScreen"
-msgid "YSR is an experimental 3D HDR sound engine optimized for OpenSpades. It features several enhanced features including automatic load control, dynamics compressor, HRTF-based 3D audio, and high quality reverb."
-msgstr "YSR é um motor de som experimental e optimizado para o OpenSpades. Utiliza várias funcion"
-
 #. ! The name of audio driver that outputs no audio.
 #: Resources/Scripts/Gui/StartupScreen.as:1523
 #: Resources/Scripts/Gui/StartupScreen.as:1523
@@ -1599,12 +1587,6 @@ msgstr "EAX"
 msgctxt "StartupScreen"
 msgid "Enables extended features provided by the OpenAL driver to create more ambience."
 msgstr "Ativa as funcionalidades avançadas disponibilizadas pelo OpenAL para criar mais ambiente."
-
-#: Resources/Scripts/Gui/StartupScreen.as:1563
-#: Resources/Scripts/Gui/StartupScreen.as:1563
-msgctxt "StartupScreen"
-msgid "Specifies how many sounds can be played simultaneously. No matter what value is set, YSR might reduce the number of sounds when an overload is detected."
-msgstr "Especifica quantos sons podem ser tocados em simultâneo. Não interessa qual o valor, o YSR vai reduzir o número de sons quando sobrecarregar."
 
 #: Resources/Scripts/Gui/StartupScreen.as:1623
 #: Resources/Scripts/Gui/StartupScreen.as:1623
@@ -1793,4 +1775,3 @@ msgstr ""
 msgctxt "Client"
 msgid "[{0}/{1}] Go up/down"
 msgstr ""
-

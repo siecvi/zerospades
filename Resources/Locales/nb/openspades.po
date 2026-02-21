@@ -1550,18 +1550,6 @@ msgctxt "StartupScreen"
 msgid "Uses an OpenAL-capable sound card to process sound. In most cases where there isn't such a sound card, software emulation is used."
 msgstr "Bruker et OpenAL kompatibelt lydkort til å prosessere lyden. I det fleste tilfeller det det ikke er et kompatibelt lydkort, så brukes programvareemulering."
 
-#: Resources/Scripts/Gui/StartupScreen.as:1508
-#: Resources/Scripts/Gui/StartupScreen.as:1508
-msgctxt "StartupScreen"
-msgid "YSR"
-msgstr "YSR"
-
-#: Resources/Scripts/Gui/StartupScreen.as:1512
-#: Resources/Scripts/Gui/StartupScreen.as:1512
-msgctxt "StartupScreen"
-msgid "YSR is an experimental 3D HDR sound engine optimized for OpenSpades. It features several enhanced features including automatic load control, dynamics compressor, HRTF-based 3D audio, and high quality reverb."
-msgstr "YSR er en eksperimentell 3D HDR lydmotor som er optimisert for OpenSpades. Det inneholder flere forbedrede egenskaper som automatisk belastningskontroll, dynamisk compressor, HRTF-basert 3D lyd og ekko av høg kvalitet."
-
 #. ! The name of audio driver that outputs no audio.
 #: Resources/Scripts/Gui/StartupScreen.as:1523
 #: Resources/Scripts/Gui/StartupScreen.as:1523
@@ -1600,12 +1588,6 @@ msgstr "EAX"
 msgctxt "StartupScreen"
 msgid "Enables extended features provided by the OpenAL driver to create more ambience."
 msgstr "Aktiverer utvidede egenskaper fra OpenAL-driveren for å skape mer atmosfære."
-
-#: Resources/Scripts/Gui/StartupScreen.as:1563
-#: Resources/Scripts/Gui/StartupScreen.as:1563
-msgctxt "StartupScreen"
-msgid "Specifies how many sounds can be played simultaneously. No matter what value is set, YSR might reduce the number of sounds when an overload is detected."
-msgstr "Spesifiserer hvor mange lyder kan bli spillet av samtidig. Har ikke mye å si hva verdien er satt av på, YSR har muligheten til å redusere mengden av lyder nå den legger merke til overbelastning."
 
 #: Resources/Scripts/Gui/StartupScreen.as:1623
 #: Resources/Scripts/Gui/StartupScreen.as:1623
@@ -1794,4 +1776,3 @@ msgstr "[{0}/{1}] Følg en spiller"
 msgctxt "Client"
 msgid "[{0}/{1}] Go up/down"
 msgstr "[{0}/{1}] Gå opp/ned"
-

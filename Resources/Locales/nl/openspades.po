@@ -1549,18 +1549,6 @@ msgctxt "StartupScreen"
 msgid "Uses an OpenAL-capable sound card to process sound. In most cases where there isn't such a sound card, software emulation is used."
 msgstr "Gebruikt een OpenAL beschikbare geluidskaart om geluid te produceren. In de meeste gevallen waar er is niet zo'n geluidskaart aanwezig, software emulatie wordt gebruikt."
 
-#: Resources/Scripts/Gui/StartupScreen.as:1508
-#: Resources/Scripts/Gui/StartupScreen.as:1508
-msgctxt "StartupScreen"
-msgid "YSR"
-msgstr ""
-
-#: Resources/Scripts/Gui/StartupScreen.as:1512
-#: Resources/Scripts/Gui/StartupScreen.as:1512
-msgctxt "StartupScreen"
-msgid "YSR is an experimental 3D HDR sound engine optimized for OpenSpades. It features several enhanced features including automatic load control, dynamics compressor, HRTF-based 3D audio, and high quality reverb."
-msgstr "YSR is een experimentele 3D HDR geluids engine geoptimaliseerd voor OpenSpades. het heeft meerdere geavanceerde functies zoals automatische laadcontrole, dynamische vermindering, HRTF-gebaseerde 3D audio en hoge qualiteits reverb."
-
 #. ! The name of audio driver that outputs no audio.
 #: Resources/Scripts/Gui/StartupScreen.as:1523
 #: Resources/Scripts/Gui/StartupScreen.as:1523
@@ -1599,12 +1587,6 @@ msgstr ""
 msgctxt "StartupScreen"
 msgid "Enables extended features provided by the OpenAL driver to create more ambience."
 msgstr "Activeert meer functies door de OpenAL gegeven driver om meer achtergrondgeluiden te procuderen."
-
-#: Resources/Scripts/Gui/StartupScreen.as:1563
-#: Resources/Scripts/Gui/StartupScreen.as:1563
-msgctxt "StartupScreen"
-msgid "Specifies how many sounds can be played simultaneously. No matter what value is set, YSR might reduce the number of sounds when an overload is detected."
-msgstr "Bepaalt hoeveel geluiden er mogen worden afgespeelt tegelijk. Hoeveel de waarde ook maar is, YSR kan het aantal van geluiden verminderen waneer een overbelasting is gedetecteerd."
 
 #: Resources/Scripts/Gui/StartupScreen.as:1623
 #: Resources/Scripts/Gui/StartupScreen.as:1623
@@ -1793,4 +1775,3 @@ msgstr "[{0}/{1}] Volg een speler"
 msgctxt "Client"
 msgid "[{0}/{1}] Go up/down"
 msgstr "[{0}/{1}] Ga omhoog/omlaag"
-
