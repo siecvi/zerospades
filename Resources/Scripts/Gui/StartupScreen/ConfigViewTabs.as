@@ -447,12 +447,10 @@ namespace spades {
 		StartupScreenHelper@ helper;
 
 		spades::ui::RadioButton@ driverOpenAL;
-		spades::ui::RadioButton@ driverYSR;
 		spades::ui::RadioButton@ driverNull;
 
 		spades::ui::TextViewer@ helpView;
 		StartupScreenConfigView@ configViewOpenAL;
-		StartupScreenConfigView@ configViewYSR;
 
 		StartupScreenAudioOpenALEditor@ editOpenAL;
 
@@ -495,26 +493,9 @@ namespace spades {
 			}
 			{
 				spades::ui::RadioButton e(Manager);
-				e.Caption = _Tr("StartupScreen", "YSR");
-				e.Bounds = AABB2(210.0F, 0.0F, 100.0F, 24.0F);
-				e.GroupName = "driver";
-				HelpHandler(
-					helpView,
-					_Tr("StartupScreen",
-						"YSR is an experimental 3D HDR sound engine optimized "
-						"for OpenSpades. It features several enhanced features including "
-						"automatic load control, dynamics compressor, HRTF-based "
-						"3D audio, and high quality reverb."))
-					.Watch(e);
-				@e.Activated = spades::ui::EventHandler(this.OnDriverYSR);
-				AddChild(e);
-				@driverYSR = e;
-			}
-			{
-				spades::ui::RadioButton e(Manager);
 				//! The name of audio driver that outputs no audio.
 				e.Caption = _Tr("StartupScreen", "Null");
-				e.Bounds = AABB2(320.0F, 0.0F, 100.0F, 24.0F);
+				e.Bounds = AABB2(210.0F, 0.0F, 100.0F, 24.0F);
 				e.GroupName = "driver";
 				HelpHandler(helpView, _Tr("StartupScreen", "Disables audio output.")).Watch(e);
 				@e.Activated = spades::ui::EventHandler(this.OnDriverNull);
@@ -550,29 +531,7 @@ namespace spades {
 				AddChild(cfg);
 				@configViewOpenAL = cfg;
 			}
-			{
-				StartupScreenConfigView cfg(Manager);
 
-				cfg.AddRow(StartupScreenConfigSliderItemEditor(
-					ui, StartupScreenConfig(ui, "s_volume"), 0, 100, 1,
-					_Tr("StartupScreen", "Volume"), "",
-					ConfigNumberFormatter(0, "%")));
-
-				cfg.AddRow(StartupScreenConfigSliderItemEditor(
-					ui, StartupScreenConfig(ui, "s_maxPolyphonics"), 16.0, 256.0, 8.0,
-					_Tr("StartupScreen", "Polyphonics"),
-					_Tr("StartupScreen", "Specifies how many sounds can be played simultaneously. "
-						"No matter what value is set, YSR might reduce the number of sounds "
-						"when an overload is detected."),
-					ConfigNumberFormatter(0, " poly")));
-
-				cfg.Finalize();
-				cfg.SetHelpTextHandler(HelpTextHandler(this.HandleHelpText));
-				cfg.Bounds = AABB2(0.0F, 30.0F, mainWidth, size.y - 30.0F);
-				AddChild(cfg);
-				@configViewYSR = cfg;
-			}
-			
 			AddLabel(0.0F, 120.0F, 24.0F, _Tr("StartupScreen", "Output Device"));
 			{
 				StartupScreenAudioOpenALEditor e(ui);
@@ -588,34 +547,22 @@ namespace spades {
 			s_audioDriver.StringValue = "openal";
 			LoadConfig();
 		}
-		private void OnDriverYSR(spades::ui::UIElement@) {
-			s_audioDriver.StringValue = "ysr";
-			LoadConfig();
-		}
 		private void OnDriverNull(spades::ui::UIElement@) {
 			s_audioDriver.StringValue = "null";
 			LoadConfig();
 		}
 
 		void LoadConfig() {
-			if (s_audioDriver.StringValue == "ysr") {
-				driverYSR.Check();
-				configViewOpenAL.Visible = false;
-				configViewYSR.Visible = true;
-			} else if (s_audioDriver.StringValue == "openal") {
+			if (s_audioDriver.StringValue == "openal") {
 				driverOpenAL.Check();
 				configViewOpenAL.Visible = true;
-				configViewYSR.Visible = false;
 			} else if (s_audioDriver.StringValue == "null") {
 				driverNull.Check();
 				configViewOpenAL.Visible = false;
-				configViewYSR.Visible = false;
 			}
 			driverOpenAL.Enable = ui.helper.CheckConfigCapability("s_audioDriver", "openal").length == 0;
-			driverYSR.Enable = ui.helper.CheckConfigCapability("s_audioDriver", "ysr").length == 0;
 			driverNull.Enable = ui.helper.CheckConfigCapability("s_audioDriver", "null").length == 0;
 			configViewOpenAL.LoadConfig();
-			configViewYSR.LoadConfig();
 			editOpenAL.LoadConfig();
 
 			s_openalDevice.StringValue = editOpenAL.openal.StringValue;
