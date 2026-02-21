@@ -217,7 +217,7 @@ namespace spades {
 
 		DemoNetClient::DemoNetClient(Client* c) : client(c), status(NetClientStatusNotConnected),
 		    protocolVersion(0), lastFrameTime(0.0f), expectedMapSize(0), receivedMapBytes(0),
-		    recordedLocalPlayerId(-1) {
+		    recordedLocalPlayerId(-1), seekingMode(false) {
 			SPADES_MARK_FUNCTION();
 
 			demoPlayer.reset(new DemoPlayer());
@@ -405,7 +405,8 @@ namespace spades {
 					if (protocolVersion == 4)
 						bytesPerEntry++;
 
-					client->MarkWorldUpdate();
+					if (!seekingMode)
+						client->MarkWorldUpdate();
 
 					int entries = static_cast<int>(r.GetLength() / bytesPerEntry);
 					for (int i = 0; i < entries; i++) {
@@ -608,11 +609,13 @@ namespace spades {
 
 					// In demo mode, user is always spectator - track all team changes
 					if (savedPlayerTeam.at(pId) != team) {
-						client->PlayerJoinedTeam(pRef);
+						if (!seekingMode)
+							client->PlayerJoinedTeam(pRef);
 						savedPlayerTeam.at(pId) = team;
 					}
 
-					client->PlayerSpawned(pRef);
+					if (!seekingMode)
+						client->PlayerSpawned(pRef);
 				} break;
 				case PacketTypeBlockAction: {
 					stmp::optional<Player&> p = GetPlayerOrNull(r.ReadByte());
@@ -627,29 +630,33 @@ namespace spades {
 							GetWorld()->CreateBlock(pos, p->GetBlockColor());
 							if (!GetWorld()->GetMap()->IsSolidWrapped(pos.x, pos.y, pos.z)) {
 								p->UseBlocks(1);
-								if (p->IsLocalPlayer())
+								if (p->IsLocalPlayer() && !seekingMode)
 									client->RegisterPlacedBlocks(1);
 							}
-							client->PlayerCreatedBlock(*p);
+							if (!seekingMode)
+								client->PlayerCreatedBlock(*p);
 						}
 					} else if (action == BlockActionTool) {
 						cells.push_back(pos);
 						GetWorld()->DestroyBlock(cells);
 						if (p && p->IsToolSpade())
 							p->GotBlock();
-						client->PlayerDestroyedBlockWithWeaponOrTool(pos);
+						if (!seekingMode)
+							client->PlayerDestroyedBlockWithWeaponOrTool(pos);
 					} else if (action == BlockActionDig) {
 						for (int z = -1; z <= 1; z++)
 							cells.push_back(MakeIntVector3(pos.x, pos.y, pos.z + z));
 						GetWorld()->DestroyBlock(cells);
-						client->PlayerDiggedBlock(pos);
+						if (!seekingMode)
+							client->PlayerDiggedBlock(pos);
 					} else if (action == BlockActionGrenade) {
 						for (int x = -1; x <= 1; x++)
 						for (int y = -1; y <= 1; y++)
 						for (int z = -1; z <= 1; z++)
 							cells.push_back(MakeIntVector3(pos.x + x, pos.y + y, pos.z + z));
 						GetWorld()->DestroyBlock(cells);
-						client->GrenadeDestroyedBlock(pos);
+						if (!seekingMode)
+							client->GrenadeDestroyedBlock(pos);
 					}
 				} break;
 				case PacketTypeBlockLine: {
@@ -658,6 +665,7 @@ namespace spades {
 					IntVector3 pos2 = r.ReadIntVector3();
 
 					auto cells = GetWorld()->CubeLine(pos1, pos2, 50);
+
 					for (const auto& c : cells) {
 						if (!GetWorld()->GetMap()->IsSolid(c.x, c.y, c.z))
 							GetWorld()->CreateBlock(c, p ? p->GetBlockColor() : temporaryPlayerBlockColor);
@@ -666,9 +674,10 @@ namespace spades {
 					if (p) {
 						int blocks = static_cast<int>(cells.size());
 						p->UseBlocks(blocks);
-						if (p->IsLocalPlayer())
+						if (p->IsLocalPlayer() && !seekingMode)
 							client->RegisterPlacedBlocks(blocks);
-						client->PlayerCreatedBlock(*p);
+						if (!seekingMode)
+							client->PlayerCreatedBlock(*p);
 					}
 				} break;
 				case PacketTypeStateData:
@@ -748,7 +757,8 @@ namespace spades {
 
 							GetWorld()->SetMode(std::move(tc));
 						}
-						client->JoinedGame();
+						if (!seekingMode)
+							client->JoinedGame();
 					}
 					break;
 				case PacketTypeKillAction: {
@@ -790,22 +800,24 @@ namespace spades {
 					int type = r.ReadByte();
 					std::string msg = TrimSpaces(r.ReadRemainingString());
 
-					if (type == 2) { // System
-						client->ServerSentMessage(false, msg);
-						properties->HandleServerMessage(msg);
-					} else if (type == 0 || type == 1) { // All or Team
-						stmp::optional<Player&> p = GetPlayerOrNull(playerId);
-						if (p) {
-							client->PlayerSentChatMessage(*p, (type == 0), msg);
-						} else {
-							client->ServerSentMessage((type == 1), msg);
+					if (!seekingMode) {
+						if (type == 2) { // System
+							client->ServerSentMessage(false, msg);
+							properties->HandleServerMessage(msg);
+						} else if (type == 0 || type == 1) { // All or Team
+							stmp::optional<Player&> p = GetPlayerOrNull(playerId);
+							if (p) {
+								client->PlayerSentChatMessage(*p, (type == 0), msg);
+							} else {
+								client->ServerSentMessage((type == 1), msg);
+							}
 						}
 					}
 				} break;
 				case PacketTypePlayerLeft: {
 					int pId = r.ReadByte();
 					auto p = GetPlayerOrNull(pId);
-					if (p)
+					if (p && !seekingMode)
 						client->PlayerLeaving(*p);
 					GetWorld()->GetPlayerPersistent(pId).score = 0;
 					if (pId >= 0 && pId < (int)savedPlayerTeam.size())
@@ -823,7 +835,8 @@ namespace spades {
 					auto& tc = dynamic_cast<TCGameMode&>(*mode);
 					if (territoryId >= tc.GetNumTerritories()) break;
 
-					client->TeamCapturedTerritory(state, territoryId);
+					if (!seekingMode)
+						client->TeamCapturedTerritory(state, territoryId);
 
 					TCGameMode::Territory& t = tc.GetTerritory(territoryId);
 					t.ownerTeamId = state;
@@ -832,7 +845,7 @@ namespace spades {
 					t.progressStartTime = 0.0F;
 					t.capturingTeamId = -1;
 
-					if (winning)
+					if (winning && !seekingMode)
 						client->TeamWon(state);
 				} break;
 				case PacketTypeProgressBar: {
@@ -869,12 +882,14 @@ namespace spades {
 					team.score++;
 					team.hasIntel = false;
 
-					client->PlayerCapturedIntel(*p);
+					if (!seekingMode)
+						client->PlayerCapturedIntel(*p);
 					GetWorld()->GetPlayerPersistent(pId).score += 10;
 
 					bool winning = r.ReadByte() != 0;
 					if (winning) {
-						client->TeamWon(teamId);
+						if (!seekingMode)
+							client->TeamWon(teamId);
 						ctf.ResetIntelHoldingStatus();
 					}
 				} break;
@@ -890,7 +905,8 @@ namespace spades {
 					CTFGameMode::Team& team = ctf.GetTeam(p->GetTeamId());
 					team.hasIntel = true;
 					team.carrierId = pId;
-					client->PlayerPickedIntel(*p);
+					if (!seekingMode)
+						client->PlayerPickedIntel(*p);
 				} break;
 				case PacketTypeIntelDrop: {
 					stmp::optional<IGameMode&> mode = GetWorld()->GetMode();
@@ -904,7 +920,8 @@ namespace spades {
 					auto& ctf = dynamic_cast<CTFGameMode&>(mode.value());
 					ctf.GetTeam(teamId).hasIntel = false;
 					ctf.GetTeam(1 - teamId).flagPos = r.ReadVector3();
-					client->PlayerDropIntel(*p);
+					if (!seekingMode)
+						client->PlayerDropIntel(*p);
 				} break;
 				case PacketTypeRestock: {
 					r.ReadByte();
@@ -1001,6 +1018,10 @@ namespace spades {
 				savedPackets.clear();
 				throw;
 			}
+
+			// Snapshot the map state at t=0 for backward seek support
+			initialMap = GetWorld()->GetMap()->Clone();
+			SPLog("Demo initial map snapshot saved.");
 		}
 
 		float DemoNetClient::GetMapReceivingProgress() {
@@ -1017,11 +1038,47 @@ namespace spades {
 			return statusString;
 		}
 
+		void DemoNetClient::ResetWorldForReplay() {
+			if (!initialMap) return;
+
+			// Rebuild the world with a fresh copy of the initial map
+			World* w = new World(properties);
+			w->SetMap(initialMap->Clone());
+			client->SetWorld(w);
+
+			// Reset all per-player tracking state
+			recordedLocalPlayerId = -1;
+			std::fill(savedPlayerTeam.begin(), savedPlayerTeam.end(), -1);
+			std::fill(savedPlayerPos.begin(), savedPlayerPos.end(), Vector3{});
+			std::fill(savedPlayerFront.begin(), savedPlayerFront.end(), Vector3{});
+		}
+
+		void DemoNetClient::FastReplay(float targetTime) {
+			seekingMode = true;
+			try {
+				size_t count = demoPlayer->GetPacketCount();
+				for (size_t i = 0; i < count; i++) {
+					if (demoPlayer->GetPacketTimestamp(i) > targetTime)
+						break;
+					ProcessPacket(demoPlayer->GetPacket(i));
+				}
+			} catch (...) {
+				seekingMode = false;
+				throw;
+			}
+			seekingMode = false;
+		}
+
 		void DemoNetClient::Seek(float time) {
 			if (!demoPlayer) return;
 
-			// Adjust playback time - note that seeking backward may result in
-			// inconsistent world state since packets won't be re-applied
+			if (time < demoPlayer->GetTime() && initialMap) {
+				auto view = client->SaveViewState();
+				ResetWorldForReplay();
+				FastReplay(time);
+				client->RestoreViewState(view);
+			}
+
 			demoPlayer->Seek(time);
 			statusString = _Tr("NetClient", "Playing demo");
 		}
@@ -1029,8 +1086,13 @@ namespace spades {
 		void DemoNetClient::SeekToBeginning() {
 			if (!demoPlayer) return;
 
-			// Seek to beginning of timeline without reloading the world
-			// Note: World state may be inconsistent, but allows video-player-like scrubbing
+			if (initialMap) {
+				auto view = client->SaveViewState();
+				ResetWorldForReplay();
+				FastReplay(0.0f);
+				client->RestoreViewState(view);
+			}
+
 			demoPlayer->Seek(0.0f);
 			demoPlayer->Resume();
 			statusString = _Tr("NetClient", "Playing demo");

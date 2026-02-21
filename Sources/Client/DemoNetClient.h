@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "DemoPlayer.h"
+#include "GameMap.h"
 #include "NetClient.h"
 #include "PhysicsConstants.h"
 #include "Player.h"
@@ -65,6 +66,12 @@ namespace spades {
 			// The player ID that was recorded as local player (for follow-cam)
 			int recordedLocalPlayerId;
 
+			// Snapshot of the map at t=0 (after MapLoaded), used to restore state on backward seek
+			Handle<GameMap> initialMap;
+
+			// True while fast-replaying packets after a backward seek; suppresses client callbacks
+			bool seekingMode;
+
 			stmp::optional<World&> GetWorld();
 			Player& GetPlayer(int);
 			stmp::optional<Player&> GetPlayerOrNull(int);
@@ -74,6 +81,11 @@ namespace spades {
 			void ProcessPacket(const std::vector<char>& data);
 			void HandleGamePacket(class NetPacketReader& reader);
 			void MapLoaded();
+
+			// Reset the world to initial map state and reset tracking variables
+			void ResetWorldForReplay();
+			// Replay all demo packets from index 0 up to targetTime with seekingMode=true
+			void FastReplay(float targetTime);
 
 		public:
 			DemoNetClient(Client* client);

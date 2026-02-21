@@ -164,6 +164,13 @@ namespace spades {
 			const std::vector<char>& GetPacket(size_t index) const;
 
 			/**
+			 * Gets the timestamp of a packet by index.
+			 * @param index Packet index
+			 * @return Timestamp in seconds, or 0 if index is out of range
+			 */
+			float GetPacketTimestamp(size_t index) const;
+
+			/**
 			 * Resets playback to the beginning.
 			 */
 			void Reset();
