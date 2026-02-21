@@ -524,6 +524,20 @@ namespace spades {
 
 			void SetWorld(World*);
 			World* GetWorld() const { return world.get(); }
+
+			// Snapshot of all view-related state, used to preserve camera across demo seeks
+			struct ViewState {
+				bool followEnabled;
+				bool followFirstPerson;
+				int followedPlayerId;
+				Vector3 freePosition;
+				Vector3 freeVelocity;
+				float yaw;
+				float pitch;
+				float worldSetTime;
+			};
+			ViewState SaveViewState() const;
+			void RestoreViewState(const ViewState&);
 			void AddLocalEntity(std::unique_ptr<ILocalEntity>&& ent) {
 				localEntities.emplace_back(std::move(ent));
 			}

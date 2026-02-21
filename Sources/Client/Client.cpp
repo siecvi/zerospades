@@ -229,6 +229,30 @@ namespace spades {
 			worldSetTime = time;
 		}
 
+		Client::ViewState Client::SaveViewState() const {
+			ViewState s;
+			s.followEnabled = followCameraState.enabled;
+			s.followFirstPerson = followCameraState.firstPerson;
+			s.followedPlayerId = followedPlayerId;
+			s.freePosition = freeCameraState.position;
+			s.freeVelocity = freeCameraState.velocity;
+			s.yaw = followAndFreeCameraState.yaw;
+			s.pitch = followAndFreeCameraState.pitch;
+			s.worldSetTime = worldSetTime;
+			return s;
+		}
+
+		void Client::RestoreViewState(const ViewState& s) {
+			followCameraState.enabled = s.followEnabled;
+			followCameraState.firstPerson = s.followFirstPerson;
+			followedPlayerId = s.followedPlayerId;
+			freeCameraState.position = s.freePosition;
+			freeCameraState.velocity = s.freeVelocity;
+			followAndFreeCameraState.yaw = s.yaw;
+			followAndFreeCameraState.pitch = s.pitch;
+			worldSetTime = s.worldSetTime;
+		}
+
 		void Client::ReloadDemo() {
 			if (!isDemoMode || demoFilePath.empty())
 				return;

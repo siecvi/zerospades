@@ -223,6 +223,12 @@ namespace spades {
 			return packets[index].data;
 		}
 
+		float DemoPlayer::GetPacketTimestamp(size_t index) const {
+			if (index >= packets.size())
+				return 0.0f;
+			return packets[index].timestamp;
+		}
+
 		void DemoPlayer::Reset() {
 			if (!isOpen)
 				return;

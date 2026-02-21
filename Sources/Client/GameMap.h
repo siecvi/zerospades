@@ -219,6 +219,11 @@ namespace spades {
 				return i;
 			}
 
+			/**
+			 * Returns a new GameMap with identical voxel data but no listeners.
+			 */
+			Handle<GameMap> Clone() const;
+
 		private:
 			uint64_t solidMap[DefaultWidth][DefaultHeight];
 			uint32_t colorMap[DefaultWidth][DefaultHeight][DefaultDepth];
