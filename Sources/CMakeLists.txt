@@ -89,8 +89,6 @@ if (APPLE)
 	# [cmake!5308]: https://gitlab.kitware.com/cmake/cmake/-/merge_requests/5308
 	set_source_files_properties(${PAK_FILES} PROPERTIES GENERATED 1)
 
-	# The same goes for `libysrspades.dylib`.
-	set_source_files_properties(${PROJECT_BINARY_DIR}/libysrspades.dylib PROPERTIES GENERATED 1)
 endif(APPLE)
 
 if(WIN32)
@@ -211,18 +209,6 @@ if(APPLE)
 			"$<TARGET_FILE:OpenSpades>"
 		COMMENT "Embedding OpenAL Soft into macOS bundle"
 	)
-
-	# Fix library paths for YSRSpades if enabled
-	if(OPENSPADES_YSR)
-		add_custom_command(TARGET OpenSpades POST_BUILD
-			# Add rpath (ignore error if rpath already exists)
-			COMMAND bash -c "install_name_tool -add_rpath '@executable_path/../Resources' '$<TARGET_FILE:OpenSpades>' || exit 0"
-			# Change library reference to use @rpath
-			COMMAND install_name_tool -change "/usr/local/lib/libysrspades.dylib" "@rpath/libysrspades.dylib" "$<TARGET_FILE:OpenSpades>"
-			COMMENT "Fixing library paths for macOS bundle"
-		)
-		add_dependencies(OpenSpades OpenSpades_YSRSpades_Prebuilt)
-	endif()
 
 	# Add optional code signing (can be configured via MACOSX_CODESIGN_IDENTITY)
 	# To sign: cmake -DMACOSX_CODESIGN_IDENTITY="Developer ID Application: Your Name" ..
