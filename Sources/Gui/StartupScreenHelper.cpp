@@ -32,7 +32,6 @@
 
 #include "StartupScreen.h"
 #include <Audio/ALDevice.h>
-#include <Audio/YsrDevice.h>
 #include <Core/FileManager.h>
 #include <Core/Settings.h>
 #include <Core/ShellApi.h>
@@ -142,18 +141,6 @@ namespace spades {
 
 			// check audio device availability
 			// Note: this only checks whether these libraries can be loaded.
-
-			SPLog("Checking YSR availability");
-			if (!audio::YsrDevice::TryLoadYsr()) {
-				incapableConfigs.insert(
-				  std::make_pair("s_audioDriver", [](std::string value) -> std::string {
-					  if (EqualsIgnoringCase(value, "ysr")) {
-						  return "YSR library couldn't be loaded.";
-					  } else {
-						  return std::string();
-					  }
-				  }));
-			}
 
 			SPLog("Checking OpenAL availability");
 			if (!audio::ALDevice::TryLoad()) {
