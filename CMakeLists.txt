@@ -220,12 +220,6 @@ endif()
 
 option(OPENSPADES_RESOURCES "Build game assets" ON)
 option(OPENSPADES_NONFREE_RESOURCES "Download non-GPL game assets" ON)
-# YSRSpades is only available for x86_64 macOS (not compatible with Apple Silicon)
-if(APPLE AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-	option(OPENSPADES_YSR "Download YSRSpades (closed-source audio backend; macOS x86_64 only)" ON)
-else()
-	option(OPENSPADES_YSR "Download YSRSpades (closed-source audio backend; macOS x86_64 only)" OFF)
-endif()
 
 # note that all paths are without trailing slash
 set(OPENSPADES_INSTALL_DOC		 "share/doc/openspades" CACHE STRING "Directory for installing documentation. ")
@@ -356,29 +350,6 @@ if(APPLE)
 			PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 		add_dependencies(OpenSpades OpenSpades_Resources_DevPaks OpenSpades_Resources)
 	endif(OPENSPADES_RESOURCES)
-
-	if (OPENSPADES_YSR)
-		list(APPEND BUNDLE_RESOURCES ${CMAKE_CURRENT_BINARY_DIR}/libysrspades.dylib)
-		set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/libysrspades.dylib
-			PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-
-		# Download `libysrspades.dylib` automatically
-		add_custom_target(OpenSpades_YSRSpades_Prebuilt ALL COMMENT "Downloading libysrspades.dylib"
-			DEPENDS ${PROJECT_BINARY_DIR}/libysrspades.dylib)
-		add_custom_command(
-			OUTPUT ${PROJECT_BINARY_DIR}/libysrspades.dylib
-			WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-			COMMAND
-				wget -c
-				https://openspadesmedia.yvt.jp/development-packages/YSRSpades/libysrspades.dylib
-			COMMAND
-				# Strip i386 architecture (32-bit is no longer supported on macOS)
-				lipo libysrspades.dylib -remove i386 -output libysrspades.dylib || true
-			COMMAND
-				# Fix install path to use @rpath instead of absolute path
-				install_name_tool -id "@rpath/libysrspades.dylib" libysrspades.dylib
-			)
-	endif (OPENSPADES_YSR)
 
 	set_target_properties(OpenSpades PROPERTIES RESOURCE "${BUNDLE_RESOURCES}")
 	target_sources(OpenSpades PRIVATE "${BUNDLE_RESOURCES}")

@@ -1415,23 +1415,6 @@ msgstr ""
 "En la mayoría de los casos en los que no existe tal tarjeta de sonido, se "
 "utiliza la emulación por software."
 
-#: Resources/Scripts/Gui/StartupScreen.as:1508
-msgctxt "StartupScreen"
-msgid "YSR"
-msgstr "YSR"
-
-#: Resources/Scripts/Gui/StartupScreen.as:1512
-msgctxt "StartupScreen"
-msgid ""
-"YSR is an experimental 3D HDR sound engine optimized for OpenSpades. It "
-"features several enhanced features including automatic load control, "
-"dynamics compressor, HRTF-based 3D audio, and high quality reverb."
-msgstr ""
-"YSR es un motor de sonido 3D HDR experimental optimizado para OpenSpades. "
-"Presenta varias funciones mejoradas, como control automático de carga, "
-"compresor de dinámica, audio 3D basado en HRTF y reverberación de alta "
-"calidad."
-
 #. ! The name of audio driver that outputs no audio.
 #: Resources/Scripts/Gui/StartupScreen.as:1523
 msgctxt "StartupScreen"
@@ -1468,16 +1451,6 @@ msgid ""
 msgstr ""
 "Activa las funciones ampliadas que ofrece el controlador OpenAL para crear "
 "más ambiente."
-
-#: Resources/Scripts/Gui/StartupScreen.as:1563
-msgctxt "StartupScreen"
-msgid ""
-"Specifies how many sounds can be played simultaneously. No matter what value "
-"is set, YSR might reduce the number of sounds when an overload is detected."
-msgstr ""
-"Especifica cuántos sonidos pueden reproducirse simultáneamente. "
-"Independientemente del valor que se establezca, YSR podría reducir el número "
-"de sonidos cuando se detecte una sobrecarga."
 
 #: Resources/Scripts/Gui/StartupScreen.as:1623
 msgctxt "StartupScreen"

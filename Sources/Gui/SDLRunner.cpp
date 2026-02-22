@@ -28,7 +28,6 @@
 #include "SDLGLDevice.h"
 #include <Audio/ALDevice.h>
 #include <Audio/NullDevice.h>
-#include <Audio/YsrDevice.h>
 #include <Client/Client.h>
 #include <Core/ConcurrentDispatch.h>
 #include <Core/Debug.h>
@@ -48,13 +47,7 @@ DEFINE_SPADES_SETTING(r_fullscreen, "0");
 DEFINE_SPADES_SETTING(r_vsync, "1");
 DEFINE_SPADES_SETTING(r_allowSoftwareRendering, "0");
 DEFINE_SPADES_SETTING(r_renderer, "gl");
-#if defined(__APPLE__) && defined(__x86_64__)
-// YSR is only available on x86_64 macOS
-DEFINE_SPADES_SETTING(s_audioDriver, "ysr");
-#else
-// Use OpenAL on Apple Silicon and other platforms
 DEFINE_SPADES_SETTING(s_audioDriver, "openal");
-#endif
 DEFINE_SPADES_SETTING(cl_fps, "0");
 
 static int lastMouseX = 0, lastMouseY = 0;
@@ -69,13 +62,12 @@ namespace spades {
 		client::IAudioDevice* SDLRunner::CreateAudioDevice() {
 			if (EqualsIgnoringCase(s_audioDriver, "openal")) {
 				return new audio::ALDevice();
-			} else if (EqualsIgnoringCase(s_audioDriver, "ysr")) {
-				return new audio::YsrDevice();
 			} else if (EqualsIgnoringCase(s_audioDriver, "null")) {
 				return new audio::NullDevice();
 			} else {
-				SPRaise("Unknown audio driver name: %s (openal or ysr expected)",
-				        s_audioDriver.CString());
+				SPLog("Unknown audio driver: %s, falling back to OpenAL", s_audioDriver.CString());
+				s_audioDriver = "openal";
+				return new audio::ALDevice();
 			}
 		}
 

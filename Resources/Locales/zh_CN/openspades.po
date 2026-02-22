@@ -1546,18 +1546,6 @@ msgctxt "StartupScreen"
 msgid "Uses an OpenAL-capable sound card to process sound. In most cases where there isn't such a sound card, software emulation is used."
 msgstr "使用支持OpenAL的声卡处理声音。 在大多数没有声卡的情况下，使用软件模拟。"
 
-#: Resources/Scripts/Gui/StartupScreen.as:1508
-#: Resources/Scripts/Gui/StartupScreen.as:1508
-msgctxt "StartupScreen"
-msgid "YSR"
-msgstr "YSR"
-
-#: Resources/Scripts/Gui/StartupScreen.as:1512
-#: Resources/Scripts/Gui/StartupScreen.as:1512
-msgctxt "StartupScreen"
-msgid "YSR is an experimental 3D HDR sound engine optimized for OpenSpades. It features several enhanced features including automatic load control, dynamics compressor, HRTF-based 3D audio, and high quality reverb."
-msgstr "YSR是针对OpenSpades优化的实验性3D HDR声音引擎。它具有自动负载控制，动态压缩器，基于HRTF的立体声音效和高品质的混响效果器。"
-
 #. ! The name of audio driver that outputs no audio.
 #: Resources/Scripts/Gui/StartupScreen.as:1523
 #: Resources/Scripts/Gui/StartupScreen.as:1523
@@ -1596,12 +1584,6 @@ msgstr "EAX"
 msgctxt "StartupScreen"
 msgid "Enables extended features provided by the OpenAL driver to create more ambience."
 msgstr "使用OpenAL驱动程序提供的扩展功能增强环境。"
-
-#: Resources/Scripts/Gui/StartupScreen.as:1563
-#: Resources/Scripts/Gui/StartupScreen.as:1563
-msgctxt "StartupScreen"
-msgid "Specifies how many sounds can be played simultaneously. No matter what value is set, YSR might reduce the number of sounds when an overload is detected."
-msgstr "指定可以同时播放多少声音。无论设定值为多少，YSR 都会在检测到过载时减少声音的数量。"
 
 #: Resources/Scripts/Gui/StartupScreen.as:1623
 #: Resources/Scripts/Gui/StartupScreen.as:1623
@@ -1790,4 +1772,3 @@ msgstr "[{0}/{1}] 跟随一个玩家"
 msgctxt "Client"
 msgid "[{0}/{1}] Go up/down"
 msgstr "[{0}/{1}] 上/下"
-
