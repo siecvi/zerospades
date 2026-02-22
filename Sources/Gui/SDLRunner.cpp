@@ -65,8 +65,9 @@ namespace spades {
 			} else if (EqualsIgnoringCase(s_audioDriver, "null")) {
 				return new audio::NullDevice();
 			} else {
-				SPRaise("Unknown audio driver name: %s (openal expected)",
-				        s_audioDriver.CString());
+				SPLog("Unknown audio driver: %s, falling back to OpenAL", s_audioDriver.CString());
+				s_audioDriver = "openal";
+				return new audio::ALDevice();
 			}
 		}
 
