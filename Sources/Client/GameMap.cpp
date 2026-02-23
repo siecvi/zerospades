@@ -54,7 +54,7 @@ namespace spades {
 		GameMap::~GameMap() { SPADES_MARK_FUNCTION(); }
 
 		Handle<GameMap> GameMap::Clone() const {
-			Handle<GameMap> copy{new GameMap()};
+			Handle<GameMap> copy{new GameMap(NoInit{})};
 			memcpy(copy->solidMap, solidMap, sizeof(solidMap));
 			memcpy(copy->colorMap, colorMap, sizeof(colorMap));
 			return copy;
