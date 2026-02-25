@@ -38,9 +38,49 @@
 #include <Core/Settings.h>
 #include <Core/Strings.h>
 #include <Core/TMPUtils.h>
+#include "IWorldListener.h"
 
 namespace spades {
 	namespace client {
+
+		namespace {
+			// World listener used during fast replay: forwards only PlayerObjectSet (which
+			// populates clientPlayers) and silently drops all sound/effect callbacks.
+			class SilentWorldListener : public IWorldListener {
+				Client* client;
+			public:
+				SilentWorldListener(Client* c) : client(c) {}
+				void PlayerObjectSet(int id) override { client->PlayerObjectSet(id); }
+				void PlayerMadeFootstep(Player&) override {}
+				void PlayerJumped(Player&) override {}
+				void PlayerLanded(Player&, bool) override {}
+				void PlayerFiredWeapon(Player&) override {}
+				void PlayerEjectedBrass(Player&) override {}
+				void PlayerDryFiredWeapon(Player&) override {}
+				void PlayerReloadingWeapon(Player&) override {}
+				void PlayerReloadedWeapon(Player&) override {}
+				void PlayerChangedTool(Player&) override {}
+				void PlayerPulledGrenadePin(Player&) override {}
+				void PlayerThrewGrenade(Player&, stmp::optional<const Grenade&>) override {}
+				void PlayerMissedSpade(Player&) override {}
+				void PlayerRestocked(Player&) override {}
+				void PlayerHitBlockWithSpade(Player&, Vector3, IntVector3, IntVector3) override {}
+				void PlayerKilledPlayer(Player&, Player&, KillType) override {}
+				void BulletHitPlayer(Player&, HitType, Vector3, Player&,
+				                     std::unique_ptr<IBulletHitScanState>&) override {}
+				void BulletNearPlayer(Player&) override {}
+				void BulletHitBlock(Vector3, IntVector3, IntVector3) override {}
+				void AddBulletTracer(Player&, Vector3, Vector3) override {}
+				void GrenadeExploded(const Grenade&) override {}
+				void GrenadeBounced(const Grenade&) override {}
+				void GrenadeDroppedIntoWater(const Grenade&) override {}
+				void BlocksFell(std::vector<IntVector3>) override {}
+				void LocalPlayerBlockAction(IntVector3, BlockActionType) override {}
+				void LocalPlayerCreatedLineBlock(IntVector3, IntVector3) override {}
+				void LocalPlayerHurt(HurtType, Vector3) override {}
+				void LocalPlayerBuildError(BuildFailureReason) override {}
+			};
+		} // anonymous namespace (SilentWorldListener)
 
 		namespace {
 			enum { BLUE_FLAG = 0, GREEN_FLAG = 1, BLUE_BASE = 2, GREEN_BASE = 3 };
@@ -1055,6 +1095,17 @@ namespace spades {
 
 		void DemoNetClient::FastReplay(float targetTime) {
 			seekingMode = true;
+
+			// Replace the world listener with a silent stub so that kill sounds,
+			// grenade effects, footsteps, etc. don't fire for every replayed packet.
+			// PlayerObjectSet is still forwarded so clientPlayers[] stays in sync.
+			SilentWorldListener silent(client);
+			IWorldListener* savedListener = nullptr;
+			if (GetWorld()) {
+				savedListener = GetWorld()->GetListener();
+				GetWorld()->SetListener(&silent);
+			}
+
 			try {
 				size_t count = demoPlayer->GetPacketCount();
 				for (size_t i = 0; i < count; i++) {
@@ -1063,9 +1114,14 @@ namespace spades {
 					ProcessPacket(demoPlayer->GetPacket(i));
 				}
 			} catch (...) {
+				if (GetWorld())
+					GetWorld()->SetListener(savedListener);
 				seekingMode = false;
 				throw;
 			}
+
+			if (GetWorld())
+				GetWorld()->SetListener(savedListener);
 			seekingMode = false;
 		}
 
