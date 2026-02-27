@@ -1142,7 +1142,7 @@ namespace spades {
 		void DemoNetClient::SeekToBeginning() {
 			if (!demoPlayer) return;
 
-			if (initialMap) {
+			if (initialMap && demoPlayer->GetTime() > 0.0f) {
 				auto view = client->SaveViewState();
 				ResetWorldForReplay();
 				FastReplay(0.0f);
