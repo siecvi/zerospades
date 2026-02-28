@@ -107,8 +107,11 @@ namespace spades {
 			audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 
 			// display client version
-			ServerSentMessage(true, _Tr("Client", "You are connected with {0}",
-				std::string(ZEROSPADES_VER_STR) + " (" + VersionInfo::GetAppArchitecture() + ")"));
+			std::string verStr = std::string(ZEROSPADES_VER_STR);
+			std::string osInfo = VersionInfo::GetVersionInfo();
+			std::string archInfo = VersionInfo::GetAppArchitecture();
+			std::string s = _Tr("Client", "You are connected with {0} on {1} ({2})", verStr, osInfo, archInfo);
+			chatWindow->AddMessage(ChatWindow::ColoredMessage(s, MsgColorSysInfo));
 		}
 
 		void Client::TeamCapturedTerritory(int teamId, int terId) {

@@ -2712,5 +2712,5 @@ msgstr "[{0}] Alternar paleta extendida"
 
 #: Sources/Client/Client_NetHandler.cpp:111
 msgctxt "Client"
-msgid "You are connected with {0}"
-msgstr "Estás conectado con {0}"
+msgid "You are connected with {0} on {1} ({2})"
+msgstr "Estás conectado con {0} en {1} ({2})"
