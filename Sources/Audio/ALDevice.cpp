@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -50,8 +50,8 @@ extern float dBPrevious = 1.0F;
 #define ALC_ALL_DEVICES_SPECIFIER 0x1013
 #endif
 
-#define ALCheckErrorPrecise()                                                                      \
-	if (s_alPreciseErrorCheck)                                                                     \
+#define ALCheckErrorPrecise()																	   \
+	if (s_alPreciseErrorCheck)																	   \
 	ALCheckError()
 
 namespace spades {
@@ -135,7 +135,7 @@ namespace spades {
 				al::qalGenBuffers(1, &handle);
 				ALCheckError();
 				al::qalBufferData(handle, alFormat, bytes.data(), (ALuint)bytes.size(),
-				                  audioStream->GetSamplingFrequency());
+								  audioStream->GetSamplingFrequency());
 				ALCheckError();
 			}
 
@@ -244,7 +244,7 @@ namespace spades {
 					ALCheckErrorPrecise();
 					if (internal->useEAX) {
 						al::qalSource3i(handle, AL_AUXILIARY_SEND_FILTER, internal->reverbFXSlot, 0,
-						                AL_FILTER_NULL);
+										AL_FILTER_NULL);
 						ALCheckErrorPrecise();
 					}
 					eaxSource = true;
@@ -267,7 +267,7 @@ namespace spades {
 					ALCheckErrorPrecise();
 					if (internal->useEAX) {
 						al::qalSource3i(handle, AL_AUXILIARY_SEND_FILTER, AL_EFFECTSLOT_NULL, 0,
-						                AL_FILTER_NULL);
+										AL_FILTER_NULL);
 						ALCheckErrorPrecise();
 						al::qalSourcei(handle, AL_DIRECT_FILTER, 0);
 						ALCheckErrorPrecise();
@@ -371,7 +371,7 @@ namespace spades {
 					if (err != AL_NO_ERROR) {
 						// Just log the error without making additional AL calls to avoid recursion
 						SPLog("Warning: alSourcePlay failed with error %d (0x%X) for buffer %u on source %u",
-						      (int)err, (unsigned int)err, buffer, handle);
+							  (int)err, (unsigned int)err, buffer, handle);
 					}
 				}
 			};
@@ -405,7 +405,7 @@ namespace spades {
 				al::qalEffectf(reverbFX, AL_EAXREVERB_REFLECTIONS_GAIN, reverb->flReflectionsGain);
 				ALCheckErrorPrecise();
 				al::qalEffectf(reverbFX, AL_EAXREVERB_REFLECTIONS_DELAY,
-				               reverb->flReflectionsDelay);
+							   reverb->flReflectionsDelay);
 				ALCheckErrorPrecise();
 				al::qalEffectfv(reverbFX, AL_EAXREVERB_REFLECTIONS_PAN, reverb->flReflectionsPan);
 				ALCheckErrorPrecise();
@@ -424,14 +424,14 @@ namespace spades {
 				al::qalEffectf(reverbFX, AL_EAXREVERB_MODULATION_DEPTH, reverb->flModulationDepth);
 				ALCheckErrorPrecise();
 				al::qalEffectf(reverbFX, AL_EAXREVERB_AIR_ABSORPTION_GAINHF,
-				               reverb->flAirAbsorptionGainHF);
+							   reverb->flAirAbsorptionGainHF);
 				ALCheckErrorPrecise();
 				al::qalEffectf(reverbFX, AL_EAXREVERB_HFREFERENCE, reverb->flHFReference);
 				ALCheckErrorPrecise();
 				al::qalEffectf(reverbFX, AL_EAXREVERB_LFREFERENCE, reverb->flLFReference);
 				ALCheckErrorPrecise();
 				al::qalEffectf(reverbFX, AL_EAXREVERB_ROOM_ROLLOFF_FACTOR,
-				               reverb->flRoomRolloffFactor);
+							   reverb->flRoomRolloffFactor);
 				ALCheckErrorPrecise();
 				al::qalEffecti(reverbFX, AL_EAXREVERB_DECAY_HFLIMIT, reverb->iDecayHFLimit);
 				ALCheckErrorPrecise();
@@ -439,46 +439,31 @@ namespace spades {
 
 			Internal() {
 				SPADES_MARK_FUNCTION();
-				const char *ext, *dev;
-
-				if (al::qalGetString(AL_EXTENSIONS)) {
-					std::vector<std::string> strs = Split(al::qalGetString(AL_EXTENSIONS), " ");
-					SPLog("OpenAL Extensions:");
-					for (size_t i = 0; i < strs.size(); i++)
-						SPLog("  %s", strs[i].c_str());
-				}
+				const char *alExt, *alcExt, *dev;
 
 				dev = s_openalDevice.CString();
-				SPLog("OpenAL opening device: %s", dev);
-				if (!strcmp(dev, "default"))
+				if (!strcmp(dev, "default") || !strcmp(dev, ""))
 					dev = NULL;
+				SPLog("OpenAL opening device: %s", dev ? dev : "default");
 				alDevice = al::qalcOpenDevice(dev);
 
 				if (UNLIKELY(!alDevice)) {
-					if ((ext = al::qalcGetString(NULL, ALC_EXTENSIONS))) {
-						std::vector<std::string> strs = Split(ext, " ");
+					SPLog("Failed to open device: %s", dev ? dev : "default");			
+					if ((alcExt = al::qalcGetString(NULL, ALC_EXTENSIONS))) {
+						std::vector<std::string> strs = Split(alcExt, " ");
 						SPLog("OpenAL ALC Extensions (NULL):");
 						for (size_t i = 0; i < strs.size(); i++)
-							SPLog("  %s", strs[i].c_str());
+							SPLog("	 %s", strs[i].c_str());
 					}
 
 					SPRaise("Failed to open OpenAL device.");
 				}
-				SPLog("OpenAL Info:");
-				SPLog("  Vendor: %s", al::qalGetString(AL_VENDOR));
-				SPLog("  Version: %s", al::qalGetString(AL_VERSION));
-				SPLog("  Renderer: %s", al::qalGetString(AL_RENDERER));
-#ifdef OPENAL_SOFT
-				SPLog("  Using OpenAL Soft (built-in)");
-#else
-				SPLog("  Using system OpenAL");
-#endif
 
-				if ((ext = al::qalcGetString(alDevice, ALC_EXTENSIONS))) {
-					std::vector<std::string> strs = Split(ext, " ");
+				if ((alcExt = al::qalcGetString(alDevice, ALC_EXTENSIONS))) {
+					std::vector<std::string> strs = Split(alcExt, " ");
 					SPLog("OpenAL ALC Extensions:");
 					for (size_t i = 0; i < strs.size(); i++)
-						SPLog("  %s", strs[i].c_str());
+						SPLog("	 %s", strs[i].c_str());
 				}
 
 				alContext = al::qalcCreateContext(alDevice, NULL);
@@ -486,8 +471,24 @@ namespace spades {
 					al::qalcCloseDevice(alDevice);
 					SPRaise("Failed to create OpenAL context.");
 				}
-
 				al::qalcMakeContextCurrent(alContext);
+				
+				SPLog("OpenAL Info:");
+				SPLog("	 Vendor: %s", al::qalGetString(AL_VENDOR));
+				SPLog("	 Version: %s", al::qalGetString(AL_VERSION));
+				SPLog("	 Renderer: %s", al::qalGetString(AL_RENDERER));			
+#ifdef OPENAL_SOFT
+				SPLog("	 Using OpenAL Soft (built-in)");
+#else
+				SPLog("	 Using system OpenAL");
+#endif
+
+				if ((alExt = al::qalGetString(AL_EXTENSIONS))) {
+					std::vector<std::string> strs = Split(alExt, " ");
+					SPLog("OpenAL Extensions:");
+					for (size_t i = 0; i < strs.size(); i++)
+						SPLog("	 %s", strs[i].c_str());
+				}
 
 				map = NULL;
 				roomHistoryPos = 0;
@@ -590,7 +591,7 @@ namespace spades {
 				src->PlayBufferOneShot(chunk->GetHandle());
 			}
 			void PlayLocal(ALAudioChunk* chunk, const Vector3& origin,
-			               const client::AudioParam& param) {
+						   const client::AudioParam& param) {
 				SPADES_MARK_FUNCTION();
 
 				ALSrc* src = AllocChunk();
@@ -715,7 +716,7 @@ namespace spades {
 					if (prop.flReflectionsDelay > AL_EAXREVERB_MAX_REFLECTIONS_DELAY)
 						prop.flReflectionsDelay = AL_EAXREVERB_MAX_REFLECTIONS_DELAY;
 					prop.flLateReverbGain = reflections * reflections * reflections * reflections *
-					                        feedbackness * feedbackness * feedbackness * 0.34F;
+											feedbackness * feedbackness * feedbackness * 0.34F;
 					prop.flReflectionsGain = reflections * 0.25F;
 
 					// printf("late: %f, ref: %f\n", prop.flLateReverbGain, prop.flReflectionsGain);
@@ -813,17 +814,17 @@ namespace spades {
 		}
 
 		void ALDevice::Play(client::IAudioChunk* chunk, const spades::Vector3& origin,
-		                    const client::AudioParam& param) {
+							const client::AudioParam& param) {
 			SPADES_MARK_FUNCTION();
 
 			d->Play(static_cast<ALAudioChunk*>(chunk), origin, param);
 		}
 		void ALDevice::PlayLocal(client::IAudioChunk* chunk, const spades::Vector3& origin,
-		                         const client::AudioParam& param) {
+								 const client::AudioParam& param) {
 			SPADES_MARK_FUNCTION();
 
 			d->PlayLocal(static_cast<ALAudioChunk*>(chunk),
-			             MakeVector3(origin.x, origin.y, -origin.z), param);
+						 MakeVector3(origin.x, origin.y, -origin.z), param);
 		}
 
 		void ALDevice::PlayLocal(client::IAudioChunk* chunk, const client::AudioParam& param) {
@@ -833,7 +834,7 @@ namespace spades {
 		}
 
 		void ALDevice::Respatialize(const spades::Vector3& eye, const spades::Vector3& front,
-		                            const spades::Vector3& up) {
+									const spades::Vector3& up) {
 			SPADES_MARK_FUNCTION();
 
 			d->Respatialize(eye, front, up);
