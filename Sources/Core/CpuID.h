@@ -5,12 +5,7 @@
 #include <cstdint>
 #include <string>
 
-#if defined(__i386__) || defined(_M_IX86)
-// FIXME: Why does this preprocessor condition even exists?
-#endif
-
 namespace spades {
-
 	enum class CpuFeature {
 		MMX,
 		SSE,
@@ -26,9 +21,7 @@ namespace spades {
 		AVX512F,
 		SimultaneousMT
 	};
-
-#if defined(__i386__) || defined(_M_IX86) || defined(__amd64__) || defined(__x86_64__)
-
+#if defined(__i386__) || defined(_M_IX86) || defined(__amd64__) || defined(__x86_64__) || defined(_M_X64) || defined(_M_AMD64)
 	class CpuID {
 		std::string vendor;
 		std::string brand;
@@ -38,27 +31,21 @@ namespace spades {
 		std::string info;
 		bool featureXcr0Avx;
 		bool featureXcr0Avx512;
-
 	public:
 		CpuID();
-
 		bool Supports(CpuFeature feature);
-
 		const std::string& GetVendorId() { return vendor; }
 		const std::string& GetBrand() { return brand; }
 		const std::string& GetMiscInfo() { return info; }
 	};
 #else
-
 	class CpuID {
 	public:
 		CpuID() {}
 		bool Supports(CpuFeature feature) { return false; }
-
 		std::string GetVendorId() { return "Unknown"; }
 		std::string GetBrand() { return "Unknown"; }
 		std::string GetMiscInfo() { return "(none)"; }
 	};
-
 #endif
 } // namespace spades

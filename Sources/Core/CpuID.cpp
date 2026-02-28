@@ -10,24 +10,22 @@
 #include "CpuID.h"
 
 namespace spades {
-
-#if defined(__i386__) || defined(_M_IX86) || defined(__amd64__) || defined(__x86_64__)
-	static std::array<uint32_t, 4> cpuid(uint32_t a) {
+#if defined(__i386__) || defined(_M_IX86) || defined(__amd64__) || defined(__x86_64__) || defined(_M_X64) || defined(_M_AMD64)
+	static std::array<uint32_t, 4> cpuid(uint32_t a, uint32_t c = 0) {
 		std::array<uint32_t, 4> regs;
 #ifdef WIN32
-		__cpuid(reinterpret_cast<int*>(regs.data()), a);
+		__cpuidex(reinterpret_cast<int*>(regs.data()), static_cast<int>(a), static_cast<int>(c));
 #elif defined(__i386__) && (defined(__pic__) || defined(__PIC__))
 		asm volatile("mov %%ebx, %%edi\ncpuid\nxchg %%edi, %%ebx\n"
-		             : "=a"(regs[0]), "=D"(regs[1]), "=c"(regs[2]), "=d"(regs[2])
-		             : "a"(a), "c"(0));
+					 : "=a"(regs[0]), "=D"(regs[1]), "=c"(regs[2]), "=d"(regs[3])
+					 : "a"(a), "c"(c));
 #else
 		asm volatile("cpuid"
-		             : "=a"(regs[0]), "=b"(regs[1]), "=c"(regs[2]), "=d"(regs[3])
-		             : "a"(a), "c"(0));
+					 : "=a"(regs[0]), "=b"(regs[1]), "=c"(regs[2]), "=d"(regs[3])
+					 : "a"(a), "c"(c));
 #endif
 		return regs;
 	}
-
 	static uint32_t xcr0() {
 #ifdef WIN32
 		return static_cast<uint32_t>(_xgetbv(0));
@@ -37,8 +35,8 @@ namespace spades {
 		return a;
 #endif
 	}
-
-	CpuID::CpuID() {
+	CpuID::CpuID() : featureEcx(0), featureEdx(0), subfeature(0),
+					 featureXcr0Avx(false), featureXcr0Avx512(false) {
 		uint32_t maxStdLevel;
 		{
 			auto ar = cpuid(0);
@@ -54,15 +52,12 @@ namespace spades {
 			auto ar = cpuid(1);
 			featureEcx = ar[2];
 			featureEdx = ar[3];
-
-			// xsave/osxsave
-			if ((featureEcx & (1U << 28)) && (featureEcx & 26) && (featureEcx & 27)) {
+			if ((featureEcx & (1U << 28)) && (featureEcx & (1U << 26)) && (featureEcx & (1U << 27))) {
 				auto x = xcr0();
 				featureXcr0Avx = ((x & 6) == 6);
 				featureXcr0Avx512 = ((x & 224) == 224);
 			}
 		}
-
 		{
 			if (cpuid(0x80000000U)[0] >= 0x80000004U) {
 				char buf[49];
@@ -76,13 +71,11 @@ namespace spades {
 			}
 		}
 		{
-			auto ar = cpuid(7);
-			// FIXME: sublevels?
+			auto ar = cpuid(7, 0);
 			subfeature = ar[1];
 		}
 		{ info = "(none)"; }
 	}
-
 	bool CpuID::Supports(spades::CpuFeature feature) {
 		switch (feature) {
 			case CpuFeature::MMX: return featureEdx & (1U << 23);
@@ -92,15 +85,14 @@ namespace spades {
 			case CpuFeature::SSSE3: return featureEcx & (1U << 9);
 			case CpuFeature::FMA: return featureEcx & (1U << 12);
 			case CpuFeature::AVX: return featureXcr0Avx;
-			case CpuFeature::AVX2: return (featureXcr0Avx && subfeature & (1U << 5));
-			case CpuFeature::AVX512CD: return (featureXcr0Avx512 && subfeature & (1U << 28));
-			case CpuFeature::AVX512ER: return (featureXcr0Avx512 && subfeature & (1U << 27));
-			case CpuFeature::AVX512PF: return (featureXcr0Avx512 && subfeature & (1U << 26));
-			case CpuFeature::AVX512F: return (featureXcr0Avx512 && subfeature & (1U << 16));
+			case CpuFeature::AVX2: return (featureXcr0Avx && (subfeature & (1U << 5)));
+			case CpuFeature::AVX512CD: return (featureXcr0Avx512 && (subfeature & (1U << 28)));
+			case CpuFeature::AVX512ER: return (featureXcr0Avx512 && (subfeature & (1U << 27)));
+			case CpuFeature::AVX512PF: return (featureXcr0Avx512 && (subfeature & (1U << 26)));
+			case CpuFeature::AVX512F: return (featureXcr0Avx512 && (subfeature & (1U << 16)));
 			case CpuFeature::SimultaneousMT: return featureEdx & (1U << 28);
 			default: return false;
 		}
 	}
-
 #endif
 } // namespace spades
