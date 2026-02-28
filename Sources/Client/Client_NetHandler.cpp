@@ -110,7 +110,7 @@ namespace spades {
 			std::string verStr = std::string(ZEROSPADES_VER_STR);
 			std::string osInfo = VersionInfo::GetVersionInfo();
 			std::string archInfo = VersionInfo::GetAppArchitecture();
-			std::string s = _Tr("Client", "You are connected with {0} on {1} ({2})", verStr, osInfo, archInfo);
+			std::string s = _Tr("Client", "You are connected with {0} ({2}) on {1}", verStr, osInfo, archInfo);
 			chatWindow->AddMessage(ChatWindow::ColoredMessage(s, MsgColorSysInfo));
 		}
 

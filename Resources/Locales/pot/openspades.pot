@@ -2631,5 +2631,5 @@ msgstr ""
 
 #: Sources/Client/Client_NetHandler.cpp:111
 msgctxt "Client"
-msgid "You are connected with {0} on {1} ({2})"
+msgid "You are connected with {0} ({2}) on {1}"
 msgstr ""
