@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -63,19 +63,22 @@ void main() {
 
 	// lambert reflection
 	vec3 normal = normalAttribute;
-	color.w = dot(normal, sunLightDirection);
+	color.w = max(dot(normal, sunLightDirection), 0.0);
 
-	vec2 horzRelativePos = vertexPos.xy - viewOriginVector.xy;
+	vec3 worldPosition = vertexPos.xyz;
+	vec3 viewDirection = worldPosition - viewOriginVector;
+	
+	// used for diffuse lighting
+	viewSpaceCoord = (viewMatrix * vertexPos).xyz;
+	viewSpaceNormal = (viewMatrix * vec4(normal, 0.0)).xyz;
+	
+	// reflection vector (used for specular lighting)
+	reflectionDir = reflect(viewDirection, normal);
+	
+	vec2 horzRelativePos = viewDirection.xy;
 	float horzDistance = dot(horzRelativePos, horzRelativePos);
 	fogDensity = ComputeFogDensity(horzDistance).xyz;
 
 	vec3 fixedWorldPosition = chunkPosition + fixedPositionAttribute * 0.5;
-	PrepareShadowForMap(vertexPos.xyz, fixedWorldPosition, normal);
-
-	// used for diffuse lighting
-	viewSpaceCoord = (viewMatrix * vertexPos).xyz;
-	viewSpaceNormal = normalize((viewMatrix * vec4(normal, 0.0)).xyz);
-	
-	// reflection vector (used for specular lighting)
-	reflectionDir = reflect(vertexPos.xyz - viewOriginVector, normal);
+	PrepareShadowForMap(worldPosition, fixedWorldPosition, normal);
 }

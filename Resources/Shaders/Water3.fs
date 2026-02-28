@@ -15,7 +15,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -138,7 +138,7 @@ void main() {
 	// convert to view coord
 	vec3 sampledViewCoord = vec3(mix(fovTan.zw, fovTan.xy, refractTargetSS), 1.0) * -depth;
 	float planeDistance = dot(vec4(sampledViewCoord, 1.0), waterPlane);
- 	if (planeDistance < 0.0) {
+	if (planeDistance < 0.0) {
 		// reset!
 		// original pos must be in the water.
 		refractTargetSS = origScrPos;
@@ -155,6 +155,7 @@ void main() {
 	float envelope = min(distance(viewPosition * vec3(-1.0, 1.0, 1.0), sampledViewCoord) * 0.8, 1.0);
 	envelope = 1.0 - (1.0 - envelope) * (1.0 - envelope);
 
+	vec3 diffuseShading = EvaluateAmbientLight(1.0);
 	vec3 sunlight = EvaluateSunLight();
 
 	// Blend the water color
@@ -169,7 +170,7 @@ void main() {
 	vec2 subCoord = 1.0 - clamp((vec2(0.5) - startPos) / diffPos, 0.0, 1.0);
 	vec2 sampCoord = integralCoord + subCoord * blurDirSign;
 	vec3 waterColor = texture2D(mainTexture, sampCoord / 512.0).xyz;
-	waterColor *= sunlight + EvaluateAmbientLight(1.0);
+	waterColor *= sunlight + diffuseShading;
 
 	// underwater object color
 	gl_FragColor = texture2D(screenTexture, refractTargetSS);
@@ -272,11 +273,11 @@ void main() {
 
 	vec3 ongoing = normalize(worldPositionFromOrigin);
 
-    // bluring for far surface
+	// bluring for far surface
 	float lodBias = 1.0 / ongoing.z;
 	float dispScaleByLod = min(1.0, ongoing.z * 0.5);
-    lodBias = log2(lodBias);
-    lodBias = clamp(lodBias, 0.0, 2.0);
+	lodBias = log2(lodBias);
+	lodBias = clamp(lodBias, 0.0, 2.0);
 
 	// compute reflection color
 	vec2 reflectionSS = origScrPos;
@@ -291,10 +292,10 @@ void main() {
 	// reflectivity
 	float dotNV = dot(wave, ongoing);
 	float reflective = clamp(1.0 - dotNV, 0.0, 1.0);
-    float orig_reflective = reflective;
+	float orig_reflective = reflective;
 	reflective *= reflective;
 	reflective *= reflective;
-    reflective = mix(reflective, orig_reflective * 0.6, clamp(lodBias * 0.13 - 0.13, 0.0, 1.0));
+	reflective = mix(reflective, orig_reflective * 0.6, clamp(lodBias * 0.13 - 0.13, 0.0, 1.0));
 	//reflective += 0.03;
 
 	// reflection
@@ -309,7 +310,7 @@ void main() {
 
 	// specular reflection
 	if (dot(sunlight, vec3(1.0)) > 0.0001 && reflectedSky) {
-		// can't use CockTorrance here -- CockTorrance's fresenel term
+		// can't use CookTorrance here -- CookTorrance's fresenel term
 		// is hard-coded for higher roughness values
 		vec3 lightVec = vec3(0.0, 1.0, 1.0);
 		vec3 halfVec = lightVec + ongoing;

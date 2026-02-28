@@ -581,14 +581,6 @@ namespace spades {
 				modelMatrixU(shadowMapProgram);
 				modelMatrixU.SetValue(modelMatrix);
 
-				Matrix4 modelNormalMat = modelMatrix;
-				modelNormalMat.m[12] = 0.0F;
-				modelNormalMat.m[13] = 0.0F;
-				modelNormalMat.m[14] = 0.0F;
-				static GLProgramUniform modelNormalMatrix("modelNormalMatrix");
-				modelNormalMatrix(shadowMapProgram);
-				modelNormalMatrix.SetValue(modelNormalMat);
-
 				device.DrawElements(IGLDevice::Triangles,
 					numIndices, IGLDevice::UnsignedInt, (void*)0);
 			}
@@ -730,14 +722,6 @@ namespace spades {
 				modelMatrixU(program);
 				modelMatrixU.SetValue(modelMatrix);
 
-				Matrix4 modelNormalMat = modelMatrix;
-				modelNormalMat.m[12] = 0.0F;
-				modelNormalMat.m[13] = 0.0F;
-				modelNormalMat.m[14] = 0.0F;
-				static GLProgramUniform modelNormalMatrix("modelNormalMatrix");
-				modelNormalMatrix(program);
-				modelNormalMatrix.SetValue(modelNormalMat);
-
 				static GLProgramUniform modelOpacity("modelOpacity");
 				modelOpacity(program);
 				modelOpacity.SetValue(param.opacity);
@@ -864,14 +848,6 @@ namespace spades {
 				static GLProgramUniform modelMatrixU("modelMatrix");
 				modelMatrixU(dlightProgram);
 				modelMatrixU.SetValue(modelMatrix);
-
-				Matrix4 modelNormalMat = modelMatrix;
-				modelNormalMat.m[12] = 0.0F;
-				modelNormalMat.m[13] = 0.0F;
-				modelNormalMat.m[14] = 0.0F;
-				static GLProgramUniform modelNormalMatrix("modelNormalMatrix");
-				modelNormalMatrix(dlightProgram);
-				modelNormalMatrix.SetValue(modelNormalMat);
 
 				if (param.depthHack)
 					device.DepthRange(0.0F, 0.1F);

@@ -71,8 +71,10 @@ void main() {
 	float shadowing = VisibilityOfSunLight() * 0.6;
 
 	vec3 eyeVec = -normalize(viewSpaceCoord);
-	float dotNL = max(flatShading, 0.001);
-	float dotNV = max(dot(viewSpaceNormal, eyeVec), 0.001);
+	vec3 normal = normalize(viewSpaceNormal);
+	
+	float dotNL = flatShading;
+	float dotNV = max(dot(normal, eyeVec), 0.0);
 
 	// fresnel term
 	// FIXME: use split-sum approximation from UE4
@@ -85,12 +87,10 @@ void main() {
 
 	// diffuse/specular shading for sunlight
 	if (!isEmissive && shadowing > 0.0 && dotNL > 0.0) {
-		// diffuse shading
 		float sunDiffuseShading = OrenNayar(0.8, dotNL, dotNV);
+		float sunSpecularShading = CookTorrance(eyeVec, viewSpaceLight, normal);
+	
 		diffuseShading += sunDiffuseShading * shadowing;
-
-		// specular shading
-		float sunSpecularShading = CookTorrance(eyeVec, viewSpaceLight, viewSpaceNormal);
 		gl_FragColor.xyz += sunSpecularShading * shadowing;
 	}
 

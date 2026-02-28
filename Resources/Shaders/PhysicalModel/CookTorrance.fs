@@ -18,10 +18,10 @@
 
  */
 
-float GGXDistribution(float m, float dotHalf) {
+float GGXDistribution(float m, float dotNH) {
 	float m2 = m * m;
-	float t = dotHalf * dotHalf * (m2 - 1.0) + 1.0;
-	return m2 / (3.141592653 * t * t);
+	float t = dotNH * dotNH * (m2 - 1.0) + 1.0;
+	return m2 / max(3.141592653 * t * t, 0.00001);
 }
 
 // http://en.wikipedia.org/wiki/Specular_highlight#Cook.E2.80.93Torrance_model
@@ -30,10 +30,10 @@ float CookTorrance(vec3 eyeVec, vec3 lightVec, vec3 normal) {
 	halfVec = (dot(halfVec, halfVec) < 0.00000000001)
 		? vec3(1.0, 0.0, 0.0) : normalize(halfVec);
 
-	float dotNL = max(dot(normal, lightVec), 0.001);
-	float dotNV = max(dot(normal, eyeVec), 0.001);
-	float dotNH = max(dot(normal, halfVec), 0.001);
-	float dotVH = max(dot(eyeVec, halfVec), 0.001);
+	float dotNL = max(dot(normal, lightVec), 0.0);
+	float dotNV = max(dot(normal, eyeVec), 0.0);
+	float dotNH = max(dot(normal, halfVec), 0.0);
+	float dotVH = max(dot(eyeVec, halfVec), 0.0);
 
 	// distribution term
 	float m = 0.3; // roughness
@@ -47,7 +47,7 @@ float CookTorrance(vec3 eyeVec, vec3 lightVec, vec3 normal) {
 	// visibility term (Schlick-Beckmann)
 	float a = m * 0.7978, ia = 1.0 - a;
 	float visibility = (dotNL * ia + a) * (dotNV * ia + a);
-	visibility = 0.25 / visibility;
+	visibility = 0.25 / max(visibility, 0.00001);
 
 	float specular = distribution * fresnel * visibility;
 

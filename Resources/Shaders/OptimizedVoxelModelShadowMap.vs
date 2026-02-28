@@ -14,12 +14,11 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
 uniform mat4 modelMatrix;
-uniform mat4 modelNormalMatrix;
 uniform vec3 modelOrigin;
 
 // [x, y, z, AO ID]
@@ -34,10 +33,11 @@ varying vec3 fogDensity;
 void PrepareForShadowMapRender(vec3 position, vec3 normal);
 
 void main() {
-	vec4 vertexPos = vec4(positionAttribute.xyz + modelOrigin, 1.0);
+	vec4 vertexPos = vec4(modelOrigin + positionAttribute.xyz, 1.0);
 	
 	// compute normal
-	vec3 normal = normalize((modelNormalMatrix * vec4(normalAttribute, 1.0)).xyz);
-
-	PrepareForShadowMapRender((modelMatrix * vertexPos).xyz, normal);
+	vec3 normal = normalize((modelMatrix * vec4(normalAttribute, 0.0)).xyz);
+	vec3 worldPosition = (modelMatrix * vertexPos).xyz;
+	
+	PrepareForShadowMapRender(worldPosition, normal);
 }
