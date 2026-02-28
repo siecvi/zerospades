@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -91,7 +91,7 @@ void main() {
 	// convert to view coord
 	vec3 sampledViewCoord = vec3(mix(fovTan.zw, fovTan.xy, scrPos), 1.0) * -depth;
 	float planeDistance = dot(vec4(sampledViewCoord, 1.0), waterPlane);
- 	if (planeDistance < 0.0) {
+	if (planeDistance < 0.0) {
 		// reset!
 		// original pos must be in the water.
 		scrPos = origScrPos;
@@ -110,6 +110,9 @@ void main() {
 	float envelope = clamp((depth + viewPosition.z), 0.0, 1.0);
 	envelope = 1.0 - (1.0 - envelope) * (1.0 - envelope);
 
+	vec3 diffuseShading = EvaluateAmbientLight(1.0);
+	vec3 sunlight = EvaluateSunLight();
+
 	// water color
 	// TODO: correct integral
 	vec2 waterCoord = worldPosition.xy;
@@ -122,6 +125,7 @@ void main() {
 	vec2 subCoord = 1.0 - clamp((vec2(0.5) - startPos) / diffPos, 0.0, 1.0);
 	vec2 sampCoord = integralCoord + subCoord * blurDirSign;
 	vec3 waterColor = texture2D(mainTexture, sampCoord / 512.0).xyz;
+	waterColor *= sunlight + diffuseShading;
 
 	// underwater object color
 	gl_FragColor = texture2D(screenTexture, scrPos);
@@ -140,7 +144,6 @@ void main() {
 	vec3 att = 1.0 - fogDensity;
 
 	// reflectivity
-	vec3 sunlight = EvaluateSunLight();
 	vec3 ongoing = normalize(worldPositionFromOrigin);
 	float reflective = dot(wave, ongoing);
 	reflective = clamp(1.0 - reflective, 0.0, 1.0);
@@ -148,10 +151,10 @@ void main() {
 	reflective *= reflective;
 	reflective += 0.03;
 
-	// fresnel refrection to sky
+	// fresnel reflection of the sky
 	gl_FragColor.xyz = mix(gl_FragColor.xyz,
 		mix(skyColor * reflective * 0.6,
-			fogColor, fogDensity), reflective * att);
+			fogColor, fogDensity), reflective * 0.6 * att);
 
 	// specular reflection
 	if (dot(sunlight, vec3(1.0)) > 0.0001) {
