@@ -48,9 +48,9 @@
 DEFINE_SPADES_SETTING(cg_corpseClearOnRespawn, "0");
 DEFINE_SPADES_SETTING(cg_centerMessage, "2");
 DEFINE_SPADES_SETTING(cg_autoScreenshot, "0");
-DEFINE_SPADES_SETTING(cg_autoRecord, "0");
-DEFINE_SPADES_SETTING(cg_maxDemos, "10");
-DEFINE_SPADES_SETTING(cg_autoPruneDemos, "1");
+DEFINE_SPADES_SETTING(cg_demoAutoRecord, "0");
+DEFINE_SPADES_SETTING(cg_demoMaxFiles, "10");
+DEFINE_SPADES_SETTING(cg_demoAutoPrune, "1");
 
 namespace spades {
 	extern std::string g_pendingMapName;
@@ -151,11 +151,11 @@ namespace spades {
 			chatWindow->AddMessage(ChatWindow::ColoredMessage(s, MsgColorSysInfo));
 
 			// start recording if auto-record is enabled
-			if (net && (int)cg_autoRecord != 0) {
+			if (net && (int)cg_demoAutoRecord != 0) {
 				if (net->StartDemoRecording("", BuildDemoContext())) {
 					SPLog("Started auto-recording demo: %s", net->GetDemoFilename().c_str());
-					if ((int)cg_autoPruneDemos != 0) {
-						int maxDemos = (int)cg_maxDemos;
+					if ((int)cg_demoAutoPrune != 0) {
+						int maxDemos = (int)cg_demoMaxFiles;
 						if (maxDemos >= 1)
 							DemoRecorder::PruneOldRecordings(static_cast<size_t>(maxDemos));
 					}
