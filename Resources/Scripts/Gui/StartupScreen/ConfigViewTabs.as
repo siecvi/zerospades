@@ -735,9 +735,9 @@ namespace spades {
 		private spades::ui::CheckBox@ buttonAutoRecord;
 		private spades::ui::CheckBox@ buttonAutoPrune;
 		private spades::ui::Field@ fieldMaxDemos;
-		private ConfigItem cg_autoRecord("cg_autoRecord");
-		private ConfigItem cg_autoPruneDemos("cg_autoPruneDemos");
-		private ConfigItem cg_maxDemos("cg_maxDemos");
+		private ConfigItem cg_demoAutoRecord("cg_demoAutoRecord");
+		private ConfigItem cg_demoAutoPrune("cg_demoAutoPrune");
+		private ConfigItem cg_demoMaxFiles("cg_demoMaxFiles");
 
 		StartupScreenRecordingTab(StartupScreenUI@ ui, Vector2 size) {
 			super(ui.manager);
@@ -792,23 +792,23 @@ namespace spades {
 		}
 
 		void LoadConfig() {
-			buttonAutoRecord.Toggled = cg_autoRecord.IntValue != 0;
-			buttonAutoPrune.Toggled = cg_autoPruneDemos.IntValue != 0;
-			fieldMaxDemos.Text = cg_maxDemos.StringValue;
+			buttonAutoRecord.Toggled = cg_demoAutoRecord.IntValue != 0;
+			buttonAutoPrune.Toggled = cg_demoAutoPrune.IntValue != 0;
+			fieldMaxDemos.Text = cg_demoMaxFiles.StringValue;
 		}
 
 		private void OnAutoRecordChanged(spades::ui::UIElement@) {
-			cg_autoRecord.IntValue = buttonAutoRecord.Toggled ? 1 : 0;
+			cg_demoAutoRecord.IntValue = buttonAutoRecord.Toggled ? 1 : 0;
 		}
 
 		private void OnAutoPruneChanged(spades::ui::UIElement@) {
-			cg_autoPruneDemos.IntValue = buttonAutoPrune.Toggled ? 1 : 0;
+			cg_demoAutoPrune.IntValue = buttonAutoPrune.Toggled ? 1 : 0;
 		}
 
 		private void OnMaxDemosChanged(spades::ui::UIElement@) {
 			int v = ParseInt(fieldMaxDemos.Text);
 			if (v >= 1)
-				cg_maxDemos.IntValue = v;
+				cg_demoMaxFiles.IntValue = v;
 		}
 
 		private void OnBrowseDemosFolderPressed(spades::ui::UIElement@) {

@@ -199,7 +199,7 @@ namespace {
 		printf("  -r FILE              play back a demo recording (short form)\n");
 		printf("  -h, --help           show this help message\n");
 		printf("  -v, --version        show version information\n");
-		printf("\nAuto-recording can be enabled with the cg_autoRecord setting.\n");
+		printf("\nAuto-recording can be enabled with the cg_demoAutoRecord setting.\n");
 		printf("Recordings are kept in the Demos/ folder; only the last 10 are retained.\n");
 	}
 
