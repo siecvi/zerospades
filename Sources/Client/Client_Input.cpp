@@ -664,8 +664,6 @@ namespace spades {
 				if (CheckKey(cg_keyDemoRecord, name) && down && net) {
 					if (net->IsDemoRecording()) {
 						net->StopDemoRecording();
-						chatWindow->AddMessage(ChatWindow::ColoredMessage(
-						  _Tr("Client", "Demo recording stopped."), MsgColorSysInfo));
 					} else {
 						if (net->StartDemoRecording("", BuildDemoContext())) {
 							if ((int)cg_demoAutoPrune != 0) {
@@ -673,9 +671,7 @@ namespace spades {
 								if (maxDemos >= 1)
 									DemoRecorder::PruneOldRecordings(static_cast<size_t>(maxDemos));
 							}
-							chatWindow->AddMessage(ChatWindow::ColoredMessage(
-							  _Tr("Client", "Demo recording started: {0}", net->GetDemoFilename()),
-							  MsgColorSysInfo));
+							SPLog("Demo recording started: %s", net->GetDemoFilename().c_str());
 						} else {
 							chatWindow->AddMessage(ChatWindow::ColoredMessage(
 							  _Tr("Client", "Failed to start demo recording."), MsgColorSysInfo));
