@@ -525,6 +525,12 @@ namespace spades {
 								followCameraState.enabled = false;
 							}
 							return;
+						} else if (CheckKey(cg_keyToggleSpectatorNames, name) && down) {
+							spectatorPlayerNames = !spectatorPlayerNames;
+							Handle<IAudioChunk> c =
+							  audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
+							audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+							return;
 						}
 					}
 
