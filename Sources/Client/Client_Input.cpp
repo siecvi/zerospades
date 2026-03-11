@@ -99,8 +99,8 @@ DEFINE_SPADES_SETTING(cg_keyDemoPlayPause, "P");
 DEFINE_SPADES_SETTING(cg_keyDemoSeekForward, "Right");
 DEFINE_SPADES_SETTING(cg_keyDemoSeekBackward, "Left");
 DEFINE_SPADES_SETTING(cg_keyDemoRecord, "F9");
-DEFINE_SPADES_SETTING(cg_keyDemoSpeedUp, "]");
-DEFINE_SPADES_SETTING(cg_keyDemoSlowDown, "[");
+DEFINE_SPADES_SETTING(cg_keyDemoSpeedUp, ".");
+DEFINE_SPADES_SETTING(cg_keyDemoSlowDown, ",");
 SPADES_SETTING(cg_demoMaxFiles);
 SPADES_SETTING(cg_demoAutoPrune);
 
