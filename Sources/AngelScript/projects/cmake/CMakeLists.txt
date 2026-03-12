@@ -78,6 +78,15 @@ if(UNIX AND NOT APPLE AND NOT ANDROID AND CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|
         endif()
 endif()
 
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "riscv64")
+    enable_language(ASM)
+    if(CMAKE_ASM_COMPILER_WORKS)
+        set(ANGELSCRIPT_SOURCE ${ANGELSCRIPT_SOURCE} ../../source/as_callfunc_riscv64.cpp ../../source/as_callfunc_riscv64_gcc.S)
+    else()
+        message(FATAL ERROR "RISC-V 64 target requires a working assembler")
+    endif()
+endif()
+
 set(ANGELSCRIPT_HEADERS
         ../../include/angelscript.h
         ../../source/as_array.h
