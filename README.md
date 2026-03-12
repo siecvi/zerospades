@@ -49,6 +49,12 @@ On CMake, before you configure the project, you will need to add a new string en
 
 Then you're ready to configure & generate.
 
+## Tested Platforms
+* x86-64, EndeavourOS, Ryzen 7 7700X, RX9070XT, 32G RAM
+* ARM64, macOS 26.4.1, Apple Silicon M4, Integrated GPU, 24 GB RAM
+* riscv64, Ubuntu 24.04 LTS, SIFIVE P550, RX6700XT, 8G RAM
+* riscv64, Ubuntu 25.10 LTS, QEMU RVA23, No GPU, 12G RAM
+
 ## Troubleshooting
 For troubleshooting and common problems see [TROUBLESHOOTING](TROUBLESHOOTING.md).
 
