@@ -86,11 +86,6 @@ namespace spades {
 			uint64_t GetPacketCount() const { return packetCount; }
 
 			/**
-			 * @return Current file size in bytes
-			 */
-			uint64_t GetFileSize() const { return fileSize; }
-
-			/**
 			 * @return The filename being recorded to
 			 */
 			const std::string& GetFilename() const { return filename; }
@@ -137,7 +132,6 @@ namespace spades {
 			bool recording;
 			std::string filename;
 			uint64_t packetCount;
-			uint64_t fileSize;
 		};
 
 	} // namespace client

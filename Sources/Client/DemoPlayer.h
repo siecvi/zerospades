@@ -175,17 +175,6 @@ namespace spades {
 			 */
 			void Reset();
 
-			/**
-			 * Gets the next packet without advancing time (for initial loading).
-			 * @return Packet data, or empty vector if no more packets
-			 */
-			const std::vector<char>& PeekNextPacket() const;
-
-			/**
-			 * Advances to the next packet (for initial loading).
-			 */
-			void AdvancePacket();
-
 		private:
 			struct DemoPacket {
 				float timestamp;

@@ -238,21 +238,5 @@ namespace spades {
 			paused = false;
 		}
 
-		const std::vector<char>& DemoPlayer::PeekNextPacket() const {
-			static std::vector<char> empty;
-			if (!isOpen || currentPacketIndex >= packets.size())
-				return empty;
-			return packets[currentPacketIndex].data;
-		}
-
-		void DemoPlayer::AdvancePacket() {
-			if (!isOpen)
-				return;
-			if (currentPacketIndex < packets.size())
-				currentPacketIndex++;
-			if (currentPacketIndex >= packets.size())
-				finished = true;
-		}
-
 	} // namespace client
 } // namespace spades
