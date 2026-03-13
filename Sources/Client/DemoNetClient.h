@@ -50,7 +50,6 @@ namespace spades {
 			std::shared_ptr<GameProperties> properties;
 			std::string statusString;
 			int protocolVersion;
-			float lastFrameTime;
 
 			// Packet handling state (mirrors NetClient)
 			std::vector<std::vector<char>> savedPackets;

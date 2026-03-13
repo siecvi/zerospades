@@ -256,7 +256,7 @@ namespace spades {
 		};
 
 		DemoNetClient::DemoNetClient(Client* c) : client(c), status(NetClientStatusNotConnected),
-		    protocolVersion(0), lastFrameTime(0.0f), expectedMapSize(0), receivedMapBytes(0),
+		    protocolVersion(0), expectedMapSize(0), receivedMapBytes(0),
 		    recordedLocalPlayerId(-1), seekingMode(false) {
 			SPADES_MARK_FUNCTION();
 
@@ -305,8 +305,6 @@ namespace spades {
 
 			if (status == NetClientStatusNotConnected)
 				return;
-
-			lastFrameTime = dt;
 
 			// Process packets from the demo
 			demoPlayer->Update(dt, [this](const std::vector<char>& data) {

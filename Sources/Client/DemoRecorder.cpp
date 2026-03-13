@@ -53,7 +53,7 @@ namespace spades {
 		}
 
 		DemoRecorder::DemoRecorder()
-		    : recording(false), packetCount(0), fileSize(0) {}
+		    : recording(false), packetCount(0) {}
 
 		DemoRecorder::~DemoRecorder() {
 			if (recording)
@@ -88,7 +88,6 @@ namespace spades {
 				return false;
 			}
 
-			fileSize = 2;
 			packetCount = 0;
 			stopwatch.Reset();
 			recording = true;
@@ -109,7 +108,7 @@ namespace spades {
 
 			SPLog("Stopped demo recording: %s (%llu packets, %llu bytes, %.1f seconds)",
 			      filename.c_str(), (unsigned long long)packetCount,
-			      (unsigned long long)fileSize, GetRecordingTime());
+			      (unsigned long long)file.tellp(), GetRecordingTime());
 		}
 
 		void DemoRecorder::RecordPacket(const char* data, size_t length) {
@@ -131,7 +130,6 @@ namespace spades {
 
 			if (file.good()) {
 				packetCount++;
-				fileSize += sizeof(float) + sizeof(uint16_t) + length;
 			} else {
 				SPLog("Failed to write packet to demo file");
 			}
