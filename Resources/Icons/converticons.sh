@@ -11,7 +11,7 @@ echo "Generating FHS icons"
 
 mkdir tmp/
 
-convert "$SRC_DIR/OpenSpades.ico" \
+convert "$SRC_DIR/ZeroSpades.ico" \
 	-set filename:res '%wx%h' \
 	'tmp/%[filename:res].png'
 
@@ -21,7 +21,7 @@ rm tmp/40x40.png # nobody uses icons with such res
 for fn in tmp/*.png; do
 	RES=$( basename $fn | sed 's/.png//' )
 	mkdir -p "$OUTPUT_DIR/$RES/apps"
-	mv $fn "$OUTPUT_DIR/$RES/apps/openspades.png"
+	mv $fn "$OUTPUT_DIR/$RES/apps/zerospades.png"
 done
 
 rm -rf tmp/
