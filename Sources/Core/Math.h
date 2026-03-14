@@ -79,6 +79,7 @@ namespace spades {
 
 		IntVector3() = default;
 		IntVector3(const IntVector3&) = default;
+		IntVector3& operator=(const IntVector3&) = default;
 		IntVector3(int x, int y, int z) : x(x), y(y), z(z) {}
 
 		static IntVector3 Make(int x, int y, int z) {
@@ -176,6 +177,7 @@ namespace spades {
 
 		Vector2() = default;
 		Vector2(const Vector2&) = default;
+		Vector2& operator=(const Vector2&) = default;
 		Vector2(float x, float y) : x(x), y(y) {}
 
 		static Vector2 Make(float x, float y) {
@@ -265,6 +267,7 @@ namespace spades {
 
 		Vector3() = default;
 		Vector3(const Vector3&) = default;
+		Vector3& operator=(const Vector3&) = default;
 		Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 
 		static Vector3 Make(float x, float y, float z) {
@@ -384,6 +387,7 @@ namespace spades {
 
 		Vector4() = default;
 		Vector4(const Vector4&) = default;
+		Vector4& operator=(const Vector4&) = default;
 		Vector4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 
 		static Vector4 Make(float x, float y, float z, float w) {
@@ -549,6 +553,7 @@ namespace spades {
 
 		Plane3() = default;
 		Plane3(const Plane3&) = default;
+		Plane3& operator=(const Plane3&) = default;
 		Plane3(float x, float y, float z, float ww) : n(MakeVector3(x, y, z)), w(ww) {}
 		Plane3(const Vector3& v1, const Vector3& v2, const Vector3& v3) {
 			n = Vector3::Normal(v1, v2, v3);
@@ -611,6 +616,7 @@ namespace spades {
 		float m[16];
 		Matrix4() = default;
 		Matrix4(const Matrix4&) = default;
+		Matrix4& operator=(const Matrix4&) = default;
 		explicit Matrix4(float* elms);
 		Matrix4(float m00, float m10, float m20, float m30, 
 				float m01, float m11, float m21, float m31, 

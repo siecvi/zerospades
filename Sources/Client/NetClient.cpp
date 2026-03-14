@@ -264,13 +264,13 @@ namespace spades {
 				std::string str;
 
 				int bytes = (int)data.size();
-				sprintf(buf, "Packet 0x%02x [len=%d]", (int)GetType(), bytes);
+				snprintf(buf, sizeof(buf), "Packet 0x%02x [len=%d]", (int)GetType(), bytes);
 				str += buf;
 
 				if (bytes > 64)
 					bytes = 64;
 				for (int i = 0; i < bytes; i++) {
-					sprintf(buf, " %02x", (unsigned int)(unsigned char)data[i]);
+					snprintf(buf, sizeof(buf), " %02x", (unsigned int)(unsigned char)data[i]);
 					str += buf;
 				}
 
@@ -875,7 +875,7 @@ namespace spades {
 					if (!GetWorld())
 						break;
 					{
-						int pId = r.ReadByte(); // skip player Id
+						r.ReadByte(); // skip player Id
 						float fuse = r.ReadFloat();
 						Vector3 pos = r.ReadVector3();
 						Vector3 vel = r.ReadVector3();
@@ -1411,13 +1411,13 @@ namespace spades {
 					client->PlayerDropIntel(p);
 				} break;
 				case PacketTypeRestock: {
-					int pId = r.ReadByte(); // skip player id
+					r.ReadByte(); // skip player id
 					Player& p = GetLocalPlayer();
 					p.Restock();
 				} break;
 				case PacketTypeFogColour: {
 					if (GetWorld()) {
-						int a = r.ReadByte(); // skip alpha value
+						r.ReadByte(); // skip alpha value
 						GetWorld()->SetFogColor(r.ReadIntColor());
 					}
 				} break;
@@ -1459,7 +1459,7 @@ namespace spades {
 					*/
 				} break;
 				case PacketTypePlayerProperties: {
-					int subId = r.ReadByte();
+					r.ReadByte(); // skip subId
 					int pId = r.ReadByte();
 					int hp = r.ReadByte();
 					int blocks = r.ReadByte();

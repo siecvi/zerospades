@@ -30,7 +30,8 @@ namespace spades {
     bool ShowDirectoryInShell(const std::string &directoryPath) {
         NSString *path =
           [NSString stringWithCString:directoryPath.c_str() encoding:NSUTF8StringEncoding];
-        BOOL result = [[NSWorkspace sharedWorkspace] openFile:path];
+        NSURL *url = [NSURL fileURLWithPath:path];
+        BOOL result = [[NSWorkspace sharedWorkspace] openURL:url];
         return bool(result);
     }
 

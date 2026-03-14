@@ -218,6 +218,7 @@ namespace spades {
 			}
 
 			SPAssert(addedCount == blocks.size());
+			(void)addedCount; // used only in debug builds
 
 			return ret;
 		}

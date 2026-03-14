@@ -99,7 +99,7 @@ namespace spades {
 								break;
 						}
 						for (int z = 0; z < 3; z++) {
-							auto d3 = d;
+							auto d3 = d2;
 							auto cnt3 = cnt2;
 							switch (y) {
 								case 0:
@@ -183,7 +183,7 @@ namespace spades {
 				auto v2 = v1;
 				for (int y = 0; y < h; y++) {
 					auto* mp = &model.renderData[model.renderDataAddr[x + y * w]];
-					while (*mp != -1) {
+					while (*mp != 0xFFFFFFFFu) {
 						uint32_t data = *(mp++);
 						uint32_t normal = *(mp++);
 						int z = static_cast<int>(data >> 24);

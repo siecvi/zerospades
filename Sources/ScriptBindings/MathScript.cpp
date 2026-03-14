@@ -888,12 +888,12 @@ namespace spades {
 					struct UtilFuncs {
 						static std::string ToString(int i) {
 							char buf[256];
-							sprintf(buf, "%d", i);
+							snprintf(buf, sizeof(buf), "%d", i);
 							return buf;
 						}
 						static std::string ToString(double i) {
 							char buf[256];
-							sprintf(buf, "%f", i);
+							snprintf(buf, sizeof(buf), "%f", i);
 							return buf;
 						}
 						static int ParseInt(const std::string& s) {

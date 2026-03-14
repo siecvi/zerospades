@@ -42,8 +42,8 @@ DEFINE_SPADES_SETTING(s_alPreciseErrorCheck, "1");
 DEFINE_SPADES_SETTING(s_openalDevice, "");
 
 // keep track of the "previous" volume so the dB isn't recomputed when unnecessary
-extern int s_volumePrevious = 100;
-extern float dBPrevious = 1.0F;
+int s_volumePrevious = 100;
+float dBPrevious = 1.0F;
 
 // lm: seems to be missing for me..
 #ifndef ALC_ALL_DEVICES_SPECIFIER
