@@ -38,7 +38,7 @@
 #include <Core/VersionInfo.h>
 #include <Gui/Icon.h>
 #include <Gui/Main.h>
-#include <OpenSpades.h>
+#include <ZeroSpades.h>
 
 SPADES_SETTING(r_bloom);
 SPADES_SETTING(r_cameraBlur);

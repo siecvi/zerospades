@@ -39,7 +39,7 @@
 #include <Draw/GLRenderer.h>
 #include <Draw/SWPort.h>
 #include <Draw/SWRenderer.h>
-#include <OpenSpades.h>
+#include <ZeroSpades.h>
 
 SPADES_SETTING(r_videoWidth);
 SPADES_SETTING(r_videoHeight);
