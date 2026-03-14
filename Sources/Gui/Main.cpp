@@ -135,7 +135,7 @@ namespace {
 			} else {
 				buf[0] = 0; // empty it, the file will now end up in the working directory :(
 			}
-			sprintf(fullBuf, "%sOpenSpadesCrash%d.dmp", buf, GetTickCount()); // some sort of randomization.
+			sprintf(fullBuf, "%sZeroSpadesCrash%d.dmp", buf, GetTickCount()); // some sort of randomization.
 			HANDLE hFile = CreateFile(fullBuf, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
 									  FILE_ATTRIBUTE_NORMAL, NULL);
 			if (hFile != INVALID_HANDLE_VALUE) {
@@ -414,22 +414,22 @@ int main(int argc, char** argv) {
 		if (stat((xdg_data_home + "/openspades").c_str(), &info) != 0) {
 			if (stat((home + "/.openspades").c_str(), &info) != 0) {
 			} else if (info.st_mode & S_IFDIR) {
-				SPLog("Openspades directory in XDG_DATA_HOME not found, though old directory "
-					  "exists. Trying to resolve compatibility problem.");
+				SPLog("OpenSpades directory in XDG_DATA_HOME not found, though old directory "
+				      "exists. Trying to resolve compatibility problem.");
 
 				if (rename((home + "/.openspades").c_str(),
-						   (xdg_data_home + "/openspades").c_str()) != 0) {
+				           (xdg_data_home + "/openspades").c_str()) != 0) {
 					SPLog("Failed to move old directory to new.");
 				} else {
 					SPLog("Successfully moved old directory.");
 
 					if (mkdir((home + "/.openspades").c_str(),
-							  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0) {
+					          S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0) {
 						SDL_RWops* io = SDL_RWFromFile(
 						  (home + "/.openspades/CONTENT_MOVED_TO_NEW_DIR").c_str(), "wb");
 						if (io != NULL) {
 							std::string text = ("Content of this directory moved to " +
-												xdg_data_home + "/openspades");
+							                    xdg_data_home + "/openspades");
 							io->write(io, text.c_str(), text.length(), 1);
 							io->close(io);
 						}
@@ -452,10 +452,10 @@ int main(int argc, char** argv) {
 			SDL_InitSubSystem(SDL_INIT_VIDEO);
 			auto msg = spades::Format(
 			  "Failed to start recording log because of the following error:\n{0}\n\n"
-			  "OpenSpades will continue to run, but any critical events are not logged.",
+			  "ZeroSpades will continue to run, but any critical events are not logged.",
 			  ex.what());
-			if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "OpenSpades Log System Failure",
-										 msg.c_str(), splashWindow->GetWindow())) {
+			if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "ZeroSpades Log System Failure",
+			                             msg.c_str(), splashWindow->GetWindow())) {
 				// showing dialog failed.
 			}
 		}
@@ -619,15 +619,15 @@ int main(int argc, char** argv) {
 
 		std::string msg = ex.what();
 		msg = _Tr("Main",
-				  "A serious error caused OpenSpades to stop working:\n\n{0}\n\nSee "
-				  "SystemMessages.log for more details.",
-				  msg);
+		          "A serious error caused ZeroSpades to stop working:\n\n{0}\n\nSee "
+		          "SystemMessages.log for more details.",
+		          msg);
 
 		SPLog("[!] Terminating due to the fatal error: %s", ex.what());
 
 		SDL_InitSubSystem(SDL_INIT_VIDEO);
 		if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-			_Tr("Main", "OpenSpades Fatal Error").c_str(), msg.c_str(), nullptr)) {
+			_Tr("Main", "ZeroSpades Fatal Error").c_str(), msg.c_str(), nullptr)) {
 			// showing dialog failed.
 			// TODO: do appropriate action
 		}
