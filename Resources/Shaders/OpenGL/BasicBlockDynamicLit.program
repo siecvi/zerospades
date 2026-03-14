@@ -1,0 +1,4 @@
+Shaders/OpenGL/BasicBlockDynamicLit.fs
+Shaders/OpenGL/BasicBlockDynamicLit.vs
+*dlight*
+Shaders/OpenGL/Fog.vs

@@ -1,0 +1,2 @@
+Shaders/OpenGL/PostFilters/DoFBlur2.fs
+Shaders/OpenGL/PostFilters/DoFBlur.vs

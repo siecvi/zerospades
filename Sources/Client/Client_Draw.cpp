@@ -29,7 +29,7 @@
 #include <Core/FileManager.h>
 #include <Core/Settings.h>
 #include <Core/Strings.h>
-#include <Draw/SWRenderer.h>
+#include <Draw/SW/SWRenderer.h>
 
 #include "CTFGameMode.h"
 #include "CenterMessageView.h"

@@ -1,0 +1,4 @@
+Shaders/OpenGL/BasicBlockOutlines.fs
+Shaders/OpenGL/BasicBlockOutlines.vs
+*shadow*
+Shaders/OpenGL/Fog.vs
