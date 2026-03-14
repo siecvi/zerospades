@@ -26,8 +26,8 @@
 #include "World.h"
 #include <Core/Settings.h>
 #include <Core/Strings.h>
-#include <Draw/SWPort.h>
-#include <Draw/SWRenderer.h>
+#include <Draw/SW/SWPort.h>
+#include <Draw/SW/SWRenderer.h>
 
 SPADES_SETTING(cg_orientationSmoothing);
 

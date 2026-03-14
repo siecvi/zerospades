@@ -1,0 +1,3 @@
+Shaders/OpenGL/SoftSprite.fs
+Shaders/OpenGL/SoftSprite.vs
+Shaders/OpenGL/Fog.vs

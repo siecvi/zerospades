@@ -27,7 +27,7 @@
 #include <Core/Exception.h>
 #include <Core/FileManager.h>
 #include <Core/IStream.h>
-#include <Draw/SWRenderer.h> // FIXME: better way to check whether linear interpolation is performed
+#include <Draw/SW/SWRenderer.h> // FIXME: better way to check whether linear interpolation is performed
 
 namespace spades {
 	namespace client {
