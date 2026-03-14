@@ -61,7 +61,7 @@ Thumbs.db
 OpenSpades.msvc/
 
 # Linux build path
-openspades.mk/
+zerospades.mk/
 
 # Nix
 /outputs

@@ -33,7 +33,7 @@ jobs:
       - name: Build application
         uses: ashutoshvarma/action-cmake-build@master
         with:
-          build-dir: ${{ runner.workspace }}\openspades.mk
+          build-dir: ${{ runner.workspace }}\zerospades.mk
           build-type: Release
           configure-options: >
             -A Win32
@@ -48,7 +48,7 @@ jobs:
         with:
           name: zerospades-windows-x86
           path: |
-            ${{ runner.workspace }}\openspades.mk\bin\Release
+            ${{ runner.workspace }}\zerospades.mk\bin\Release
             !${{ runner.workspace }}\**\*.lib
             !${{ runner.workspace }}\**\*.exp
             !${{ runner.workspace }}\**\*.pdb
@@ -84,7 +84,7 @@ jobs:
       - name: Build application
         uses: ashutoshvarma/action-cmake-build@master
         with:
-          build-dir: ${{ runner.workspace }}\openspades.mk
+          build-dir: ${{ runner.workspace }}\zerospades.mk
           build-type: Release
           configure-options: >
             -A x64
@@ -99,7 +99,7 @@ jobs:
         with:
           name: zerospades-windows-x64
           path: |
-            ${{ runner.workspace }}\openspades.mk\bin\Release
+            ${{ runner.workspace }}\zerospades.mk\bin\Release
             !${{ runner.workspace }}\**\*.lib
             !${{ runner.workspace }}\**\*.exp
             !${{ runner.workspace }}\**\*.pdb
@@ -135,7 +135,7 @@ jobs:
       - name: Build application
         uses: ashutoshvarma/action-cmake-build@master
         with:
-          build-dir: ${{ runner.workspace }}/openspades.mk
+          build-dir: ${{ runner.workspace }}/zerospades.mk
           build-type: Release
           configure-options: >
             -D CMAKE_BUILD_TYPE=Release
@@ -146,14 +146,14 @@ jobs:
           parallel: 8
 
       - name: Sign application bundle
-        run: codesign --force --deep --sign - ${{ runner.workspace }}/openspades.mk/bin/OpenSpades.app
+        run: codesign --force --deep --sign - ${{ runner.workspace }}/zerospades.mk/bin/OpenSpades.app
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v5
         with:
           name: zerospades-macos-intel
           path: |
-            ${{ runner.workspace }}/openspades.mk/bin
+            ${{ runner.workspace }}/zerospades.mk/bin
           if-no-files-found: warn
 
   build-macos-arm:
@@ -186,7 +186,7 @@ jobs:
       - name: Build application
         uses: ashutoshvarma/action-cmake-build@master
         with:
-          build-dir: ${{ runner.workspace }}/openspades.mk
+          build-dir: ${{ runner.workspace }}/zerospades.mk
           build-type: Release
           configure-options: >
             -D CMAKE_BUILD_TYPE=Release
@@ -197,14 +197,14 @@ jobs:
           parallel: 8
 
       - name: Sign application bundle
-        run: codesign --force --deep --sign - ${{ runner.workspace }}/openspades.mk/bin/OpenSpades.app
+        run: codesign --force --deep --sign - ${{ runner.workspace }}/zerospades.mk/bin/OpenSpades.app
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v5
         with:
           name: zerospades-macos-arm64
           path: |
-            ${{ runner.workspace }}/openspades.mk/bin
+            ${{ runner.workspace }}/zerospades.mk/bin
           if-no-files-found: warn
 
   build-linux-nix:
