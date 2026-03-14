@@ -1240,7 +1240,7 @@ namespace spades {
 		}
 	}
 
-	CatalogDomainHandle defaultDomain("openspades");
+	CatalogDomainHandle defaultDomain("zerospades");
 
 	CatalogDomainHandle::CatalogDomainHandle(const std::string& domain) : domain(domain) {}
 } // namespace spades
