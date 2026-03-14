@@ -146,7 +146,7 @@ jobs:
           parallel: 8
 
       - name: Sign application bundle
-        run: codesign --force --deep --sign - ${{ runner.workspace }}/zerospades.mk/bin/OpenSpades.app
+        run: codesign --force --deep --sign - ${{ runner.workspace }}/zerospades.mk/bin/ZeroSpades.app
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v5
@@ -197,7 +197,7 @@ jobs:
           parallel: 8
 
       - name: Sign application bundle
-        run: codesign --force --deep --sign - ${{ runner.workspace }}/zerospades.mk/bin/OpenSpades.app
+        run: codesign --force --deep --sign - ${{ runner.workspace }}/zerospades.mk/bin/ZeroSpades.app
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v5
