@@ -10,12 +10,12 @@ case "$SNAP_ARCH" in
 	;;
 esac
 
-if [ ! -d $SNAP_USER_DATA/.local/share/openspades/Resources ];
+if [ ! -d $SNAP_USER_DATA/.local/share/zerospades/Resources ];
 then
-	mkdir -p $SNAP_USER_DATA/.local/share/openspades/Resources
-	cp $SNAP/share/games/openspades/Resources/* $SNAP_USER_DATA/.local/share/openspades/Resources
-	echo cl_checkForUpdates: 1 > $SNAP_USER_DATA/.local/share/openspades/Resources/SPConfig.cfg
-	echo s_eax: 1 >> $SNAP_USER_DATA/.local/share/openspades/Resources/SPConfig.cfg
+	mkdir -p $SNAP_USER_DATA/.local/share/zerospades/Resources
+	cp $SNAP/share/games/zerospades/Resources/* $SNAP_USER_DATA/.local/share/zerospades/Resources
+	echo cl_checkForUpdates: 1 > $SNAP_USER_DATA/.local/share/zerospades/Resources/SPConfig.cfg
+	echo s_eax: 1 >> $SNAP_USER_DATA/.local/share/zerospades/Resources/SPConfig.cfg
 fi
 
 
@@ -65,4 +65,4 @@ export XDG_CURRENT_DESKTOP=Unity
 export XLOCALEDIR="$SNAP/usr/share/X11/locale"
 export LOCPATH="$SNAP/usr/lib/locale"
 
-$SNAP/games/openspades "$@"
+$SNAP/games/zerospades "$@"

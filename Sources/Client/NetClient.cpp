@@ -1495,9 +1495,9 @@ namespace spades {
 				auto beginLabel = w.GetPosition();
 				switch (static_cast<VersionInfoPropertyId>(propertyId)) {
 					case VersionInfoPropertyId::ApplicationNameAndVersion:
-						w.WriteByte((uint8_t)OPENSPADES_VERSION_MAJOR);
-						w.WriteByte((uint8_t)OPENSPADES_VERSION_MINOR);
-						w.WriteByte((uint8_t)OPENSPADES_VERSION_PATCH);
+						w.WriteByte((uint8_t)ZEROSPADES_VERSION_MAJOR);
+						w.WriteByte((uint8_t)ZEROSPADES_VERSION_MINOR);
+						w.WriteByte((uint8_t)ZEROSPADES_VERSION_PATCH);
 						w.WriteString("OpenSpades");
 						break;
 					case VersionInfoPropertyId::UserLocale:
@@ -1748,9 +1748,9 @@ namespace spades {
 			
 			NetPacketWriter w(PacketTypeVersionSend);
 			w.WriteByte((uint8_t)'o');
-			w.WriteByte((uint8_t)OPENSPADES_VERSION_MAJOR);
-			w.WriteByte((uint8_t)OPENSPADES_VERSION_MINOR);
-			w.WriteByte((uint8_t)OPENSPADES_VERSION_PATCH);
+			w.WriteByte((uint8_t)ZEROSPADES_VERSION_MAJOR);
+			w.WriteByte((uint8_t)ZEROSPADES_VERSION_MINOR);
+			w.WriteByte((uint8_t)ZEROSPADES_VERSION_PATCH);
 			w.WriteString(osInfo);
 
 			SPLog("Sending version back.");

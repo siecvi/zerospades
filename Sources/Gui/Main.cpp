@@ -391,7 +391,7 @@ int main(int argc, char** argv) {
 		spades::FileManager::AddFileSystem(new spades::DirectoryFileSystem("./Resources", false));
 
 		spades::FileManager::AddFileSystem(new spades::DirectoryFileSystem(
-		  CMAKE_INSTALL_PREFIX "/" OPENSPADES_INSTALL_RESOURCES, false));
+		  CMAKE_INSTALL_PREFIX "/" ZEROSPADES_INSTALL_RESOURCES, false));
 
 		std::string xdg_data_home = home + "/.local/share";
 
