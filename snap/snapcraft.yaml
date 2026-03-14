@@ -1,8 +1,8 @@
-name: openspades
+name: zerospades
 version: 'master'
 summary: Sandbox building and FPS videogame
 description: |
-  OpenSpades is a compatible client of Ace of Spades 0.75.
+  ZeroSpades is a compatible client of Ace of Spades 0.75.
   Can connect to a vanilla/pyspades/pysnip server.
   Uses OpenGL/AL for better experience.
   Open source, and cross platform.
@@ -11,8 +11,8 @@ grade: stable
 confinement: strict
 
 apps:
-  openspades:
-    command: launch_openspades
+  zerospades:
+    command: launch_zerospades
     plugs:
       - network
       - network-bind
@@ -25,8 +25,8 @@ parts:
     plugin: dump
     source: snap/scripts
     organize:
-      'launch_openspades': bin/
-  openspades:
+      'launch_zerospades': bin/
+  zerospades:
     plugin: cmake
     configflags: [-DCMAKE_BUILD_TYPE=RelWithDebInfo]
     source: .
