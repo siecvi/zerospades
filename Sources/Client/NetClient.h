@@ -30,6 +30,7 @@
 
 #include "DemoRecorder.h"
 #include "GameConstants.h"
+#include "NetProtocol.h"
 #include "Player.h"
 #include <Core/Debug.h>
 #include <Core/Math.h>
@@ -62,7 +63,6 @@ namespace spades {
 		};
 
 		class World;
-		class NetPacketReader;
 		class NetPacketWriter;
 		struct PlayerInput;
 		struct WeaponInput;
