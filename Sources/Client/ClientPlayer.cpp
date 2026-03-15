@@ -1021,12 +1021,6 @@ namespace spades {
 			SetSkinParameterForTool(currentTool, curSkin);
 			SetCommonSkinParameter(curSkin);
 
-			float pitchBias;
-			{
-				ScriptIThirdPersonToolSkin interface(curSkin);
-				pitchBias = interface.GetPitchBias();
-			}
-
 			float yaw = atan2f(o.y, o.x) + M_PI_F * 0.5F;
 			float pitch = -atan2f(o.z, o.GetLength2D());
 
@@ -1087,7 +1081,6 @@ namespace spades {
 					armPitch += fuse * DEG2RAD(30);
 			}
 
-			armPitch += pitchBias;
 			if (armPitch < 0.0F)
 				armPitch = std::max(armPitch, -M_PI_F * 0.5F) * 0.9F;
 

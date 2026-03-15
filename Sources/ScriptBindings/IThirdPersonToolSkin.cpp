@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -38,17 +38,6 @@ namespace spades {
 			ctx.ExecuteChecked();
 		}
 
-		float ScriptIThirdPersonToolSkin::GetPitchBias() {
-			SPADES_MARK_FUNCTION_DEBUG();
-			static ScriptFunction func("IThirdPersonToolSkin", "float get_PitchBias()");
-			ScriptContextHandle ctx = func.Prepare();
-			int r;
-			r = ctx->SetObject((void*)obj);
-			ScriptManager::CheckError(r);
-			ctx.ExecuteChecked();
-			return ctx->GetReturnFloat();
-		}
-
 		class IThirdPersonToolSkinRegistrar : public ScriptObjectRegistrar {
 		public:
 			IThirdPersonToolSkinRegistrar() : ScriptObjectRegistrar("IThirdPersonToolSkin") {}
@@ -63,8 +52,6 @@ namespace spades {
 						break;
 					case PhaseObjectMember:
 						r = eng->RegisterInterfaceMethod("IThirdPersonToolSkin", "void set_OriginMatrix(Matrix4)");
-						manager->CheckError(r);
-						r = eng->RegisterInterfaceMethod("IThirdPersonToolSkin", "float get_PitchBias()");
 						manager->CheckError(r);
 						break;
 					default: break;
