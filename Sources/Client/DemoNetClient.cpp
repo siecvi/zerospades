@@ -24,6 +24,7 @@
 #include "CTFGameMode.h"
 #include "Client.h"
 #include "DemoNetClient.h"
+#include "NetProtocol.h"
 #include "GameMap.h"
 #include "GameMapLoader.h"
 #include "GameProperties.h"
@@ -32,7 +33,6 @@
 #include "TCGameMode.h"
 #include "Weapon.h"
 #include "World.h"
-#include <Core/CP437.h>
 #include <Core/Debug.h>
 #include <Core/Exception.h>
 #include <Core/Settings.h>
@@ -82,178 +82,6 @@ namespace spades {
 			};
 		} // anonymous namespace (SilentWorldListener)
 
-		namespace {
-			enum { BLUE_FLAG = 0, GREEN_FLAG = 1, BLUE_BASE = 2, GREEN_BASE = 3 };
-			enum PacketType {
-				PacketTypePositionData = 0,
-				PacketTypeOrientationData = 1,
-				PacketTypeWorldUpdate = 2,
-				PacketTypeInputData = 3,
-				PacketTypeWeaponInput = 4,
-				PacketTypeSetHP = 5,
-				PacketTypeGrenadePacket = 6,
-				PacketTypeSetTool = 7,
-				PacketTypeSetColour = 8,
-				PacketTypeExistingPlayer = 9,
-				PacketTypeShortPlayerData = 10,
-				PacketTypeMoveObject = 11,
-				PacketTypeCreatePlayer = 12,
-				PacketTypeBlockAction = 13,
-				PacketTypeBlockLine = 14,
-				PacketTypeStateData = 15,
-				PacketTypeKillAction = 16,
-				PacketTypeChatMessage = 17,
-				PacketTypeMapStart = 18,
-				PacketTypeMapChunk = 19,
-				PacketTypePlayerLeft = 20,
-				PacketTypeTerritoryCapture = 21,
-				PacketTypeProgressBar = 22,
-				PacketTypeIntelCapture = 23,
-				PacketTypeIntelPickup = 24,
-				PacketTypeIntelDrop = 25,
-				PacketTypeRestock = 26,
-				PacketTypeFogColour = 27,
-				PacketTypeWeaponReload = 28,
-				PacketTypeChangeTeam = 29,
-				PacketTypeChangeWeapon = 30,
-				PacketTypePlayerProperties = 64,
-			};
-
-			const char UTFSign = -1;
-
-			std::string DecodeString(std::string s) {
-				if (s.size() > 0 && s[0] == UTFSign)
-					return s.substr(1);
-				return CP437::Decode(s);
-			}
-
-			PlayerInput ParsePlayerInput(uint8_t bits) {
-				PlayerInput inp;
-				inp.moveForward = (bits & (1 << 0)) != 0;
-				inp.moveBackward = (bits & (1 << 1)) != 0;
-				inp.moveLeft = (bits & (1 << 2)) != 0;
-				inp.moveRight = (bits & (1 << 3)) != 0;
-				inp.jump = (bits & (1 << 4)) != 0;
-				inp.crouch = (bits & (1 << 5)) != 0;
-				inp.sneak = (bits & (1 << 6)) != 0;
-				inp.sprint = (bits & (1 << 7)) != 0;
-				return inp;
-			}
-
-			WeaponInput ParseWeaponInput(uint8_t bits) {
-				WeaponInput inp;
-				inp.primary = ((bits & (1 << 0)) != 0);
-				inp.secondary = ((bits & (1 << 1)) != 0);
-				return inp;
-			}
-		} // namespace
-
-		// NetPacketReader for demo playback (simplified version of NetClient's reader)
-		class NetPacketReader {
-			std::vector<char> data;
-			size_t pos;
-
-		public:
-			NetPacketReader(const std::vector<char>& inData) : data(inData), pos(1) {}
-
-			unsigned int GetTypeRaw() { return static_cast<unsigned int>(static_cast<uint8_t>(data[0])); }
-			PacketType GetType() { return static_cast<PacketType>(GetTypeRaw()); }
-
-			uint32_t ReadInt() {
-				if (pos + 4 > data.size())
-					SPRaise("Received packet truncated");
-				uint32_t value = 0;
-				value |= ((uint32_t)(uint8_t)data[pos++]);
-				value |= ((uint32_t)(uint8_t)data[pos++]) << 8;
-				value |= ((uint32_t)(uint8_t)data[pos++]) << 16;
-				value |= ((uint32_t)(uint8_t)data[pos++]) << 24;
-				return value;
-			}
-
-			uint16_t ReadShort() {
-				if (pos + 2 > data.size())
-					SPRaise("Received packet truncated");
-				uint32_t value = 0;
-				value |= ((uint32_t)(uint8_t)data[pos++]);
-				value |= ((uint32_t)(uint8_t)data[pos++]) << 8;
-				return (uint16_t)value;
-			}
-
-			uint8_t ReadByte() {
-				if (pos >= data.size())
-					SPRaise("Received packet truncated");
-				return (uint8_t)data[pos++];
-			}
-
-			float ReadFloat() {
-				union { float f; uint32_t v; };
-				v = ReadInt();
-				return f;
-			}
-
-			IntVector3 ReadIntColor() {
-				IntVector3 col;
-				col.z = ReadByte();
-				col.y = ReadByte();
-				col.x = ReadByte();
-				return col;
-			}
-
-			IntVector3 ReadIntVector3() {
-				IntVector3 v;
-				v.x = ReadInt();
-				v.y = ReadInt();
-				v.z = ReadInt();
-				return v;
-			}
-
-			Vector3 ReadVector3() {
-				Vector3 v;
-				v.x = ReadFloat();
-				v.y = ReadFloat();
-				v.z = ReadFloat();
-				return v;
-			}
-
-			std::size_t GetLength() { return data.size(); }
-			std::size_t GetPosition() { return pos; }
-			std::size_t GetNumRemainingBytes() { return data.size() - pos; }
-			std::vector<char> GetData() { return data; }
-
-			std::string ReadData(size_t siz) {
-				if (pos + siz > data.size())
-					SPRaise("Received packet truncated");
-				std::string s = std::string(data.data() + pos, siz);
-				pos += siz;
-				return s;
-			}
-
-			std::string ReadRemainingData() {
-				return std::string(data.data() + pos, data.size() - pos);
-			}
-
-			std::string ReadString(size_t siz) {
-				return DecodeString(ReadData(siz).c_str());
-			}
-
-			std::string ReadRemainingString() {
-				return DecodeString(ReadRemainingData().c_str());
-			}
-
-			void DumpDebug() {
-				char buf[512];
-				std::string str;
-				int bytes = (int)data.size();
-				sprintf(buf, "Demo Packet 0x%02x [len=%d]", (int)GetType(), bytes);
-				str += buf;
-				if (bytes > 64) bytes = 64;
-				for (int i = 0; i < bytes; i++) {
-					sprintf(buf, " %02x", (unsigned int)(unsigned char)data[i]);
-					str += buf;
-				}
-				SPLog("%s", str.c_str());
-			}
-		};
 
 		DemoNetClient::DemoNetClient(Client* c) : client(c), status(NetClientStatusNotConnected),
 		    protocolVersion(0), expectedMapSize(0), receivedMapBytes(0),

@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "DemoRecorder.h"
+#include "NetProtocol.h"
 #include "PhysicsConstants.h"
 #include "Player.h"
 #include <Core/Debug.h>
@@ -62,7 +63,6 @@ namespace spades {
 		};
 
 		class World;
-		class NetPacketReader;
 		class NetPacketWriter;
 		struct PlayerInput;
 		struct WeaponInput;
