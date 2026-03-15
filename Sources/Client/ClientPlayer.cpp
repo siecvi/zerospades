@@ -888,6 +888,7 @@ namespace spades {
 
 			PlayerInput const inp = p.GetInput();
 
+			float const legsPosX = 0.25F;
 			float const legsPosY = inp.crouch ? 1.25F : 1.0F;
 			float const legsPosZ = inp.crouch ? 0.05F : 0.1F;
 			float const torsoPosZ = inp.crouch ? 0.5F : 1.0F;
@@ -898,12 +899,12 @@ namespace spades {
 			legsRot *= sinf(p.GetWalkAnimationProgress() * M_PI_F * 2.0F) * 3.0F;
 
 			Matrix4 const leg1 = lower
-				* Matrix4::Translate(0.25F, legsPosY, -legsPosZ)
+				* Matrix4::Translate(legsPosX, legsPosY, -legsPosZ)
 				* Matrix4::Rotate(MakeVector3(1, 0, 0), legsRot.x)
 				* Matrix4::Rotate(MakeVector3(0, 1, 0), legsRot.y);
 
 			Matrix4 const leg2 = lower
-				* Matrix4::Translate(-0.25F, legsPosY, -legsPosZ)
+				* Matrix4::Translate(-legsPosX, legsPosY, -legsPosZ)
 				* Matrix4::Rotate(MakeVector3(1, 0, 0), -legsRot.x)
 				* Matrix4::Rotate(MakeVector3(0, 1, 0), -legsRot.y);
 
@@ -917,7 +918,7 @@ namespace spades {
 					: renderer.RegisterModel((modelPath + "Leg.kv6").c_str());
 				param.matrix = leg1 * scaler;
 				renderer.RenderModel(*model, param);
-				param.matrix = leg2 * scaler;
+				param.matrix = leg2 * scaler * Matrix4::Scale(-1, 1, 1); // mirror
 				renderer.RenderModel(*model, param);
 
 				model = inp.crouch
@@ -1072,6 +1073,7 @@ namespace spades {
 
 			PlayerInput const inp = p.GetInput();
 
+			float const legsPosX = 0.25F;
 			float const legsPosY = inp.crouch ? 0.25F : 0.0F;
 			float const legsPosZ = inp.crouch ? 0.05F : 0.1F;
 			float const headPosZ = inp.crouch ? 0.05F : 0.0F;
@@ -1128,12 +1130,12 @@ namespace spades {
 			legsRot *= sinf(p.GetWalkAnimationProgress() * M_PI_F * 2.0F) * 3.0F;
 
 			Matrix4 const leg1 = lower
-				* Matrix4::Translate(0.25F, legsPosY, -legsPosZ)
+				* Matrix4::Translate(legsPosX, legsPosY, -legsPosZ)
 				* Matrix4::Rotate(MakeVector3(1, 0, 0), legsRot.x)
 				* Matrix4::Rotate(MakeVector3(0, 1, 0), legsRot.y);
 
 			Matrix4 const leg2 = lower
-				* Matrix4::Translate(-0.25F, legsPosY, -legsPosZ)
+				* Matrix4::Translate(-legsPosX, legsPosY, -legsPosZ)
 				* Matrix4::Rotate(MakeVector3(1, 0, 0), -legsRot.x)
 				* Matrix4::Rotate(MakeVector3(0, 1, 0), -legsRot.y);
 
@@ -1157,7 +1159,7 @@ namespace spades {
 				param.matrix = leg1 * scaler;
 				renderer.RenderModel(*model, param);
 
-				param.matrix = leg2 * scaler;
+				param.matrix = leg2 * scaler * Matrix4::Scale(-1, 1, 1); // mirror
 				renderer.RenderModel(*model, param);
 			}
 
