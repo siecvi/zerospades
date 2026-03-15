@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -60,7 +60,7 @@ namespace spades {
 		 * FreeType2 based font renderer.
 		 *
 		 * Warning: only one thread can access multiple FTFonts sharing the same FTFontSet
-		 *          at the same time.
+		 *			at the same time.
 		 */
 		class FTFont : public client::IFont {
 			Handle<client::IRenderer> renderer;
@@ -70,7 +70,7 @@ namespace spades {
 				AABB2 const bounds;
 				Vector2 const offset;
 				GlyphImage(client::IImage &img, const AABB2 &bounds, const Vector2 &offset)
-				    : img(img), bounds(bounds), offset(offset) {}
+					: img(img), bounds(bounds), offset(offset) {}
 			};
 
 			struct Glyph {
@@ -79,6 +79,7 @@ namespace spades {
 				Vector2 advance;
 				stmp::optional<GlyphImage> image;
 				stmp::optional<GlyphImage> blurImage;
+				stmp::optional<GlyphImage> outlineImage;
 				Handle<Bitmap> bmp;
 			};
 
@@ -106,10 +107,11 @@ namespace spades {
 			stmp::optional<Glyph &> GetGlyph(uint32_t code);
 			template <class T, class T2, class T3>
 			void SplitTextIntoGlyphs(const std::string &, T glyphHandler, T3 fallbackHandler,
-			                         T2 lineBreakHandler);
+									 T2 lineBreakHandler);
 
 			void RenderGlyph(Glyph &);
 			void RenderBlurGlyph(Glyph &);
+			void RenderOutlineGlyph(Glyph &);
 
 		protected:
 			~FTFont();
@@ -124,8 +126,11 @@ namespace spades {
 
 			void Draw(const std::string &, Vector2 offset, float scale, Vector4 color) override;
 			void DrawBlurred(const std::string &, Vector2 offset, float scale, Vector4 color);
+			void DrawOutlined(const std::string &, Vector2 offset, float scale, Vector4 color);
 			void DrawShadow(const std::string &, const Vector2 &offset, float scale,
-			                const Vector4 &color, const Vector4 &shadowColor) override;
+							const Vector4 &color, const Vector4 &shadowColor) override;
+			void DrawOutline(const std::string &, const Vector2 &offset, float scale,
+							const Vector4 &color, const Vector4 &shadowColor) override;
 		};
 	} // namespace ngclient
 } // namespace spades

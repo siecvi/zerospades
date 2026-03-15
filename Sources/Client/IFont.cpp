@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -54,15 +54,15 @@ namespace spades {
 				int x, y, w, h;
 				int offX, offY;
 				FindResult()
-				    : img(nullptr),
-				      sizeInverse(0.0F),
-				      advance(0.0F),
-				      x(0),
-				      y(0),
-				      w(0),
-				      h(0),
-				      offX(0),
-				      offY(0) {}
+					: img(nullptr),
+					  sizeInverse(0.0F),
+					  advance(0.0F),
+					  x(0),
+					  y(0),
+					  w(0),
+					  h(0),
+					  offX(0),
+					  offY(0) {}
 			};
 			FindResult FindGlyph(uint32_t);
 
@@ -162,7 +162,7 @@ namespace spades {
 		};
 
 		FallbackFontRenderer::FallbackFontRenderer(IRenderer* renderer, FallbackFontManager* manager)
-		    : renderer(renderer), manager(manager) {
+			: renderer(renderer), manager(manager) {
 			for (const auto& font : manager->fonts) {
 				const auto& imgPath = font->imagePath;
 				auto img = renderer->RegisterImage(imgPath.c_str()).Unmanage();
@@ -205,7 +205,7 @@ namespace spades {
 		}
 
 		void FallbackFontRenderer::Draw(uint32_t unicode, spades::Vector2 offset, float size,
-		                                spades::Vector4 color) {
+										spades::Vector4 color) {
 			renderer->SetColorAlphaPremultiplied(color);
 			float x = offset.x;
 			float y = offset.y;
@@ -279,14 +279,19 @@ namespace spades {
 		}
 
 		void IFont::DrawFallback(uint32_t unicodeCodePoint, spades::Vector2 offset, float size,
-		                         spades::Vector4 color) {
+								 spades::Vector4 color) {
 			fallback->Draw(unicodeCodePoint, offset, size, color);
 		}
 
 		void IFont::DrawShadow(const std::string& message, const Vector2& offset, float scale,
-		                       const Vector4& color, const Vector4& shadowColor) {
+							   const Vector4& color, const Vector4& shadowColor) {
 			Draw(message, offset + MakeVector2(1, 1), scale, shadowColor);
 			Draw(message, offset, scale, color);
+		}
+
+		void IFont::DrawOutline(const std::string& message, const Vector2& offset, float scale,
+							   const Vector4& color, const Vector4& outlineColor) {
+			DrawShadow(message, offset, scale, color, outlineColor);
 		}
 	} // namespace client
 } // namespace spades

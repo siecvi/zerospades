@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -111,8 +111,8 @@ namespace spades {
 				int bw = bmp.GetWidth(), bh = bmp.GetHeight();
 				if (bw > width || bh > height) {
 					SPRaise("Impossible to allocate bitmap of "
-					        "%dx%d on %dx%d bin.",
-					        bw, bh, width, height);
+							"%dx%d on %dx%d bin.",
+							bw, bh, width, height);
 				}
 
 				auto it = skyline.begin();
@@ -191,12 +191,12 @@ namespace spades {
 		};
 
 		FTFont::FTFont(client::IRenderer* renderer, std::shared_ptr<FTFontSet> _fontSet,
-		               float height, float lineHeight)
-		    : client::IFont(renderer),
-		      renderer(renderer),
-		      lineHeight(lineHeight),
-		      height(height),
-		      fontSet(std::move(_fontSet)) {
+					   float height, float lineHeight)
+			: client::IFont(renderer),
+			  renderer(renderer),
+			  lineHeight(lineHeight),
+			  height(height),
+			  fontSet(std::move(_fontSet)) {
 			SPADES_MARK_FUNCTION();
 
 			SPAssert(renderer);
@@ -446,6 +446,66 @@ namespace spades {
 			g.blurImage.reset((*result).image, bounds, offs);
 		}
 
+		void FTFont::RenderOutlineGlyph(Glyph &g) {
+			RenderGlyph(g);
+			if (g.outlineImage)
+				return;
+
+			enum { Thickness = 1 };
+
+			auto &orig = *g.bmp;
+			int const origW = orig.GetWidth();
+			int const origH = orig.GetHeight();
+
+			int const newW = origW + Thickness * 2;
+			int const newH = origH + Thickness * 2;
+
+			auto newbmp = Handle<Bitmap>::New(newW, newH);
+			memset(newbmp->GetPixels(), 0, newW * newH * 4);
+
+			for (int dy = 0; dy < newH; dy++) {
+				for (int dx = 0; dx < newW; dx++) {
+					int sx = dx - Thickness;
+					int sy = dy - Thickness;
+
+					uint8_t maxAlpha = 0;
+					for (int ky = -Thickness; ky <= Thickness; ky++) {
+						for (int kx = -Thickness; kx <= Thickness; kx++) {
+							int nx = sx + kx;
+							int ny = sy + ky;
+							if (nx < 0 || ny < 0 || nx >= origW || ny >= origH)
+								continue;
+							uint8_t alpha = static_cast<uint8_t>(
+								orig.GetPixels()[ny * origW + nx] >> 24);
+							if (alpha > maxAlpha)
+								maxAlpha = alpha;
+						}
+					}
+
+					if (maxAlpha > 0)
+						newbmp->GetPixels()[dy * newW + dx] = (static_cast<uint32_t>(maxAlpha) << 24) | 0xFFFFFF;
+				}
+			}
+
+			auto result = bins.back().Place(*newbmp);
+			if (!result) {
+				bins.emplace_back(binSize, binSize, *renderer);
+				result = bins.back().Place(*newbmp);
+				SPAssert(result);
+			}
+
+			AABB2 bounds(
+				(float)(*result).x,
+				(float)(*result).y,
+				(float)newW - 1,
+				(float)newH - 1
+			);
+
+			Vector2 offs = (*g.image).offset - Vector2(1, 1) * (float)Thickness;
+
+			g.outlineImage.reset((*result).image, bounds, offs);
+		}
+
 		void FTFont::Draw(const std::string& str, Vector2 offset, float scale, Vector4 color) {
 			SPADES_MARK_FUNCTION();
 
@@ -468,7 +528,7 @@ namespace spades {
 				  auto target = offset + (Vector2(x, y) + img.offset) * scale;
 				  target = (target + 0.5F).Floor(); // for sharper rendering
 				  AABB2 destBounds(target.x, target.y, srcBounds.GetWidth() * scale,
-				                   srcBounds.GetHeight() * scale);
+								   srcBounds.GetHeight() * scale);
 
 				  if (!rendererIsLowQuality) {
 					  srcBounds = srcBounds.Inflate(0.5F);
@@ -499,7 +559,6 @@ namespace spades {
 			float y = 0.0F;
 
 			color = Vector4(color.x * color.w, color.y * color.w, color.z * color.w, color.w);
-
 			renderer->SetColorAlphaPremultiplied(color);
 
 			SplitTextIntoGlyphs(
@@ -512,7 +571,7 @@ namespace spades {
 				  auto target = offset + (Vector2(x, y) + img.offset) * scale;
 				  target = (target + 0.5F).Floor(); // for sharper rendering
 				  AABB2 destBounds(target.x, target.y, srcBounds.GetWidth() * scale,
-				                   srcBounds.GetHeight() * scale);
+								   srcBounds.GetHeight() * scale);
 
 				  if (!rendererIsLowQuality) {
 					  srcBounds = srcBounds.Inflate(0.5F);
@@ -534,9 +593,58 @@ namespace spades {
 			  });
 		}
 
+		void FTFont::DrawOutlined(const std::string& str, Vector2 offset, float scale, Vector4 color) {
+			SPADES_MARK_FUNCTION();
+
+			float x = 0.0F;
+			float y = 0.0F;
+
+			color = Vector4(color.x * color.w, color.y * color.w, color.z * color.w, color.w);
+			renderer->SetColorAlphaPremultiplied(color);
+
+			SplitTextIntoGlyphs(
+				str,
+				[&](Glyph &g) {
+					RenderOutlineGlyph(g);
+
+					auto &img = *g.outlineImage;
+					auto srcBounds = img.bounds;
+					auto target = offset + (Vector2(x, y) + img.offset) * scale;
+					target = (target + 0.5F).Floor();
+					AABB2 destBounds(target.x, target.y,
+									 srcBounds.GetWidth() * scale,
+									 srcBounds.GetHeight() * scale);
+
+					if (!rendererIsLowQuality) {
+						srcBounds = srcBounds.Inflate(0.5F);
+						destBounds = destBounds.Inflate(0.5F * scale);
+					}
+
+					renderer->DrawImage(&img.img, destBounds, srcBounds);
+
+					x += (int)roundf(g.advance.x);
+					y += (int)roundf(g.advance.y);
+				},
+				[&](uint32_t codepoint) {
+					DrawFallback(codepoint, offset + Vector2(x, y) * scale, height * scale, color);
+					x += MeasureFallback(codepoint, height);
+				},
+				[&]() {
+					x = 0.0F;
+					y += lineHeight;
+				}
+			);
+		}
+
 		void FTFont::DrawShadow(const std::string& text, const Vector2& offset, float scale,
-		                        const Vector4& color, const Vector4& shadowColor) {
+								const Vector4& color, const Vector4& shadowColor) {
 			DrawBlurred(text, offset, scale, shadowColor);
+			Draw(text, offset, scale, color);
+		}
+
+		void FTFont::DrawOutline(const std::string& text, const Vector2& offset, float scale,
+								const Vector4& color, const Vector4& outlineColor) {
+			DrawOutlined(text, offset, scale, outlineColor);
 			Draw(text, offset, scale, color);
 		}
 	} // namespace ngclient

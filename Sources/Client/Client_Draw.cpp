@@ -66,7 +66,6 @@ SPADES_SETTING(cg_keyToggleSpectatorNames);
 DEFINE_SPADES_SETTING(cg_screenshotFormat, "jpeg");
 DEFINE_SPADES_SETTING(cg_stats, "0");
 DEFINE_SPADES_SETTING(cg_statsSmallFont, "0");
-DEFINE_SPADES_SETTING(cg_statsBackground, "1");
 DEFINE_SPADES_SETTING(cg_playerStats, "0");
 DEFINE_SPADES_SETTING(cg_playerStatsShowPlacedBlocks, "0");
 DEFINE_SPADES_SETTING(cg_playerStatsHeight, "70");
@@ -633,16 +632,16 @@ namespace spades {
 				DrawPlayerName(p, color);
 			}
 		}
-		
+
 		void Client::DrawDeadPlayers() {
 			SPADES_MARK_FUNCTION();
 
 			Vector3 eye = lastSceneDef.viewOrigin;
-			
+
 			IFont& font = cg_smallFont
 				? fontManager->GetSmallFont()
 				: fontManager->GetGuiFont();
-			
+
 			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
 				auto maybePlayer = world->GetPlayer(static_cast<unsigned int>(i));
 				if (!maybePlayer)
@@ -655,16 +654,16 @@ namespace spades {
 				// Do not draw a player with an invalid state
 				if (p.GetFront().GetSquaredLength() < 0.01F)
 					continue;
-				
+
 				Vector3 origin = p.GetEye();
 				origin.z -= 0.9F; // above player
-				
+
 				float dist = (origin - eye).GetLength();
 				float fadeStart = 2.0F;
 				float fadeEnd = fadeStart + 1.0F;
 				float fade = (dist - fadeStart) / (fadeEnd - fadeStart);
 				float alpha = Clamp(1.0F - fade, 0.0F, 1.0F);
-				
+
 				if (alpha <= 0.0F)
 					continue;
 
@@ -673,7 +672,7 @@ namespace spades {
 					continue;
 
 				std::string str =_Tr("Client", "{0}", p.GetName());
-				
+
 				Vector2 size = font.Measure(str);
 				scrPos.x -= size.x * 0.5F;
 				scrPos.y -= size.y;
@@ -684,7 +683,7 @@ namespace spades {
 
 				Vector4 playerColor = MakeVector4(1, 1, 1, 1);
 				Vector4 shadowColor = MakeVector4(0, 0, 0, 0.8F);
-				
+
 				playerColor.w *= alpha;
 				shadowColor.w *= alpha;
 
@@ -958,10 +957,11 @@ namespace spades {
 					renderer->DrawImage(icon, pos);
 
 					// draw hotkey
+					Vector4 hotKeyColor = MakeVector4(1, 1, 1, 1);
+					Vector4 hotKeyShadow = MakeVector4(0, 0, 0, 0.8F);
 					std::string hotkeyStr = hotKeys[i];
 					Vector2 hotkeyPos = iconPos + MakeVector2(iconWidth - 1.0F, iconHeight - 1.0F);
-					font.Draw(hotkeyStr, hotkeyPos + MakeVector2(1, 1), 1.0F, MakeVector4(0, 0, 0, 0.25F));
-					font.Draw(hotkeyStr, hotkeyPos, 1.0F, MakeVector4(1, 1, 1, 1));
+					font.DrawOutline(hotkeyStr, hotkeyPos, 1.0F, hotKeyColor, hotKeyShadow);
 
 					iconPos.x += iconWidth + iconSpacing;
 				}
@@ -1554,7 +1554,7 @@ namespace spades {
 
 			if (maybePlayer) { // joined local player
 				Player& player = maybePlayer.value();
-				
+
 				if (cg_playerNamesDead)
 					DrawDeadPlayers();
 
@@ -1759,24 +1759,11 @@ namespace spades {
 			pos *= MakeVector2(0.5F, (statsMode < 2) ? 1.0F : 0.0F);
 
 			Vector4 color = MakeVector4(1, 1, 1, 1);
-			Vector4 shadowColor = MakeVector4(0, 0, 0, 0.4F);
-
-			bool drawBg = cg_statsBackground;
-			if (drawBg) {
-				renderer->SetColorAlphaPremultiplied(MakeVector4(0, 0, 0, 0.5));
-				renderer->DrawFilledRect(pos.x - margin, pos.y,
-					pos.x + size.x + margin, pos.y + size.y);
-
-				// draw outline
-				renderer->DrawOutlinedRect(pos.x - margin, pos.y,
-					pos.x + size.x + margin, pos.y + size.y);
-			}
+			Vector4 outline = MakeVector4(0, 0, 0, 0.8F);
 
 			// draw text
 			pos += MakeVector2(margin, margin);
-			if (!drawBg)
-				font.DrawShadow(str, pos + MakeVector2(1, 1), 1.0F, shadowColor, shadowColor);
-			font.Draw(str, pos, 1.0F, color);
+			font.DrawOutline(str, pos, 1.0F, color, outline);
 		}
 
 		void Client::Draw2D() {
