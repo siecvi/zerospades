@@ -104,8 +104,6 @@ namespace spades {
 			mapShadowTexture(program);
 			fogColor(program);
 
-			const client::SceneDefinition& def = renderer->GetSceneDef();
-
 			Vector3 fc = renderer->GetFogColorForSolidPass();
 			fc *= fc; // linearize
 			fogColor.SetValue(fc.x, fc.y, fc.z);

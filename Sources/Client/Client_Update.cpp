@@ -1283,7 +1283,7 @@ namespace spades {
 
 					// add hurt player name and distance
 					float dist = (by.GetEye() - hurtPlayer.GetEye()).GetLength();
-					sprintf(buf, "%.1f", dist);
+					snprintf(buf, sizeof(buf), "%.1f", dist);
 					str += _Tr("Client", "You hit {0} from: {1} blocks ",
 						hurtPlayer.GetName(), std::string(buf));
 
@@ -1294,9 +1294,9 @@ namespace spades {
 							str += "dT: NA ";
 						} else {
 							if (dt > 1.0F)
-								sprintf(buf, "dT: %.0fs ", dt);
+								snprintf(buf, sizeof(buf), "dT: %.0fs ", dt);
 							else
-								sprintf(buf, "dT: %dms ", (int)(dt * 1000));
+								snprintf(buf, sizeof(buf), "dT: %dms ", (int)(dt * 1000));
 							str += buf;
 						}
 					}
@@ -1320,6 +1320,7 @@ namespace spades {
 							case HitTypeHead: hits = ++hitStats.numHeadHits; break;
 							case HitTypeArms:
 							case HitTypeLegs: hits = ++hitStats.numLimbHits; break;
+							default: break;
 						}
 						str += " (" + ToString(hits) + ")";
 					}
