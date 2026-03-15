@@ -71,6 +71,7 @@
 			Matrix4 mat = CreateScaleMatrix(0.033F);
 
 			float weapSide = Clamp(cg_viewWeaponSide.FloatValue, -1.0F, 1.0F);
+			bool leftHanded = weapSide < 0.0F;
 
 			if (sprintStateSmooth > 0.0F) {
 				mat = CreateRotateMatrix(Vector3(1, 0, 0), sprintStateSmooth * -0.3F) * mat;
@@ -112,7 +113,7 @@
 				trans.x += cg_viewWeaponX.FloatValue;
 				trans.y += cg_viewWeaponY.FloatValue;
 				trans.z += cg_viewWeaponZ.FloatValue;
-				trans.x *= weapSide;
+				trans.x *= abs(weapSide);
 
 				// add weapon sway
 				trans += swing;
@@ -124,6 +125,12 @@
 					float per = 1.0F - bring;
 					leftHandMat = CreateTranslateMatrix(side * 0.5F, per * 0.1F, per * 0.1F) * mat;
 					mat = CreateTranslateMatrix(side * -0.5F, per * -0.2F, 0.0F) * mat;
+				}
+
+				// mirror geometry when left-handed
+				if (leftHanded) {
+					leftHandMat = CreateScaleMatrix(Vector3(-1.0F, 1.0F, 1.0F)) * leftHandMat;
+					mat = CreateScaleMatrix(Vector3(-1.0F, 1.0F, 1.0F)) * mat;
 				}
 
 				// hands offset
@@ -147,11 +154,11 @@
 				float per = Min(readyState * 3.0F, 1.0F);
 
 				// left hand shouldn't be visible
-				leftHand = Mix(leftHand, Vector3(0.5F, 0.5F, 0.6F), per);
+				leftHand = Mix(leftHand, Vector3(0.5F * weapSide, 0.5F, 0.6F), per);
 
 				float p2 = per - 0.6F;
 				p2 = 0.9F - p2 * p2 * 2.5F;
-				rightHand = Vector3(-0.2F, p2, -0.9F + per * 1.8F);
+				rightHand = Vector3(-0.2F * weapSide, p2, -0.9F + per * 1.8F);
 			}
 		}
 

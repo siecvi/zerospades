@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -49,7 +49,7 @@ namespace spades {
 			renderer.RegisterImage("Gfx/AmbientOcclusion.png");
 		}
 		GLOptimizedVoxelModel::GLOptimizedVoxelModel(VoxelModel* m, GLRenderer& r)
-		    : renderer{r}, device{r.GetGLDevice()} {
+			: renderer{r}, device{r.GetGLDevice()} {
 			SPADES_MARK_FUNCTION();
 
 			BuildVertices(m);
@@ -67,14 +67,14 @@ namespace spades {
 			buffer = device.GenBuffer();
 			device.BindBuffer(IGLDevice::ArrayBuffer, buffer);
 			device.BufferData(IGLDevice::ArrayBuffer,
-			                  static_cast<IGLDevice::Sizei>(vertices.size() * sizeof(Vertex)),
-			                  vertices.data(), IGLDevice::StaticDraw);
+							  static_cast<IGLDevice::Sizei>(vertices.size() * sizeof(Vertex)),
+							  vertices.data(), IGLDevice::StaticDraw);
 
 			idxBuffer = device.GenBuffer();
 			device.BindBuffer(IGLDevice::ArrayBuffer, idxBuffer);
 			device.BufferData(IGLDevice::ArrayBuffer,
-			                  static_cast<IGLDevice::Sizei>(indices.size() * sizeof(uint32_t)),
-			                  indices.data(), IGLDevice::StaticDraw);
+							  static_cast<IGLDevice::Sizei>(indices.size() * sizeof(uint32_t)),
+							  indices.data(), IGLDevice::StaticDraw);
 			device.BindBuffer(IGLDevice::ArrayBuffer, 0);
 
 			origin = m->GetOrigin();
@@ -90,8 +90,8 @@ namespace spades {
 			maxPos += origin;
 			Vector3 maxDiff = {
 				std::max(fabsf(minPos.x), fabsf(maxPos.x)),
-			    std::max(fabsf(minPos.y), fabsf(maxPos.y)),
-			    std::max(fabsf(minPos.z), fabsf(maxPos.z))
+				std::max(fabsf(minPos.y), fabsf(maxPos.y)),
+				std::max(fabsf(minPos.z), fabsf(maxPos.z))
 			};
 			radius = maxDiff.GetLength();
 
@@ -149,7 +149,7 @@ namespace spades {
 		}
 
 		uint8_t GLOptimizedVoxelModel::calcAOID(VoxelModel* m, int x, int y, int z, int ux, int uy,
-		                                        int uz, int vx, int vy, int vz) {
+												int uz, int vx, int vy, int vz) {
 			int v = 0;
 			if (m->IsSolid(x - ux, y - uy, z - uz))
 				v |= 1;
@@ -193,7 +193,7 @@ namespace spades {
 
 			public:
 				Model(const uint8_t* slice, int usize, int vsize)
-				    : slice(slice), usize(usize), vsize(vsize) {}
+					: slice(slice), usize(usize), vsize(vsize) {}
 				inline int GetWidth() { return usize; }
 				inline int GetHeight() { return vsize; }
 				inline bool operator()(int x, int y) const {
@@ -235,9 +235,9 @@ namespace spades {
 		}
 
 		void GLOptimizedVoxelModel::EmitSlice(uint8_t* slice, int usize, int vsize, int sx, int sy,
-		                                      int sz, int ux, int uy, int uz, int vx, int vy,
-		                                      int vz, int mx, int my, int mz, bool flip,
-		                                      VoxelModel* model) {
+											  int sz, int ux, int uy, int uz, int vx, int vy,
+											  int vz, int mx, int my, int mz, bool flip,
+											  VoxelModel* model) {
 			SPADES_MARK_FUNCTION();
 			int minU = -1, minV = -1, maxU = -1, maxV = -1;
 
@@ -345,18 +345,18 @@ namespace spades {
 						auto material = static_cast<MaterialType>(col >> 24);
 
 						col &= 0xFFFFFF;
-						
+
 						uint8_t r = (col >> 16) & 0xFF;
 						uint8_t g = (col >> 8) & 0xFF;
 						uint8_t b = col & 0xFF;
-						
+
 						int threshold = 250;
-						
+
 						// Add AOID (selector for the pre-integrated ambient occlusion texture).
 						// Use special values for certain materials.
 						if (material == MaterialType::Emissive &&
 							((r >= threshold || g >= threshold || b >= threshold)
-								|| (r == 0 && g == 0 && b == 0))) {					
+								|| (r == 0 && g == 0 && b == 0))) {
 							col |= ((uint32_t)255) << 24;
 						} else {
 							p3 += nn;
@@ -570,10 +570,14 @@ namespace spades {
 				if (param.depthHack || !param.castShadow || param.ghost)
 					continue;
 
-				// frustrum cull
 				const auto& modelMatrix = param.matrix;
+				const auto& axisX = modelMatrix.GetAxis(0);
+				const auto& axisY = modelMatrix.GetAxis(1);
+				const auto& axisZ = modelMatrix.GetAxis(2);
 				const auto& modelOrigin = modelMatrix.GetOrigin();
-				float rad = radius * modelMatrix.GetAxis(0).GetLength();
+
+				// frustrum cull
+				float rad = radius * axisX.GetLength();
 				if (!renderer.GetShadowMapRenderer()->SphereCull(modelOrigin, rad))
 					continue;
 
@@ -581,8 +585,15 @@ namespace spades {
 				modelMatrixU(shadowMapProgram);
 				modelMatrixU.SetValue(modelMatrix);
 
+				bool isMirrored = Vector3::Dot(Vector3::Cross(axisX, axisY), axisZ) < 0.0F;
+				if (isMirrored)
+					device.FrontFace(IGLDevice::CCW);
+
 				device.DrawElements(IGLDevice::Triangles,
 					numIndices, IGLDevice::UnsignedInt, (void*)0);
+
+				if (isMirrored)
+					device.FrontFace(IGLDevice::CW);
 			}
 
 			device.BindBuffer(IGLDevice::ElementArrayBuffer, 0);
@@ -699,10 +710,14 @@ namespace spades {
 				if (param.ghost != ghostPass)
 					continue;
 
-				// frustrum cull
 				const auto& modelMatrix = param.matrix;
+				const auto& axisX = modelMatrix.GetAxis(0);
+				const auto& axisY = modelMatrix.GetAxis(1);
+				const auto& axisZ = modelMatrix.GetAxis(2);
 				const auto& modelOrigin = modelMatrix.GetOrigin();
-				float rad = radius * modelMatrix.GetAxis(0).GetLength();
+
+				// frustrum cull
+				float rad = radius * axisX.GetLength();
 				if (!renderer.SphereFrustrumCull(modelOrigin, rad))
 					continue;
 
@@ -726,11 +741,18 @@ namespace spades {
 				modelOpacity(program);
 				modelOpacity.SetValue(param.opacity);
 
+				bool isMirrored = Vector3::Dot(Vector3::Cross(axisX, axisY), axisZ) < 0.0F;
+				if (isMirrored)
+					device.FrontFace(IGLDevice::CCW);
+
 				if (param.depthHack)
 					device.DepthRange(0.0F, 0.1F);
 
 				device.DrawElements(IGLDevice::Triangles,
 					numIndices, IGLDevice::UnsignedInt, (void*)0);
+
+				if (isMirrored)
+					device.FrontFace(IGLDevice::CW);
 
 				if (param.depthHack)
 					device.DepthRange(0.0F, 1.0F);
@@ -826,17 +848,21 @@ namespace spades {
 				if (param.ghost)
 					continue;
 
-				// frustrum cull
 				const auto& modelMatrix = param.matrix;
+				const auto& axisX = modelMatrix.GetAxis(0);
+				const auto& axisY = modelMatrix.GetAxis(1);
+				const auto& axisZ = modelMatrix.GetAxis(2);
 				const auto& modelOrigin = modelMatrix.GetOrigin();
-				float rad = radius * modelMatrix.GetAxis(0).GetLength();
+
+				// frustrum cull
+				float rad = radius * axisX.GetLength();
 				if (!renderer.SphereFrustrumCull(modelOrigin, rad))
 					continue;
 
 				static GLProgramUniform customColor("customColor");
 				customColor(dlightProgram);
 				customColor.SetValue(param.customColor.x, param.customColor.y, param.customColor.z);
-				
+
 				static GLProgramUniform projectionViewModelMatrix("projectionViewModelMatrix");
 				projectionViewModelMatrix(dlightProgram);
 				projectionViewModelMatrix.SetValue(pvMat * modelMatrix);
@@ -849,6 +875,10 @@ namespace spades {
 				modelMatrixU(dlightProgram);
 				modelMatrixU.SetValue(modelMatrix);
 
+				bool isMirrored = Vector3::Dot(Vector3::Cross(axisX, axisY), axisZ) < 0.0F;
+				if (isMirrored)
+					device.FrontFace(IGLDevice::CCW);
+
 				if (param.depthHack)
 					device.DepthRange(0.0F, 0.1F);
 
@@ -860,6 +890,9 @@ namespace spades {
 					device.DrawElements(IGLDevice::Triangles,
 						numIndices, IGLDevice::UnsignedInt, (void*)0);
 				}
+
+				if (isMirrored)
+					device.FrontFace(IGLDevice::CW);
 
 				if (param.depthHack)
 					device.DepthRange(0.0F, 1.0F);
@@ -915,7 +948,7 @@ namespace spades {
 			modelOrigin.SetValue(origin.x, origin.y, origin.z);
 
 			static GLProgramUniform viewOriginVector("viewOriginVector");
-			viewOriginVector(outlinesProgram);	
+			viewOriginVector(outlinesProgram);
 			viewOriginVector.SetValue(viewOrigin.x, viewOrigin.y, viewOrigin.z);
 
 			// setup attributes
@@ -937,10 +970,14 @@ namespace spades {
 				if (param.ghost)
 					continue;
 
-				// frustrum cull
 				const auto& modelMatrix = param.matrix;
+				const auto& axisX = modelMatrix.GetAxis(0);
+				const auto& axisY = modelMatrix.GetAxis(1);
+				const auto& axisZ = modelMatrix.GetAxis(2);
 				const auto& modelOrigin = modelMatrix.GetOrigin();
-				float rad = radius * modelMatrix.GetAxis(0).GetLength();
+
+				// frustrum cull
+				float rad = radius * axisX.GetLength();
 				if (!renderer.SphereFrustrumCull(modelOrigin, rad))
 					continue;
 
@@ -952,11 +989,18 @@ namespace spades {
 				modelMatrixU(outlinesProgram);
 				modelMatrixU.SetValue(modelMatrix);
 
+				bool isMirrored = Vector3::Dot(Vector3::Cross(axisX, axisY), axisZ) < 0.0F;
+				if (isMirrored)
+					device.FrontFace(IGLDevice::CCW);
+
 				if (param.depthHack)
 					device.DepthRange(0.0F, 0.1F);
 
 				device.DrawElements(IGLDevice::Triangles,
 					numIndices, IGLDevice::UnsignedInt, (void*)0);
+
+				if (isMirrored)
+					device.FrontFace(IGLDevice::CW);
 
 				if (param.depthHack)
 					device.DepthRange(0.0F, 1.0F);

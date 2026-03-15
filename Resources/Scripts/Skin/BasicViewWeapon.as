@@ -328,6 +328,8 @@ namespace spades {
 			Matrix4 mat;
 
 			float weapSide = Clamp(cg_viewWeaponSide.FloatValue, -1.0F, 1.0F);
+			bool leftHanded = weapSide < 0.0F;
+
 			float sp = 1.0F - AimDownSightStateSmooth;
 
 			// sprint animation
@@ -363,12 +365,16 @@ namespace spades {
 			trans.x += cg_viewWeaponX.FloatValue * sp;
 			trans.y += cg_viewWeaponY.FloatValue * sp;
 			trans.z += cg_viewWeaponZ.FloatValue * sp;
-			trans.x *= weapSide;
+			trans.x *= abs(weapSide);
 
 			// add weapon sway
 			trans += swing * GetMotionGain();
 
 			mat = CreateTranslateMatrix(trans) * mat;
+
+			// mirror geometry when left-handed
+			if (leftHanded)
+				mat = CreateScaleMatrix(Vector3(-1.0F, 1.0F, 1.0F)) * mat;
 
 			return mat;
 		}

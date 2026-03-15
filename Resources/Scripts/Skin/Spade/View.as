@@ -75,6 +75,7 @@
 			Matrix4 mat = CreateScaleMatrix(0.033F);
 
 			float weapSide = Clamp(cg_viewWeaponSide.FloatValue, -1.0F, 1.0F);
+			bool leftHanded = weapSide < 0.0F;
 
 			if (sprintStateSmooth > 0.0F or raiseState < 1.0F) {
 				float per = Max(sprintStateSmooth, 1.0F - raiseState);
@@ -88,7 +89,7 @@
 
 				float per = SmoothStep(1.0F - actionProgress);
 				mat = CreateRotateMatrix(Vector3(1, 0, 0), per * 1.7F) * mat;
-				mat = CreateTranslateMatrix(per * 0.2F * weapSide, per * 0.3F, 0.0F) * mat;
+				mat = CreateTranslateMatrix(per * 0.2F, per * 0.3F, 0.0F) * mat;
 			} else if (actionType == spades::SpadeActionType::DigStart or actionType == spades::SpadeActionType::Dig) {
 				@model = @spadeModel;
 
@@ -108,9 +109,9 @@
 					f *= 4.0F;
 				}
 
-				mat = CreateTranslateMatrix(Vector3(f2 * weapSide, f * -0.2F, -f2 * 0.25F)) * mat;
+				mat = CreateTranslateMatrix(Vector3(f2, f * -0.2F, -f2 * 0.25F)) * mat;
 				mat = CreateRotateMatrix(Vector3(1, 0, 0), f / 0.32F) * mat;
-				mat = CreateRotateMatrix(Vector3(0, 1, 0), -f * weapSide) * mat;
+				mat = CreateRotateMatrix(Vector3(0, 1, 0), -f) * mat;
 			}
 
 			// add weapon offset
@@ -121,12 +122,16 @@
 			trans.x += cg_viewWeaponX.FloatValue;
 			trans.y += cg_viewWeaponY.FloatValue;
 			trans.z += cg_viewWeaponZ.FloatValue;
-			trans.x *= weapSide;
+			trans.x *= abs(weapSide);
 
 			// add weapon sway
 			trans += swing;
 
 			mat = CreateTranslateMatrix(trans) * mat;
+
+			// mirror geometry when left-handed
+			if (leftHanded)
+				mat = CreateScaleMatrix(Vector3(-1.0F, 1.0F, 1.0F)) * mat;
 
 			// hands offset
 			leftHand = mat * Vector3(0.0F, 0.0F, 7.0F);

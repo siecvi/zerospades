@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -84,11 +84,11 @@ namespace spades {
 			bool CheckVisibility(const AABB3& box) {
 				if (!clipBox.Contains(box) ||
 					!std::isfinite(box.min.x) ||
-				    !std::isfinite(box.min.y) ||
+					!std::isfinite(box.min.y) ||
 					!std::isfinite(box.min.z) ||
-				    !std::isfinite(box.max.x) ||
+					!std::isfinite(box.max.x) ||
 					!std::isfinite(box.max.y) ||
-				    !std::isfinite(box.max.z)) {
+					!std::isfinite(box.max.z)) {
 					OnProhibitedAction();
 					return false;
 				}
@@ -212,8 +212,8 @@ namespace spades {
 					OnProhibitedAction();
 			}
 			void DrawImage(stmp::optional<IImage&> img, const Vector2& outTopLeft,
-			               const Vector2& outTopRight, const Vector2& outBottomLeft,
-			               const AABB2& inRect) {
+						   const Vector2& outTopRight, const Vector2& outBottomLeft,
+						   const AABB2& inRect) {
 				if (allowDepthHack)
 					base->DrawImage(img, outTopLeft, outTopRight, outBottomLeft, inRect);
 				else
@@ -238,7 +238,7 @@ namespace spades {
 		};
 
 		ClientPlayer::ClientPlayer(Player& p, Client& c)
-		    : client(c), player(p), hasValidOriginMatrix(false) {
+			: client(c), player(p), hasValidOriginMatrix(false) {
 			SPADES_MARK_FUNCTION();
 
 			sprintState = 0.0F;
@@ -293,7 +293,7 @@ namespace spades {
 			  "IWeaponSkin@ CreateViewSMGSkin(Renderer@, AudioDevice@)");
 			static ScriptFunction shotgunViewFactory(
 			  "IWeaponSkin@ CreateViewShotgunSkin(Renderer@, AudioDevice@)");
-			switch (p.GetWeapon().GetWeaponType()) {
+			switch (p.GetWeaponType()) {
 				case RIFLE_WEAPON:
 					weaponSkin = initScriptFactory(rifleFactory, renderer, audio);
 					weaponViewSkin = initScriptFactory(rifleViewFactory, renderer, audio);
@@ -401,7 +401,7 @@ namespace spades {
 								c = audioDevice.RegisterSound("Sounds/Weapons/Block/RaiseLocal.opus");
 								break;
 							case Player::ToolWeapon:
-								switch (player.GetWeapon().GetWeaponType()) {
+								switch (player.GetWeaponType()) {
 									case RIFLE_WEAPON:
 										c = audioDevice.RegisterSound(
 										  "Sounds/Weapons/Rifle/RaiseLocal.opus");
@@ -532,45 +532,50 @@ namespace spades {
 
 		void ClientPlayer::SetSkinParameterForTool(Player::ToolType type, asIScriptObject* skin) {
 			Player& p = player;
+			Weapon& w = p.GetWeapon();
 
 			WeaponInput actualWeapInput = p.GetWeaponInput();
 
 			const float primaryDelay = p.GetToolPrimaryDelay(type);
 			const float secondaryDelay = p.GetToolSecondaryDelay(type);
 
-			if (type == Player::ToolSpade) {
-				ScriptISpadeSkin interface(skin);
-				const float nextSpadeTime = p.GetTimeToNextSpade();
-				if (nextSpadeTime > 0.0F) {
-					interface.SetActionType(SpadeActionTypeBash);
-					interface.SetActionProgress(1.0F - (nextSpadeTime / primaryDelay));
-				} else if (actualWeapInput.secondary) {
-					interface.SetActionType(p.IsFirstDig()
-						? SpadeActionTypeDigStart : SpadeActionTypeDig);
-					interface.SetActionProgress(1.0F - (p.GetTimeToNextDig() / secondaryDelay));
-				} else {
-					interface.SetActionType(SpadeActionTypeIdle);
-					interface.SetActionProgress(0.0F);
-				}
-			} else if (type == Player::ToolBlock) {
-				ScriptIBlockSkin interface(skin);
-				interface.SetReadyState(1.0F - (p.GetTimeToNextBlock() / primaryDelay));
-				interface.SetBlockColor(ConvertColorRGB(p.GetBlockColor()));
-			} else if (type == Player::ToolGrenade) {
-				ScriptIGrenadeSkin interface(skin);
-				interface.SetReadyState(1.0F - (p.GetTimeToNextGrenade() / primaryDelay));
-				interface.SetCookTime(p.IsCookingGrenade() ? p.GetGrenadeCookTime() : 0.0F);
-			} else if (type == Player::ToolWeapon) {
-				Weapon& w = p.GetWeapon();
-				ScriptIWeaponSkin interface(skin);
-				interface.SetReadyState(1.0F - (w.GetTimeToNextFire() / primaryDelay));
-				interface.SetAimDownSightState(cg_trueAimDownSight ? aimDownState : aimDownState * 0.5F);
-				interface.SetAmmo(w.GetAmmo());
-				interface.SetClipSize(w.GetClipSize());
-				interface.SetReloading(w.IsReloading());
-				interface.SetReloadProgress(w.GetReloadProgress());
-			} else {
-				SPInvalidEnum("currentTool", type);
+			switch (type) {
+				case Player::ToolSpade: {
+					ScriptISpadeSkin interface(skin);
+
+					const float nextSpadeTime = p.GetTimeToNextSpade();
+					if (nextSpadeTime > 0.0F) {
+						interface.SetActionType(SpadeActionTypeBash);
+						interface.SetActionProgress(1.0F - (nextSpadeTime / primaryDelay));
+					} else if (actualWeapInput.secondary) {
+						interface.SetActionType(p.IsFirstDig()
+							? SpadeActionTypeDigStart : SpadeActionTypeDig);
+						interface.SetActionProgress(1.0F - (p.GetTimeToNextDig() / secondaryDelay));
+					} else {
+						interface.SetActionType(SpadeActionTypeIdle);
+						interface.SetActionProgress(0.0F);
+					}
+				} break;
+				case Player::ToolBlock: {
+					ScriptIBlockSkin interface(skin);
+					interface.SetReadyState(1.0F - (p.GetTimeToNextBlock() / primaryDelay));
+					interface.SetBlockColor(ConvertColorRGB(p.GetBlockColor()));
+				} break;
+				case Player::ToolGrenade: {
+					ScriptIGrenadeSkin interface(skin);
+					interface.SetReadyState(1.0F - (p.GetTimeToNextGrenade() / primaryDelay));
+					interface.SetCookTime(p.IsCookingGrenade() ? p.GetGrenadeCookTime() : 0.0F);
+				} break;
+				case Player::ToolWeapon: {
+					ScriptIWeaponSkin interface(skin);
+					interface.SetReadyState(1.0F - (w.GetTimeToNextFire() / primaryDelay));
+					interface.SetAimDownSightState(cg_trueAimDownSight ? aimDownState : aimDownState * 0.5F);
+					interface.SetAmmo(w.GetAmmo());
+					interface.SetClipSize(w.GetClipSize());
+					interface.SetReloading(w.IsReloading());
+					interface.SetReloadProgress(w.GetReloadProgress());
+				} break;
+				default: SPInvalidEnum("currentTool", type);
 			}
 		}
 
@@ -677,6 +682,11 @@ namespace spades {
 			SetCommonSkinParameter(curSkin);
 
 			float weapSide = Clamp((float)cg_viewWeaponSide, -1.0F, 1.0F);
+			bool leftHanded = weapSide < 0.0F;
+
+			// view weapon
+			Vector3 viewWeaponSway = viewWeaponOffset;
+			viewWeaponSway.x *= leftHanded ? -1.0F : 1.0F;
 
 			// Moving this to the scripting environment means
 			// breaking compatibility with existing scripts.
@@ -703,21 +713,16 @@ namespace spades {
 
 				WeaponInput actualWeapInput = p.GetWeaponInput();
 
-				const float nextSpadeTime = p.GetTimeToNextSpade();
-				const float nextDigTime = p.GetTimeToNextDig();
-				const float nextBlockTime = p.GetTimeToNextBlock();
-				const float nextGrenadeTime = p.GetTimeToNextGrenade();
-				const float nextFireTime = w.GetTimeToNextFire();
-
 				const float primaryDelay = p.GetToolPrimaryDelay(currentTool);
 				const float secondaryDelay = p.GetToolSecondaryDelay(currentTool);
 
-				const float cookGrenadeTime = p.GetGrenadeCookTime();
-				const float reloadProgress = 1.0F - w.GetReloadProgress();
-
 				switch (currentTool) {
-					case Player::ToolSpade:
+					case Player::ToolSpade: {
 						model = renderer.RegisterModel("Models/Weapons/Spade/Spade.kv6");
+
+						const float nextSpadeTime = p.GetTimeToNextSpade();
+						const float nextDigTime = p.GetTimeToNextDig();
+
 						if (nextSpadeTime > 0.0F) {
 							float f = nextSpadeTime / primaryDelay;
 							mat = Matrix4::Rotate(MakeVector3(1, 0, 0), f * 1.25F) * mat;
@@ -739,22 +744,29 @@ namespace spades {
 								f *= 4;
 							}
 
-							mat = Matrix4::Translate(MakeVector3(f2 * 0.5F * weapSide, f * 0.25F, -f2 * 1.25F)) * mat;
+							mat = Matrix4::Translate(MakeVector3(f2 * 0.5F, f * 0.25F, -f2 * 1.25F)) * mat;
 							mat = Matrix4::Rotate(MakeVector3(1, 0, 0), f / 0.32F) * mat;
-							mat = Matrix4::Rotate(MakeVector3(0, 1, 0), -f * weapSide) * mat;
+							mat = Matrix4::Rotate(MakeVector3(0, 1, 0), -f) * mat;
 						}
-						break;
-					case Player::ToolBlock:
-						param.customColor = ConvertColorRGB(p.GetBlockColor());
+					} break;
+					case Player::ToolBlock: {
 						model = renderer.RegisterModel("Models/Weapons/Block/Block.kv6");
+						param.customColor = ConvertColorRGB(p.GetBlockColor());
+
+						const float nextBlockTime = p.GetTimeToNextBlock();
+
 						if (nextBlockTime > 0.0F) {
 							float f = nextBlockTime * 5;
 							trans.x -= f;
 							trans.z += f;
 						}
-						break;
-					case Player::ToolGrenade:
+					} break;
+					case Player::ToolGrenade: {
 						model = renderer.RegisterModel("Models/Weapons/Grenade/Grenade.kv6");
+
+						const float nextGrenadeTime = p.GetTimeToNextGrenade();
+						const float cookGrenadeTime = p.GetGrenadeCookTime();
+
 						if (p.IsCookingGrenade() && cookGrenadeTime > 0.0F) {
 							trans.x -= cookGrenadeTime;
 							trans.z -= cookGrenadeTime;
@@ -764,7 +776,7 @@ namespace spades {
 							trans.x -= f;
 							trans.z += f;
 						}
-						break;
+					} break;
 					case Player::ToolWeapon: {
 						// don't draw model when aiming
 						if (aimDownState > 0.99F)
@@ -781,6 +793,9 @@ namespace spades {
 								model = renderer.RegisterModel("Models/Weapons/Shotgun/Weapon.kv6");
 								break;
 						}
+
+						const float nextFireTime = w.GetTimeToNextFire();
+						const float reloadProgress = 1.0F - w.GetReloadProgress();
 
 						if (reloadProgress > 0.0F && !w.IsReloadSlow()) {
 							float f = reloadProgress * 10;
@@ -800,22 +815,23 @@ namespace spades {
 
 				trans += Vector3(-0.33F, 0.66F, 0.4F);
 				trans += 0.015F; // adjust to match voxlap
-				trans.x *= weapSide;
+				trans.x *= fabsf(weapSide);
 
 				// add weapon sway
-				trans += viewWeaponOffset;
+				trans += viewWeaponSway;
 
-				param.matrix = Matrix4::Translate(trans) * mat;
-				classicViewWeaponOrigin = param.matrix.GetOrigin();
+				mat = Matrix4::Translate(trans) * mat;
 
-				param.matrix = eyeMatrix * param.matrix;
+				// mirror weapon geometry when left-handed
+				if (leftHanded)
+					mat = Matrix4::Scale(-1.0F, 1.0F, 1.0F) * mat;
+
+				classicViewWeaponOrigin = mat.GetOrigin();
+				param.matrix = eyeMatrix * mat;
 				renderer.RenderModel(*model, param);
 
 				return;
 			}
-
-			// view weapon
-			Vector3 viewWeaponOffset = this->viewWeaponOffset;
 
 			// bobbing
 			{
@@ -829,8 +845,8 @@ namespace spades {
 				float vl = cosf(walkAng);
 				vl *= vl;
 
-				viewWeaponOffset.x += sinf(walkAng) * 0.013F * sp;
-				viewWeaponOffset.z += vl * 0.018F * sp;
+				viewWeaponSway.x += sinf(walkAng) * 0.013F * sp;
+				viewWeaponSway.z += vl * 0.018F * sp;
 			}
 
 			// slow pulse
@@ -838,21 +854,21 @@ namespace spades {
 				float sp = 1.0F - aimDownState;
 				float vl = sinf(time * 1.0F);
 
-				viewWeaponOffset.x += vl * 0.001F * sp;
-				viewWeaponOffset.y += vl * 0.0007F * sp;
-				viewWeaponOffset.z += vl * 0.003F * sp;
+				viewWeaponSway.x += vl * 0.001F * sp;
+				viewWeaponSway.y += vl * 0.0007F * sp;
+				viewWeaponSway.z += vl * 0.003F * sp;
 			}
 
 			// common process
 			{
 				ScriptIViewToolSkin interface(curSkin);
 				interface.SetEyeMatrix(eyeMatrix);
-				interface.SetSwing(viewWeaponOffset);
+				interface.SetSwing(viewWeaponSway);
 			}
 			{
 				ScriptIToolSkin interface(curSkin);
 				interface.AddToScene();
-			} 
+			}
 			{
 				ScriptIViewToolSkin interface(curSkin);
 				leftHand = interface.GetLeftHandPosition();
@@ -912,64 +928,87 @@ namespace spades {
 			}
 
 			// Arms
-			float leftHandSqr = leftHand.GetSquaredLength();
-			float rightHandSqr = rightHand.GetSquaredLength();
-			if (!cg_hideArms && (leftHandSqr > 0.01F || rightHandSqr > 0.01F)) {
-				Handle<IModel> armModel = renderer.RegisterModel((modelPath + "Arm.kv6").c_str());
-				Handle<IModel> upperModel = renderer.RegisterModel((modelPath + "UpperArm.kv6").c_str());
-
-				const float armlen = 0.5F;
-				const float armlenSqr = armlen * armlen;
-				const Matrix4 armsScale = Matrix4::Scale(0.05F);
-
-				Vector3 shoulders[] = {{0.4F, 0.0F, 0.25F}, {-0.4F, 0.0F, 0.25F}};
+			if (!cg_hideArms) {
 				Vector3 hands[] = {leftHand, rightHand};
+				Vector3 shoulders[] = {{0.4F, 0.0F, 0.25F}, {-0.4F, 0.0F, 0.25F}};
 				Vector3 benddirs[] = {{0.5F, 0.2F, 0.0F}, {-0.5F, 0.2F, 0.0F}};
 
-				auto addModel = [&](IModel& model, const Vector3& v1, const Vector3& v2) {
-					Vector3 axises[3];
-					axises[2] = (v1 - v2).Normalize();
-					axises[1] = Vector3::Cross(axises[2], MakeVector3(0, 0, 1)).Normalize();
-					axises[0] = Vector3::Cross(axises[1], axises[2]).Normalize();
+				if (leftHanded) {
+					std::swap(hands[0], hands[1]);
+					hands[0].x = -hands[0].x;
+					hands[1].x = -hands[1].x;
+					shoulders[0].x = -shoulders[0].x;
+					shoulders[1].x = -shoulders[1].x;
+					benddirs[0].x = -benddirs[0].x;
+					benddirs[1].x = -benddirs[1].x;
+				}
 
-					param.matrix = Matrix4::FromAxis(axises[0], axises[1], axises[2], v2);
-					param.matrix = eyeMatrix * param.matrix * armsScale;
-					renderer.RenderModel(model, param);
-				};
+				const float leftHandSqr = hands[0].GetSquaredLength();
+				const float rightHandSqr = hands[1].GetSquaredLength();
+				if (leftHandSqr > 0.01F || rightHandSqr > 0.01F) {
+					Handle<IModel> armModel = renderer.RegisterModel((modelPath + "Arm.kv6").c_str());
+					Handle<IModel> upperModel = renderer.RegisterModel((modelPath + "UpperArm.kv6").c_str());
 
-				Vector3 trans = MakeVector3(0, 0, 0);
+					// manual adjustment
+					Vector3 trans = MakeVector3(0, 0, 0);
+					float sp = 1.0F - aimDownState;
+					trans.x += (float)cg_viewWeaponX * sp;
+					trans.y += (float)cg_viewWeaponY * sp;
+					trans.z += (float)cg_viewWeaponZ * sp;
+					trans.x *= fabsf(weapSide);
 
-				// manual adjustment
-				float sp = 1.0F - aimDownState;
-				trans.x += (float)cg_viewWeaponX * sp;
-				trans.y += (float)cg_viewWeaponY * sp;
-				trans.z += (float)cg_viewWeaponZ * sp;
-				trans.x *= weapSide;
+					// add weapon sway
+					trans += viewWeaponSway * sp;
 
-				// add weapon sway
-				trans += viewWeaponOffset;
+					const float armlen = 0.5F;
+					const float armlenSqr = armlen * armlen;
+					const Matrix4 armsScale = Matrix4::Scale(0.05F);
 
-				auto renderArm = [&](int i) {
-					const Vector3& shoulder = shoulders[i] + trans;
-					const Vector3& hand = hands[i];
-					const Vector3& benddir = benddirs[i];
+					auto getArmMatrix = [&](const Vector3& v1, const Vector3& v2, bool isLeftArm) {
+						Vector3 axes[3];
+						axes[2] = (v1 - v2).Normalize();
+						axes[1] = Vector3::Cross(axes[2], MakeVector3(0, 0, 1)).Normalize();
+						axes[0] = Vector3::Cross(axes[1], axes[2]).Normalize();
+						Matrix4 mat = Matrix4::FromAxis(axes[0], axes[1], axes[2], v2);
+						if (leftHanded)
+							mat = Matrix4::Scale(-1, 1, 1) * mat;
+						mat = eyeMatrix * mat * armsScale;
+						if (isLeftArm) {
+							mat = mat * Matrix4::Translate(0, -1, 0);
+							mat = mat * Matrix4::Scale(1, -1, 1);
+						}
+						return mat;
+					};
 
-					const Vector3 shoulderToHand = hand - shoulder;
-					Vector3 bend = Vector3::Cross(benddir, shoulderToHand).Normalize();
-					bend.z = fabsf(bend.z);
+					auto renderArm = [&](int i) {
+						const Vector3 shoulder = shoulders[i] + trans;
+						const Vector3& hand = hands[i];
+						const Vector3& benddir = benddirs[i];
 
-					const float distSqr = shoulderToHand.GetSquaredLength();
-					const float bendlen = sqrtf(std::max(armlenSqr - distSqr * 0.25F, 0.0F));
-					const Vector3 elbow = ((hand + shoulder) * 0.5F) + (bend * bendlen);
+						const Vector3 shoulderToHand = hand - shoulder;
+						Vector3 bend = Vector3::Cross(benddir, shoulderToHand).Normalize();
+						bend.z = fabsf(bend.z);
 
-					addModel(*armModel, hand, elbow);
-					addModel(*upperModel, elbow, shoulder);
-				};
+						const float distSqr = shoulderToHand.GetSquaredLength();
+						const float bendlen = sqrtf(std::max(armlenSqr - distSqr * 0.25F, 0.0F));
+						const Vector3 elbow = ((hand + shoulder) * 0.5F) + (bend * bendlen);
 
-				if (leftHandSqr > 0.01F)
-					renderArm(0);
-				if (rightHandSqr > 0.01F)
-					renderArm(1);
+						const bool isLeftArm = leftHanded ? (i != 0) : (i == 0);
+
+						// draw arm
+						param.matrix = getArmMatrix(hand, elbow, isLeftArm);
+						renderer.RenderModel(*armModel, param);
+
+						// draw upper arm
+						param.matrix = getArmMatrix(elbow, shoulder, isLeftArm);
+						renderer.RenderModel(*upperModel, param);
+					};
+
+					if (leftHandSqr > 0.01F)
+						renderArm(0);
+					if (rightHandSqr > 0.01F)
+						renderArm(1);
+				}
 			}
 
 			// --- local view ends
@@ -1053,8 +1092,6 @@ namespace spades {
 			if (inp.sprint)
 				armPitch -= 0.9F * sprintState;
 
-			// Moving this to the scripting environment means
-			// breaking compatibility with existing scripts.
 			WeaponInput actualWeapInput = p.GetWeaponInput();
 
 			const float primaryDelay = p.GetToolPrimaryDelay(currentTool);
@@ -1218,14 +1255,14 @@ namespace spades {
 
 				auto drawAxes = [&renderer](Vector3 p) {
 					renderer.AddDebugLine(Vector3{p.x - 0.2F, p.y, p.z},
-					                      Vector3{p.x + 0.2F, p.y, p.z},
-					                      Vector4{1.0F, 0.0F, 0.0F, 1.0F});
+										  Vector3{p.x + 0.2F, p.y, p.z},
+										  Vector4{1.0F, 0.0F, 0.0F, 1.0F});
 					renderer.AddDebugLine(Vector3{p.x, p.y - 0.2F, p.z},
-					                      Vector3{p.x, p.y + 0.2F, p.z},
-					                      Vector4{0.0F, 0.6F, 0.0F, 1.0F});
+										  Vector3{p.x, p.y + 0.2F, p.z},
+										  Vector4{0.0F, 0.6F, 0.0F, 1.0F});
 					renderer.AddDebugLine(Vector3{p.x, p.y, p.z - 0.2F},
-					                      Vector3{p.x, p.y, p.z + 0.2F},
-					                      Vector4{0.0F, 0.0F, 1.0F, 1.0F});
+										  Vector3{p.x, p.y, p.z + 0.2F},
+										  Vector4{0.0F, 0.0F, 1.0F, 1.0F});
 				};
 
 				drawAxes(isThirdPerson ? GetMuzzlePosition() : GetMuzzlePositionInFirstPersonView());
@@ -1480,6 +1517,7 @@ namespace spades {
 			IRenderer& renderer = client.GetRenderer();
 			IAudioDevice& audioDevice = client.GetAudioDevice();
 			Player& p = player;
+			WeaponType weaponType = p.GetWeaponType();
 
 			// distance cull
 			const auto& viewOrigin = client.GetLastSceneDef().viewOrigin;
@@ -1490,12 +1528,12 @@ namespace spades {
 			Handle<IModel> model;
 			Handle<IAudioChunk> snd = NULL;
 			Handle<IAudioChunk> snd2 = NULL;
-			switch (p.GetWeapon().GetWeaponType()) {
+			switch (weaponType) {
 				case RIFLE_WEAPON:
 					model = renderer.RegisterModel("Models/Weapons/Rifle/Casing.kv6");
 					snd = SampleRandomBool()
-					        ? audioDevice.RegisterSound("Sounds/Weapons/Rifle/ShellDrop1.opus")
-					        : audioDevice.RegisterSound("Sounds/Weapons/Rifle/ShellDrop2.opus");
+							? audioDevice.RegisterSound("Sounds/Weapons/Rifle/ShellDrop1.opus")
+							: audioDevice.RegisterSound("Sounds/Weapons/Rifle/ShellDrop2.opus");
 					snd2 = audioDevice.RegisterSound("Sounds/Weapons/Rifle/ShellWater.opus");
 					break;
 				case SHOTGUN_WEAPON:
@@ -1504,24 +1542,26 @@ namespace spades {
 				case SMG_WEAPON:
 					model = renderer.RegisterModel("Models/Weapons/SMG/Casing.kv6");
 					snd = SampleRandomBool()
-					        ? audioDevice.RegisterSound("Sounds/Weapons/SMG/ShellDrop1.opus")
-					        : audioDevice.RegisterSound("Sounds/Weapons/SMG/ShellDrop2.opus");
+							? audioDevice.RegisterSound("Sounds/Weapons/SMG/ShellDrop1.opus")
+							: audioDevice.RegisterSound("Sounds/Weapons/SMG/ShellDrop2.opus");
 					snd2 = audioDevice.RegisterSound("Sounds/Weapons/SMG/ShellWater.opus");
 					break;
 			}
 
 			if (model) {
+				float weapSide = Clamp((float)cg_viewWeaponSide, -1.0F, 1.0F);
+				bool leftHanded = weapSide < 0.0F;
+
 				Vector3 origin = ShouldRenderInThirdPersonView()
 					? GetCaseEjectPosition()
 					: GetCaseEjectPositionInFirstPersonView();
 
+				float casingSide = leftHanded ? -1.0F : 1.0F;
 				Vector3 o = p.GetFront();
-				Vector3 vel = o * 0.5F + p.GetRight() + p.GetUp() * 0.2F;
-				switch (p.GetWeapon().GetWeaponType()) {
-					case SMG_WEAPON: vel -= o * 0.7F; break;
-					case SHOTGUN_WEAPON: vel *= 0.5F; break;
-					default: break;
-				}
+				Vector3 vel = o * 0.5F + p.GetRight() * casingSide + p.GetUp() * 0.2F;
+
+				if (weaponType == SHOTGUN_WEAPON)
+					vel *= 0.5F;
 
 				auto ent = stmp::make_unique<GunCasing>(&client,
 					model.GetPointerOrNull(), snd.GetPointerOrNull(),
