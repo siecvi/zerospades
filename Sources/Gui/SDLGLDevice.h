@@ -23,7 +23,7 @@
 #include <Imports/OpenGL.h>
 #include <Imports/SDL.h>
 
-#include <Draw/IGLDevice.h>
+#include <Draw/OpenGL/IGLDevice.h>
 
 namespace spades {
 	namespace gui {

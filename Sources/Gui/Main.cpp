@@ -52,7 +52,7 @@
 #include <OpenSpades.h>
 
 #include <Core/VoxelModel.h>
-#include <Draw/GLOptimizedVoxelModel.h>
+#include <Draw/OpenGL/GLOptimizedVoxelModel.h>
 
 #include <ScriptBindings/ScriptManager.h>
 
