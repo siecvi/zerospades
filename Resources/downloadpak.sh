@@ -29,8 +29,8 @@ if [ -f "$PAK_NAME" ]; then
 fi
 # TODO: Check if the extracted files are present and up-to-date (#988)
 
-if [ -n "$OPENSPADES_DEVPAK_PATH" ]; then
-	cp "$OPENSPADES_DEVPAK_PATH" "$PAK_NAME"
+if [ -n "$ZEROSPADES_DEVPAK_PATH" ]; then
+	cp "$ZEROSPADES_DEVPAK_PATH" "$PAK_NAME"
 else
 	wget "$PAK_URL" -O "$PAK_NAME"
 fi
