@@ -1,6 +1,0 @@
-Shaders/OptimizedVoxelModelPhys.fs
-Shaders/OptimizedVoxelModelPhys.vs
-Shaders/PhysicalModel/OrenNayar.fs
-Shaders/PhysicalModel/CookTorrance.fs
-*shadow*
-Shaders/Fog.vs

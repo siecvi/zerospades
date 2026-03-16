@@ -1,0 +1,2 @@
+Shaders/OpenGL/PostFilters/BilateralFilter.fs
+Shaders/OpenGL/PostFilters/PassThrough.vs

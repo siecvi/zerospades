@@ -1,0 +1,2 @@
+Shaders/OpenGL/PostFilters/AutoExposurePreprocess.fs
+Shaders/OpenGL/PostFilters/PassThrough.vs
