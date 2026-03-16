@@ -17,7 +17,7 @@
 
 #if __linux__
 	#define OS_PLATFORM_LINUX
-#elif TARGET_OS_MAC
+#elif defined(__APPLE__)
 	#define OS_PLATFORM_MAC
 #elif defined _WIN32 || defined _WIN64
 	#define OS_PLATFORM_WINDOWS
