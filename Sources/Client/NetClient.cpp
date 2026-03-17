@@ -327,6 +327,10 @@ namespace spades {
 			return static_cast<float>(peer->packetThrottle) / ENET_PEER_PACKET_THROTTLE_SCALE;
 		}
 
+		void NetClient::DoEvents(float /*dt*/) {
+			DoEvents(status == NetClientStatusConnected ? 0 : 10);
+		}
+
 		void NetClient::DoEvents(int timeout) {
 			SPADES_MARK_FUNCTION();
 
