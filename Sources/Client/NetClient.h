@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "DemoRecorder.h"
+#include "INetClient.h"
 #include "NetProtocol.h"
 #include "PhysicsConstants.h"
 #include "Player.h"
@@ -48,12 +49,6 @@ namespace spades {
 	namespace client {
 		class Client;
 		class Player;
-		enum NetClientStatus {
-			NetClientStatusNotConnected = 0,
-			NetClientStatusConnecting,
-			NetClientStatusReceivingMap,
-			NetClientStatusConnected
-		};
 
 		enum NetExtensionType {
 			ExtensionTypePlayerProperties = 0,
@@ -70,7 +65,7 @@ namespace spades {
 		struct GameProperties;
 		class GameMapLoader;
 
-		class NetClient {
+		class NetClient : public INetClient {
 			Client* client;
 			NetClientStatus status;
 			ENetHost* host;
@@ -159,11 +154,10 @@ namespace spades {
 
 		public:
 			NetClient(Client*);
-			~NetClient();
+			~NetClient() override;
 
-			NetClientStatus GetStatus() { return status; }
-
-			std::string GetStatusString();
+			NetClientStatus GetStatus() override { return status; }
+			std::string GetStatusString() override;
 
 			/**
 			 * Gets how much portion of the map has completed loading.
@@ -171,53 +165,57 @@ namespace spades {
 			 *
 			 * @return A value in range `[0, 1]`.
 			 */
-			float GetMapReceivingProgress();
+			float GetMapReceivingProgress() override;
 
 			/**
 			 * Return a non-null reference to `GameProperties` for this connection.
 			 * Must be the connected state.
 			 */
-			std::shared_ptr<GameProperties>& GetGameProperties() {
+			std::shared_ptr<GameProperties>& GetGameProperties() override {
 				SPAssert(properties);
 				return properties;
 			}
 
 			void Connect(const ServerAddress& hostname);
-			void Disconnect();
+			void Disconnect() override;
 
-			int GetPing();
-			float GetPacketLoss();
-			float GetPacketThrottle();
+			int GetPing() override;
+			float GetPacketLoss() override;
+			float GetPacketThrottle() override;
 
-			void DoEvents(int timeout = 0);
+			// INetClient::DoEvents — picks poll timeout based on connection status.
+			void DoEvents(float dt) override;
+			// Direct timeout control for internal/test use.
+			void DoEvents(int timeout);
 
-			void SendJoin(int team, WeaponType, std::string name, int score);
-			void SendPosition(Vector3);
-			void SendOrientation(Vector3);
-			void SendPlayerInput(PlayerInput);
-			void SendWeaponInput(WeaponInput);
-			void SendHit(int targetPlayerId, HitType type);
-			void SendGrenade(const Grenade&);
-			void SendTool();
-			void SendHeldBlockColor();
-			void SendBlockAction(IntVector3, BlockActionType);
-			void SendBlockLine(IntVector3 v1, IntVector3 v2);
-			void SendChat(std::string, bool global);
-			void SendReload();
-			void SendTeamChange(int team);
-			void SendWeaponChange(WeaponType);
+			void SendJoin(int team, WeaponType, std::string name, int score) override;
+			void SendPosition(Vector3) override;
+			void SendOrientation(Vector3) override;
+			void SendPlayerInput(PlayerInput) override;
+			void SendWeaponInput(WeaponInput) override;
+			void SendHit(int targetPlayerId, HitType type) override;
+			void SendGrenade(const Grenade&) override;
+			void SendTool() override;
+			void SendHeldBlockColor() override;
+			void SendBlockAction(IntVector3, BlockActionType) override;
+			void SendBlockLine(IntVector3 v1, IntVector3 v2) override;
+			void SendChat(std::string, bool global) override;
+			void SendReload() override;
+			void SendTeamChange(int team) override;
+			void SendWeaponChange(WeaponType) override;
 			void SendHandShakeValid(int challenge);
 
-			double GetDownlinkBps() { return bandwidthMonitor->GetDownlinkBps(); }
-			double GetUplinkBps() { return bandwidthMonitor->GetUplinkBps(); }
+			double GetDownlinkBps() override { return bandwidthMonitor->GetDownlinkBps(); }
+			double GetUplinkBps() override { return bandwidthMonitor->GetUplinkBps(); }
 
 			// Demo recording
-			bool StartDemoRecording(const std::string& filename = "", const std::string& context = "");
-			void StopDemoRecording();
-			bool IsDemoRecording() const;
-			float GetDemoRecordingTime() const;
-			uint64_t GetDemoPacketCount() const;
-			const std::string& GetDemoFilename() const;
+			bool StartDemoRecording(const std::string& filename = "",
+			                        const std::string& context = "") override;
+			void StopDemoRecording() override;
+			bool IsDemoRecording() const override;
+			float GetDemoRecordingTime() const override;
+			uint64_t GetDemoPacketCount() const override;
+			const std::string& GetDemoFilename() const override;
 		};
 	} // namespace client
 } // namespace spades

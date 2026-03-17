@@ -26,7 +26,7 @@
 
 #include "DemoPlayer.h"
 #include "GameMap.h"
-#include "NetClient.h"
+#include "INetClient.h"
 #include "PhysicsConstants.h"
 #include "Player.h"
 #include <Core/Math.h>
@@ -42,7 +42,7 @@ namespace spades {
 		 * a demo file instead of from the network. This allows the Client class to
 		 * play back recorded demos with minimal changes.
 		 */
-		class DemoNetClient {
+		class DemoNetClient : public INetClient {
 			Client* client;
 			NetClientStatus status;
 			std::unique_ptr<DemoPlayer> demoPlayer;
@@ -88,7 +88,7 @@ namespace spades {
 
 		public:
 			DemoNetClient(Client* client);
-			~DemoNetClient();
+			~DemoNetClient() override;
 
 			/**
 			 * Opens a demo file for playback.
@@ -97,18 +97,14 @@ namespace spades {
 			 */
 			bool OpenDemo(const std::string& filename);
 
-			/**
-			 * Process demo packets for the current frame.
-			 * @param dt Delta time since last frame
-			 */
-			void DoEvents(float dt);
+			// INetClient interface
+			void DoEvents(float dt) override;
+			NetClientStatus GetStatus() override { return status; }
+			std::string GetStatusString() override;
+			float GetMapReceivingProgress() override;
+			std::shared_ptr<GameProperties>& GetGameProperties() override { return properties; }
 
-			NetClientStatus GetStatus() { return status; }
-			std::string GetStatusString();
-			float GetMapReceivingProgress();
-			std::shared_ptr<GameProperties>& GetGameProperties() { return properties; }
-
-			// Playback controls
+			// Playback controls (DemoNetClient-specific, not in INetClient)
 			void Pause() { if (demoPlayer) demoPlayer->Pause(); }
 			void Resume() { if (demoPlayer) demoPlayer->Resume(); }
 			void TogglePause() { if (demoPlayer) demoPlayer->TogglePause(); }
@@ -122,38 +118,38 @@ namespace spades {
 			float GetSpeed() const { return demoPlayer ? demoPlayer->GetSpeed() : 1.0f; }
 			int GetRecordedLocalPlayerId() const { return recordedLocalPlayerId; }
 
-			// Stub methods (no-op in demo mode - we don't send anything to a server)
-			void Disconnect() { status = NetClientStatusNotConnected; }
-			int GetPing() { return 0; }
-			float GetPacketLoss() { return 0.0f; }
-			float GetPacketThrottle() { return 1.0f; }
-			double GetDownlinkBps() { return 0.0; }
-			double GetUplinkBps() { return 0.0; }
+			// Stub network methods (no-ops — demo playback sends nothing to a server)
+			void Disconnect() override { status = NetClientStatusNotConnected; }
+			int GetPing() override { return 0; }
+			float GetPacketLoss() override { return 0.0f; }
+			float GetPacketThrottle() override { return 1.0f; }
+			double GetDownlinkBps() override { return 0.0; }
+			double GetUplinkBps() override { return 0.0; }
 
-			// Send methods are all no-ops in demo mode
-			void SendJoin(int, WeaponType, std::string, int) {}
-			void SendPosition(Vector3) {}
-			void SendOrientation(Vector3) {}
-			void SendPlayerInput(PlayerInput) {}
-			void SendWeaponInput(WeaponInput) {}
-			void SendHit(int, HitType) {}
-			void SendGrenade(const Grenade&) {}
-			void SendTool() {}
-			void SendHeldBlockColor() {}
-			void SendBlockAction(IntVector3, BlockActionType) {}
-			void SendBlockLine(IntVector3, IntVector3) {}
-			void SendChat(std::string, bool) {}
-			void SendReload() {}
-			void SendTeamChange(int) {}
-			void SendWeaponChange(WeaponType) {}
+			void SendJoin(int, WeaponType, std::string, int) override {}
+			void SendPosition(Vector3) override {}
+			void SendOrientation(Vector3) override {}
+			void SendPlayerInput(PlayerInput) override {}
+			void SendWeaponInput(WeaponInput) override {}
+			void SendHit(int, HitType) override {}
+			void SendGrenade(const Grenade&) override {}
+			void SendTool() override {}
+			void SendHeldBlockColor() override {}
+			void SendBlockAction(IntVector3, BlockActionType) override {}
+			void SendBlockLine(IntVector3, IntVector3) override {}
+			void SendChat(std::string, bool) override {}
+			void SendReload() override {}
+			void SendTeamChange(int) override {}
+			void SendWeaponChange(WeaponType) override {}
 
-			// Demo recording is not applicable in playback mode
-			bool StartDemoRecording(const std::string& = "") { return false; }
-			void StopDemoRecording() {}
-			bool IsDemoRecording() const { return false; }
-			float GetDemoRecordingTime() const { return 0.0f; }
-			uint64_t GetDemoPacketCount() const { return 0; }
-			const std::string& GetDemoFilename() const {
+			// Demo recording is not applicable during playback
+			bool StartDemoRecording(const std::string& = "",
+			                        const std::string& = "") override { return false; }
+			void StopDemoRecording() override {}
+			bool IsDemoRecording() const override { return false; }
+			float GetDemoRecordingTime() const override { return 0.0f; }
+			uint64_t GetDemoPacketCount() const override { return 0; }
+			const std::string& GetDemoFilename() const override {
 				static std::string empty;
 				return empty;
 			}
