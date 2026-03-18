@@ -71,7 +71,8 @@ namespace spades {
 					}
 				}
 			}
-			if (net && net->GetGameProperties()->isGameModeArena)
+			if (activeNet && activeNet->GetStatus() == NetClientStatusConnected &&
+			    activeNet->GetGameProperties()->isGameModeArena)
 				modeName = "arena";
 
 			// Field order: server-map-gamemode
@@ -404,13 +405,8 @@ namespace spades {
 		}
 
 		void Client::PlayerSpawned(Player& p) {
-			// In demo mode, net is null - use demoNet's properties instead
-			bool isArena = false;
-			if (net) {
-				isArena = net->GetGameProperties()->isGameModeArena;
-			} else if (demoNet) {
-				isArena = demoNet->GetGameProperties()->isGameModeArena;
-			}
+			bool isArena = activeNet && activeNet->GetStatus() == NetClientStatusConnected &&
+			               activeNet->GetGameProperties()->isGameModeArena;
 			if (isArena || cg_corpseClearOnRespawn)
 				RemoveCorpseForPlayer(p.GetId());
 		}

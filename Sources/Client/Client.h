@@ -30,6 +30,8 @@
 
 #include "ClientCameraMode.h"
 #include "DemoNetClient.h"
+#include "INetClient.h"
+#include "NetClient.h"
 #include "ILocalEntity.h"
 #include "IRenderer.h"
 #include "IWorldListener.h"
@@ -106,7 +108,7 @@ namespace spades {
 
 			std::unique_ptr<NetClient> net;
 			std::unique_ptr<DemoNetClient> demoNet;
-			bool isDemoMode;
+			INetClient* activeNet; // points to net.get() or demoNet.get(), never null after DoInit
 			std::string demoFilePath;
 			std::string playerName;
 			std::unique_ptr<IStream> logStream;
@@ -502,7 +504,7 @@ namespace spades {
 				const ServerAddress& host, Handle<FontManager>,
 				const std::string& demoPath = "");
 
-			bool IsDemoMode() const { return isDemoMode; }
+			bool IsDemoMode() const { return demoNet != nullptr; }
 			DemoNetClient* GetDemoNetClient() { return demoNet.get(); }
 			void ReloadDemo();
 

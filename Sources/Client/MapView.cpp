@@ -290,12 +290,12 @@ namespace spades {
 			// The local player (this is important for access control)
 			// In demo mode, there's no local player - treat as spectator
 			stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
-			bool localPlayerIsSpectator = client->isDemoMode ||
+			bool localPlayerIsSpectator = client->IsDemoMode() ||
 				(maybePlayer && maybePlayer->IsSpectator());
 			bool localPlayerIsSpectating = localPlayerIsSpectator || client->staffSpectating;
 
 			// Need either a local player or demo mode to continue
-			if (!maybePlayer && !client->isDemoMode)
+			if (!maybePlayer && !client->IsDemoMode())
 				return;
 
 			// Pointers for safe access (may be null in demo mode)
