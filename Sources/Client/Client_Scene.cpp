@@ -69,7 +69,7 @@ namespace spades {
 			stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
 			if (!maybePlayer) {
 				// No local player - demo mode or not joined
-				if (isDemoMode) {
+				if (IsDemoMode()) {
 					// In demo mode, check if we're following a player
 					if (followCameraState.enabled) {
 						auto followedPlayer = world->GetPlayer(followedPlayerId);
@@ -89,7 +89,7 @@ namespace spades {
 			Player& p = maybePlayer.value();
 
 			bool localPlayerIsSpectating = p.IsSpectator() || staffSpectating;
-			bool isStaff = net ? net->GetGameProperties()->isStaff : false;
+			bool isStaff = activeNet->GetGameProperties()->isStaff;
 
 			if (!localPlayerIsSpectating && p.IsAlive()) {
 				// There exists an alive (non-spectator) local player
@@ -123,7 +123,7 @@ namespace spades {
 				case ClientCameraMode::Free:
 					SPAssert(world);
 					// In demo mode, there's no local player - use followed player or recorded player
-					if (isDemoMode) {
+					if (IsDemoMode()) {
 						if (followedPlayerId >= 0 && world->GetPlayer(followedPlayerId))
 							return followedPlayerId;
 						if (demoNet)

@@ -257,7 +257,7 @@ namespace spades {
 		}
 
 		void Client::DrawDemoPlaybackHUD() {
-			if (!isDemoMode || !demoNet)
+			if (!IsDemoMode() || !demoNet)
 				return;
 
 			float sw = renderer->ScreenWidth();
@@ -327,12 +327,12 @@ namespace spades {
 		}
 
 		void Client::DrawRecordingIndicator() {
-			if (!net || !net->IsDemoRecording())
+			if (!activeNet->IsDemoRecording())
 				return;
 
 			float sw = renderer->ScreenWidth();
 
-			float recTime = net->GetDemoRecordingTime();
+			float recTime = activeNet->GetDemoRecordingTime();
 			int mins = static_cast<int>(recTime) / 60;
 			int secs = static_cast<int>(recTime) % 60;
 			char timeBuf[16];
@@ -1344,7 +1344,7 @@ namespace spades {
 			addLine(_Tr("Client", "Melee Kills: {0}", meleeKills));
 			addLine(_Tr("Client", "Grenade Kills: {0}", grenadeKills));
 
-			if (cg_playerStatsShowPlacedBlocks && !net->GetGameProperties()->isGameModeArena)
+			if (cg_playerStatsShowPlacedBlocks && !activeNet->GetGameProperties()->isGameModeArena)
 				addLine(_Tr("Client", "Blocks Placed: {0}", placedBlocks));
 		}
 
@@ -1458,7 +1458,7 @@ namespace spades {
 			stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
 
 			// In demo mode there's no local player, treat as spectator
-			bool localPlayerIsSpectator = isDemoMode || staffSpectating ||
+			bool localPlayerIsSpectator = IsDemoMode() || staffSpectating ||
 				(maybePlayer && maybePlayer->IsSpectator());
 
 			float x = sw - 8.0F;
@@ -1525,7 +1525,7 @@ namespace spades {
 
 			y += lh * 0.5F;
 
-			if (isDemoMode) {
+			if (IsDemoMode()) {
 				// Demo playback controls
 				std::string pauseLabel = (demoNet && demoNet->IsPaused())
 					? _Tr("Client", "[{0}] Resume", TrKey(cg_keyDemoPlayPause))
@@ -1777,7 +1777,7 @@ namespace spades {
 			} else {
 				// world exists, but no local player: not joined (or demo mode)
 
-				if (isDemoMode && shouldDrawHUD) {
+				if (IsDemoMode() && shouldDrawHUD) {
 					// Draw spectator HUD elements in demo mode
 					if (spectatorPlayerNames)
 						DrawPubOVL();
@@ -1803,7 +1803,7 @@ namespace spades {
 				}
 
 				// In demo mode, only show scoreboard when toggled
-				if (!isDemoMode || scoreboardVisible) {
+				if (!IsDemoMode() || scoreboardVisible) {
 					scoreboard->Draw();
 					DrawPlayingTime();
 				}
@@ -1841,7 +1841,7 @@ namespace spades {
 			renderer->DrawImage(nullptr, AABB2(prgBarX, prgBarY, prgBarW, prgBarH));
 
 			// draw progress bar
-			NetClientStatus status = isDemoMode ? demoNet->GetStatus() : net->GetStatus();
+			NetClientStatus status = activeNet->GetStatus();
 			if (status == NetClientStatusReceivingMap) {
 				float progress = mapReceivingProgressSmoothed;
 				float prgBarMaxWidth = prgBarW * progress;
@@ -1865,7 +1865,7 @@ namespace spades {
 			}
 
 			// draw net status
-			auto statusStr = isDemoMode ? demoNet->GetStatusString() : net->GetStatusString();
+			auto statusStr = activeNet->GetStatusString();
 			IFont& font = fontManager->GetGuiFont();
 			Vector2 size = font.Measure(statusStr);
 			Vector2 pos = MakeVector2((sw - size.x) * 0.5F, (prgBarY - 10.0F) - size.y);
@@ -1906,21 +1906,21 @@ namespace spades {
 				}
 			}
 
-			if (net) {
-				auto ping = net->GetPing();
+			if (!IsDemoMode()) {
+				auto ping = activeNet->GetPing();
 				snprintf(buf, sizeof(buf), ", ping: %dms", ping);
 				str += buf;
 
-				auto upbps = net->GetUplinkBps() / 1000;
-				auto downbps = net->GetDownlinkBps() / 1000;
+				auto upbps = activeNet->GetUplinkBps() / 1000;
+				auto downbps = activeNet->GetDownlinkBps() / 1000;
 				snprintf(buf, sizeof(buf), ", up/down: %.02f/%.02fkbps", upbps, downbps);
 				str += buf;
 
-				auto loss = net->GetPacketLoss() * 100.0F;
+				auto loss = activeNet->GetPacketLoss() * 100.0F;
 				snprintf(buf, sizeof(buf), ", loss: %.0f%%", loss);
 				str += buf;
 
-				auto throttle = net->GetPacketThrottle();
+				auto throttle = activeNet->GetPacketThrottle();
 				auto choke = (1.0F - throttle) * 100.0F;
 				snprintf(buf, sizeof(buf), ", choke: %.0f%%", choke);
 				str += buf;

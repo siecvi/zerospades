@@ -393,7 +393,7 @@ namespace spades {
 				stmp::optional<Player&> maybePlayer = world->GetLocalPlayer();
 
 				// In demo mode, we're always spectating without a local player
-				if (isDemoMode) {
+				if (IsDemoMode()) {
 					// Handle demo playback controls (play/pause)
 					if (CheckKey(cg_keyDemoPlayPause, name) && down) {
 						if (demoNet) {
@@ -596,7 +596,7 @@ namespace spades {
 				bool localPlayerIsAlive = p.IsAlive();
 				bool localPlayerIsSpectator = p.IsSpectator();
 				bool localPlayerIsSpectating = localPlayerIsSpectator || staffSpectating;
-				bool isStaff = net ? net->GetGameProperties()->isStaff : false;
+				bool isStaff = activeNet->GetGameProperties()->isStaff;
 
 				switch (cameraMode) {
 					case ClientCameraMode::None:
@@ -667,17 +667,17 @@ namespace spades {
 				}
 
 				// demo record toggle â accessible for both players and spectators
-				if (CheckKey(cg_keyDemoRecord, name) && down && net) {
-					if (net->IsDemoRecording()) {
-						net->StopDemoRecording();
+				if (CheckKey(cg_keyDemoRecord, name) && down && !IsDemoMode()) {
+					if (activeNet->IsDemoRecording()) {
+						activeNet->StopDemoRecording();
 					} else {
-						if (net->StartDemoRecording("", BuildDemoContext())) {
+						if (activeNet->StartDemoRecording("", BuildDemoContext())) {
 							if ((int)cg_demoAutoPrune != 0) {
 								int maxDemos = (int)cg_demoMaxFiles;
 								if (maxDemos >= 1)
 									DemoRecorder::PruneOldRecordings(static_cast<size_t>(maxDemos));
 							}
-							SPLog("Demo recording started: %s", net->GetDemoFilename().c_str());
+							SPLog("Demo recording started: %s", activeNet->GetDemoFilename().c_str());
 						} else {
 							chatWindow->AddMessage(ChatWindow::ColoredMessage(
 							  _Tr("Client", "Failed to start demo recording."), MsgColorSysInfo));
