@@ -103,12 +103,14 @@ namespace spades {
 				return;
 
 			file.flush();
+			uint64_t fileSize = static_cast<uint64_t>(file.tellp());
+			float elapsed = GetRecordingTime();
 			file.close();
 			recording = false;
 
 			SPLog("Stopped demo recording: %s (%llu packets, %llu bytes, %.1f seconds)",
 			      filename.c_str(), (unsigned long long)packetCount,
-			      (unsigned long long)file.tellp(), GetRecordingTime());
+			      (unsigned long long)fileSize, elapsed);
 		}
 
 		void DemoRecorder::RecordPacket(const char* data, size_t length) {
