@@ -36,9 +36,9 @@
 #include <Core/IStream.h>
 #include <Core/Math.h>
 #include <Core/Settings.h>
-#include <Draw/GLRenderer.h>
-#include <Draw/SWPort.h>
-#include <Draw/SWRenderer.h>
+#include <Draw/OpenGL/GLRenderer.h>
+#include <Draw/SW/SWPort.h>
+#include <Draw/SW/SWRenderer.h>
 #include <OpenSpades.h>
 
 SPADES_SETTING(r_videoWidth);

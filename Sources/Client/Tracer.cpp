@@ -12,7 +12,7 @@
 #include "IRenderer.h"
 #include "Tracer.h"
 #include <Core/Settings.h>
-#include <Draw/SWRenderer.h>
+#include <Draw/SW/SWRenderer.h>
 
 DEFINE_SPADES_SETTING(cg_tracerLights, "0");
 

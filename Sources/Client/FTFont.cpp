@@ -31,7 +31,7 @@
 #include <Core/Bitmap.h>
 #include <Core/FileManager.h>
 #include <Core/ThreadLocalStorage.h>
-#include <Draw/SWRenderer.h>
+#include <Draw/SW/SWRenderer.h>
 
 namespace spades {
 	namespace ngclient {
