@@ -140,7 +140,7 @@ namespace spades {
 		float DemoRecorder::GetRecordingTime() const {
 			if (!recording)
 				return 0.0f;
-			return static_cast<float>(const_cast<Stopwatch&>(stopwatch).GetTime());
+			return static_cast<float>(stopwatch.GetTime());
 		}
 
 		std::string DemoRecorder::SanitizeComponent(const std::string& s) {

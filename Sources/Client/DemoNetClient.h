@@ -102,7 +102,7 @@ namespace spades {
 			NetClientStatus GetStatus() override { return status; }
 			std::string GetStatusString() override;
 			float GetMapReceivingProgress() override;
-			std::shared_ptr<GameProperties>& GetGameProperties() override { return properties; }
+			const std::shared_ptr<GameProperties>& GetGameProperties() override { return properties; }
 
 			// Playback controls (DemoNetClient-specific, not in INetClient)
 			void Pause() { if (demoPlayer) demoPlayer->Pause(); }
