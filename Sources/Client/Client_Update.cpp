@@ -68,6 +68,7 @@ SPADES_SETTING(cg_smallFont);
 SPADES_SETTING(cg_centerMessage);
 SPADES_SETTING(cg_holdAimDownSight);
 SPADES_SETTING(cg_damageIndicators);
+SPADES_SETTING(cg_corpseDisableGravity);
 
 namespace spades {
 	namespace client {
@@ -1146,6 +1147,11 @@ namespace spades {
 					if (kt == KillTypeHeadshot || kt == KillTypeMelee)
 						corp->AddHeadImpulse(dir * 4.0F);
 
+					if (cg_corpseDisableGravity) {
+						dir *= 2.0F;
+						corp->AddImpulse(MakeVector3(0, 0, -2.0F));
+					}
+
 					corp->AddImpulse(dir);
 				}
 				corp->AddImpulse(victim.GetVelocity() * 32.0F);
@@ -1378,12 +1384,12 @@ namespace spades {
 				}
 			} else {
 				uint32_t col = map->GetColor(blockPos.x, blockPos.y, blockPos.z);
-				
+
 				// apply block darkening
 				int health = col >> 24;
 				uint32_t f = (std::max(health, 32) << 8) / 100;
 				col = DarkenColor(col, f);
-				
+
 				col = map->GetColorJit(col); // randomize color
 				EmitBlockFragments(shiftedHitPos, IntVectorFromColor(col));
 
@@ -1425,7 +1431,7 @@ namespace spades {
 			// the starting point with the visual muzzle point of the current weapon skin.
 			Handle<ClientPlayer> clientPlayer = clientPlayers[player.GetId()];
 			muzzlePos = isFirstPerson ? clientPlayer->GetMuzzlePositionInFirstPersonView()
-			                          : clientPlayer->GetMuzzlePosition();
+									  : clientPlayer->GetMuzzlePosition();
 
 			float vel;
 			bool shotgun = false;

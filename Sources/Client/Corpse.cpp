@@ -31,6 +31,7 @@
 using namespace std;
 
 DEFINE_SPADES_SETTING(cg_corpseLineCollision, "0");
+DEFINE_SPADES_SETTING(cg_corpseDisableGravity, "0");
 
 SPADES_SETTING(cg_classicPlayerModels);
 
@@ -439,6 +440,9 @@ namespace spades {
 
 		void Corpse::Update(float dt) {
 			SPADES_MARK_FUNCTION();
+			
+			float gravityScale = cg_corpseDisableGravity ? 0.0F : 1.0F;
+			
 			float damp = 1.0F;
 			float damp2 = 1.0F;
 			if (dt > 0.0F) {
@@ -457,7 +461,7 @@ namespace spades {
 					node.vel.z -= dt * 6.0F; // buoyancy
 					node.vel *= damp;
 				} else {
-					node.vel.z += dt * 32.0F; // gravity
+					node.vel.z += gravityScale * dt * 32.0F; // gravity
 					node.vel.z *= damp2;
 				}
 
