@@ -355,7 +355,6 @@ namespace spades {
 			// twist the gun when strafing
 			Vector3 swingRot(0.0F, 0.0F, 0.0F);
 			swingRot.z += 2.0F * horizontalSwingSpring.position;
-			swingRot.z *= leftHanded ? -1.0F : 1.0F;
 			swingRot.x -= 2.0F * verticalSwingSpring.position;
 			mat = mat * CreateEulerAnglesMatrix(swingRot * sp);
 
