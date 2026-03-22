@@ -30,7 +30,7 @@
 
 using namespace std;
 
-DEFINE_SPADES_SETTING(r_corpseLineCollision, "1");
+DEFINE_SPADES_SETTING(cg_corpseLineCollision, "0");
 
 SPADES_SETTING(cg_classicPlayerModels);
 
@@ -423,7 +423,7 @@ namespace spades {
 			AngleSpring(Torso1, Torso2, Head, 0.5F, 1.0F, dt);
 			AngleSpring(Torso2, Torso1, Head, 0.5F, 1.0F, dt);
 
-			if (r_corpseLineCollision) {
+			if (cg_corpseLineCollision) {
 				LineCollision(Torso1, Torso2, dt);
 				LineCollision(Torso2, Torso3, dt);
 				LineCollision(Torso3, Torso4, dt);
