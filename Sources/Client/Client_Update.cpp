@@ -15,7 +15,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -244,8 +244,8 @@ namespace spades {
 					if (count != lastRespawnCount) {
 						if (count > 0 && count <= 3) {
 							Handle<IAudioChunk> c = (count == 1)
-							    ? audioDevice->RegisterSound("Sounds/Feedback/Beep1.opus")
-							    : audioDevice->RegisterSound("Sounds/Feedback/Beep2.opus");
+								? audioDevice->RegisterSound("Sounds/Feedback/Beep1.opus")
+								: audioDevice->RegisterSound("Sounds/Feedback/Beep2.opus");
 							AudioParam param;
 							param.volume = cg_respawnSoundGain;
 							audioDevice->PlayLocal(c.GetPointerOrNull(), param);
@@ -560,7 +560,7 @@ namespace spades {
 				// disable firing if the player is out of ammo
 				if (weapon.GetAmmo() == 0)
 					winp.primary = false;
-				
+
 				// disable weapon while reloading (except for shotgun)
 				if (weapon.IsAwaitingReloadCompletion() && !isWeaponShotgun) {
 					winp.primary = false;
@@ -627,7 +627,7 @@ namespace spades {
 
 			// send position/orientaion updates
 			{
-				float POSITION_UPDATE_RATE = 1.0F;             // 1/s
+				float POSITION_UPDATE_RATE = 1.0F;			   // 1/s
 				float ORIENTATION_UPDATE_RATE = 1.0F / 120.0F; // 120/s
 
 				Vector3 curPos = player.GetPosition();
@@ -651,7 +651,7 @@ namespace spades {
 			if (player.IsToolBlock() && player.IsBlockCursorDragging()) {
 				if (player.IsBlockCursorActive()) {
 					int blocks = world->CubeLineCount(player.GetBlockCursorDragPos(),
-					                                  player.GetBlockCursorPos());
+													  player.GetBlockCursorPos());
 					auto msg = _TrN("Client", "{0} block", "{0} blocks", blocks);
 					auto type = (blocks > player.GetNumBlocks())
 						? AlertType::Warning : AlertType::Notice;
@@ -755,12 +755,12 @@ namespace spades {
 				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Weapons/DryFire.opus");
 				if (p.IsLocalPlayer())
 					audioDevice->PlayLocal(c.GetPointerOrNull(), MakeVector3(0.4F, -0.3F, 0.5F),
-					                       AudioParam());
+										   AudioParam());
 				else
 					audioDevice->Play(c.GetPointerOrNull(),
-					                  p.GetEye() + p.GetFront() * 0.5F - p.GetUp() * 0.3F +
-					                    p.GetRight() * 0.4F,
-					                  AudioParam());
+									  p.GetEye() + p.GetFront() * 0.5F - p.GetUp() * 0.3F +
+										p.GetRight() * 0.4F,
+									  AudioParam());
 			}
 		}
 
@@ -785,9 +785,9 @@ namespace spades {
 			if (!IsMuted()) {
 				Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Weapons/Switch.opus");
 				audioDevice->Play(c.GetPointerOrNull(),
-				                  p.GetEye() + p.GetFront() * 0.5F - p.GetUp() * 0.3F +
-				                    p.GetRight() * 0.4F,
-				                  AudioParam());
+								  p.GetEye() + p.GetFront() * 0.5F - p.GetUp() * 0.3F +
+									p.GetRight() * 0.4F,
+								  AudioParam());
 			}
 		}
 
@@ -863,7 +863,7 @@ namespace spades {
 		}
 
 		void Client::PlayerHitBlockWithSpade(spades::client::Player& p, Vector3 hitPos,
-		                                     IntVector3 blockPos, IntVector3 normal) {
+											 IntVector3 blockPos, IntVector3 normal) {
 			SPADES_MARK_FUNCTION();
 
 			if (IsInFirstPersonView(p.GetId()))
@@ -887,12 +887,12 @@ namespace spades {
 				Vector3 shiftedHitPos = origin + (MakeVector3(normal) * 0.6F);
 
 				uint32_t col = map->GetColor(blockPos.x, blockPos.y, blockPos.z);
-				
+
 				// apply block darkening
 				int health = col >> 24;
 				uint32_t f = (std::max(health, 32) << 8) / 100;
 				col = DarkenColor(col, f);
-				
+
 				col = map->GetColorJit(col); // randomize color
 				EmitBlockFragments(shiftedHitPos, IntVectorFromColor(col));
 
@@ -1088,8 +1088,8 @@ namespace spades {
 			// log to netlog
 			if (killerId != victimId) {
 				NetLog("%s (%s) [%s] %s (%s)", killer.GetName().c_str(),
-				       killer.GetTeamName().c_str(), cause.c_str(),
-				       victim.GetName().c_str(), victim.GetTeamName().c_str());
+					   killer.GetTeamName().c_str(), cause.c_str(),
+					   victim.GetName().c_str(), victim.GetTeamName().c_str());
 			} else {
 				NetLog("%s (%s) [%s]", killer.GetName().c_str(),
 					killer.GetTeamName().c_str(), cause.c_str());
@@ -1165,40 +1165,39 @@ namespace spades {
 		}
 
 		void Client::BulletHitPlayer(spades::client::Player& hurtPlayer, HitType type,
-		                             spades::Vector3 hitPos, spades::client::Player& by,
-		                             std::unique_ptr<IBulletHitScanState>& stateCell) {
+									 spades::Vector3 hitPos, spades::client::Player& by,
+									 std::unique_ptr<IBulletHitScanState>& stateCell) {
 			SPADES_MARK_FUNCTION();
 
 			SPAssert(type != HitTypeBlock);
 
-			bool const byLocalPlayer = by.IsLocalPlayer();
+			const bool byLocalPlayer = by.IsLocalPlayer();
+			const bool isMeleeHit = type == HitTypeMelee;
 
 			// spatter blood
 			if ((int)cg_blood >= 2) {
 				Vector3 dir = by.GetEye() - hitPos;
-				float dist = dir.GetLength();
+				float distSqr = dir.GetSquaredLength();
 				dir = dir.Normalize();
 
 				float frontSpeed = 8.0F;
 				float backSpeed = 0.0F;
 
-				if (type == HitTypeMelee) {
-					// Blunt
+				if (isMeleeHit) { // Blunt
 					frontSpeed = 1.5F;
 				} else {
 					switch (by.GetWeapon().GetWeaponType()) {
-						case RIFLE_WEAPON:
-							// Penetrating
+						case RIFLE_WEAPON: // Penetrating
 							frontSpeed = 1.0F;
 							backSpeed = 21.0F;
 							break;
-						case SMG_WEAPON:
-							if (dist < 20.0F * SampleRandomFloat()) {
-								// Penetrating
+						case SMG_WEAPON: { // Penetrating
+							float rnd = 20.0F * SampleRandomFloat();
+							if (distSqr < rnd * rnd) {
 								frontSpeed = 1.0F;
 								backSpeed = 12.0F;
 							}
-							break;
+						} break;
 						default: break;
 					}
 				}
@@ -1227,6 +1226,7 @@ namespace spades {
 			struct BulletHitScanState : IBulletHitScanState {
 				bool hasPlayedNormalHitSound = false;
 				bool hasPlayedHeadshotSound = false;
+				 std::unordered_map<int, DamageIndicator*> indicatorByPlayer;
 			};
 
 			if (!stateCell)
@@ -1239,7 +1239,7 @@ namespace spades {
 				AudioParam param;
 
 				if (!IsMuted()) {
-					if (type == HitTypeMelee) {
+					if (isMeleeHit) {
 						c = audioDevice->RegisterSound("Sounds/Weapons/Spade/HitPlayer.opus");
 						audioDevice->Play(c.GetPointerOrNull(), hitPos, param);
 					} else {
@@ -1267,17 +1267,41 @@ namespace spades {
 				net->SendHit(hurtPlayer.GetId(), type);
 
 				// register bullet hits
-				if (type != HitTypeMelee)
+				if (!isMeleeHit)
 					weaponStats.hits[by.GetWeaponType()]++;
 
-				if ((bool)cg_damageIndicators && type != HitTypeMelee) {
-					DamageIndicator damages;
-					damages.damage = by.GetWeapon().GetDamage(type);
-					damages.fade = 2.0F;
-					damages.position = hitPos;
-					damages.velocity = RandomVector() * 4.0F;
-					damages.velocity.z = -2.0F;
-					damageIndicators.push_back(damages);
+				if ((bool)cg_damageIndicators && !isMeleeHit) {
+					int dmg = by.GetWeapon().GetDamage(type);
+					auto& indicator = hitScanState.indicatorByPlayer[hurtPlayer.GetId()];
+					if (indicator) {
+						indicator->damage += dmg;
+						if (!indicator->crit && indicator->damage >= 100) {
+							indicator->crit = true;
+							indicator->velocity.x = 0.0F;
+							indicator->velocity.y = 0.0F;
+							indicator->velocity.z = -2.0F;
+						}
+						indicator->fade = indicator->crit ? 2.0F : 1.5F;
+						indicator->lastHitTime = time;
+					} else {
+						DamageIndicator damages;
+						damages.damage = dmg;
+						damages.playerId = hurtPlayer.GetId();
+						damages.position = hitPos;
+						damages.crit = dmg >= 100;
+						if (damages.crit) {
+							damages.velocity.x = 0.0F;
+							damages.velocity.y = 0.0F;
+						} else {
+							damages.velocity = RandomVector() * 4.0F;
+						}
+						damages.velocity.z = -2.0F;
+						damages.fade = damages.crit ? 2.0F : 1.5F;
+						damages.lastHitTime = time;
+
+						damageIndicators.push_back(damages);
+						indicator = &damageIndicators.back();
+					}
 				}
 
 				if ((bool)cg_hitLog) {
@@ -1316,7 +1340,7 @@ namespace spades {
 					str += "]";
 
 					// add hit count
-					if (type != HitTypeMelee) {
+					if (!isMeleeHit) {
 						int hits = 0;
 						switch (type) {
 							case HitTypeTorso: hits = ++hitStats.numBodyHits; break;

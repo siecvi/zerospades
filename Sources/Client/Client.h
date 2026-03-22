@@ -15,7 +15,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -198,10 +198,14 @@ namespace spades {
 
 			struct DamageIndicator {
 				int damage;
+				int playerId;
 				float fade;
+				float lastHitTime;
 				Vector3 position;
 				Vector3 velocity;
-				DamageIndicator() : damage(0) {}
+				bool crit;
+				DamageIndicator() : damage(0), playerId(-1),
+					fade(0.0F), lastHitTime(0.0F), crit(false) {}
 			};
 			std::list<DamageIndicator> damageIndicators;
 
@@ -213,15 +217,15 @@ namespace spades {
 			 *
 			 * The following factors are considered by this function:
 			 *
-			 *  - The player cannot use a tool while / soon after sprinting.
-			 *  - The player cannot use a tool while switching tools.
-			 *  - The player must exist and be alive to use a tool.
+			 *	- The player cannot use a tool while / soon after sprinting.
+			 *	- The player cannot use a tool while switching tools.
+			 *	- The player must exist and be alive to use a tool.
 			 *
 			 * The following factors also affect whether a tool can actually be used, but they
 			 * do not affect the result of this function:
 			 *
-			 *  - Tool-specific status — e.g., out of ammo, out of block, "cannot build there"
-			 *  - Firing rate limit imposed by the tool
+			 *	- Tool-specific status — e.g., out of ammo, out of block, "cannot build there"
+			 *	- Firing rate limit imposed by the tool
 			 */
 			bool CanLocalPlayerUseTool();
 			bool CanLocalPlayerUseWeapon();
@@ -436,7 +440,7 @@ namespace spades {
 
 			/**
 			 * Called when `IsFirstPerson(GetCameraMode()).` Renders the follwing element:
-			 *  - The center reticule
+			 *	- The center reticule
 			 */
 			void DrawFirstPersonHUD();
 

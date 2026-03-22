@@ -1252,7 +1252,8 @@ namespace spades {
 		void Client::DrawDamageIndicators() {
 			SPADES_MARK_FUNCTION();
 
-			IFont& font = fontManager->GetGuiFont();
+			IFont& mediumFont = fontManager->GetMediumFont();
+			IFont& guiFont = fontManager->GetGuiFont();
 
 			for (const auto& dmg : damageIndicators) {
 				float fade = dmg.fade;
@@ -1261,8 +1262,11 @@ namespace spades {
 
 				Vector2 scrPos;
 				if (Project(dmg.position, scrPos)) {
+					bool crit = dmg.crit;
+					IFont& font = crit ? mediumFont : guiFont;
+
 					int damage = dmg.damage;
-					auto damageStr = "-" + ToString(damage);
+					auto damageStr = ToString(damage);
 					Vector2 size = font.Measure(damageStr);
 					scrPos -= size * 0.5F;
 
@@ -1270,10 +1274,17 @@ namespace spades {
 					scrPos.x = floorf(scrPos.x);
 					scrPos.y = floorf(scrPos.y);
 
-					float per = 1.0F - (damage / 100.0F);
-					font.Draw(damageStr, scrPos + MakeVector2(1, 1), 1.0F,
-							  MakeVector4(0, 0, 0, 0.25F * fade));
-					font.Draw(damageStr, scrPos, 1.0F, MakeVector4(1, per, per, fade));
+					float per = Clamp(damage / 100.0F, 0.0F, 1.0F);
+					Vector4 shadow = MakeVector4(0, 0, 0, 0.4F * fade);
+					Vector4 color = MakeVector4(1.0F, 1.0F - per, 0.0F, fade);
+
+					if (crit) {
+						float pulse = (sinf((time - dmg.lastHitTime) * 10.0F) * 0.5F) + 0.5F;
+						color = MakeVector4(1.0F, pulse * 0.8F, pulse * 0.2F, fade);
+					}
+
+					font.DrawShadow(damageStr, scrPos + MakeVector2(1, 1), 1.0F, shadow, shadow);
+					font.Draw(damageStr, scrPos, 1.0F, color);
 				}
 			}
 		}
