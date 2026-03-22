@@ -171,7 +171,7 @@ namespace spades {
 			 * Return a non-null reference to `GameProperties` for this connection.
 			 * Must be the connected state.
 			 */
-			std::shared_ptr<GameProperties>& GetGameProperties() override {
+			const std::shared_ptr<GameProperties>& GetGameProperties() override {
 				SPAssert(properties);
 				return properties;
 			}

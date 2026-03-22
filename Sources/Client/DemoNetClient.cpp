@@ -173,7 +173,7 @@ namespace spades {
 
 					int type = reader.GetType();
 					if (type == PacketTypeMapChunk) {
-						std::vector<char> dt = reader.GetData();
+						const std::vector<char>& dt = reader.GetData();
 						size_t chunkSize = dt.size() - 1;
 						receivedMapBytes += chunkSize;
 						mapLoader->AddRawChunk(dt.data() + 1, chunkSize);

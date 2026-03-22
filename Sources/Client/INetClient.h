@@ -55,7 +55,7 @@ namespace spades {
 			virtual NetClientStatus GetStatus() = 0;
 			virtual std::string GetStatusString() = 0;
 			virtual float GetMapReceivingProgress() = 0;
-			virtual std::shared_ptr<GameProperties>& GetGameProperties() = 0;
+			virtual const std::shared_ptr<GameProperties>& GetGameProperties() = 0;
 
 			// ── Event loop ──────────────────────────────────────────────────
 			// dt is the frame delta-time in seconds. NetClient uses it to pick a poll timeout;

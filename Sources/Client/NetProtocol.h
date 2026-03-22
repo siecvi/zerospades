@@ -119,10 +119,10 @@ namespace spades {
 			explicit NetPacketReader(std::vector<char> inData)
 			    : data(std::move(inData)), pos(1) {}
 
-			unsigned int GetTypeRaw() {
+			unsigned int GetTypeRaw() const {
 				return static_cast<unsigned int>(static_cast<uint8_t>(data[0]));
 			}
-			PacketType GetType() { return static_cast<PacketType>(GetTypeRaw()); }
+			PacketType GetType() const { return static_cast<PacketType>(GetTypeRaw()); }
 
 			uint32_t ReadInt() {
 				if (pos + 4 > data.size())
@@ -183,10 +183,10 @@ namespace spades {
 				return v;
 			}
 
-			std::size_t GetLength() { return data.size(); }
-			std::size_t GetPosition() { return pos; }
-			std::size_t GetNumRemainingBytes() { return data.size() - pos; }
-			std::vector<char> GetData() { return data; }
+			std::size_t GetLength() const { return data.size(); }
+			std::size_t GetPosition() const { return pos; }
+			std::size_t GetNumRemainingBytes() const { return data.size() - pos; }
+			const std::vector<char>& GetData() const { return data; }
 
 			std::string ReadData(size_t siz) {
 				if (pos + siz > data.size())
@@ -208,7 +208,7 @@ namespace spades {
 				return DecodeString(ReadRemainingData().c_str());
 			}
 
-			void DumpDebug() {
+			void DumpDebug() const {
 				char buf[512];
 				std::string str;
 				int bytes = (int)data.size();
