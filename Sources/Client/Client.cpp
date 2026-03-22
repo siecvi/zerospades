@@ -122,8 +122,6 @@ namespace spades {
 			  fontManager(fontManager),
 			  alertDisappearTime(-10000.0F),
 			  lastLocalCorpse(nullptr),
-			  corpseSoftLimit(6),
-			  corpseHardLimit(16),
 			  nextScreenShotIndex(0),
 			  nextMapShotIndex(0),
 			  staffSpectating(false),

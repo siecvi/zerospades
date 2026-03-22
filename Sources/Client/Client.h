@@ -386,12 +386,11 @@ namespace spades {
 			std::list<std::unique_ptr<ILocalEntity>> localEntities;
 			std::list<std::unique_ptr<Corpse>> corpses;
 			Corpse* lastLocalCorpse;
-			unsigned int corpseSoftLimit;
-			unsigned int corpseHardLimit;
+			void RemoveCorpses();
 			void RemoveAllCorpses();
 			void RemoveInvisibleCorpses();
-			void RemoveAllLocalEntities();
 			void RemoveCorpseForPlayer(int playerId);
+			void RemoveAllLocalEntities();
 
 			std::unique_ptr<BloodMarks> bloodMarks;
 

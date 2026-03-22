@@ -483,11 +483,7 @@ namespace spades {
 							auto corp = stmp::make_unique<Corpse>(*renderer, *map, p);
 							corp->AddImpulse(p.GetFront() * 32.0F);
 							corpses.emplace_back(std::move(corp));
-
-							if (corpses.size() > corpseHardLimit)
-								corpses.pop_front();
-							else if (corpses.size() > corpseSoftLimit)
-								RemoveInvisibleCorpses();
+							RemoveCorpses();
 						}
 					}
 				} else {
@@ -660,7 +656,7 @@ namespace spades {
 						// fallback to local player if the last player being followed doesn't exist
 						if (!world->GetPlayer(followedPlayerId))
 							followedPlayerId = p.GetId();
-						
+
 						followCameraState.firstPerson = true; // force firstperson
 						followCameraState.enabled = true;
 					}

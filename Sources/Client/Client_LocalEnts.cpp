@@ -15,7 +15,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -50,6 +50,9 @@ DEFINE_SPADES_SETTING(cg_particlesBloodNum, "4");
 DEFINE_SPADES_SETTING(cg_particlesGrenadeNum, "64");
 DEFINE_SPADES_SETTING(cg_waterImpact, "1");
 
+DEFINE_SPADES_SETTING(cg_corpseSoftLimit, "6");
+DEFINE_SPADES_SETTING(cg_corpseHardLimit, "16");
+
 SPADES_SETTING(cg_manualFocus);
 DEFINE_SPADES_SETTING(cg_autoFocusSpeed, "0.4");
 
@@ -58,6 +61,16 @@ namespace spades {
 
 #pragma mark - Local Entities / Effects
 
+		void Client::RemoveCorpses() {
+			SPADES_MARK_FUNCTION();
+
+			int numCorpses = static_cast<int>(corpses.size());
+			if (numCorpses > (int)cg_corpseHardLimit)
+				corpses.pop_front();
+			else if (numCorpses > (int)cg_corpseSoftLimit)
+				RemoveInvisibleCorpses();
+		}
+
 		void Client::RemoveAllCorpses() {
 			SPADES_MARK_FUNCTION();
 
@@ -65,20 +78,13 @@ namespace spades {
 			lastLocalCorpse = nullptr;
 		}
 
-		void Client::RemoveAllLocalEntities() {
-			SPADES_MARK_FUNCTION();
-
-			damageIndicators.clear();
-			localEntities.clear();
-			bloodMarks->Clear();
-		}
-
 		void Client::RemoveInvisibleCorpses() {
 			SPADES_MARK_FUNCTION();
 
+			int cnt = (int)corpses.size() - (int)cg_corpseSoftLimit;
+
 			decltype(corpses)::iterator it;
 			std::vector<decltype(it)> its;
-			int cnt = (int)corpses.size() - corpseSoftLimit;
 			for (it = corpses.begin(); it != corpses.end(); it++) {
 				if (cnt <= 0)
 					break;
@@ -88,9 +94,8 @@ namespace spades {
 					if (c.get() == lastLocalCorpse)
 						lastLocalCorpse = nullptr;
 					its.push_back(it);
+					cnt--;
 				}
-
-				cnt--;
 			}
 
 			for (const auto& it : its)
@@ -106,6 +111,14 @@ namespace spades {
 				if (c->GetPlayerId() == playerId)
 					corpses.erase(cur);
 			}
+		}
+
+		void Client::RemoveAllLocalEntities() {
+			SPADES_MARK_FUNCTION();
+
+			damageIndicators.clear();
+			localEntities.clear();
+			bloodMarks->Clear();
 		}
 
 		stmp::optional<std::tuple<Player&, hitTag_t>> Client::HotTrackedPlayer() {
@@ -433,8 +446,8 @@ namespace spades {
 			for (int i = 0; i < 8; i++) {
 				auto ent = stmp::make_unique<SmokeSpriteEntity>(*this, color, 30.0F);
 				ent->SetTrajectory(pos, (MakeVector3(SampleRandomFloat() - SampleRandomFloat(),
-				               SampleRandomFloat() - SampleRandomFloat(),
-				               (SampleRandomFloat() - SampleRandomFloat()) * 0.2F)) * 2.0F, 1.0F, 0.0F);
+							   SampleRandomFloat() - SampleRandomFloat(),
+							   (SampleRandomFloat() - SampleRandomFloat()) * 0.2F)) * 2.0F, 1.0F, 0.0F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 				ent->SetRadius(1.5F + SampleRandomFloat() * SampleRandomFloat() * 0.8F, 0.2F);
 				switch (particleLevel) {
@@ -515,8 +528,8 @@ namespace spades {
 			for (int i = 0; i < 16; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				ent->SetTrajectory(pos, (MakeVector3(SampleRandomFloat() - SampleRandomFloat(),
-				                                     SampleRandomFloat() - SampleRandomFloat(),
-				                                     -SampleRandomFloat() * 7.0F)) * 3.5F);
+													 SampleRandomFloat() - SampleRandomFloat(),
+													 -SampleRandomFloat() * 7.0F)) * 3.5F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 				ent->SetRadius(0.6F + SampleRandomFloat() * SampleRandomFloat() * 0.3F, 0.5F);
 				ent->SetLifeTime(2.0F + SampleRandomFloat() * 0.3F, 0.1F, 0.2F);
@@ -529,8 +542,8 @@ namespace spades {
 			for (int i = 0; i < 4; i++) {
 				auto ent = stmp::make_unique<SmokeSpriteEntity>(*this, color, 10.0F);
 				ent->SetTrajectory(pos, (MakeVector3(SampleRandomFloat() - SampleRandomFloat(),
-				               SampleRandomFloat() - SampleRandomFloat(),
-				               (SampleRandomFloat() - SampleRandomFloat()) * 0.2F)) * 2.0F, 1.0F, 0.0F);
+							   SampleRandomFloat() - SampleRandomFloat(),
+							   (SampleRandomFloat() - SampleRandomFloat()) * 0.2F)) * 2.0F, 1.0F, 0.0F);
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 				ent->SetRadius(1.5F + SampleRandomFloat() * SampleRandomFloat() * 0.6F, 0.2F);
 				ent->SetLifeTime(2.0F + SampleRandomFloat() * 0.3F, 0.2F, 1.5F);
@@ -577,8 +590,8 @@ namespace spades {
 			for (int i = 0; i < 2; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				ent->SetTrajectory(pos, (MakeVector3(SampleRandomFloat() - SampleRandomFloat(),
-				                                SampleRandomFloat() - SampleRandomFloat(),
-				                                -SampleRandomFloat() * 7.0F)), 0.3F, 0.6F);
+												SampleRandomFloat() - SampleRandomFloat(),
+												-SampleRandomFloat() * 7.0F)), 0.3F, 0.6F);
 				ent->SetRadius(0.6F + SampleRandomFloat() * SampleRandomFloat() * 0.4F, 0.7F);
 				ent->SetBlockHitAction(BlockHitAction::Ignore);
 				ent->SetLifeTime(3.0F + SampleRandomFloat() * 0.3F, 0.1F, 0.6F);
@@ -591,8 +604,8 @@ namespace spades {
 			for (int i = 0; i < 6; i++) {
 				auto ent = stmp::make_unique<ParticleSpriteEntity>(*this, img, color);
 				ent->SetTrajectory(pos, (MakeVector3(SampleRandomFloat() - SampleRandomFloat(),
-				                                SampleRandomFloat() - SampleRandomFloat(),
-				                                -SampleRandomFloat() * 16.0F)));
+												SampleRandomFloat() - SampleRandomFloat(),
+												-SampleRandomFloat() * 16.0F)));
 				ent->SetRotation(SampleRandomFloat() * M_PI_F * 2.0F);
 				ent->SetRadius(0.6F + SampleRandomFloat() * SampleRandomFloat() * 0.6F, 0.6F);
 				ent->SetBlockHitAction(BlockHitAction::Ignore);
@@ -675,9 +688,9 @@ namespace spades {
 					std::sort(distances, distances + numValidDistances);
 
 					float dist = (numValidDistances & 1)
-					               ? distances[numValidDistances >> 1]
-					               : (distances[numValidDistances >> 1] +
-					                  distances[(numValidDistances >> 1) - 1]) * 0.5F;
+								   ? distances[numValidDistances >> 1]
+								   : (distances[numValidDistances >> 1] +
+									  distances[(numValidDistances >> 1) - 1]) * 0.5F;
 
 					targetFocalLength = dist;
 				}

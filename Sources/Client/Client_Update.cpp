@@ -1160,10 +1160,7 @@ namespace spades {
 					lastLocalCorpse = corp.get();
 
 				corpses.emplace_back(std::move(corp));
-				if (corpses.size() > corpseHardLimit)
-					corpses.pop_front();
-				else if (corpses.size() > corpseSoftLimit)
-					RemoveInvisibleCorpses();
+				RemoveCorpses();
 			}
 		}
 
