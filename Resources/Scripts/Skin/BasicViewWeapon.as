@@ -349,7 +349,7 @@ namespace spades {
 			// recoil animation
 			if (readyState < 1.0F) {
 				float per = SmoothStep(1.0F - readyState);
-				mat = CreateTranslateMatrix(Vector3(-0.25F * weapSide * sp, -0.5F, 0.25F * sp) * 0.1F * per) * mat;
+				mat = CreateTranslateMatrix(Vector3(-0.25F * sp, -0.5F, 0.25F * sp) * 0.1F * per) * mat;
 				mat = CreateRotateMatrix(Vector3(-1, 0, 0), (0.05F * per) * sp) * mat;
 			}
 
