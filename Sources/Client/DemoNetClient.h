@@ -52,7 +52,7 @@ namespace spades {
 			int protocolVersion;
 
 			// Packet handling state (mirrors NetClient)
-			std::vector<std::vector<char>> savedPackets;
+			std::vector<std::vector<char>> preMapPackets;
 			std::vector<Vector3> savedPlayerPos;
 			std::vector<Vector3> savedPlayerFront;
 			std::vector<int> savedPlayerTeam;

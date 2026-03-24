@@ -193,7 +193,7 @@ namespace spades {
 						HandleGamePacket(reader);
 					} else {
 						// Save packet for later processing
-						savedPackets.push_back(reader.GetData());
+						preMapPackets.push_back(reader.GetData());
 					}
 				} else if (status == NetClientStatusConnected) {
 					HandleGamePacket(reader);
@@ -869,19 +869,19 @@ namespace spades {
 
 			SPAssert(GetWorld());
 
-			SPLog("Processing %d saved demo packets...", (int)savedPackets.size());
+			SPLog("Processing %d saved demo packets...", (int)preMapPackets.size());
 
 			std::fill(savedPlayerTeam.begin(), savedPlayerTeam.end(), -1);
 
 			try {
-				for (const auto& packets : savedPackets) {
+				for (const auto& packets : preMapPackets) {
 					NetPacketReader r(packets);
 					HandleGamePacket(r);
 				}
-				savedPackets.clear();
+				preMapPackets.clear();
 				SPLog("Demo packets processed.");
 			} catch (...) {
-				savedPackets.clear();
+				preMapPackets.clear();
 				throw;
 			}
 

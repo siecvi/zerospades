@@ -154,6 +154,9 @@ namespace spades {
 				return false;
 			}
 
+			// All data is preloaded; release the file handle.
+			file.close();
+
 			return true;
 		}
 
