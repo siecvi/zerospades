@@ -18,6 +18,8 @@
 
  */
 
+#include <algorithm>
+
 #include "DemoPlayer.h"
 #include <Core/Debug.h>
 
@@ -190,13 +192,12 @@ namespace spades {
 			playbackTime = std::max(0.0f, std::min(time, duration));
 			finished = false;
 
-			// Find the packet index for the new time
-			currentPacketIndex = 0;
-			for (size_t i = 0; i < packets.size(); i++) {
-				if (packets[i].timestamp > playbackTime)
-					break;
-				currentPacketIndex = i;
-			}
+			// Find the first packet with timestamp > playbackTime (O(log n)).
+			// Update() will start dispatching from this index, so no packet
+			// at or before the seek point gets re-dispatched.
+			auto it = std::upper_bound(packets.begin(), packets.end(), playbackTime,
+			    [](float t, const DemoPacket& p) { return t < p.timestamp; });
+			currentPacketIndex = static_cast<size_t>(std::distance(packets.begin(), it));
 		}
 
 		void DemoPlayer::FastForward(float seconds) {
