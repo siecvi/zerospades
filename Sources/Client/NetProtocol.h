@@ -43,7 +43,7 @@ namespace spades {
 			PacketTypeWorldUpdate = 2,     // S2C
 			PacketTypeInputData = 3,       // C2S2P
 			PacketTypeWeaponInput = 4,     // C2S2P
-			PacketTypeHitPacket = 5,       // C2S
+			PacketTypeHitPacket = 5,       // C2S  (same wire value as SetHP — direction distinguishes them)
 			PacketTypeSetHP = 5,           // S2C
 			PacketTypeGrenadePacket = 6,   // C2S2P
 			PacketTypeSetTool = 7,         // C2S2P
@@ -70,7 +70,7 @@ namespace spades {
 			PacketTypeWeaponReload = 28,   // C2S2P
 			PacketTypeChangeTeam = 29,     // C2S2P
 			PacketTypeChangeWeapon = 30,   // C2S2P
-			PacketTypeMapCached = 31,      // S2C
+			PacketTypeMapCached = 31,      // S2C  (same wire value as HandShakeInit — used in different protocol versions)
 			PacketTypeHandShakeInit = 31,  // S2C
 			PacketTypeHandShakeReturn = 32, // C2S
 			PacketTypeVersionGet = 33,     // S2C
