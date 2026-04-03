@@ -49,7 +49,6 @@ namespace spades {
 			std::unique_ptr<GameMapLoader> mapLoader;
 			std::shared_ptr<GameProperties> properties;
 			std::string statusString;
-			int protocolVersion;
 
 			// Packet handling state (mirrors NetClient)
 			std::vector<std::vector<char>> preMapPackets;

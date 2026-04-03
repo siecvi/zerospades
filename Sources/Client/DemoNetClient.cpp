@@ -84,7 +84,7 @@ namespace spades {
 
 
 		DemoNetClient::DemoNetClient(Client* c) : client(c), status(NetClientStatusNotConnected),
-		    protocolVersion(0), expectedMapSize(0), receivedMapBytes(0),
+		    expectedMapSize(0), receivedMapBytes(0),
 		    recordedLocalPlayerId(-1), seekingMode(false) {
 			SPADES_MARK_FUNCTION();
 
@@ -114,17 +114,15 @@ namespace spades {
 				return false;
 			}
 
-			protocolVersion = demoPlayer->GetProtocolVersion();
-
 			// Create game properties based on protocol version
-			ProtocolVersion protoVer = (protocolVersion == 4)
+			ProtocolVersion protoVer = (demoPlayer->GetProtocolVersion() == 4)
 				? ProtocolVersion::v076 : ProtocolVersion::v075;
 			properties.reset(new GameProperties(protoVer));
 
 			status = NetClientStatusConnecting;
 			statusString = _Tr("NetClient", "Loading demo");
 
-			SPLog("Opened demo: %s (protocol %d)", filename.c_str(), protocolVersion);
+			SPLog("Opened demo: %s (protocol %d)", filename.c_str(), demoPlayer->GetProtocolVersion());
 			return true;
 		}
 
@@ -268,7 +266,7 @@ namespace spades {
 				} break;
 				case PacketTypeWorldUpdate: {
 					int bytesPerEntry = 24;
-					if (protocolVersion == 4)
+					if (demoPlayer->GetProtocolVersion() == 4)
 						bytesPerEntry++;
 
 					if (!seekingMode)
@@ -277,7 +275,7 @@ namespace spades {
 					int entries = static_cast<int>(r.GetLength() / bytesPerEntry);
 					for (int i = 0; i < entries; i++) {
 						int idx = i;
-						if (protocolVersion == 4) {
+						if (demoPlayer->GetProtocolVersion() == 4) {
 							idx = r.ReadByte();
 							if (idx < 0 || idx >= properties->GetMaxNumPlayerSlots())
 								SPRaise("Invalid player ID %d in WorldUpdate", idx);
