@@ -1147,7 +1147,7 @@ namespace spades {
 					if (kt == KillTypeHeadshot || kt == KillTypeMelee)
 						corp->AddHeadImpulse(dir * 4.0F);
 
-					if (cg_corpseDisableGravity) {
+					if (!victim.IsLocalPlayer() && cg_corpseDisableGravity) {
 						dir *= 2.0F;
 						corp->AddImpulse(MakeVector3(0, 0, -2.0F));
 					}

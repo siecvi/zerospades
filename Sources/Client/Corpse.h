@@ -65,6 +65,7 @@ namespace spades {
 			int playerId;
 			Vector3 color;
 			std::string weaponName;
+			bool isLocalPlayer;
 
 			Node nodes[NodeCount];
 			Edge edges[8];

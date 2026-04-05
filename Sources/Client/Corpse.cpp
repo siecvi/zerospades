@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -38,12 +38,13 @@ SPADES_SETTING(cg_classicPlayerModels);
 namespace spades {
 	namespace client {
 		Corpse::Corpse(IRenderer& renderer, GameMap& map, Player& p)
-		    : renderer{renderer}, map{map} {
+			: renderer{renderer}, map{map} {
 			SPADES_MARK_FUNCTION();
 
 			playerId = p.GetId();
 			color = ConvertColorRGB(p.GetColor());
 			weaponName = p.GetWeapon().GetName();
+			isLocalPlayer = p.IsLocalPlayer();
 
 			Vector3 o = p.GetFront();
 
@@ -170,7 +171,7 @@ namespace spades {
 		}
 
 		void Corpse::AngleSpring(NodeType base, NodeType n1id, NodeType n2id, float minDot,
-		                         float maxDot, float dt) {
+								 float maxDot, float dt) {
 			Node& nBase = nodes[base];
 			Node& n1 = nodes[n1id];
 			Node& n2 = nodes[n2id];
@@ -213,7 +214,7 @@ namespace spades {
 			nBase.vel -= a1 + a2;
 		}
 		void Corpse::AngleSpring(NodeType n1id, NodeType n2id, Vector3 dir, float minDot,
-		                         float maxDot, float dt) {
+								 float maxDot, float dt) {
 			Node& n1 = nodes[n1id];
 			Node& n2 = nodes[n2id];
 			Vector3 diff = n2.pos - n1.pos;
@@ -249,7 +250,7 @@ namespace spades {
 		static float fractf(float v) { return v - floorf(v); }
 
 		static void CheckEscape(GameMap& map, IntVector3 hitBlock, Vector3 a, Vector3 b,
-		                        IntVector3 dir, float& bestDist, IntVector3& bestDir) {
+								IntVector3 dir, float& bestDist, IntVector3& bestDir) {
 			hitBlock += dir;
 			IntVector3 aa = a.Floor() + dir;
 			IntVector3 bb = b.Floor() + dir;
@@ -306,12 +307,12 @@ namespace spades {
 
 				// really hit?
 				if (Vector3::Dot(res1.hitPos - n1.lastPos, n2.lastPos - n1.lastPos) >
-				    (n2.pos - n1.pos).GetSquaredLength())
+					(n2.pos - n1.pos).GetSquaredLength())
 					return;
 				if (Vector3::Dot(res1.hitPos - n1.lastPos, n2.lastPos - n1.lastPos) < 0.0F)
 					return;
 				if (Vector3::Dot(res2.hitPos - n2.lastPos, n1.lastPos - n2.lastPos) >
-				    (n2.pos - n1.pos).GetSquaredLength())
+					(n2.pos - n1.pos).GetSquaredLength())
 					return;
 				if (Vector3::Dot(res2.hitPos - n2.lastPos, n1.lastPos - n2.lastPos) < 0.0F)
 					return;
@@ -440,11 +441,13 @@ namespace spades {
 
 		void Corpse::Update(float dt) {
 			SPADES_MARK_FUNCTION();
-			
-			float gravityScale = cg_corpseDisableGravity ? 0.0F : 1.0F;
-			
+
+			bool disableGravity = !isLocalPlayer && cg_corpseDisableGravity;
+			float gravityScale = disableGravity ? 0.0F : 1.0F;
+
 			float damp = 1.0F;
 			float damp2 = 1.0F;
+
 			if (dt > 0.0F) {
 				damp = powf(0.9F, dt);
 				damp2 = powf(0.371F, dt);
@@ -461,7 +464,7 @@ namespace spades {
 					node.vel.z -= dt * 6.0F; // buoyancy
 					node.vel *= damp;
 				} else {
-					node.vel.z += gravityScale * dt * 32.0F; // gravity
+					node.vel.z += dt * 32.0F * gravityScale; // gravity
 					node.vel.z *= damp2;
 				}
 
