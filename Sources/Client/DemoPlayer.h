@@ -147,28 +147,18 @@ namespace spades {
 			const std::string& GetFilename() const { return filename; }
 
 			/**
-			 * @return Total number of packets in the demo
-			 */
-			size_t GetPacketCount() const { return packets.size(); }
-
-			/**
 			 * @return Current packet index
 			 */
 			size_t GetCurrentPacketIndex() const { return currentPacketIndex; }
 
 			/**
-			 * Gets a packet by index.
-			 * @param index Packet index
-			 * @return Packet data, or empty vector if index is out of range
+			 * Calls handler for every packet whose timestamp is <= targetTime, in order.
+			 * Does NOT modify playbackTime, currentPacketIndex, or paused state; safe to
+			 * call during a backward-seek reset without disrupting normal playback state.
+			 * @param targetTime Upper bound (inclusive) on packet timestamps to replay
+			 * @param handler    Callback invoked for each matching packet
 			 */
-			const std::vector<char>& GetPacket(size_t index) const;
-
-			/**
-			 * Gets the timestamp of a packet by index.
-			 * @param index Packet index
-			 * @return Timestamp in seconds, or 0 if index is out of range
-			 */
-			float GetPacketTimestamp(size_t index) const;
+			void ReplayUpTo(float targetTime, const PacketHandler& handler) const;
 
 			/**
 			 * Resets playback to the beginning.
