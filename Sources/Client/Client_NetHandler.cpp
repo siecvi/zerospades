@@ -15,7 +15,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -44,7 +44,7 @@
 
 #include "NetClient.h"
 
-DEFINE_SPADES_SETTING(cg_clearCorpseOnRespawn, "0");
+DEFINE_SPADES_SETTING(cg_corpseClearOnRespawn, "0");
 DEFINE_SPADES_SETTING(cg_centerMessage, "2");
 DEFINE_SPADES_SETTING(cg_autoScreenshot, "0");
 
@@ -146,8 +146,8 @@ namespace spades {
 			stmp::optional<Player&> localplayer = world->GetLocalPlayer();
 			if (localplayer && !IsMuted()) {
 				Handle<IAudioChunk> c = (teamId == localplayer->GetTeamId())
-				    ? audioDevice->RegisterSound("Sounds/Feedback/TC/YourTeamCaptured.opus")
-				    : audioDevice->RegisterSound("Sounds/Feedback/TC/EnemyCaptured.opus");
+					? audioDevice->RegisterSound("Sounds/Feedback/TC/YourTeamCaptured.opus")
+					: audioDevice->RegisterSound("Sounds/Feedback/TC/EnemyCaptured.opus");
 				audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 			}
 		}
@@ -167,16 +167,16 @@ namespace spades {
 			}
 			{
 				msg = _Tr("Client", "{0} captured {1}'s intel",
-				          chatWindow->TeamColorMessage(p.GetName(), teamId),
-				          chatWindow->TeamColorMessage(teamName, otherTeamId));
+						  chatWindow->TeamColorMessage(p.GetName(), teamId),
+						  chatWindow->TeamColorMessage(teamName, otherTeamId));
 				chatWindow->AddMessage(msg);
 			}
 
 			stmp::optional<Player&> localplayer = world->GetLocalPlayer();
 			if (localplayer && !IsMuted()) {
 				Handle<IAudioChunk> c = (teamId == localplayer->GetTeamId())
-				    ? audioDevice->RegisterSound("Sounds/Feedback/CTF/YourTeamCaptured.opus")
-				    : audioDevice->RegisterSound("Sounds/Feedback/CTF/EnemyCaptured.opus");
+					? audioDevice->RegisterSound("Sounds/Feedback/CTF/YourTeamCaptured.opus")
+					: audioDevice->RegisterSound("Sounds/Feedback/CTF/EnemyCaptured.opus");
 				audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
 			}
 		}
@@ -196,8 +196,8 @@ namespace spades {
 			}
 			{
 				msg = _Tr("Client", "{0} picked up {1}'s intel",
-				          chatWindow->TeamColorMessage(p.GetName(), teamId),
-				          chatWindow->TeamColorMessage(teamName, otherTeamId));
+						  chatWindow->TeamColorMessage(p.GetName(), teamId),
+						  chatWindow->TeamColorMessage(teamName, otherTeamId));
 				chatWindow->AddMessage(msg);
 			}
 
@@ -223,8 +223,8 @@ namespace spades {
 			}
 			{
 				msg = _Tr("Client", "{0} dropped {1}'s intel",
-				          chatWindow->TeamColorMessage(p.GetName(), teamId),
-				          chatWindow->TeamColorMessage(teamName, otherTeamId));
+						  chatWindow->TeamColorMessage(p.GetName(), teamId),
+						  chatWindow->TeamColorMessage(teamName, otherTeamId));
 				chatWindow->AddMessage(msg);
 			}
 		}
@@ -355,7 +355,7 @@ namespace spades {
 		}
 
 		void Client::PlayerSpawned(Player& p) {
-			if (net->GetGameProperties()->isGameModeArena || cg_clearCorpseOnRespawn)
+			if (net->GetGameProperties()->isGameModeArena || cg_corpseClearOnRespawn)
 				RemoveCorpseForPlayer(p.GetId());
 		}
 
