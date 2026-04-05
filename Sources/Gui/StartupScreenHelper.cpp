@@ -15,7 +15,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -75,10 +75,10 @@ namespace spades {
 	namespace gui {
 
 		StartupScreenHelper::StartupScreenHelper()
-		    : scr(nullptr),
-		      shaderHighCapable(false),
-		      postFilterHighCapable(false),
-		      particleHighCapable(false) {
+			: scr(nullptr),
+			  shaderHighCapable(false),
+			  postFilterHighCapable(false),
+			  particleHighCapable(false) {
 			SPADES_MARK_FUNCTION();
 		}
 
@@ -123,7 +123,7 @@ namespace spades {
 					Json::Value root;
 					if (!reader.parse(buffer.c_str(), root, false)) {
 						SPRaise("Failed to parse LocaleInfo.json: %s",
-						        reader.getFormatedErrorMessages().c_str());
+								reader.getFormatedErrorMessages().c_str());
 					}
 
 					info.name = locale;
@@ -193,7 +193,7 @@ namespace spades {
 
 			bool capable = true;
 			SDL_Window* window = SDL_CreateWindow("OpenSpades: Please wait...", 1, 1, 1, 1,
-			                                      SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS);
+												  SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS);
 			if (window == nullptr)
 				SPLog("Failed to create SDL window: %s", SDL_GetError());
 			SDL_GLContext context = window ? SDL_GL_CreateContext(window) : nullptr;
@@ -303,20 +303,13 @@ namespace spades {
 					extensions = str;
 				const char* const requiredExtensions[] = {
 					"GL_ARB_multitexture",
-				    "GL_ARB_shader_objects",
-				    "GL_ARB_shading_language_100",
-				    "GL_ARB_texture_non_power_of_two",
-				    "GL_ARB_vertex_buffer_object",
-				    "GL_EXT_framebuffer_object",
-				    NULL
+					"GL_ARB_shader_objects",
+					"GL_ARB_shading_language_100",
+					"GL_ARB_texture_non_power_of_two",
+					"GL_ARB_vertex_buffer_object",
+					"GL_EXT_framebuffer_object",
+					NULL
 				};
-
-				if (str) {
-					SPLog("--- Extensions ---");
-					std::vector<std::string> strs = spades::Split(str, " ");
-					for (size_t i = 0; i < strs.size(); i++)
-						SPLog("%s", strs[i].c_str());
-				}
 				SPLog("------------------");
 
 				for (size_t i = 0; requiredExtensions[i]; i++) {
@@ -339,14 +332,14 @@ namespace spades {
 					  std::make_pair("r_srgb", [](std::string value) -> std::string {
 						  if (std::stoi(value) != 0) {
 							  return "SRGB framebuffer is disabled because your video card doesn't "
-							         "support GL_ARB_framebuffer_sRGB.";
+									 "support GL_ARB_framebuffer_sRGB.";
 						  } else {
 							  return std::string();
 						  }
 					  }));
 
 					AddReport("GL_ARB_framebuffer_sRGB is NOT SUPPORTED", yellow);
-					AddReport("  r_srgb is disabled.", col);
+					AddReport("	 r_srgb is disabled.", col);
 				}
 				if (extensions.find("GL_EXT_framebuffer_blit") == std::string::npos) {
 					if (r_blitFramebuffer) {
@@ -365,7 +358,7 @@ namespace spades {
 					  std::make_pair("r_blitFramebuffer", [](std::string value) -> std::string {
 						  if (std::stoi(value) != 0) {
 							  return "r_blitFramebuffer is disabled because your video card "
-							         "doesn't support GL_EXT_framebuffer_blit.";
+									 "doesn't support GL_EXT_framebuffer_blit.";
 						  } else {
 							  return std::string();
 						  }
@@ -374,14 +367,14 @@ namespace spades {
 					  std::make_pair("r_temporalAA", [](std::string value) -> std::string {
 						  if (std::stoi(value) != 0) {
 							  return "r_temporalAA is disabled because your video card "
-							         "doesn't support GL_EXT_framebuffer_blit.";
+									 "doesn't support GL_EXT_framebuffer_blit.";
 						  } else {
 							  return std::string();
 						  }
 					  }));
 
 					AddReport("GL_EXT_framebuffer_blit is NOT SUPPORTED", yellow);
-					AddReport("  r_blitFramebuffer is disabled.", col);
+					AddReport("	 r_blitFramebuffer is disabled.", col);
 				}
 				if (extensions.find("GL_EXT_texture_filter_anisotropic") == std::string::npos) {
 					if ((float)r_maxAnisotropy > 1.1f) {
@@ -393,14 +386,14 @@ namespace spades {
 					  std::make_pair("r_maxAnisotropy", [](std::string value) -> std::string {
 						  if (std::stof(value) > 1.001f) {
 							  return "Anisotropic texture filtering is disabled because your video "
-							         "card doesn't support GL_EXT_texture_filter_anisotropic.";
+									 "card doesn't support GL_EXT_texture_filter_anisotropic.";
 						  } else {
 							  return std::string();
 						  }
 					  }));
 
 					AddReport("GL_EXT_texture_filter_anisotropic is NOT SUPPORTED", yellow);
-					AddReport("  r_maxAnisotropy is disabled.", col);
+					AddReport("	 r_maxAnisotropy is disabled.", col);
 				}
 
 				if (extensions.find("GL_ARB_occlusion_query") == std::string::npos) {
@@ -412,14 +405,14 @@ namespace spades {
 					  std::make_pair("r_occlusionQuery", [](std::string value) -> std::string {
 						  if (std::stoi(value)) {
 							  return "Occlusion query is disabled because your video card doesn't "
-							         "support GL_ARB_occlusion_query.";
+									 "support GL_ARB_occlusion_query.";
 						  } else {
 							  return std::string();
 						  }
 					  }));
 
 					AddReport("GL_ARB_occlusion_query is NOT SUPPORTED", yellow);
-					AddReport("  r_occlusionQuery is disabled.", col);
+					AddReport("	 r_occlusionQuery is disabled.", col);
 				}
 
 				if (extensions.find("GL_NV_conditional_render") == std::string::npos) {
@@ -431,14 +424,14 @@ namespace spades {
 					  std::make_pair("r_occlusionQuery", [](std::string value) -> std::string {
 						  if (std::stoi(value)) {
 							  return "Occlusion query is disabled because your video card doesn't "
-							         "support GL_NV_conditional_render.";
+									 "support GL_NV_conditional_render.";
 						  } else {
 							  return std::string();
 						  }
 					  }));
 
 					AddReport("GL_NV_conditional_render is NOT SUPPORTED", yellow);
-					AddReport("  r_occlusionQuery is disabled.", col);
+					AddReport("	 r_occlusionQuery is disabled.", col);
 				}
 
 				if (extensions.find("GL_ARB_color_buffer_float") == std::string::npos) {
@@ -450,14 +443,14 @@ namespace spades {
 					  std::make_pair("r_hdr", [](std::string value) -> std::string {
 						  if (std::stoi(value)) {
 							  return "HDR Rendering is disabled because your video card doesn't "
-							         "support GL_ARB_color_buffer_float.";
+									 "support GL_ARB_color_buffer_float.";
 						  } else {
 							  return std::string();
 						  }
 					  }));
 
 					AddReport("GL_ARB_color_buffer_float is NOT SUPPORTED", yellow);
-					AddReport("  r_hdr is disabled.", col);
+					AddReport("	 r_hdr is disabled.", col);
 				}
 
 				if (extensions.find("GL_EXT_texture_array") == std::string::npos) {
@@ -470,36 +463,36 @@ namespace spades {
 					  std::make_pair("r_water", [](std::string value) -> std::string {
 						  if (std::stoi(value) >= 2) {
 							  return "Water 2 is disabled because your video card doesn't "
-							         "support GL_EXT_texture_array.";
+									 "support GL_EXT_texture_array.";
 						  } else {
 							  return std::string();
 						  }
 					  }));
 
 					AddReport("GL_EXT_texture_array is NOT SUPPORTED", yellow);
-					AddReport("  Water 2 is disabled.", col);
+					AddReport("	 Water 2 is disabled.", col);
 				}
 
 				AddReport("Max Texture Size: " + std::to_string(maxTextureSize), col);
 				if (maxTextureSize < 1024) {
 					capable = false;
-					AddReport("  TOO SMALL (1024 required)", red);
+					AddReport("	 TOO SMALL (1024 required)", red);
 				}
 				if ((int)r_shadowMapSize > maxTextureSize) {
 					SPLog("Changed r_shadowMapSize from %d to %d: too small GL_MAX_TEXTURE_SIZE",
-					      (int)r_shadowMapSize, maxTextureSize);
+						  (int)r_shadowMapSize, maxTextureSize);
 
 					r_shadowMapSize = maxTextureSize;
 				}
 
 				AddReport("Max 3D Texture Size: " + std::to_string(max3DTextureSize), col);
 				if (max3DTextureSize < 512) {
-					AddReport("  Global Illumination is disabled (512 required)", yellow);
+					AddReport("	 Global Illumination is disabled (512 required)", yellow);
 					incapableConfigs.insert(
 					  std::make_pair("r_radiosity", [](std::string value) -> std::string {
 						  if (std::stoi(value)) {
 							  return "Global illumination is disabled because your video card "
-							         "doesn't support a 3D texture of at least 512x512x64.";
+									 "doesn't support a 3D texture of at least 512x512x64.";
 						  } else {
 							  return std::string();
 						  }
@@ -514,12 +507,12 @@ namespace spades {
 				AddReport("Max Combined Texture Image Units: " +
 					std::to_string(maxCombinedTextureUnits), col);
 				if (maxCombinedTextureUnits < 12) {
-					AddReport("  Global Illumination is disabled (12 required)", yellow);
+					AddReport("	 Global Illumination is disabled (12 required)", yellow);
 					incapableConfigs.insert(
 					  std::make_pair("r_radiosity", [](std::string value) -> std::string {
 						  if (std::stoi(value)) {
 							  return "Global illumination is disabled because your video card "
-							         "supports too few combined texture image units.";
+									 "supports too few combined texture image units.";
 						  } else {
 							  return std::string();
 						  }
@@ -531,14 +524,14 @@ namespace spades {
 					}
 				}
 				if (maxCombinedTextureUnits < 15) {
-					AddReport("  Water 2 is disabled (15 required)", yellow);
+					AddReport("	 Water 2 is disabled (15 required)", yellow);
 					shaderHighCapable = false;
 
 					incapableConfigs.insert(
 					  std::make_pair("r_water", [](std::string value) -> std::string {
 						  if (std::stoi(value) >= 2) {
 							  return "Water 2 is disabled because your video card supports too few "
-							         "combined texture image units.";
+									 "combined texture image units.";
 						  } else {
 							  return std::string();
 						  }
@@ -552,14 +545,14 @@ namespace spades {
 
 				AddReport("Max Vertex Texture Image Units: " + std::to_string(maxVertexTextureUnits), col);
 				if (maxVertexTextureUnits < 3) {
-					AddReport("  Water 2 is disabled (3 required)", yellow);
+					AddReport("	 Water 2 is disabled (3 required)", yellow);
 					shaderHighCapable = false;
 
 					incapableConfigs.insert(
 					  std::make_pair("r_water", [](std::string value) -> std::string {
 						  if (std::stoi(value) >= 2) {
 							  return "Water 2 is disabled because your video card supports too few "
-							         "vertex texture image units.";
+									 "vertex texture image units.";
 						  } else {
 							  return std::string();
 						  }
@@ -573,14 +566,14 @@ namespace spades {
 
 				AddReport("Max Varying Components: " + std::to_string(maxVaryingComponents), col);
 				if (maxVaryingComponents < 37) {
-					AddReport("  Shaded Particle is disabled (37 required)", yellow);
+					AddReport("	 Shaded Particle is disabled (37 required)", yellow);
 					particleHighCapable = false;
 
 					incapableConfigs.insert(
 					  std::make_pair("r_softParticles", [](std::string value) -> std::string {
 						  if (std::stoi(value) >= 2) {
 							  return "Shaded particle is disabled because your video card supports "
-							         "too few varying fragment shader input components.";
+									 "too few varying fragment shader input components.";
 						  } else {
 							  return std::string();
 						  }
@@ -596,12 +589,12 @@ namespace spades {
 
 				if (capable) {
 					AddReport("Your video card supports all "
-					          "required OpenGL extensions/features.",
-					          MakeVector4(0.5F, 1, 0.5F, 1));
+							  "required OpenGL extensions/features.",
+							  MakeVector4(0.5F, 1, 0.5F, 1));
 				} else {
 					AddReport("Your video card/driver doesn't support "
-					          "at least one of required OpenGL extensions/features."
-					          " Falling back to the software renderer.", red);
+							  "at least one of required OpenGL extensions/features."
+							  " Falling back to the software renderer.", red);
 				}
 
 				SDL_GL_DeleteContext(context);
@@ -623,8 +616,8 @@ namespace spades {
 				  std::make_pair("r_renderer", [](std::string value) -> std::string {
 					  if (spades::EqualsIgnoringCase(value, "gl")) {
 						  return "OpenGL renderer is disabled because "
-						         "your video card/driver doesn't support "
-						         "at least one of required OpenGL extensions/features.";
+								 "your video card/driver doesn't support "
+								 "at least one of required OpenGL extensions/features.";
 					  } else {
 						  return std::string();
 					  }
@@ -741,7 +734,7 @@ namespace spades {
 		}
 
 		std::string StartupScreenHelper::CheckConfigCapability(const std::string& cfg,
-		                                                       const std::string& value) {
+															   const std::string& value) {
 			auto range = incapableConfigs.equal_range(cfg);
 			std::string ret;
 			bool hasMulti = false;

@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -143,7 +143,7 @@ namespace spades {
 					if (!event.key.repeat) {
 						// Toggle fullscreen mode
 						if (event.key.keysym.mod & KMOD_ALT &&
-						    event.key.keysym.sym == SDLK_RETURN) {
+							event.key.keysym.sym == SDLK_RETURN) {
 							SDL_Window* window = SDL_GetWindowFromID(event.key.windowID);
 
 							if (r_fullscreen) {
@@ -184,7 +184,7 @@ namespace spades {
 		}
 
 		void SDLRunner::RunClientLoop(SDL_Window* wnd, spades::client::IRenderer* renderer,
-		                              spades::client::IAudioDevice* audio) {
+									  spades::client::IAudioDevice* audio) {
 			{
 				Handle<View> view(CreateView(renderer, audio), false);
 				Uint32 ot = SDL_GetTicks();
@@ -349,14 +349,14 @@ namespace spades {
 					framebuffer = Handle<Bitmap>::New(actualW, actualH);
 				} else {
 					framebuffer = Handle<Bitmap>::New(reinterpret_cast<uint32_t*>(surface->pixels),
-					                                  surface->w, surface->h);
+													  surface->w, surface->h);
 				}
 			}
 
 			void EnsureSurfaceIsValid() {
 				if (!surface)
 					SPRaise("The SDL surface associated with this SDLSWPart has already been"
-					        "destroyed.");
+							"destroyed.");
 			}
 
 		protected:
@@ -375,8 +375,8 @@ namespace spades {
 				actualH = surface->h & ~7;
 				if (actualW != surface->w || actualH != surface->h) {
 					SPLog("Surface size %dx%d doesn't match the software renderer's"
-					      " requirements. Rounded to %dx%d using an intermediate surface.",
-					      surface->w, surface->h, actualW, actualH);
+						  " requirements. Rounded to %dx%d using an intermediate surface.",
+						  surface->w, surface->h, actualW, actualH);
 					adjusted = true;
 					memset(surface->pixels, 0, surface->w * surface->h * 4);
 				} else {
@@ -447,14 +447,6 @@ namespace spades {
 			SDL_Init(SDL_INIT_VIDEO);
 
 			try {
-
-				{
-					SDL_version linked;
-					SDL_GetVersion(&linked);
-					SPLog("SDL Version: %d.%d.%d %s", linked.major,
-						linked.minor, linked.patch, SDL_GetRevision());
-				}
-
 				std::string caption;
 				{
 					caption = PACKAGE_STRING;

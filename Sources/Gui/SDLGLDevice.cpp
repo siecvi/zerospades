@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -45,22 +45,22 @@ static uint32_t drawOps = 0;
 namespace spades {
 	namespace gui {
 
-#define CheckError()                                                                               \
-	do {                                                                                           \
-		GLenum err;                                                                                \
-		if (!r_ignoreGLErrors) {                                                                   \
-			err = glGetError();                                                                    \
-			if (err != GL_NO_ERROR)                                                                \
-				ReportError(err, __LINE__, __PRETTY_FUNCTION__);                                   \
-		}                                                                                          \
+#define CheckError()																			   \
+	do {																						   \
+		GLenum err;																				   \
+		if (!r_ignoreGLErrors) {																   \
+			err = glGetError();																	   \
+			if (err != GL_NO_ERROR)																   \
+				ReportError(err, __LINE__, __PRETTY_FUNCTION__);								   \
+		}																						   \
 	} while (0)
 
-#define CheckErrorAlways()                                                                         \
-	do {                                                                                           \
-		GLenum err;                                                                                \
-		err = glGetError();                                                                        \
-		if (err != GL_NO_ERROR)                                                                    \
-			ReportError(err, __LINE__, __PRETTY_FUNCTION__);                                       \
+#define CheckErrorAlways()																		   \
+	do {																						   \
+		GLenum err;																				   \
+		err = glGetError();																		   \
+		if (err != GL_NO_ERROR)																	   \
+			ReportError(err, __LINE__, __PRETTY_FUNCTION__);									   \
 	} while (0)
 
 		// lm: The macro would not work on windows, the application simply fails to start if
@@ -73,11 +73,11 @@ namespace spades {
 #if defined(_MSC_VER) || defined(__GNUC__)
 #define CheckExistence(func)
 #else
-#define CheckExistence(func)                                                                       \
-	do {                                                                                           \
-		if (!func) {                                                                               \
-			ReportMissingFunc(#func);                                                              \
-		}                                                                                          \
+#define CheckExistence(func)																	   \
+	do {																						   \
+		if (!func) {																			   \
+			ReportMissingFunc(#func);															   \
+		}																						   \
 	} while (0)
 #endif
 
@@ -104,10 +104,10 @@ namespace spades {
 			// if glGetError() itself triggers an error (can happen on macOS/Rosetta)
 			if (r_ignoreGLErrors) {
 				SPRaise("GL error %s in %s at %s:%d\n\n"
-				        "WARNING: r_ignoreGLErrors is enabled. "
-				        "Information contained in this message is "
-				        "inaccurate and non-informative.",
-				        msg.c_str(), func, __FILE__, line);
+						"WARNING: r_ignoreGLErrors is enabled. "
+						"Information contained in this message is "
+						"inaccurate and non-informative.",
+						msg.c_str(), func, __FILE__, line);
 			} else {
 				SPRaise("GL error %s in %s at %s:%d", msg.c_str(), func, __FILE__, line);
 			}
@@ -117,7 +117,7 @@ namespace spades {
 #endif
 
 		SDLGLDevice::SDLGLDevice(SDL_Window* s) : window(s) {
-			SPLog("starting SDLGLDevice");
+			SPLog("Starting SDLGLDevice");
 
 			SDL_GetWindowSize(window, &w, &h);
 			context = SDL_GL_CreateContext(s);
@@ -131,26 +131,21 @@ namespace spades {
 
 #ifndef __APPLE__
 			GLenum err = glewInit();
-			if (GLEW_OK != err) {
+			if (GLEW_OK != err)
 				SPRaise("GLEW error: %s", glewGetErrorString(err));
-			}
 #endif
 			SPLog("GLEW initialized");
 
 			SPLog("--- OpenGL Renderer Info ---");
 			const char* ret;
-			if ((ret = (const char*)glGetString(GL_VENDOR)) != NULL) {
+			if ((ret = (const char*)glGetString(GL_VENDOR)) != NULL)
 				SPLog("Vendor: %s", ret);
-			}
-			if ((ret = (const char*)glGetString(GL_RENDERER)) != NULL) {
+			if ((ret = (const char*)glGetString(GL_RENDERER)) != NULL)
 				SPLog("Name: %s", ret);
-			}
-			if ((ret = (const char*)glGetString(GL_VERSION)) != NULL) {
+			if ((ret = (const char*)glGetString(GL_VERSION)) != NULL)
 				SPLog("Version: %s", ret);
-			}
-			if ((ret = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)) != NULL) {
+			if ((ret = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)) != NULL)
 				SPLog("Shading Language Version: %s", ret);
-			}
 			SPLog("--- Extensions ---");
 #ifdef GLEW
 			// function ptr provided by GLEW
@@ -185,11 +180,11 @@ namespace spades {
 
 			if (r_ignoreGLErrors) {
 				SPLog("NOTICE: r_ignoreGLErrors is enabled. "
-				      "OpenGL error detection might not work correctly.");
+					  "OpenGL error detection might not work correctly.");
 			} else {
 				SPLog("NOTICE: r_ignoreGLErrors is disabled. "
-				      "OpenGL error is checked for every GL call, but "
-				      "performance may be reduced.");
+					  "OpenGL error is checked for every GL call, but "
+					  "performance may be reduced.");
 			}
 
 			// clear error state
@@ -272,7 +267,7 @@ namespace spades {
 		void SDLGLDevice::ColorMask(bool r, bool g, bool b, bool a) {
 			CheckExistence(glColorMask);
 			glColorMask(r ? GL_TRUE : GL_FALSE, g ? GL_TRUE : GL_FALSE, b ? GL_TRUE : GL_FALSE,
-			            a ? GL_TRUE : GL_FALSE);
+						a ? GL_TRUE : GL_FALSE);
 			CheckError();
 		}
 
@@ -427,7 +422,7 @@ namespace spades {
 		void SDLGLDevice::BlendFunc(Enum srcRgb, Enum destRgb, Enum srcAlpha, Enum destAlpha) {
 			CheckExistence(glBlendFuncSeparate);
 			glBlendFuncSeparate(parseBlendFunction(srcRgb), parseBlendFunction(destRgb),
-			                    parseBlendFunction(srcAlpha), parseBlendFunction(destAlpha));
+								parseBlendFunction(srcAlpha), parseBlendFunction(destAlpha));
 			CheckError();
 		}
 		void SDLGLDevice::BlendColor(Float r, Float g, Float b, Float a) {
@@ -896,72 +891,72 @@ namespace spades {
 		}
 
 		void SDLGLDevice::TexImage2D(Enum target, Integer level, Enum intFmt, Sizei width,
-		                             Sizei height, Integer border, Enum format, Enum type,
-		                             const void* data) {
+									 Sizei height, Integer border, Enum format, Enum type,
+									 const void* data) {
 			CheckExistence(glTexImage2D);
 			glTexImage2D(parseTextureTarget(target), level, parseTextureInternalFormat(intFmt),
-			             width, height, border, parseTextureFormat(format), parseType(type), data);
+						 width, height, border, parseTextureFormat(format), parseType(type), data);
 			CheckErrorAlways();
 		}
 
 		void SDLGLDevice::TexImage3D(Enum target, Integer level, Enum intFmt, Sizei width,
-		                             Sizei height, Sizei depth, Integer border, Enum format,
-		                             Enum type, const void* data) {
+									 Sizei height, Sizei depth, Integer border, Enum format,
+									 Enum type, const void* data) {
 #if GLEW
 			if (glTexImage3D)
 				glTexImage3D(parseTextureTarget(target), level, parseTextureInternalFormat(intFmt),
-				             width, height, depth, border, parseTextureFormat(format),
-				             parseType(type), data);
+							 width, height, depth, border, parseTextureFormat(format),
+							 parseType(type), data);
 			else if (glTexImage3DEXT)
 				glTexImage3DEXT(parseTextureTarget(target), level,
-				                parseTextureInternalFormat(intFmt), width, height, depth, border,
-				                parseTextureFormat(format), parseType(type), data);
+								parseTextureInternalFormat(intFmt), width, height, depth, border,
+								parseTextureFormat(format), parseType(type), data);
 			else
 				ReportMissingFunc("glTexImage3D");
 #else
 			CheckExistence(glTexImage3D);
 			glTexImage3D(parseTextureTarget(target), level, parseTextureInternalFormat(intFmt),
-			             width, height, depth, border, parseTextureFormat(format), parseType(type),
-			             data);
+						 width, height, depth, border, parseTextureFormat(format), parseType(type),
+						 data);
 #endif
 			CheckErrorAlways();
 		}
 
 		void SDLGLDevice::TexSubImage2D(Enum target, Integer level, Integer x, Integer y,
-		                                Sizei width, Sizei height, Enum format, Enum type,
-		                                const void* data) {
+										Sizei width, Sizei height, Enum format, Enum type,
+										const void* data) {
 			CheckExistence(glTexSubImage2D);
 			glTexSubImage2D(parseTextureTarget(target), level, x, y, width, height,
-			                parseTextureFormat(format), parseType(type), data);
+							parseTextureFormat(format), parseType(type), data);
 			CheckError();
 		}
 
 		void SDLGLDevice::TexSubImage3D(Enum target, Integer level, Integer x, Integer y, Integer z,
-		                                Sizei width, Sizei height, Sizei depth, Enum format,
-		                                Enum type, const void* data) {
+										Sizei width, Sizei height, Sizei depth, Enum format,
+										Enum type, const void* data) {
 #if GLEW
 			if (glTexSubImage3D)
 				glTexSubImage3D(parseTextureTarget(target), level, x, y, z, width, height, depth,
-				                parseTextureFormat(format), parseType(type), data);
+								parseTextureFormat(format), parseType(type), data);
 			else if (glTexSubImage3DEXT)
 				glTexSubImage3DEXT(parseTextureTarget(target), level, x, y, z, width, height, depth,
-				                   parseTextureFormat(format), parseType(type), data);
+								   parseTextureFormat(format), parseType(type), data);
 			else
 				ReportMissingFunc("glTexSubImage3D");
 #else
 			CheckExistence(glTexSubImage3D);
 			glTexSubImage3D(parseTextureTarget(target), level, x, y, z, width, height, depth,
-			                parseTextureFormat(format), parseType(type), data);
+							parseTextureFormat(format), parseType(type), data);
 #endif
 			CheckError();
 		}
 
 		void SDLGLDevice::CopyTexSubImage2D(Enum target, Integer level, Integer destinationX,
-		                                    Integer destinationY, Integer srcX, Integer srcY,
-		                                    Sizei width, Sizei height) {
+											Integer destinationY, Integer srcX, Integer srcY,
+											Sizei width, Sizei height) {
 			CheckExistence(glCopyTexSubImage2D);
 			glCopyTexSubImage2D(parseTextureTarget(target), level, destinationX, destinationY, srcX,
-			                    srcY, width, height);
+								srcY, width, height);
 			CheckError();
 		}
 
@@ -1031,7 +1026,7 @@ namespace spades {
 					switch (val) {
 						case draw::IGLDevice::CompareRefToTexture:
 							glTexParameteri(targ, GL_TEXTURE_COMPARE_MODE,
-							                GL_COMPARE_REF_TO_TEXTURE);
+											GL_COMPARE_REF_TO_TEXTURE);
 							break;
 						case draw::IGLDevice::None:
 							glTexParameteri(targ, GL_TEXTURE_COMPARE_MODE, GL_NONE);
@@ -1165,7 +1160,7 @@ namespace spades {
 		}
 
 		void SDLGLDevice::VertexAttribPointer(UInteger index, Integer size, Enum type,
-		                                      bool normalized, Sizei stride, const void* data) {
+											  bool normalized, Sizei stride, const void* data) {
 #if GLEW
 			if (glVertexAttribPointer)
 				glVertexAttribPointer(index, size, parseType(type), normalized, stride, data);
@@ -1181,7 +1176,7 @@ namespace spades {
 		}
 
 		void SDLGLDevice::VertexAttribIPointer(UInteger index, Integer size, Enum type,
-		                                       Sizei stride, const void* data) {
+											   Sizei stride, const void* data) {
 #if GLEW
 			if (glVertexAttribIPointer)
 				glVertexAttribIPointer(index, size, parseType(type), stride, data);
@@ -1268,7 +1263,7 @@ namespace spades {
 		}
 
 		void SDLGLDevice::DrawArraysInstanced(Enum mode, Integer first, Sizei count,
-		                                      Sizei instances) {
+											  Sizei instances) {
 			SPADES_MARK_FUNCTION();
 			GLenum md;
 			switch (mode) {
@@ -1299,7 +1294,7 @@ namespace spades {
 		}
 
 		void SDLGLDevice::DrawElementsInstanced(Enum mode, Sizei count, Enum type,
-		                                        const void* indices, Sizei instances) {
+												const void* indices, Sizei instances) {
 			SPADES_MARK_FUNCTION();
 			GLenum md;
 			switch (mode) {
@@ -1372,7 +1367,7 @@ namespace spades {
 		}
 
 		void SDLGLDevice::ShaderSource(UInteger shader, Sizei count, const char** string,
-		                               const int* len) {
+									   const int* len) {
 #if GLEW
 			if (glShaderSource)
 				glShaderSource(shader, count, (const GLchar**)string, len);
@@ -1470,7 +1465,7 @@ namespace spades {
 		}
 
 		void SDLGLDevice::GetShaderInfoLog(UInteger shader, Sizei bufferSize, Sizei* length,
-		                                   char* outString) {
+										   char* outString) {
 #if GLEW
 			if (glGetShaderInfoLog)
 				glGetShaderInfoLog(shader, bufferSize, (GLsizei*)length, (GLchar*)outString);
@@ -1530,7 +1525,7 @@ namespace spades {
 		}
 
 		void SDLGLDevice::GetProgramInfoLog(UInteger p, Sizei bufferSize, Sizei* length,
-		                                    char* outString) {
+											char* outString) {
 #if GLEW
 			if (glGetProgramInfoLog)
 				glGetProgramInfoLog(p, bufferSize, (GLsizei*)length, (GLchar*)outString);
@@ -1908,7 +1903,7 @@ namespace spades {
 			}
 		}
 		void SDLGLDevice::FramebufferTexture2D(Enum target, Enum attachment, Enum texTarget,
-		                                       UInteger texture, Integer level) {
+											   UInteger texture, Integer level) {
 			SPADES_MARK_FUNCTION_DEBUG();
 
 			GLenum a;
@@ -1928,24 +1923,24 @@ namespace spades {
 #if GLEW
 			if (glFramebufferTexture2D)
 				glFramebufferTexture2D(parseFramebufferTarget(target), a,
-				                       parseTextureTarget(texTarget), texture, level);
+									   parseTextureTarget(texTarget), texture, level);
 			else if (glFramebufferTexture2DEXT)
 				glFramebufferTexture2DEXT(parseFramebufferTarget(target), a,
-				                          parseTextureTarget(texTarget), texture, level);
+										  parseTextureTarget(texTarget), texture, level);
 			else
 				ReportMissingFunc("glFramebufferTexture2D");
 #else
 			CheckExistence(glFramebufferTexture2D);
 			glFramebufferTexture2D(parseFramebufferTarget(target), a, parseTextureTarget(texTarget),
-			                       texture, level);
+								   texture, level);
 #endif
 			CheckErrorAlways();
 		}
 
 		void SDLGLDevice::BlitFramebuffer(Integer srcX0, Integer srcY0, Integer srcX1,
-		                                  Integer srcY1, Integer dstX0, Integer dstY0,
-		                                  Integer dstX1, Integer dstY1, UInteger mask,
-		                                  Enum filter) {
+										  Integer srcY1, Integer dstX0, Integer dstY0,
+										  Integer dstX1, Integer dstY1, UInteger mask,
+										  Enum filter) {
 			SPADES_MARK_FUNCTION_DEBUG();
 
 			GLenum flt;
@@ -1967,7 +1962,7 @@ namespace spades {
 				glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, m, flt);
 			else if (glBlitFramebufferEXT)
 				glBlitFramebufferEXT(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, m,
-				                     flt);
+									 flt);
 			else
 				ReportMissingFunc("glBlitFramebuffer");
 #else
@@ -2031,46 +2026,46 @@ namespace spades {
 			CheckError();
 		}
 		void SDLGLDevice::RenderbufferStorage(Enum target, Enum intFormat, Sizei width,
-		                                      Sizei height) {
+											  Sizei height) {
 #if GLEW
 			if (glRenderbufferStorage)
 				glRenderbufferStorage(parseRenderbufferTarget(target),
-				                      parseTextureInternalFormat(intFormat), width, height);
+									  parseTextureInternalFormat(intFormat), width, height);
 			else if (glRenderbufferStorageEXT)
 				glRenderbufferStorageEXT(parseRenderbufferTarget(target),
-				                         parseTextureInternalFormat(intFormat), width, height);
+										 parseTextureInternalFormat(intFormat), width, height);
 			else
 				ReportMissingFunc("glRenderbufferStorage");
 
 #else
 			CheckExistence(glRenderbufferStorage);
 			glRenderbufferStorage(parseRenderbufferTarget(target),
-			                      parseTextureInternalFormat(intFormat), width, height);
+								  parseTextureInternalFormat(intFormat), width, height);
 #endif
 			CheckErrorAlways();
 		}
 		void SDLGLDevice::RenderbufferStorage(Enum target, Sizei samples, Enum intFormat,
-		                                      Sizei width, Sizei height) {
+											  Sizei width, Sizei height) {
 #if GLEW
 			if (glRenderbufferStorageMultisample)
 				glRenderbufferStorageMultisample(parseRenderbufferTarget(target), samples,
-				                                 parseTextureInternalFormat(intFormat), width,
-				                                 height);
+												 parseTextureInternalFormat(intFormat), width,
+												 height);
 			else if (glRenderbufferStorageMultisampleEXT)
 				glRenderbufferStorageMultisampleEXT(parseRenderbufferTarget(target), samples,
-				                                    parseTextureInternalFormat(intFormat), width,
-				                                    height);
+													parseTextureInternalFormat(intFormat), width,
+													height);
 			else
 				ReportMissingFunc("glRenderbufferStorageMultisample");
 #else
 			CheckExistence(glRenderbufferStorageMultisample);
 			glRenderbufferStorageMultisample(parseRenderbufferTarget(target), samples,
-			                                 parseTextureInternalFormat(intFormat), width, height);
+											 parseTextureInternalFormat(intFormat), width, height);
 #endif
 			CheckErrorAlways();
 		}
 		void SDLGLDevice::FramebufferRenderbuffer(Enum target, Enum attachment, Enum rbTarget,
-		                                          UInteger rb) {
+												  UInteger rb) {
 
 			GLenum a;
 			switch (attachment) {
@@ -2089,22 +2084,22 @@ namespace spades {
 #if GLEW
 			if (glFramebufferRenderbuffer)
 				glFramebufferRenderbuffer(parseFramebufferTarget(target), a,
-				                          parseRenderbufferTarget(rbTarget), rb);
+										  parseRenderbufferTarget(rbTarget), rb);
 			else if (glFramebufferRenderbufferEXT)
 				glFramebufferRenderbufferEXT(parseFramebufferTarget(target), a,
-				                             parseRenderbufferTarget(rbTarget), rb);
+											 parseRenderbufferTarget(rbTarget), rb);
 			else
 				ReportMissingFunc("glFramebufferRenderbuffer");
 #else
 			CheckExistence(glFramebufferRenderbuffer);
 			glFramebufferRenderbuffer(parseFramebufferTarget(target), a,
-			                          parseRenderbufferTarget(rbTarget), rb);
+									  parseRenderbufferTarget(rbTarget), rb);
 #endif
 			CheckErrorAlways();
 		}
 
 		void SDLGLDevice::ReadPixels(Integer x, Integer y, Sizei width, Sizei height, Enum format,
-		                             Enum type, void* data) {
+									 Enum type, void* data) {
 			CheckExistence(glReadPixels);
 			glReadPixels(x, y, width, height, parseTextureFormat(format), parseType(type), data);
 			CheckErrorAlways();

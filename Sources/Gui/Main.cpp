@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -118,10 +118,10 @@ namespace {
 
 	LONG WINAPI UnhandledExceptionProc(LPEXCEPTION_POINTERS lpEx) {
 		typedef BOOL(WINAPI * PDUMPFN)(HANDLE hProcess, DWORD ProcessId, HANDLE hFile,
-		                               MINIDUMP_TYPE DumpType,
-		                               PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
-		                               PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
-		                               PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
+									   MINIDUMP_TYPE DumpType,
+									   PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
+									   PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
+									   PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
 		HMODULE hLib = LoadLibrary("DbgHelp.dll");
 		PDUMPFN pMiniDumpWriteDump = (PDUMPFN)GetProcAddress(hLib, "MiniDumpWriteDump");
 
@@ -129,15 +129,15 @@ namespace {
 		if (pMiniDumpWriteDump) {
 			static char fullBuf[MAX_PATH + 120] = {0};
 			if (SUCCEEDED(
-			      SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY, NULL, 0,
-			                      buf))) { // max length = MAX_PATH (temp abuse this buffer space)
-				strcat_s(buf, "\\");       // ensure we end with a slash.
+				  SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY, NULL, 0,
+								  buf))) { // max length = MAX_PATH (temp abuse this buffer space)
+				strcat_s(buf, "\\");	   // ensure we end with a slash.
 			} else {
 				buf[0] = 0; // empty it, the file will now end up in the working directory :(
 			}
 			sprintf(fullBuf, "%sOpenSpadesCrash%d.dmp", buf, GetTickCount()); // some sort of randomization.
 			HANDLE hFile = CreateFile(fullBuf, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
-			                          FILE_ATTRIBUTE_NORMAL, NULL);
+									  FILE_ATTRIBUTE_NORMAL, NULL);
 			if (hFile != INVALID_HANDLE_VALUE) {
 				MINIDUMP_EXCEPTION_INFORMATION mdei = {0};
 				mdei.ThreadId = GetCurrentThreadId();
@@ -148,19 +148,19 @@ namespace {
 					GetCurrentProcessId(), hFile, mdt, (lpEx != 0) ? &mdei : 0, 0, 0);
 				CloseHandle(hFile);
 				sprintf_s(buf,
-				          "Something went horribly wrong, please send the file \n%s\nfor analysis.",
-				          fullBuf);
+						  "Something went horribly wrong, please send the file \n%s\nfor analysis.",
+						  fullBuf);
 			} else {
 				sprintf_s(buf,
-				          "Something went horribly wrong,\ni even failed to store information "
-				          "about the problem... (0x%08x)",
-				          lpEx ? lpEx->ExceptionRecord->ExceptionCode : 0xffffffff);
+						  "Something went horribly wrong,\ni even failed to store information "
+						  "about the problem... (0x%08x)",
+						  lpEx ? lpEx->ExceptionRecord->ExceptionCode : 0xffffffff);
 			}
 		} else {
 			sprintf_s(buf,
-			          "Something went horribly wrong,\ni even failed to retrieve information "
-			          "about the problem... (0x%08x)",
-			          lpEx ? lpEx->ExceptionRecord->ExceptionCode : 0xffffffff);
+					  "Something went horribly wrong,\ni even failed to retrieve information "
+					  "about the problem... (0x%08x)",
+					  lpEx ? lpEx->ExceptionRecord->ExceptionCode : 0xffffffff);
 		}
 		MessageBoxA(NULL, buf, "Oops, we crashed...", MB_OK | MB_ICONERROR);
 		ExitProcess(-1);
@@ -183,7 +183,7 @@ namespace {
 
 	void printHelp(char* binaryName) {
 		printf("usage: %s [server_address] [v=protocol_version] [-h|--help] [-v|--version] \n",
-		       binaryName);
+			   binaryName);
 	}
 
 	std::regex const hostNameRegex{"aos://.*"};
@@ -228,11 +228,11 @@ namespace spades {
 
 		protected:
 			spades::gui::View* CreateView(spades::client::IRenderer* renderer,
-			                              spades::client::IAudioDevice* audio) override {
+										  spades::client::IAudioDevice* audio) override {
 				auto fontManager = Handle<client::FontManager>::New(renderer);
 				auto innerView = Handle<client::Client>::New(renderer, audio, addr, fontManager);
 				return new spades::gui::ConsoleScreen(renderer, audio, fontManager,
-				                                      std::move(innerView).Cast<gui::View>());
+													  std::move(innerView).Cast<gui::View>());
 			}
 
 		public:
@@ -245,11 +245,11 @@ namespace spades {
 		class ConcreteRunner : public spades::gui::Runner {
 		protected:
 			spades::gui::View* CreateView(spades::client::IRenderer* renderer,
-			                              spades::client::IAudioDevice* audio) override {
+										  spades::client::IAudioDevice* audio) override {
 				auto fontManager = Handle<client::FontManager>::New(renderer);
 				auto innerView = Handle<gui::MainScreen>::New(renderer, audio, fontManager);
 				return new spades::gui::ConsoleScreen(renderer, audio, fontManager,
-				                                      std::move(innerView).Cast<gui::View>());
+													  std::move(innerView).Cast<gui::View>());
 			}
 
 		public:
@@ -325,6 +325,13 @@ int main(int argc, char** argv) {
 
 		SPLog("Package: " PACKAGE_STRING);
 
+		{
+			SDL_version linked;
+			SDL_GetVersion(&linked);
+			SPLog("SDL Version: %d.%d.%d %s", linked.major,
+				linked.minor, linked.patch, SDL_GetRevision());
+		}
+
 // setup user-specific default resource directories
 #ifdef WIN32
 		static wchar_t buf[4096];
@@ -337,7 +344,7 @@ int main(int argc, char** argv) {
 
 		DWORD userAppDirAttrib = GetFileAttributesW(userAppDir.c_str());
 		if (userAppDirAttrib != INVALID_FILE_ATTRIBUTES &&
-		    (userAppDirAttrib & FILE_ATTRIBUTE_DIRECTORY)) {
+			(userAppDirAttrib & FILE_ATTRIBUTE_DIRECTORY)) {
 			SPLog("UserResources found - switching to 'portable' mode");
 
 			spades::g_userResourceDirectory = Utf8FromWString(userAppDir.c_str());
@@ -408,21 +415,21 @@ int main(int argc, char** argv) {
 			if (stat((home + "/.openspades").c_str(), &info) != 0) {
 			} else if (info.st_mode & S_IFDIR) {
 				SPLog("Openspades directory in XDG_DATA_HOME not found, though old directory "
-				      "exists. Trying to resolve compatibility problem.");
+					  "exists. Trying to resolve compatibility problem.");
 
 				if (rename((home + "/.openspades").c_str(),
-				           (xdg_data_home + "/openspades").c_str()) != 0) {
+						   (xdg_data_home + "/openspades").c_str()) != 0) {
 					SPLog("Failed to move old directory to new.");
 				} else {
 					SPLog("Successfully moved old directory.");
 
 					if (mkdir((home + "/.openspades").c_str(),
-					          S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0) {
+							  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0) {
 						SDL_RWops* io = SDL_RWFromFile(
 						  (home + "/.openspades/CONTENT_MOVED_TO_NEW_DIR").c_str(), "wb");
 						if (io != NULL) {
 							std::string text = ("Content of this directory moved to " +
-							                    xdg_data_home + "/openspades");
+												xdg_data_home + "/openspades");
 							io->write(io, text.c_str(), text.length(), 1);
 							io->close(io);
 						}
@@ -448,7 +455,7 @@ int main(int argc, char** argv) {
 			  "OpenSpades will continue to run, but any critical events are not logged.",
 			  ex.what());
 			if (SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "OpenSpades Log System Failure",
-			                             msg.c_str(), splashWindow->GetWindow())) {
+										 msg.c_str(), splashWindow->GetWindow())) {
 				// showing dialog failed.
 			}
 		}
@@ -472,16 +479,11 @@ int main(int argc, char** argv) {
 			SPLog("Supports FMA: %s", cpuid.Supports(spades::CpuFeature::FMA) ? "YES" : "NO");
 			SPLog("Supports AVX: %s", cpuid.Supports(spades::CpuFeature::AVX) ? "YES" : "NO");
 			SPLog("Supports AVX2: %s", cpuid.Supports(spades::CpuFeature::AVX2) ? "YES" : "NO");
-			SPLog("Supports AVX512F: %s",
-			      cpuid.Supports(spades::CpuFeature::AVX512F) ? "YES" : "NO");
-			SPLog("Supports AVX512CD: %s",
-			      cpuid.Supports(spades::CpuFeature::AVX512CD) ? "YES" : "NO");
-			SPLog("Supports AVX512ER: %s",
-			      cpuid.Supports(spades::CpuFeature::AVX512ER) ? "YES" : "NO");
-			SPLog("Supports AVX512PF: %s",
-			      cpuid.Supports(spades::CpuFeature::AVX512PF) ? "YES" : "NO");
-			SPLog("Simultaneous Multithreading: %s",
-			      cpuid.Supports(spades::CpuFeature::SimultaneousMT) ? "YES" : "NO");
+			SPLog("Supports AVX512F: %s", cpuid.Supports(spades::CpuFeature::AVX512F) ? "YES" : "NO");
+			SPLog("Supports AVX512CD: %s", cpuid.Supports(spades::CpuFeature::AVX512CD) ? "YES" : "NO");
+			SPLog("Supports AVX512ER: %s", cpuid.Supports(spades::CpuFeature::AVX512ER) ? "YES" : "NO");
+			SPLog("Supports AVX512PF: %s", cpuid.Supports(spades::CpuFeature::AVX512PF) ? "YES" : "NO");
+			SPLog("Supports SMT: %s", cpuid.Supports(spades::CpuFeature::SimultaneousMT) ? "YES" : "NO");
 
 			auto cpuInfo = cpuid.GetMiscInfo();
 			if (cpuInfo != "(none)")
@@ -505,7 +507,7 @@ int main(int argc, char** argv) {
 			struct Comparator {
 				static int GetPakId(const std::string& str) {
 					if (str.size() >= 4 && str[0] == 'p' && str[1] == 'a' && str[2] == 'k' &&
-					    (str[3] >= '0' && str[3] <= '9')) {
+						(str[3] >= '0' && str[3] <= '9')) {
 						return atoi(str.c_str() + 3);
 					} else {
 						return 32767;
@@ -529,7 +531,7 @@ int main(int argc, char** argv) {
 
 				// check extension
 				if (name.size() < 4 || (name.rfind(".pak") != name.size() - 4 &&
-				                        name.rfind(".zip") != name.size() - 4)) {
+										name.rfind(".zip") != name.size() - 4)) {
 					SPLog("Ignored loose file: %s", name.c_str());
 					continue;
 				}
@@ -543,11 +545,11 @@ int main(int argc, char** argv) {
 					spades::ZipFileSystem* fs = new spades::ZipFileSystem(stream.release());
 					if (name[0] == '_' && false) { // last resort for #198
 						SPLog("Pak registered: %s: %08lx (marked as 'important')", name.c_str(),
-						      static_cast<unsigned long>(crc));
+							  static_cast<unsigned long>(crc));
 						fssImportant.push_back(fs);
 					} else {
 						SPLog("Pak registered: %s: %08lx", name.c_str(),
-						      static_cast<unsigned long>(crc));
+							  static_cast<unsigned long>(crc));
 						fss.push_back(fs);
 					}
 				}
@@ -617,9 +619,9 @@ int main(int argc, char** argv) {
 
 		std::string msg = ex.what();
 		msg = _Tr("Main",
-		          "A serious error caused OpenSpades to stop working:\n\n{0}\n\nSee "
-		          "SystemMessages.log for more details.",
-		          msg);
+				  "A serious error caused OpenSpades to stop working:\n\n{0}\n\nSee "
+				  "SystemMessages.log for more details.",
+				  msg);
 
 		SPLog("[!] Terminating due to the fatal error: %s", ex.what());
 
