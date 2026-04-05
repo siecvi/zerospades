@@ -65,23 +65,20 @@ namespace spades {
 			SPADES_MARK_FUNCTION();
 
 			int numCorpses = static_cast<int>(corpses.size());
-			if (numCorpses > (int)cg_corpseHardLimit)
+			if (numCorpses > (int)cg_corpseHardLimit) {
+				if (corpses.front().get() == lastLocalCorpse)
+					lastLocalCorpse = nullptr;
 				corpses.pop_front();
-			else if (numCorpses > (int)cg_corpseSoftLimit)
+			} else if (numCorpses > (int)cg_corpseSoftLimit) {
 				RemoveInvisibleCorpses();
-		}
-
-		void Client::RemoveAllCorpses() {
-			SPADES_MARK_FUNCTION();
-
-			corpses.clear();
-			lastLocalCorpse = nullptr;
+			}
 		}
 
 		void Client::RemoveInvisibleCorpses() {
 			SPADES_MARK_FUNCTION();
 
-			int cnt = (int)corpses.size() - (int)cg_corpseSoftLimit;
+			int numCorpses = static_cast<int>(corpses.size());
+			int cnt = numCorpses - (int)cg_corpseSoftLimit;
 
 			decltype(corpses)::iterator it;
 			std::vector<decltype(it)> its;
@@ -90,12 +87,13 @@ namespace spades {
 					break;
 
 				auto& c = *it;
-				if (!c->IsVisibleFrom(lastSceneDef.viewOrigin)) {
-					if (c.get() == lastLocalCorpse)
-						lastLocalCorpse = nullptr;
-					its.push_back(it);
-					cnt--;
-				}
+				if (c->IsVisibleFrom(lastSceneDef.viewOrigin))
+					continue;
+
+				if (c.get() == lastLocalCorpse)
+					lastLocalCorpse = nullptr;
+				its.push_back(it);
+				cnt--;
 			}
 
 			for (const auto& it : its)
@@ -108,13 +106,21 @@ namespace spades {
 				++it;
 
 				auto& c = *cur;
-				if (c->GetPlayerId() == playerId)
-					corpses.erase(cur);
+				if (c->GetPlayerId() != playerId)
+					continue;
+
+				if (c.get() == lastLocalCorpse)
+					lastLocalCorpse = nullptr;
+				corpses.erase(cur);
 			}
 		}
 
 		void Client::RemoveAllLocalEntities() {
 			SPADES_MARK_FUNCTION();
+
+			// remove all corpses
+			lastLocalCorpse = nullptr;
+			corpses.clear();
 
 			damageIndicators.clear();
 			localEntities.clear();

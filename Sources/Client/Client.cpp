@@ -162,7 +162,6 @@ namespace spades {
 
 			scriptedUI->CloseUI();
 
-			RemoveAllCorpses();
 			RemoveAllLocalEntities();
 
 			lastHealth = 100;
@@ -246,7 +245,6 @@ namespace spades {
 			SPLog("Disconnected");
 
 			RemoveAllLocalEntities();
-			RemoveAllCorpses();
 
 			renderer->SetGameMap(nullptr);
 			audioDevice->SetGameMap(nullptr);

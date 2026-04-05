@@ -391,7 +391,6 @@ namespace spades {
 			std::list<std::unique_ptr<Corpse>> corpses;
 			Corpse* lastLocalCorpse;
 			void RemoveCorpses();
-			void RemoveAllCorpses();
 			void RemoveInvisibleCorpses();
 			void RemoveCorpseForPlayer(int playerId);
 			void RemoveAllLocalEntities();
