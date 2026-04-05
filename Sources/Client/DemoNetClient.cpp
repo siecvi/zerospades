@@ -931,12 +931,9 @@ namespace spades {
 			}
 
 			try {
-				size_t count = demoPlayer->GetPacketCount();
-				for (size_t i = 0; i < count; i++) {
-					if (demoPlayer->GetPacketTimestamp(i) > targetTime)
-						break;
-					ProcessPacket(demoPlayer->GetPacket(i));
-				}
+				demoPlayer->ReplayUpTo(targetTime, [this](const std::vector<char>& data) {
+					ProcessPacket(data);
+				});
 			} catch (...) {
 				if (GetWorld())
 					GetWorld()->SetListener(savedListener);
