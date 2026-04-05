@@ -517,31 +517,31 @@ namespace spades {
 			ModelRenderParam param;
 			param.customColor = color;
 
-			Matrix4 const scaler = Matrix4::Scale(0.1F);
-
-			Matrix4 torso;
-			Vector3 tX, tY;
-
 			std::string modelPath = "Models/Player/";
 			if (!cg_classicPlayerModels)
 				modelPath += weaponName + "/";
+
+			const Matrix4 scaler = Matrix4::Scale(0.1F);
+			Matrix4 torso;
+
+			const Vector3 tX1 = nodes[Torso1].pos - nodes[Torso2].pos;
+			const Vector3 tX2 = nodes[Torso4].pos - nodes[Torso3].pos;
+			const Vector3 tY1 = nodes[Torso1].pos + nodes[Torso2].pos;
+			const Vector3 tY2 = nodes[Torso4].pos + nodes[Torso3].pos;
+			const Vector3 center = tY1 * 0.5F;
 
 			// Torso
 			{
 				model = renderer.RegisterModel((modelPath + "Torso.kv6").c_str());
 
-				Vector3 tX1 = nodes[Torso1].pos - nodes[Torso2].pos;
-				Vector3 tX2 = nodes[Torso4].pos - nodes[Torso3].pos;
-				Vector3 tY1 = nodes[Torso1].pos + nodes[Torso2].pos;
-				Vector3 tY2 = nodes[Torso4].pos + nodes[Torso3].pos;
+				Vector3 tX, tY, tZ;
 				tX = ((tX1 + tX2) * 0.5F).Normalize();
 				tY = ((tY2 - tY1) * 0.5F).Normalize();
-				Vector3 tZ = Vector3::Cross(tX, tY).Normalize();
+				tZ = Vector3::Cross(tX, tY).Normalize();
 				tY = Vector3::Cross(tX, tZ).Normalize();
-				Vector3 tOrigin = tY1 * 0.5F;
-				torso = Matrix4::FromAxis(tX, -tZ, -tY, tOrigin);
+				torso = Matrix4::FromAxis(tX, -tZ, -tY, center);
 
-				param.matrix = torso * scaler * Matrix4::Scale(-1, -1, 1);
+				param.matrix = torso * scaler * Matrix4::Scale(-1, -1, 1); // rotate
 				renderer.RenderModel(*model, param);
 			}
 
@@ -549,16 +549,11 @@ namespace spades {
 			{
 				model = renderer.RegisterModel((modelPath + "Head.kv6").c_str());
 
-				Vector3 headBase = (torso * MakeVector3(0.0F, 0.0F, 0.0F)).GetXYZ();
+				const Vector3 headBase = (torso * MakeVector3(0.0F, 0.0F, 0.0F)).GetXYZ();
 
 				Vector3 aX, aY, aZ;
-				Vector3 center = (nodes[Torso1].pos + nodes[Torso2].pos) * 0.5F;
-
-				aZ = nodes[Head].pos - center;
-				aZ -= torso.GetAxis(2);
-				aZ = aZ.Normalize();
-				aY = nodes[Torso2].pos - nodes[Torso1].pos;
-				aY = Vector3::Cross(aY, aZ).Normalize();
+				aZ = ((nodes[Head].pos - center) - torso.GetAxis(2)).Normalize();
+				aY = Vector3::Cross(-tX1, aZ).Normalize();
 				aX = Vector3::Cross(aY, aZ).Normalize();
 				param.matrix = Matrix4::FromAxis(-aX, aY, -aZ, headBase) * scaler;
 				renderer.RenderModel(*model, param);
@@ -568,29 +563,25 @@ namespace spades {
 			{
 				model = renderer.RegisterModel((modelPath + "Arm.kv6").c_str());
 
-				Vector3 arm1Base = (torso * MakeVector3(0.4F, 0.0F, 0.1F)).GetXYZ();
-				Vector3 arm2Base = (torso * MakeVector3(-0.4F, 0.0F, 0.1F)).GetXYZ();
+				const Vector3 arm1Base = (torso * MakeVector3(0.4F, 0.0F, 0.1F)).GetXYZ();
+				const Vector3 arm2Base = (torso * MakeVector3(-0.4F, 0.0F, 0.1F)).GetXYZ();
 
-				Matrix4 armsScale = scaler
-					* Matrix4::Scale(0.75F, 0.75F, 1.0F);
+				const Matrix4 armsScale = scaler
+					* Matrix4::Scale(0.75F, 0.75F, 1.0F)
+					* Matrix4::Scale(-1, -1, 1);
 
 				Vector3 aX, aY, aZ;
-
-				aZ = nodes[Arm1].pos - nodes[Torso1].pos;
-				aZ = aZ.Normalize();
-				aY = nodes[Torso1].pos - nodes[Torso2].pos;
-				aY = Vector3::Cross(aY, aZ).Normalize();
+				aZ = (nodes[Arm1].pos - nodes[Torso1].pos).Normalize();
+				aY = Vector3::Cross(tX1, aZ).Normalize();
 				aX = Vector3::Cross(aY, aZ).Normalize();
-
 				param.matrix = Matrix4::FromAxis(aX, aY, aZ, arm1Base) * armsScale;
 				renderer.RenderModel(*model, param);
 
-				aZ = nodes[Arm2].pos - nodes[Torso2].pos;
-				aZ = aZ.Normalize();
-				aY = nodes[Torso1].pos - nodes[Torso2].pos;
-				aY = Vector3::Cross(aY, aZ).Normalize();
+				aZ = (nodes[Arm2].pos - nodes[Torso2].pos).Normalize();
+				aY = Vector3::Cross(tX1, aZ).Normalize();
 				aX = Vector3::Cross(aY, aZ).Normalize();
-				param.matrix = Matrix4::FromAxis(aX, aY, aZ, arm2Base) * armsScale;
+				param.matrix = Matrix4::FromAxis(aX, aY, aZ, arm2Base) * armsScale
+					* Matrix4::Scale(-1, 1, 1); // mirror
 				renderer.RenderModel(*model, param);
 			}
 
@@ -598,25 +589,21 @@ namespace spades {
 			{
 				model = renderer.RegisterModel((modelPath + "Leg.kv6").c_str());
 
-				Vector3 leg1Base = (torso * MakeVector3(0.25F, 0.0F, 0.9F)).GetXYZ();
-				Vector3 leg2Base = (torso * MakeVector3(-0.25F, 0.0F, 0.9F)).GetXYZ();
+				const Vector3 leg1Base = (torso * MakeVector3(0.25F, 0.0F, 0.9F)).GetXYZ();
+				const Vector3 leg2Base = (torso * MakeVector3(-0.25F, 0.0F, 0.9F)).GetXYZ();
 
 				Vector3 aX, aY, aZ;
-
-				aZ = nodes[Leg1].pos - nodes[Torso3].pos;
-				aZ = aZ.Normalize();
-				aY = nodes[Torso1].pos - nodes[Torso2].pos;
-				aY = Vector3::Cross(aY, aZ).Normalize();
+				aZ = (nodes[Leg1].pos - nodes[Torso3].pos).Normalize();
+				aY = Vector3::Cross(tX1, aZ).Normalize();
 				aX = Vector3::Cross(aY, aZ).Normalize();
 				param.matrix = Matrix4::FromAxis(aX, aY, aZ, leg1Base) * scaler;
 				renderer.RenderModel(*model, param);
 
-				aZ = nodes[Leg2].pos - nodes[Torso4].pos;
-				aZ = aZ.Normalize();
-				aY = nodes[Torso1].pos - nodes[Torso2].pos;
-				aY = Vector3::Cross(aY, aZ).Normalize();
+				aZ = (nodes[Leg2].pos - nodes[Torso4].pos).Normalize();
+				aY = Vector3::Cross(tX1, aZ).Normalize();
 				aX = Vector3::Cross(aY, aZ).Normalize();
-				param.matrix = Matrix4::FromAxis(aX, aY, aZ, leg2Base) * scaler;
+				param.matrix = Matrix4::FromAxis(aX, aY, aZ, leg2Base) * scaler
+					* Matrix4::Scale(-1, 1, 1); // mirror
 				renderer.RenderModel(*model, param);
 			}
 		}
