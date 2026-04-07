@@ -141,17 +141,6 @@ namespace spades {
 			void SendTeamChange(int) override {}
 			void SendWeaponChange(WeaponType) override {}
 
-			// Demo recording is not applicable during playback
-			bool StartDemoRecording(const std::string& = "",
-			                        const std::string& = "") override { return false; }
-			void StopDemoRecording() override {}
-			bool IsDemoRecording() const override { return false; }
-			float GetDemoRecordingTime() const override { return 0.0f; }
-			uint64_t GetDemoPacketCount() const override { return 0; }
-			const std::string& GetDemoFilename() const override {
-				static std::string empty;
-				return empty;
-			}
 		};
 	} // namespace client
 } // namespace spades
