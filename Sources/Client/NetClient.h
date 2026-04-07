@@ -210,12 +210,12 @@ namespace spades {
 
 			// Demo recording
 			bool StartDemoRecording(const std::string& filename = "",
-			                        const std::string& context = "") override;
-			void StopDemoRecording() override;
-			bool IsDemoRecording() const override;
-			float GetDemoRecordingTime() const override;
-			uint64_t GetDemoPacketCount() const override;
-			const std::string& GetDemoFilename() const override;
+			                        const std::string& context = "");
+			void StopDemoRecording();
+			bool IsDemoRecording() const;
+			float GetDemoRecordingTime() const;
+			uint64_t GetDemoPacketCount() const;
+			const std::string& GetDemoFilename() const;
 		};
 	} // namespace client
 } // namespace spades

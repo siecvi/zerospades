@@ -327,12 +327,12 @@ namespace spades {
 		}
 
 		void Client::DrawRecordingIndicator() {
-			if (!activeNet->IsDemoRecording())
+			if (!net || !net->IsDemoRecording())
 				return;
 
 			float sw = renderer->ScreenWidth();
 
-			float recTime = activeNet->GetDemoRecordingTime();
+			float recTime = net->GetDemoRecordingTime();
 			int mins = static_cast<int>(recTime) / 60;
 			int secs = static_cast<int>(recTime) % 60;
 			char timeBuf[16];

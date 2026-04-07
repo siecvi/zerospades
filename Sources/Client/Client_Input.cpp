@@ -668,16 +668,16 @@ namespace spades {
 
 				// demo record toggle â accessible for both players and spectators
 				if (CheckKey(cg_keyDemoRecord, name) && down && !IsDemoMode()) {
-					if (activeNet->IsDemoRecording()) {
-						activeNet->StopDemoRecording();
+					if (net->IsDemoRecording()) {
+						net->StopDemoRecording();
 					} else {
-						if (activeNet->StartDemoRecording("", BuildDemoContext())) {
+						if (net->StartDemoRecording("", BuildDemoContext())) {
 							if ((int)cg_demoAutoPrune != 0) {
 								int maxDemos = (int)cg_demoMaxFiles;
 								if (maxDemos >= 1)
 									DemoRecorder::PruneOldRecordings(static_cast<size_t>(maxDemos));
 							}
-							SPLog("Demo recording started: %s", activeNet->GetDemoFilename().c_str());
+							SPLog("Demo recording started: %s", net->GetDemoFilename().c_str());
 						} else {
 							chatWindow->AddMessage(ChatWindow::ColoredMessage(
 							  _Tr("Client", "Failed to start demo recording."), MsgColorSysInfo));

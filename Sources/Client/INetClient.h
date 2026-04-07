@@ -89,14 +89,6 @@ namespace spades {
 			virtual void SendTeamChange(int team) = 0;
 			virtual void SendWeaponChange(WeaponType) = 0;
 
-			// ── Demo recording (stubs return false/0/"" in demo mode) ────────
-			virtual bool StartDemoRecording(const std::string& filename = "",
-			                               const std::string& context = "") = 0;
-			virtual void StopDemoRecording() = 0;
-			virtual bool IsDemoRecording() const = 0;
-			virtual float GetDemoRecordingTime() const = 0;
-			virtual uint64_t GetDemoPacketCount() const = 0;
-			virtual const std::string& GetDemoFilename() const = 0;
 		};
 
 	} // namespace client
