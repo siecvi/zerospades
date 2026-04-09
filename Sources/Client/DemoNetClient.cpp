@@ -949,7 +949,7 @@ namespace spades {
 		void DemoNetClient::Seek(float time) {
 			if (!demoPlayer) return;
 
-			if (time < demoPlayer->GetTime() && initialMap) {
+			if (initialMap) {
 				auto view = client->SaveViewState();
 				ResetWorldForReplay();
 				FastReplay(time);
