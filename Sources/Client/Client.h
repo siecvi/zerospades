@@ -110,6 +110,15 @@ namespace spades {
 			std::unique_ptr<DemoNetClient> demoNet;
 			INetClient* activeNet; // points to net.get() or demoNet.get(), never null after DoInit
 			std::string demoFilePath;
+
+			// Seek-key hold state.
+			// While a seek key is held, SeekPreview() advances demoSeekPendingTime so
+			// the HUD stays responsive.  The full world-replay Seek() fires only on
+			// key release, avoiding one expensive reset/replay per repeat tick.
+			bool demoSeekForwardHeld = false;
+			bool demoSeekBackwardHeld = false;
+			float demoSeekRepeatTimer = 0.0f;   // accumulates dt between preview steps
+			float demoSeekPendingTime = 0.0f;   // target time to commit on key release
 			std::string playerName;
 			std::unique_ptr<IStream> logStream;
 
