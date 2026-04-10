@@ -109,6 +109,12 @@ namespace spades {
 			void TogglePause() { if (demoPlayer) demoPlayer->TogglePause(); }
 			void SetSpeed(float speed) { if (demoPlayer) demoPlayer->SetSpeed(speed); }
 			void Seek(float time);
+			/**
+			 * Updates the displayed playback position without replaying world state.
+			 * Use during interactive scrubbing to keep the HUD responsive; call Seek()
+			 * once scrubbing ends to commit the world to the new position.
+			 */
+			void SeekPreview(float time);
 			void SeekToBeginning();
 			float GetTime() const { return demoPlayer ? demoPlayer->GetTime() : 0.0f; }
 			float GetDuration() const { return demoPlayer ? demoPlayer->GetDuration() : 0.0f; }
