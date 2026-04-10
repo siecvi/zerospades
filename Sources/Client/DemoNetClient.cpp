@@ -960,6 +960,11 @@ namespace spades {
 			statusString = _Tr("NetClient", "Playing demo");
 		}
 
+		void DemoNetClient::SeekPreview(float time) {
+			if (!demoPlayer) return;
+			demoPlayer->Seek(time);
+		}
+
 		void DemoNetClient::SeekToBeginning() {
 			if (!demoPlayer) return;
 
