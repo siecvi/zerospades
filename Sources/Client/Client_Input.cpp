@@ -408,18 +408,38 @@ namespace spades {
 						return;
 					}
 
-					// Handle demo seeking (arrow keys)
-					if (CheckKey(cg_keyDemoSeekForward, name) && down) {
+					// Handle demo seeking (arrow keys).
+					//
+					// While a seek key is held we only call SeekPreview(), which updates the
+					// displayed playback position cheaply (no world reset/replay). RunFrame
+					// advances the pending target on each repeat tick.  The full Seek() —
+					// which resets and replays the world — fires once on key release so the
+					// expensive operation happens at most once per key press.
+					if (CheckKey(cg_keyDemoSeekForward, name)) {
 						if (demoNet) {
-							float newTime = demoNet->GetTime() + 5.0f;
-							demoNet->Seek(newTime);
+							if (down) {
+								demoSeekForwardHeld = true;
+								demoSeekRepeatTimer = 0.0f;
+								demoSeekPendingTime = demoNet->GetTime() + 5.0f;
+								demoNet->SeekPreview(demoSeekPendingTime);
+							} else {
+								demoSeekForwardHeld = false;
+								demoNet->Seek(demoSeekPendingTime);
+							}
 						}
 						return;
 					}
-					if (CheckKey(cg_keyDemoSeekBackward, name) && down) {
+					if (CheckKey(cg_keyDemoSeekBackward, name)) {
 						if (demoNet) {
-							float newTime = demoNet->GetTime() - 5.0f;
-							demoNet->Seek(std::max(0.0f, newTime));
+							if (down) {
+								demoSeekBackwardHeld = true;
+								demoSeekRepeatTimer = 0.0f;
+								demoSeekPendingTime = std::max(0.0f, demoNet->GetTime() - 5.0f);
+								demoNet->SeekPreview(demoSeekPendingTime);
+							} else {
+								demoSeekBackwardHeld = false;
+								demoNet->Seek(demoSeekPendingTime);
+							}
 						}
 						return;
 					}
