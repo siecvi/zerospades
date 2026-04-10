@@ -662,6 +662,23 @@ namespace spades {
 				}
 			}
 
+			// Repeated seek preview while a seek key is held.
+			// Each repeat tick advances demoSeekPendingTime and calls SeekPreview() so the
+			// HUD updates smoothly.  The world-replay Seek() is deferred to key release.
+			if (demoNet && (demoSeekForwardHeld || demoSeekBackwardHeld)) {
+				constexpr float kSeekStep = 5.0f;
+				constexpr float kRepeatInterval = 0.35f;
+				demoSeekRepeatTimer += dt;
+				while (demoSeekRepeatTimer >= kRepeatInterval) {
+					demoSeekRepeatTimer -= kRepeatInterval;
+					if (demoSeekForwardHeld)
+						demoSeekPendingTime = demoSeekPendingTime + kSeekStep;
+					if (demoSeekBackwardHeld)
+						demoSeekPendingTime = std::max(0.0f, demoSeekPendingTime - kSeekStep);
+					demoNet->SeekPreview(demoSeekPendingTime);
+				}
+			}
+
 			hurtRingView->Update(dt);
 			centerMessageView->Update(dt);
 			mapView->Update(dt);
