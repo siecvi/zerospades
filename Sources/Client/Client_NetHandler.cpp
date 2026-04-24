@@ -137,8 +137,9 @@ namespace spades {
 			followAndFreeCameraState.yaw = DEG2RAD(90);
 			followAndFreeCameraState.pitch = DEG2RAD(89);
 
-			// welcome players
-			centerMessageView->AddMessage(_Tr("Client", "Welcome to the server, {0}!", playerName));
+			// welcome players (skip during demo playback)
+			if (!IsDemoMode())
+				centerMessageView->AddMessage(_Tr("Client", "Welcome to the server, {0}!", playerName));
 
 			// play intro sound
 			Handle<IAudioChunk> c = audioDevice->RegisterSound("Sounds/Feedback/Intro.opus");
