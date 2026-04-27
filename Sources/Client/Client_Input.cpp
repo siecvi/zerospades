@@ -394,6 +394,21 @@ namespace spades {
 
 				// In demo mode, we're always spectating without a local player
 				if (IsDemoMode()) {
+					// Allow screenshot / mapshot keys during playback — they don't
+					// require a local player and are commonly used to capture demos.
+					if (CheckKey(cg_keySceneshot, name) && down) {
+						TakeScreenShot(true);
+						return;
+					}
+					if (CheckKey(cg_keyScreenshot, name) && down) {
+						TakeScreenShot(false);
+						return;
+					}
+					if (CheckKey(cg_keySaveMap, name) && down) {
+						TakeMapShot();
+						return;
+					}
+
 					// Handle demo playback controls (play/pause)
 					if (CheckKey(cg_keyDemoPlayPause, name) && down) {
 						if (demoNet) {
