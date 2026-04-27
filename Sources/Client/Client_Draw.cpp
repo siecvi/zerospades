@@ -1792,6 +1792,15 @@ namespace spades {
 					if (!largeMap)
 						mapView->Draw();
 
+					// When following a player in first-person, draw their weapon
+					// skin's 2D layer (crosshair / iron sights / scope).
+					if (IsFirstPerson(GetCameraMode())) {
+						int targetId = GetCameraTargetPlayerId();
+						auto maybeTarget = world->GetPlayer(targetId);
+						if (maybeTarget && maybeTarget->IsAlive())
+							clientPlayers[targetId]->Draw2D();
+					}
+
 					DrawSpectateHUD();
 
 					chatWindow->Draw();
