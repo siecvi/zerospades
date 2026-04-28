@@ -1557,7 +1557,8 @@ namespace spades {
 			layouter.AddControl(_Tr("Preferences", "Master Volume Up"), "cg_keyVolumeUp");
 			layouter.AddControl(_Tr("Preferences", "Master Volume Down"), "cg_keyVolumeDown");
 			layouter.AddControl(_Tr("Preferences", "Force Spectator Mode"), "cg_keyStaffSpectating");
-			
+			layouter.AddControl(_Tr("Preferences", "Toggle Demo Recording"), "cg_keyDemoRecord");
+
 			layouter.FinishLayout();
 		}
 	}

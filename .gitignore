@@ -134,3 +134,6 @@ OpenSpades.rc
 
 # vcpkg build artifacts
 vcpkg/
+
+# Demo recordings
+*.dem
