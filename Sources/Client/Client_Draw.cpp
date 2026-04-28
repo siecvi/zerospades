@@ -270,9 +270,12 @@ namespace spades {
 			IFont& font = fontManager->GetGuiFont();
 
 			// --- progress bar geometry ---
+			// Reserve a strip below the bar so it sits above the bottom-anchored
+			// FPS/stats line (DrawStats with cg_stats == 1) instead of overlapping it.
 			const float barH = 4.0F;
 			const float margin = 8.0F;
-			const float barY = sh - margin - barH;
+			const float bottomReserve = font.Measure("X").y + 4.0F;
+			const float barY = sh - margin - barH - bottomReserve;
 			const float barW = sw - 2.0F * margin;
 
 			// background
