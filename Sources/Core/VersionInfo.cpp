@@ -91,6 +91,8 @@ std::string VersionInfo::GetAppArchitecture() {
 	result = "x64";
 #elif defined(__aarch64__) || defined(_M_ARM64)
 	result = "ARM64";
+#elif defined(__riscv) && __riscv_xlen == 64
+	result = "RISC-V 64";
 #else
 	result = "Unknown Arch";
 #endif
