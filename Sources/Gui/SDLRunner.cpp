@@ -39,7 +39,7 @@
 #include <Draw/OpenGL/GLRenderer.h>
 #include <Draw/SW/SWPort.h>
 #include <Draw/SW/SWRenderer.h>
-#include <OpenSpades.h>
+#include <ZeroSpades.h>
 
 SPADES_SETTING(r_videoWidth);
 SPADES_SETTING(r_videoHeight);
@@ -453,11 +453,9 @@ namespace spades {
 #if !NDEBUG
 					caption.append(" DEBUG build");
 #endif
-#ifdef GIT_COMMIT_HASH
-					caption.append(" " GIT_COMMIT_HASH); // add git hash to window title
-#else
-#ifdef OPENSPADES_COMPILER_STR
-					caption.append(" " OPENSPADES_COMPILER_STR); // add compiler to window title
+#ifndef GIT_COMMIT_HASH
+#ifdef ZEROSPADES_COMPILER_STR
+					caption.append(" " ZEROSPADES_COMPILER_STR); // add compiler to window title when git hash unavailable
 #endif
 #endif
 				}

@@ -1,9 +1,9 @@
 {
-  "app-id": "jp.yvt.OpenSpades",
+  "app-id": "io.zerospades.ZeroSpades",
   "runtime": "org.freedesktop.Platform",
   "runtime-version": "18.08",
   "sdk": "org.freedesktop.Sdk",
-  "command": "openspades",
+  "command": "zerospades",
   "finish-args": [
     "--share=ipc",
     "--socket=x11",
@@ -12,7 +12,7 @@
     "--share=network",
     "--device=dri",
     "--extension=org.freedesktop.Platform.GL=directory=lib/GL",
-    "--persist=.local/share/openspades"
+    "--persist=.local/share/zerospades"
   ],
   "cleanup": [
     "/include",
@@ -57,18 +57,18 @@
       ]
     },
     {
-      "name": "openspades",
+      "name": "zerospades",
       "buildsystem": "cmake",
       "config-opts": [
-        "-DOPENSPADES_INSTALL_BINARY=bin",
-        "-DOPENSPADES_RESDIR=/app/extra/Resources/",
+        "-DZEROSPADES_INSTALL_BINARY=bin",
+        "-DZEROSPADES_RESDIR=/app/extra/Resources/",
         "-DCMAKE_CXX_FLAGS=-DGLEW_NO_GLU",
         "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
       ],
       "post-install": [
-        "mv /app/share/applications/openspades.desktop /app/share/applications/jp.yvt.OpenSpades.desktop",
+        "mv /app/share/applications/zerospades.desktop /app/share/applications/io.zerospades.ZeroSpades.desktop",
         "mkdir -p /app/share/appdata/",
-        "install -Dm0644 jp.yvt.OpenSpades.appdata.xml /app/share/appdata/jp.yvt.OpenSpades.appdata.xml",
+        "install -Dm0644 zerospades.appdata.xml /app/share/appdata/zerospades.appdata.xml",
         "install -D apply_extra /app/bin/apply_extra"
       ],
       "sources": [
@@ -99,7 +99,7 @@
         },
         {
           "type": "file",
-          "path": "jp.yvt.OpenSpades.appdata.xml"
+          "path": "zerospades.appdata.xml"
         },
         {
           "type": "extra-data",

@@ -24,11 +24,11 @@
             sha256 = "VQYMZNYqNBZ9+01YCcabqqIfck/mU/BRcFZKXpBEX00=";
           };
         in rec {
-          packages.default = packages.openspades;
+          packages.default = packages.zerospades;
 
-          packages.openspades = stdenv.mkDerivation rec {
-            pname = "openspades";
-            version = "0.1.5-beta";
+          packages.zerospades = stdenv.mkDerivation rec {
+            pname = "zerospades";
+            version = "0.0.8";
 
             src = self;
 
@@ -42,7 +42,7 @@
               ]);
 
             cmakeFlags = [
-              "-DOPENSPADES_INSTALL_BINARY=bin"
+              "-DZEROSPADES_INSTALL_BINARY=bin"
               "-DCMAKE_CXX_STANDARD=17"
               "-DUSE_INTERNAL_OPENAL=OFF"
             ];
@@ -51,14 +51,14 @@
 
             # Used by `downloadpak.sh`. Instructs the script to copy the
             # development package from this path instead of downloading it.
-            OPENSPADES_DEVPAK_PATH = devPackage;
+            ZEROSPADES_DEVPAK_PATH = devPackage;
 
             postPatch = ''
               patchShebangs Resources
             '';
 
             postInstall = ''
-              cp $notoFontPak $out/share/games/openspades/Resources/
+              cp $notoFontPak $out/share/games/zerospades/Resources/
             '';
           };
         });
