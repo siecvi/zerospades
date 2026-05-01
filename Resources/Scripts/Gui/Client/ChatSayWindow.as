@@ -242,9 +242,18 @@ namespace spades {
 		private void OnSetGlobal(spades::ui::UIElement@ sender) { IsTeamChat = false; }
 		private void OnSetTeam(spades::ui::UIElement@ sender) { IsTeamChat = true; }
 
-		private void OnFieldChanged(spades::ui::UIElement@ sender) { UpdateState(); }
-		private void Close() { @ui.ActiveUI = null; }
+		string StripNewlines(string msg) {
+			msg = Replace(msg, "\r\n", " ");
+			msg = Replace(msg, "\r", " ");
+			msg = Replace(msg, "\n", " ");
+			return msg;
+		}
+		private void OnFieldChanged(spades::ui::UIElement@ sender) {
+			field.Text = StripNewlines(field.Text);
+			UpdateState();
+		}
 
+		private void Close() { @ui.ActiveUI = null; }
 		private void OnCancel(spades::ui::UIElement@ sender) {
 			field.Cancelled();
 			Close();
