@@ -24,9 +24,7 @@ namespace spades {
 	namespace ui {
 
 		class ListViewModel {
-			int NumRows {
-				get { return 0; }
-			}
+			int NumRows { get { return 0; } }
 			UIElement@ CreateElement(int row) { return null; }
 			void RecycleElement(UIElement@ elem) {}
 		}
@@ -161,6 +159,7 @@ namespace spades {
 
 			void ScrollToTop() { scrollBar.ScrollTo(0.0); }
 			void ScrollToEnd() { scrollBar.ScrollTo(scrollBar.MaxValue); }
+			void ScrollToRow(int row) { scrollBar.ScrollTo(double(row)); }
 		}
 
 		class ListView : ListViewBase {

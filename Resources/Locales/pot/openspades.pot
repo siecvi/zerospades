@@ -602,6 +602,11 @@ msgctxt "Preferences"
 msgid "Game Options"
 msgstr ""
 
+#: Resources/Scripts/Gui/Preferences.as:60
+msgctxt "Preferences"
+msgid "Interface"
+msgstr ""
+
 #: Resources/Scripts/Gui/Preferences.as:61
 msgctxt "Preferences"
 msgid "Controls"
@@ -744,6 +749,11 @@ msgctxt "Preferences"
 msgid "Feedbacks"
 msgstr ""
 
+#: Resources/Scripts/Gui/Preferences.as:1550
+msgctxt "Preferences"
+msgid "Viewmodel"
+msgstr ""
+
 #: Resources/Scripts/Gui/Preferences.as:656
 msgctxt "Preferences"
 msgid "Hit Indicator"
@@ -754,19 +764,14 @@ msgctxt "Preferences"
 msgid "Show Alerts"
 msgstr ""
 
-#: Resources/Scripts/Gui/Preferences.as:659
+#: Resources/Scripts/Gui/Preferences.as:657
 msgctxt "Preferences"
-msgid "AoS 0.75/0.76 Compatibility"
+msgid "Show Server Alerts"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:660
 msgctxt "Preferences"
 msgid "Allow Unicode"
-msgstr ""
-
-#: Resources/Scripts/Gui/Preferences.as:661
-msgctxt "Preferences"
-msgid "Server Alert"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:664
@@ -986,6 +991,21 @@ msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:736
 msgctxt "Preferences"
+msgid "Server List URL"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:736
+msgctxt "Preferences"
+msgid "Console Scrollback Lines"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:736
+msgctxt "Preferences"
+msgid "JPEG Quality"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:736
+msgctxt "Preferences"
 msgid "Enable Startup Window"
 msgstr ""
 
@@ -1047,7 +1067,7 @@ msgstr ""
 
 #: Resources/Scripts/Gui/StartupScreen.as:1085
 msgctxt "StartupScreen"
-msgid "Graphics Settings"
+msgid "Graphics"
 msgstr ""
 
 #: Resources/Scripts/Gui/StartupScreen.as:1090
@@ -1646,7 +1666,7 @@ msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:640
 msgctxt "Preferences"
-msgid "Damage Indicator"
+msgid "Damage Indicators"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:647
@@ -1714,6 +1734,16 @@ msgctxt "Preferences"
 msgid "Right"
 msgstr ""
 
+#: Resources/Scripts/Gui/Preferences.as:1550
+msgctxt "Preferences"
+msgid "Hide Player Arms"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1551
+msgctxt "Preferences"
+msgid "Hide Player Body"
+msgstr ""
+
 #: Resources/Scripts/Gui/Preferences.as:1230
 msgctxt "Preferences"
 msgid "Viewmodel Alignment"
@@ -1727,6 +1757,11 @@ msgstr ""
 #: Resources/Scripts/Gui/Preferences.as:1232
 msgctxt "Preferences"
 msgid "Classic Viewmodel"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1186
+msgctxt "Preferences"
+msgid "Classic Player Model"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:665
@@ -1787,6 +1822,14 @@ msgstr ""
 #: Resources/Scripts/Gui/Preferences.as:692
 msgctxt "Preferences"
 msgid "General"
+msgstr ""
+
+msgctxt "Preferences"
+msgid "FPS Limit"
+msgstr ""
+
+msgctxt "Preferences"
+msgid "Unlimited"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:693
@@ -2165,13 +2208,24 @@ msgctxt "Preferences"
 msgid "Player Statistics Height"
 msgstr ""
 
-#: Resources/Scripts/Gui/Preferences.as:1186
 msgctxt "Preferences"
-msgid "Classic Player Model"
+msgid "HUD Edge Positions"
 msgstr ""
 
 msgctxt "Preferences"
-msgid "HUD Edge Positions"
+msgid "Horizontal Alignment"
+msgstr ""
+
+msgctxt "Preferences"
+msgid "Vertical Alignment"
+msgstr ""
+
+msgctxt "Preferences"
+msgid "Edit"
+msgstr ""
+
+msgctxt "Preferences"
+msgid "OK"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:1199
@@ -2187,7 +2241,7 @@ msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:1207
 msgctxt "Preferences"
-msgid "Small HUD Font"
+msgid "Small Stats Font"
 msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:1210

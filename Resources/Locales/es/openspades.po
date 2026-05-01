@@ -610,6 +610,11 @@ msgctxt "Preferences"
 msgid "Game Options"
 msgstr "Opciones del juego"
 
+#: Resources/Scripts/Gui/Preferences.as:60
+msgctxt "Preferences"
+msgid "Interface"
+msgstr "Interfaz"
+
 #: Resources/Scripts/Gui/Preferences.as:61
 msgctxt "Preferences"
 msgid "Controls"
@@ -684,7 +689,7 @@ msgstr "Invertido"
 #: Resources/Scripts/Gui/Preferences.as:637
 msgctxt "Preferences"
 msgid "Player Information"
-msgstr "Información del jugador"
+msgstr "Info. del jugador"
 
 #: Resources/Scripts/Gui/Preferences.as:638
 msgctxt "Preferences"
@@ -750,7 +755,12 @@ msgstr "Menos"
 #: Resources/Scripts/Gui/Preferences.as:654
 msgctxt "Preferences"
 msgid "Feedbacks"
-msgstr "Información"
+msgstr ""
+
+#: Resources/Scripts/Gui/Preferences.as:1545
+msgctxt "Preferences"
+msgid "Viewmodel"
+msgstr ""
 
 #: Resources/Scripts/Gui/Preferences.as:656
 msgctxt "Preferences"
@@ -762,20 +772,15 @@ msgctxt "Preferences"
 msgid "Show Alerts"
 msgstr "Mostrar alertas"
 
-#: Resources/Scripts/Gui/Preferences.as:659
+#: Resources/Scripts/Gui/Preferences.as:657
 msgctxt "Preferences"
-msgid "AoS 0.75/0.76 Compatibility"
-msgstr "Compatibilidad con AoS 0.75/0.76"
+msgid "Show Server Alerts"
+msgstr "Mostrar alertas del servidor"
 
 #: Resources/Scripts/Gui/Preferences.as:660
 msgctxt "Preferences"
 msgid "Allow Unicode"
 msgstr "Permitir Unicode"
-
-#: Resources/Scripts/Gui/Preferences.as:661
-msgctxt "Preferences"
-msgid "Server Alert"
-msgstr "Alerta del servidor"
 
 #: Resources/Scripts/Gui/Preferences.as:664
 msgctxt "Preferences"
@@ -1004,6 +1009,21 @@ msgstr "Guardar screenshot"
 
 #: Resources/Scripts/Gui/Preferences.as:736
 msgctxt "Preferences"
+msgid "Server List URL"
+msgstr "URL de la lista de servidores"
+
+#: Resources/Scripts/Gui/Preferences.as:736
+msgctxt "Preferences"
+msgid "Console Scrollback Lines"
+msgstr "Líneas de historial de la consola"
+
+#: Resources/Scripts/Gui/Preferences.as:736
+msgctxt "Preferences"
+msgid "JPEG Quality"
+msgstr "Calidad JPEG"
+
+#: Resources/Scripts/Gui/Preferences.as:736
+msgctxt "Preferences"
 msgid "Enable Startup Window"
 msgstr "Activar la ventana de inicio"
 
@@ -1065,8 +1085,8 @@ msgstr "Cerrar"
 
 #: Resources/Scripts/Gui/StartupScreen.as:1085
 msgctxt "StartupScreen"
-msgid "Graphics Settings"
-msgstr "Ajustes gráficos"
+msgid "Graphics"
+msgstr "Gráficos"
 
 #: Resources/Scripts/Gui/StartupScreen.as:1090
 msgctxt "StartupScreen"
@@ -1634,8 +1654,8 @@ msgstr "Ping"
 
 #: Resources/Scripts/Gui/Preferences.as:56
 msgctxt "Preferences"
-msgid "Graphics Settings"
-msgstr "Opciones gráficas"
+msgid "Graphics"
+msgstr "Gráficos"
 
 #: Resources/Scripts/Gui/Preferences.as:605
 msgctxt "Preferences"
@@ -1714,8 +1734,8 @@ msgstr "Sonidos de alertas"
 
 #: Resources/Scripts/Gui/Preferences.as:640
 msgctxt "Preferences"
-msgid "Damage Indicator"
-msgstr "Indicador de daño"
+msgid "Damage Indicators"
+msgstr "Indicadores de daño"
 
 #: Resources/Scripts/Gui/Preferences.as:647
 msgctxt "Preferences"
@@ -1782,20 +1802,40 @@ msgctxt "Preferences"
 msgid "Right"
 msgstr "Derecha"
 
+#: Resources/Scripts/Gui/Preferences.as:1233
+msgctxt "Preferences"
+msgid "Weapon Keychains"
+msgstr "Llaveros del arma"
+
+#: Resources/Scripts/Gui/Preferences.as:1550
+msgctxt "Preferences"
+msgid "Hide Player Arms"
+msgstr "Ocultar brazos del jugador"
+
+#: Resources/Scripts/Gui/Preferences.as:1551
+msgctxt "Preferences"
+msgid "Hide Player Body"
+msgstr "Ocultar cuerpo del jugador"
+
 #: Resources/Scripts/Gui/Preferences.as:1230
 msgctxt "Preferences"
 msgid "Viewmodel Alignment"
-msgstr "Alineación del viewmodel"
+msgstr "Alineación del arma"
 
 #: Resources/Scripts/Gui/Preferences.as:1232
 msgctxt "Preferences"
 msgid "Switch Viewmodel Handedness"
-msgstr "Cambiar lateralidad del viewmodel"
+msgstr "Cambiar lateralidad del arma"
+
+#: Resources/Scripts/Gui/Preferences.as:1186
+msgctxt "Preferences"
+msgid "Classic Player Model"
+msgstr "Modelo clásico del jugador"
 
 #: Resources/Scripts/Gui/Preferences.as:663
 msgctxt "Preferences"
 msgid "Classic Viewmodel"
-msgstr "Viewmodel clásico"
+msgstr "Modelo clásico del arma"
 
 #: Resources/Scripts/Gui/Preferences.as:665
 msgctxt "Preferences"
@@ -1820,7 +1860,7 @@ msgstr "Usar colores aleatorios"
 #: Resources/Scripts/Gui/Preferences.as:671
 msgctxt "Preferences"
 msgid "Heads-Up Display"
-msgstr "Interfaz"
+msgstr "HUD"
 
 #: Resources/Scripts/Gui/Preferences.as:672
 msgctxt "Preferences"
@@ -1856,6 +1896,14 @@ msgstr "Mostrar dominaciones"
 msgctxt "Preferences"
 msgid "General"
 msgstr "General"
+
+msgctxt "Preferences"
+msgid "FPS Limit"
+msgstr "Límite de FPS"
+
+msgctxt "Preferences"
+msgid "Unlimited"
+msgstr "Sin límite"
 
 #: Resources/Scripts/Gui/Preferences.as:693
 msgctxt "Preferences"
@@ -1985,7 +2033,7 @@ msgstr "Permitir renderizado por CPU"
 #: Resources/Scripts/Gui/Preferences.as:731
 msgctxt "Preferences"
 msgid "Software Renderer"
-msgstr "Renderizador de software"
+msgstr "Render Software"
 
 #: Resources/Scripts/Gui/Preferences.as:732
 msgctxt "Preferences"
@@ -2244,14 +2292,25 @@ msgctxt "Preferences"
 msgid "Player Statistics Height"
 msgstr "Altura de estadísticas del jugador"
 
-#: Resources/Scripts/Gui/Preferences.as:1186
-msgctxt "Preferences"
-msgid "Classic Player Model"
-msgstr "Modelo clásico de jugadores"
-
 msgctxt "Preferences"
 msgid "HUD Edge Positions"
 msgstr "Posicion de los bordes del HUD"
+
+msgctxt "Preferences"
+msgid "Horizontal Alignment"
+msgstr "Alineación horizontal"
+
+msgctxt "Preferences"
+msgid "Vertical Alignment"
+msgstr "Alineación vertical"
+
+msgctxt "Preferences"
+msgid "Edit"
+msgstr "Editar"
+
+msgctxt "Preferences"
+msgid "OK"
+msgstr "Aceptar"
 
 #: Resources/Scripts/Gui/Preferences.as:1199
 msgctxt "Preferences"
@@ -2266,8 +2325,8 @@ msgstr "Color personalizado"
 
 #: Resources/Scripts/Gui/Preferences.as:1207
 msgctxt "Preferences"
-msgid "Small HUD Font"
-msgstr "Fuente del HUD pequeña"
+msgid "Small Stats Font"
+msgstr "Fuente de estadísticas pequeña"
 
 #: Resources/Scripts/Gui/Preferences.as:1210
 msgctxt "Preferences"
@@ -2558,11 +2617,6 @@ msgstr "Iconos del killfeed"
 msgctxt "Preferences"
 msgid "Save Final Score Screenshot"
 msgstr "Guardar captura del marcador final"
-
-#: Resources/Scripts/Gui/Preferences.as:1233
-msgctxt "Preferences"
-msgid "Weapon Keychains"
-msgstr "Llaveros del arma"
 
 #: Resources/Scripts/Gui/Preferences.as:1340
 msgctxt "Preferences"

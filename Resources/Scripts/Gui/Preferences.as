@@ -28,9 +28,14 @@ namespace spades {
 		private spades::ui::UIElement@ owner;
 
 		private PreferenceTab @[] tabs;
+
 		float ContentsLeft, ContentsWidth;
 		float ContentsTop, ContentsHeight;
 		float ContentsRight;
+
+		float tabLeft, tabRight, tabWidth;
+		float tabTop, tabRowHeight;
+		float panelTop, panelBottom;
 
 		int SelectedTabIndex = 0;
 
@@ -59,40 +64,96 @@ namespace spades {
 			ContentsLeft = (sw - ContentsWidth) * 0.5F;
 			ContentsRight = ContentsLeft + ContentsWidth;
 
+			tabWidth = 150.0F;
+			tabRowHeight = 30.0F;
+			tabTop = ContentsTop + 2.0F;
+			tabLeft = ContentsLeft + 2.0F;
+			tabRight = tabLeft + tabWidth;
+
+			float panelBorderOffset = 14.0F;
+			panelTop = ContentsTop - panelBorderOffset;
+			panelBottom = ContentsTop + ContentsHeight + panelBorderOffset;
+
 			{
 				spades::ui::Label label(Manager);
 				label.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.9F);
-				label.Bounds = AABB2(0.0F, ContentsTop - 13.0F, Size.x, ContentsHeight + 27.0F);
+				label.Bounds = AABB2(0.0F, panelTop + 1.0F, Size.x, (panelBottom - panelTop) - 1.0F);
 				AddChild(label);
 			}
 
-			AddTab(GameOptionsPanel(Manager, options, fontManager), _Tr("Preferences", "Game Options"));
-			AddTab(RendererOptionsPanel(Manager, options, fontManager), _Tr("Preferences", "Graphics Settings"));
-			AddTab(ControlOptionsPanel(Manager, options, fontManager), _Tr("Preferences", "Controls"));
+			HeadingNavIndex gameNav();
+			HeadingNavIndex hudNav();
+			HeadingNavIndex rendererNav();
+			HeadingNavIndex controlsNav();
+			//HeadingNavIndex miscNav();
+
+			AddTab(GameOptionsPanel(Manager, options, fontManager, gameNav), _Tr("Preferences", "Game Options"), gameNav);
+			InterfaceOptions@ interfacePanel = InterfaceOptions(Manager, options, fontManager, hudNav);
+			@interfacePanel.OnEditHUDRequested = spades::ui::EventHandler(this.OnEditHUDRequested);
+			AddTab(interfacePanel, _Tr("Preferences", "Interface"), hudNav);
+			AddTab(RendererOptionsPanel(Manager, options, fontManager, rendererNav), _Tr("Preferences", "Graphics"), rendererNav);
+			AddTab(ControlOptionsPanel(Manager, options, fontManager, controlsNav), _Tr("Preferences", "Controls"), controlsNav);
 			AddTab(MiscOptionsPanel(Manager, options, fontManager), _Tr("Preferences", "Misc"));
+
+			float backButtonTop = tabTop + float(tabs.length) * tabRowHeight + 5.0F;
 
 			{
 				PreferenceTabButton button(Manager);
 				button.Caption = _Tr("Preferences", "Back");
 				button.HotKeyText = _Tr("Client", "[Esc]");
-				button.Bounds = AABB2(ContentsLeft + 10.0F,
-					ContentsTop + 10.0F + float(tabs.length) * 32.0F + 5.0F, 150.0F, 30.0F);
+				button.Bounds = AABB2(tabLeft, backButtonTop, tabWidth, tabRowHeight);
 				@button.Activated = spades::ui::EventHandler(this.OnClosePressed);
 				AddChild(button);
+			}
+
+			// build navigation containers in the sidebar
+			{
+				float btnH = 24.0F;
+				float btnY = backButtonTop + tabRowHeight + btnH;
+				float btnGap = 2.0F;
+
+				for (uint i = 0; i < tabs.length; i++) {
+					PreferenceTab@ tab = tabs[i];
+
+					HeadingNavIndex@ nav = tab.HeadingNav;
+					if (nav is null)
+						continue;
+
+					int numHeadings = nav.entries.length;
+					if (numHeadings < 2)
+						continue;
+
+					float height = float(numHeadings) * (btnH + btnGap) - btnGap;
+
+					spades::ui::UIElement container(Manager);
+					container.Bounds = AABB2(tabLeft, btnY, tabWidth, height);
+					container.Visible = false;
+
+					for (int j = 0; j < numHeadings; j++) {
+						HeadingNavEntry ent = nav.entries[j];
+						HeadingNavButton btn(Manager);
+						btn.Caption = ent.caption;
+						btn.SetTarget(nav.list, ent.row);
+						btn.Bounds = AABB2(0.0F, float(j) * (btnH + btnGap), tabWidth, btnH);
+						container.AddChild(btn);
+					}
+
+					AddChild(container);
+					@tab.NavPanel = container;
+				}
 			}
 
 			UpdateTabs();
 		}
 
-		private void AddTab(spades::ui::UIElement@ view, string caption) {
+		private void AddTab(spades::ui::UIElement@ view, string caption, HeadingNavIndex@ nav = null) {
 			PreferenceTab tab(this, view);
 			tab.TabButton.Caption = caption;
-			tab.TabButton.Bounds = AABB2(ContentsLeft + 10.0F,
-				ContentsTop + 10.0F + float(tabs.length) * 32.0F, 150.0F, 30.0F);
+			tab.TabButton.Bounds = AABB2(tabLeft, tabTop + float(tabs.length) * tabRowHeight, tabWidth, tabRowHeight);
 			@tab.TabButton.Activated = spades::ui::EventHandler(this.OnTabButtonActivated);
-			tab.View.Bounds = AABB2((ContentsLeft + 2.0F) + 150.0F,
-				ContentsTop + 10.0F, ContentsWidth, ContentsHeight - 20.0F);
+			tab.View.Bounds = AABB2(tabRight, tabTop, ContentsRight - tabRight, ContentsHeight - 6.0F);
 			tab.View.Visible = false;
+			@tab.HeadingNav = nav;
 			AddChild(tab.View);
 			AddChild(tab.TabButton);
 			tabs.insertLast(tab);
@@ -109,14 +170,27 @@ namespace spades {
 
 		private void UpdateTabs() {
 			for (uint i = 0; i < tabs.length; i++) {
-				PreferenceTab@ tab = tabs[i];
 				bool selected = SelectedTabIndex == int(i);
-				tab.TabButton.Toggled = selected;
-				tab.View.Visible = selected;
+				tabs[i].TabButton.Toggled = selected;
+				tabs[i].View.Visible = selected;
+				if (tabs[i].NavPanel !is null)
+					tabs[i].NavPanel.Visible = selected;
 			}
 		}
 
 		private void OnClosePressed(spades::ui::UIElement@ sender) { Close(); }
+
+		private void OnEditHUDRequested(spades::ui::UIElement@ sender) {
+			this.Visible = false;
+			ConfigHUDEdit overlay(Manager);
+			@overlay.OnDone = spades::ui::EventHandler(this.OnHUDEditDone);
+			Parent.AddChild(overlay);
+		}
+
+		private void OnHUDEditDone(spades::ui::UIElement@ sender) {
+			@sender.Parent = null;
+			this.Visible = true;
+		}
 
 		private void OnClosed() {
 			if (Closed !is null)
@@ -136,9 +210,12 @@ namespace spades {
 			Vector2 pos = ScreenPosition;
 			Vector2 size = Size;
 
+			//r.ColorNP = Vector4(1.0F, 0.0F, 0.0F, 1.0F);
+			//r.DrawImage(null, AABB2(tabRight, tabTop, ContentsRight - tabRight, ContentsHeight - 6.0F));
+
 			r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.07F);
-			r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop - 14.0F, size.x, 1.0F));
-			r.DrawImage(null, AABB2(pos.x, pos.y + ContentsTop + ContentsHeight + 14.0F, size.x, 1.0F));
+			r.DrawImage(null, AABB2(pos.x, pos.y + panelTop, size.x, 1.0F));
+			r.DrawImage(null, AABB2(pos.x, pos.y + panelBottom, size.x, 1.0F));
 
 			UIElement::Render();
 		}
@@ -166,10 +243,139 @@ namespace spades {
 		spades::ui::UIElement@ View;
 		PreferenceTabButton@ TabButton;
 
+		HeadingNavIndex@ HeadingNav;
+		spades::ui::UIElement@ NavPanel;
+
 		PreferenceTab(PreferenceView@ parent, spades::ui::UIElement@ view) {
 			@View = view;
 			@TabButton = PreferenceTabButton(parent.Manager);
 			TabButton.Toggle = true;
+		}
+	}
+
+	class HeadingNavEntry {
+		string caption;
+		int row;
+	}
+	class HeadingNavIndex {
+		HeadingNavEntry[] entries;
+		spades::ui::ListView@ list;
+	}
+	class HeadingNavButton : spades::ui::SimpleButton {
+		private spades::ui::ListView@ targetList;
+		private int targetRow;
+
+		HeadingNavButton(spades::ui::UIManager@ manager) {
+			super(manager);
+		}
+
+		void SetTarget(spades::ui::ListView@ list, int row) {
+			@targetList = list;
+			targetRow = row;
+		}
+
+		void OnActivated() {
+			if (targetList !is null)
+				targetList.ScrollToRow(targetRow);
+		}
+	}
+
+	class ConfigHUDEdit : spades::ui::UIElement {
+		private ConfigItem cg_hudSafezoneX("cg_hudSafezoneX");
+		private ConfigItem cg_hudSafezoneY("cg_hudSafezoneY");
+		spades::ui::EventHandler@ OnDone;
+
+		ConfigHUDEdit(spades::ui::UIManager@ manager) {
+			super(manager);
+
+			float sw = Manager.ScreenWidth;
+			float sh = Manager.ScreenHeight;
+			Bounds = AABB2(0.0F, 0.0F, sw, sh);
+
+			float panelW = 280.0F;
+			float panelH = 180.0F;
+			float panelX = (sw - panelW) * 0.5F;
+			float panelY = (sh - panelH) * 0.5F;
+
+			{
+				spades::ui::Label bg(Manager);
+				bg.BackgroundColor = Vector4(0.0F, 0.0F, 0.0F, 0.8F);
+				bg.Bounds = AABB2(panelX - 8.0F, panelY - 8.0F, panelW + 16.0F, panelH + 16.0F);
+				AddChild(bg);
+			}
+
+			{
+				spades::ui::Label label(Manager);
+				label.Text = _Tr("Preferences", "Horizontal Alignment");
+				label.Alignment = Vector2(0.5F, 0.5F);
+				label.Bounds = AABB2(panelX, panelY, panelW, 24.0F);
+				AddChild(label);
+
+				ConfigSlider sliderX(Manager, "cg_hudSafezoneX", 0.2, 1.0, 0.01, ConfigNumberFormatter(2, ""));
+				sliderX.Bounds = AABB2(panelX, label.Bounds.minY + 24.0F, panelW, 24.0F);
+				AddChild(sliderX);
+			}
+
+			{
+				spades::ui::Label label(Manager);
+				label.Text = _Tr("Preferences", "Vertical Alignment");
+				label.Alignment = Vector2(0.5F, 0.5F);
+				label.Bounds = AABB2(panelX, panelY + 64.0F, panelW, 24.0F);
+				AddChild(label);
+
+				ConfigSlider sliderY(Manager, "cg_hudSafezoneY", 0.2, 1.0, 0.01, ConfigNumberFormatter(2, ""));
+				sliderY.Bounds = AABB2(panelX, label.Bounds.minY + 24.0F, panelW, 24.0F);
+				AddChild(sliderY);
+			}
+
+			{
+				spades::ui::Button doneBtn(Manager);
+				doneBtn.Caption = _Tr("Preferences", "OK");
+				doneBtn.Bounds = AABB2(panelX + panelW - 80.0F, panelY + panelH - 24.0F, 80.0F, 24.0F);
+				@doneBtn.Activated = spades::ui::EventHandler(this.OnDoneClicked);
+				AddChild(doneBtn);
+			}
+		}
+
+		private void OnDoneClicked(spades::ui::UIElement@ sender) {
+			if (OnDone !is null)
+				OnDone(this);
+		}
+
+		void HotKey(string key) {
+			if (key == "Escape")
+				OnDoneClicked(this);
+			else
+				UIElement::HotKey(key);
+		}
+
+		void Render() {
+			Renderer@ r = Manager.Renderer;
+			float sw = Manager.ScreenWidth;
+			float sh = Manager.ScreenHeight;
+
+			float ratio = sw / sh;
+			float safeZoneXMin = 0.75F;
+			if (ratio < 0.26F)
+				safeZoneXMin = 0.28F;
+			else if (ratio < 0.56F)
+				safeZoneXMin = 0.475F;
+
+			float safeZoneX = Clamp(cg_hudSafezoneX.FloatValue, safeZoneXMin, 1.0F);
+			float safeZoneY = Clamp(cg_hudSafezoneY.FloatValue, 0.85F, 1.0F);
+			float x = (sw - 16.0F) * safeZoneX;
+			float y = (sh - 16.0F) * safeZoneY;
+
+			r.ColorNP = Vector4(0.0F, 0.0F, 0.0F, 0.5F);
+			r.DrawFilledRect(0, 0, sw, sh - y);
+			r.DrawFilledRect(0, y, sw, sh);
+			r.DrawFilledRect(0, sh - y, sw - x, y);
+			r.DrawFilledRect(x, sh - y, sw, y);
+
+			r.ColorNP = Vector4(1.0F, 1.0F, 1.0F, 0.9F);
+			r.DrawOutlinedRect(x, y, sw - x, sh - y);
+
+			UIElement::Render();
 		}
 	}
 
@@ -286,6 +492,21 @@ namespace spades {
 		}
 	}
 
+	class FPSValueMapper : ConfigValueMapper {
+		float Map(float value) { return (value < 20) ? 0 : value; }
+	}
+	class ConfigFPSFormatter : ConfigNumberFormatter {
+		ConfigFPSFormatter() {
+			super(0, "FPS");
+		}
+		string Format(float value) {
+			if (value == 0)
+				return _Tr("Preferences", "Unlimited");
+			else
+				return ConfigNumberFormatter::Format(value);
+		}
+	}
+
 	class ConfigSensScaleFormatter : ConfigNumberFormatter {
 		ConfigSensScaleFormatter() {
 			super(0, "");
@@ -378,11 +599,13 @@ namespace spades {
 		}
 	}
 
+	interface ConfigValueMapper { float Map(float value); }
 	class ConfigSlider : spades::ui::Slider {
 		ConfigItem@ config;
 		float stepSize;
 		spades::ui::Label@ label;
 		ConfigNumberFormatter@ formatter;
+		ConfigValueMapper@ mapper;
 
 		ConfigSlider(spades::ui::UIManager manager, string configName, float minValue,
 					 float maxValue, float stepValue, ConfigNumberFormatter@ formatter) {
@@ -410,12 +633,16 @@ namespace spades {
 			label.Bounds = AABB2(0.0F, 0.0F, Size.x, Size.y);
 		}
 
-		void UpdateLabel() { label.Text = formatter.Format(config.FloatValue); }
+		void UpdateLabel() {
+			label.Text = formatter.Format(config.FloatValue);
+		}
 
 		void DoRounding() {
 			float v = float(this.Value - this.MinValue);
 			v = floor((v / stepSize) + 0.5) * stepSize;
 			v += float(this.MinValue);
+			if (mapper !is null)
+				v = mapper.Map(v);
 			this.Value = v;
 		}
 
@@ -574,7 +801,7 @@ namespace spades {
 			RadioButton::Render();
 		}
 	}
-	
+
 	class ConfigSimpleToggleStringButton : spades::ui::RadioButton {
 		ConfigItem@ config;
 		string value;
@@ -951,7 +1178,12 @@ namespace spades {
 		private ConfigHotKeyField @[] hotkeyItems;
 		private FontManager@ fontManager;
 
+		// Heading navigation tracking
+		private HeadingNavEntry[] headings;
+		HeadingNavIndex@ HeadingNav;
+
 		float FieldX, FieldWidth, FieldHeight;
+		float ListX, ListWidth;
 
 		StandardPreferenceLayouter(spades::ui::UIElement@ parent, FontManager@ fontManager) {
 			@Parent = parent;
@@ -974,13 +1206,9 @@ namespace spades {
 			float maxFieldHeight = 550.0F;
 			if (FieldHeight > maxFieldHeight)
 				FieldHeight = maxFieldHeight;
-		}
 
-		private spades::ui::UIElement@ CreateItem() {
-			spades::ui::UIElement elem(Parent.Manager);
-			elem.Size = Vector2(FieldWidth, 32.0F);
-			items.insertLast(elem);
-			return elem;
+			ListX = 10.0F;
+			ListWidth = FieldX + FieldWidth - ListX;
 		}
 
 		private void OnKeyBound(spades::ui::UIElement@ sender) {
@@ -996,28 +1224,52 @@ namespace spades {
 			}
 		}
 
+		private spades::ui::UIElement@ CreateItem() {
+			spades::ui::UIElement elem(Parent.Manager);
+			elem.Size = Vector2(FieldWidth, 32.0F);
+			items.insertLast(elem);
+			return elem;
+		}
+
+		private spades::ui::UIElement@ CreateBasicLabel(string caption, bool enabled = true) {
+			spades::ui::UIElement@ container = CreateItem();
+
+			spades::ui::Label label(Parent.Manager);
+			label.Text = caption;
+			label.Alignment = Vector2(0.0F, 0.5F);
+			label.Bounds = AABB2(ListX, 0.0F, ListWidth, 32.0F);
+			label.Enable = enabled;
+			container.AddChild(label);
+
+			return container;
+		}
+
 		void AddHeading(string text) {
+			// record this heading for the navigation bar
+			if (text.length > 0) {
+				HeadingNavEntry entry;
+				entry.caption = text;
+				entry.row = int(items.length);
+				headings.insertLast(entry);
+			}
+
 			spades::ui::UIElement@ container = CreateItem();
 
 			spades::ui::Label label(Parent.Manager);
 			@label.Font = fontManager.HeadingFont;
 			label.Text = text;
 			label.Alignment = Vector2(0.5F, 0.5F);
-			label.Bounds = AABB2(10.0F, 0.0F, FieldX + FieldWidth - 10.0F, 32.0F);
+			label.Bounds = AABB2(ListX, 0.0F, ListWidth, 32.0F);
 			container.AddChild(label);
 		}
 
-		ConfigField@ AddInputField(string caption, string configName, bool enabled = true) {
-			spades::ui::UIElement@ container = CreateItem();
-
-			spades::ui::Label label(Parent.Manager);
-			label.Text = caption;
-			label.Alignment = Vector2(0.0F, 0.5F);
-			label.Bounds = AABB2(10.0F, 0.0F, FieldX + FieldWidth - 10.0F, 32.0F);
-			container.AddChild(label);
+		ConfigField@ AddInputField(string caption, string configName, bool enabled = true, bool compact = false) {
+			spades::ui::UIElement@ container = CreateBasicLabel(caption, enabled);
 
 			ConfigField field(Parent.Manager, configName);
-			field.Bounds = AABB2(FieldX, 1.0F, FieldWidth, 30.0F);
+			if (compact)
+				@field.Font = fontManager.SmallFont;
+			field.Bounds = AABB2(FieldX, 2.0F, FieldWidth, compact ? 20.0F : 28.0F);
 			field.Enable = enabled;
 			container.AddChild(field);
 
@@ -1026,13 +1278,7 @@ namespace spades {
 
 		ConfigSlider@ AddSliderField(string caption, string configName, float minRange, float maxRange,
 			float step, ConfigNumberFormatter@ formatter, bool enabled = true) {
-			spades::ui::UIElement@ container = CreateItem();
-
-			spades::ui::Label label(Parent.Manager);
-			label.Text = caption;
-			label.Alignment = Vector2(0.0F, 0.5F);
-			label.Bounds = AABB2(10.0F, 0.0F, FieldX + FieldWidth - 10.0F, 32.0F);
-			container.AddChild(label);
+			spades::ui::UIElement@ container = CreateBasicLabel(caption, enabled);
 
 			ConfigSlider slider(Parent.Manager, configName, minRange, maxRange, step, formatter);
 			slider.Bounds = AABB2(FieldX, 4.0F, FieldWidth, 24.0F);
@@ -1042,20 +1288,10 @@ namespace spades {
 			return slider;
 		}
 
-		ConfigSlider@ AddVolumeSlider(string caption, string configName) {
-			return AddSliderField(caption, configName, 0, 1, 0.01, ConfigNumberFormatter(0, "%", "", 100));
-		}
-
 		void AddSliderGroup(string caption, array<string> labels,
 			float minRange, float maxRange, float step, int digits,
 			array<string> prefix, bool enabled = true) {
-			spades::ui::UIElement@ container = CreateItem();
-
-			spades::ui::Label label(Parent.Manager);
-			label.Text = caption;
-			label.Alignment = Vector2(0.0F, 0.5F);
-			label.Bounds = AABB2(10.0F, 0.0F, FieldX + FieldWidth - 10.0F, 32.0F);
-			container.AddChild(label);
+			spades::ui::UIElement@ container = CreateBasicLabel(caption, enabled);
 
 			float width = (FieldWidth - (labels.length - 1)) / labels.length;
 			for (uint i = 0; i < labels.length; ++i) {
@@ -1067,21 +1303,19 @@ namespace spades {
 			}
 		}
 
+		void AddVolumeSlider(string caption, string configName) {
+			AddSliderField(caption, configName, 0, 1, 0.01, ConfigNumberFormatter(0, "%", "", 100));
+		}
+
 		void AddRGBSlider(string caption, array<string> labels, bool enabled = true) {
 			AddSliderGroup(caption, labels, 0, 255, 1, 0, array<string> = { "R: ", "G: ", "B: "});
 		}
 
 		void AddControl(string caption, string configName, bool enabled = true) {
-			spades::ui::UIElement@ container = CreateItem();
-
-			spades::ui::Label label(Parent.Manager);
-			label.Text = caption;
-			label.Alignment = Vector2(0.0F, 0.5F);
-			label.Bounds = AABB2(10.0F, 0.0F, FieldX + FieldWidth - 10.0F, 32.0F);
-			container.AddChild(label);
+			spades::ui::UIElement@ container = CreateBasicLabel(caption, enabled);
 
 			ConfigHotKeyField field(Parent.Manager, configName);
-			field.Bounds = AABB2(FieldX, 1.0F, FieldWidth, 30.0F);
+			field.Bounds = AABB2(FieldX, 2.0F, FieldWidth, 28.0F);
 			field.Enable = enabled;
 			container.AddChild(field);
 
@@ -1091,37 +1325,25 @@ namespace spades {
 
 		void AddChoiceField(string caption, string configName,
 			array<string>@ labels, array<int>@ values, bool enabled = true) {
-			spades::ui::UIElement@ container = CreateItem();
-
-			spades::ui::Label label(Parent.Manager);
-			label.Text = caption;
-			label.Alignment = Vector2(0.0F, 0.5F);
-			label.Bounds = AABB2(10.0F, 0.0F, FieldX + FieldWidth - 10.0F, 32.0F);
-			container.AddChild(label);
+			spades::ui::UIElement@ container = CreateBasicLabel(caption, enabled);
 
 			float width = (FieldWidth - (labels.length - 1)) / labels.length;
 			for (uint i = 0; i < labels.length; ++i) {
 				ConfigSimpleToggleButton field(Parent.Manager, labels[i], configName, values[i]);
-				field.Bounds = AABB2(FieldX + float(i) * (width + 1.0F), 1.0F, width, 30.0F);
+				field.Bounds = AABB2(FieldX + float(i) * (width + 1.0F), 2.0F, width, 28.0F);
 				field.Enable = enabled;
 				container.AddChild(field);
 			}
 		}
-		
+
 		void AddChoiceStringField(string caption, string configName,
 			array<string>@ labels, array<string>@ values, bool enabled = true) {
-			spades::ui::UIElement@ container = CreateItem();
-
-			spades::ui::Label label(Parent.Manager);
-			label.Text = caption;
-			label.Alignment = Vector2(0.0F, 0.5F);
-			label.Bounds = AABB2(10.0F, 0.0F, FieldX + FieldWidth - 10.0F, 32.0F);
-			container.AddChild(label);
+			spades::ui::UIElement@ container = CreateBasicLabel(caption, enabled);
 
 			float width = (FieldWidth - (labels.length - 1)) / labels.length;
 			for (uint i = 0; i < labels.length; ++i) {
 				ConfigSimpleToggleStringButton field(Parent.Manager, labels[i], configName, values[i]);
-				field.Bounds = AABB2(FieldX + float(i) * (width + 1.0F), 1.0F, width, 30.0F);
+				field.Bounds = AABB2(FieldX + float(i) * (width + 1.0F), 2.0F, width, 28.0F);
 				field.Enable = enabled;
 				container.AddChild(field);
 			}
@@ -1142,68 +1364,80 @@ namespace spades {
 						   array<int> = {1, -1, 0}, enabled);
 		}
 
-		void AddTargetPreview() {
+		void AddButtonField(string caption, string btnCaption, spades::ui::EventHandler@ handler) {
+			spades::ui::UIElement@ container = CreateBasicLabel(caption);
+
+			spades::ui::SimpleButton button(Parent.Manager);
+			button.Caption = btnCaption;
+			button.Bounds = AABB2(FieldX, 4.0F, FieldWidth, 24.0F);
+			@button.Activated = handler;
+			container.AddChild(button);
+		}
+
+		private void CreatePreview(spades::ui::UIElement@ field,
+			spades::ui::EventHandler@ resetHandler,
+			spades::ui::EventHandler@ randomizeHandler) {
 			spades::ui::UIElement@ container = CreateItem();
 
-			ConfigTarget field(Parent.Manager);
-			field.Bounds = AABB2(10.0F, 0.0F, FieldX + FieldWidth - 10.0F, 64.0F);
+			field.Bounds = AABB2(ListX, 0.0F, ListWidth, 64.0F);
 			container.AddChild(field);
 
 			spades::ui::SimpleButton resetButton(Parent.Manager);
 			resetButton.Caption = _Tr("Preferences", "Reset");
 			resetButton.Bounds = AABB2(10.0F + 2.0F, 2.0F, 50.0F, 20.0F);
-			@resetButton.Activated = spades::ui::EventHandler(field.OnResetPressed);
+			@resetButton.Activated = resetHandler;
 			container.AddChild(resetButton);
 
 			spades::ui::SimpleButton randomizeButton(Parent.Manager);
 			randomizeButton.Caption = _Tr("Preferences", "Randomize");
 			randomizeButton.Bounds = AABB2(FieldX + FieldWidth - 80.0F - 2.0F, 2.0F, 80.0F, 20.0F);
-			@randomizeButton.Activated = spades::ui::EventHandler(field.OnRandomizePressed);
+			@randomizeButton.Activated = randomizeHandler;
 			container.AddChild(randomizeButton);
 		}
 
+		void AddTargetPreview() {
+			ConfigTarget field(Parent.Manager);
+			CreatePreview(field,
+				spades::ui::EventHandler(field.OnResetPressed),
+				spades::ui::EventHandler(field.OnRandomizePressed));
+		}
 		void AddScopePreview() {
-			spades::ui::UIElement@ container = CreateItem();
-
 			ConfigScope field(Parent.Manager);
-			field.Bounds = AABB2(10.0F, 0.0F, FieldX + FieldWidth - 10.0F, 64.0F);
-			container.AddChild(field);
-
-			spades::ui::SimpleButton resetButton(Parent.Manager);
-			resetButton.Caption = _Tr("Preferences", "Reset");
-			resetButton.Bounds = AABB2(10.0F + 2.0F, 2.0F, 50.0F, 20.0F);
-			@resetButton.Activated = spades::ui::EventHandler(field.OnResetPressed);
-			container.AddChild(resetButton);
-
-			spades::ui::SimpleButton randomizeButton(Parent.Manager);
-			randomizeButton.Caption = _Tr("Preferences", "Randomize");
-			randomizeButton.Bounds = AABB2(FieldX + FieldWidth - 80.0F - 2.0F, 2.0F, 80.0F, 20.0F);
-			@randomizeButton.Activated = spades::ui::EventHandler(field.OnRandomizePressed);
-			container.AddChild(randomizeButton);
+			CreatePreview(field,
+				spades::ui::EventHandler(field.OnResetPressed),
+				spades::ui::EventHandler(field.OnRandomizePressed));
 		}
 
 		void FinishLayout() {
 			spades::ui::ListView list(Parent.Manager);
 			@list.Model = StandardPreferenceLayouterModel(items);
 			list.RowHeight = 32.0F;
-			list.Bounds = AABB2(10.0F, 0.0F, FieldX + (FieldWidth + 30.0F) - 10.0F, FieldHeight - 20.0F);
+			list.Bounds = AABB2(ListX, 0.0F, ListWidth + 30.0F, FieldHeight - 6.0F);
 			Parent.AddChild(list);
+
+			// pass heading data to PreferenceView if it set a receiver
+			if (HeadingNav !is null and headings.length >= 2) {
+				HeadingNav.entries = headings;
+				@HeadingNav.list = list;
+			}
 		}
 	}
 
 	class GameOptionsPanel : spades::ui::UIElement {
 		GameOptionsPanel(spades::ui::UIManager@ manager,
-			PreferenceViewOptions@ options, FontManager@ fontManager) {
+			PreferenceViewOptions@ options, FontManager@ fontManager,
+			HeadingNavIndex@ nav = null) {
 			super(manager);
 
 			StandardPreferenceLayouter layouter(this, fontManager);
+			@layouter.HeadingNav = nav;
 
 			layouter.AddHeading(_Tr("Preferences", "Player Information"));
 			ConfigField@ nameField = layouter.AddInputField(_Tr("Preferences", "Player Name"),
 				"cg_playerName", not options.GameActive);
 			nameField.MaxLength = 15;
 			nameField.DenyNonAscii = false;
-			
+
 			layouter.AddHeading(_Tr("Preferences", "Gameplay"));
 			layouter.AddChoiceField(_Tr("Preferences", "Aiming Animation"), "cg_animations",
 									array<string> = {_Tr("Preferences", "FAST"),
@@ -1213,6 +1447,7 @@ namespace spades {
 			layouter.AddToggleField(_Tr("Preferences", "Full Aim Down Sight"), "cg_trueAimDownSight");
 			layouter.AddToggleField(_Tr("Preferences", "Classic Weapon Recoil"), "cg_classicWeaponRecoil");
 			layouter.AddToggleField(_Tr("Preferences", "Classic Sprinting"), "cg_classicSprinting");
+			layouter.AddToggleField(_Tr("Preferences", "Classic Zoom"), "cg_classicZoom");
 
 			layouter.AddHeading(_Tr("Preferences", "Effects"));
 			layouter.AddChoiceField(_Tr("Preferences", "Blood"), "cg_blood",
@@ -1266,43 +1501,66 @@ namespace spades {
 			layouter.AddVolumeSlider(_Tr("Preferences", "Headshot Feedback Volume"), "cg_headshotFeedbackSoundGain");
 			layouter.AddVolumeSlider(_Tr("Preferences", "Chat Notify Sounds"), "cg_chatBeep");
 			layouter.AddToggleField(_Tr("Preferences", "Show Alerts"), "cg_alerts");
+			layouter.AddToggleField(_Tr("Preferences", "Show Server Alerts"), "cg_serverAlert");
 			layouter.AddVolumeSlider(_Tr("Preferences", "Alert Sounds"), "cg_alertSounds");
 			layouter.AddToggleField(_Tr("Preferences", "Hit Log"), "cg_hitLog");
 			layouter.AddToggleField(_Tr("Preferences", "Hit Indicator"), "cg_hitIndicator");
-			layouter.AddToggleField(_Tr("Preferences", "Damage Indicator"), "cg_damageIndicators");
-			layouter.AddToggleField(_Tr("Preferences", "Show Hover Player Names"), "cg_playerNames");
-			layouter.AddToggleField(_Tr("Preferences", "Show Dead Player Names"), "cg_playerNamesDead");
-			
+
+			layouter.AddHeading(_Tr("Preferences", "Viewmodel"));
+			layouter.AddToggleField(_Tr("Preferences", "Weapon Keychains"), "cg_weaponCharms");
+			layouter.AddSliderField(_Tr("Preferences", "Viewmodel Alignment"), "cg_viewWeaponSide",
+			-1, 1, 0.1, ConfigViewmodelSideFormatter());
+			layouter.AddControl(_Tr("Preferences", "Switch Viewmodel Handedness"), "cg_keyToggleLeftHand");
+			layouter.AddToggleField(_Tr("Preferences", "Hide Player Arms"), "cg_hideArms");
+			layouter.AddToggleField(_Tr("Preferences", "Hide Player Body"), "cg_hideBody");
+			layouter.AddToggleField(_Tr("Preferences", "Classic Player Model"), "cg_classicPlayerModels");
+			layouter.AddToggleField(_Tr("Preferences", "Classic Viewmodel"), "cg_classicViewWeapon");
+
 			layouter.AddHeading(_Tr("Preferences", "Misc"));
 			layouter.AddSliderField(_Tr("Preferences", "Field of View"), "cg_fov",
 			45, 110, 1, ConfigFOVFormatter());
 			layouter.AddToggleField(_Tr("Preferences", "Horizontal FOV"), "cg_horizontalFov");
-			layouter.AddToggleField(_Tr("Preferences", "Classic Zoom"), "cg_classicZoom");
-			layouter.AddToggleField(_Tr("Preferences", "Save Final Score Screenshot"), "cg_autoScreenshot");	
-			layouter.AddChoiceStringField(_Tr("Preferences", "Screenshot Format"), "cg_screenshotFormat",
-                     array<string> = { "PNG", "JPEG", "TGA" },
-                     array<string> = { "png", "jpeg", "tga" });
+			layouter.AddToggleField(_Tr("Preferences", "Environmental Audio"), "cg_environmentalAudio");
+			layouter.AddToggleField(_Tr("Preferences", "Skip dead players (death cam)"), "cg_skipDeadPlayersWhenDead");
+			layouter.AddToggleField(_Tr("Preferences", "Save Final Score Screenshot"), "cg_autoScreenshot");
 			layouter.AddToggleField(_Tr("Preferences", "Debug Hit Detection"), "cg_debugHitTest");
 			layouter.AddSliderField(_Tr("Preferences", "Hit Test Debugger Size"), "cg_dbgHitTestSize",
 			64, 256, 8, ConfigNumberFormatter(0, "px"));
-			layouter.AddControl(_Tr("Preferences", "Toggle Hit Debugger Zoom"), "cg_keyToggleHitTestZoom");		
+			layouter.AddControl(_Tr("Preferences", "Toggle Hit Debugger Zoom"), "cg_keyToggleHitTestZoom");
 			layouter.AddSliderField(_Tr("Preferences", "Hit Debugger Fade Time"), "cg_dbgHitTestFadeTime",
-			1, 20, 1, ConfigNumberFormatter(0, "s"));		
+			1, 20, 1, ConfigNumberFormatter(0, "s"));
 			layouter.AddToggleField(_Tr("Preferences", "Debug Weapon Spread"), "cg_debugAim");
 			layouter.AddToggleField(_Tr("Preferences", "Debug Block Cursor"), "cg_debugBlockCursor");
 			layouter.AddToggleField(_Tr("Preferences", "Debug Players Hitbox"), "cg_debugPlayerHitboxes");
 			layouter.AddToggleField(_Tr("Preferences", "Debug Weapon Anchor Points"), "cg_debugToolSkinAnchors");
-			layouter.AddSliderField(_Tr("Preferences", "Viewmodel Alignment"), "cg_viewWeaponSide",
-			-1, 1, 0.1, ConfigViewmodelSideFormatter());
-			layouter.AddControl(_Tr("Preferences", "Switch Viewmodel Handedness"), "cg_keyToggleLeftHand");
-			layouter.AddToggleField(_Tr("Preferences", "Classic Viewmodel"), "cg_classicViewWeapon");
-			layouter.AddToggleField(_Tr("Preferences", "Classic Player Model"), "cg_classicPlayerModels");
-			layouter.AddToggleField(_Tr("Preferences", "Weapon Keychains"), "cg_weaponCharms");
-			layouter.AddToggleField(_Tr("Preferences", "Environmental Audio"), "cg_environmentalAudio");
-			layouter.AddToggleField(_Tr("Preferences", "Skip dead players (death cam)"), "cg_skipDeadPlayersWhenDead");
+
+			layouter.FinishLayout();
+		}
+	}
+
+	class InterfaceOptions : spades::ui::UIElement {
+		spades::ui::EventHandler@ OnEditHUDRequested;
+		private void OnEditHUDClicked(spades::ui::UIElement@ sender) {
+			if (OnEditHUDRequested !is null)
+				OnEditHUDRequested(this);
+		}
+
+		InterfaceOptions(spades::ui::UIManager@ manager,
+			PreferenceViewOptions@ options, FontManager@ fontManager,
+			HeadingNavIndex@ nav = null) {
+			super(manager);
+
+			StandardPreferenceLayouter layouter(this, fontManager);
+			@layouter.HeadingNav = nav;
 
 			layouter.AddHeading(_Tr("Preferences", "Heads-Up Display"));
 			layouter.AddToggleField(_Tr("Preferences", "Hide HUD"), "cg_hideHud");
+			layouter.AddSliderField(_Tr("Preferences", "HUD Color"), "cg_hudColor",
+			0, 10, 1, ConfigHUDColorFormatter());
+			layouter.AddRGBSlider(_Tr("Preferences", "Custom Color"),
+			array<string> = { "cg_hudColorR", "cg_hudColorG", "cg_hudColorB"});
+			layouter.AddButtonField(_Tr("Preferences", "HUD Edge Positions"),
+				_Tr("Preferences", "Edit"), spades::ui::EventHandler(this.OnEditHUDClicked));
 			layouter.AddChoiceField(_Tr("Preferences", "HUD Ammo Style"), "cg_hudAmmoStyle",
 									array<string> = {_Tr("Preferences", "NORMAL"),
 													 _Tr("Preferences", "SIMPLE")},
@@ -1317,28 +1575,21 @@ namespace spades {
 													 _Tr("Preferences", "Top"),
 													 _Tr("Preferences", "Bottom")},
 									array<int> = {0, 2, 1});
+			layouter.AddToggleField(_Tr("Preferences", "Small Stats Font"), "cg_statsSmallFont");
 			layouter.AddToggleField(_Tr("Preferences", "Show Player Statistics"), "cg_playerStats");
 			layouter.AddToggleField(_Tr("Preferences", "Show Placed Blocks"), "cg_playerStatsShowPlacedBlocks");
 			layouter.AddSliderField(_Tr("Preferences", "Player Statistics Height"), "cg_playerStatsHeight",
 			0, 100, 1, ConfigNumberFormatter(0, "px"));
-			layouter.AddSliderGroup(_Tr("Preferences", "HUD Edge Positions"),
-			array<string> = { "cg_hudSafezoneX", "cg_hudSafezoneY"},
-			0.2, 1, 0.01, 2, array<string> = { "X: ", "Y: "});
-			layouter.AddSliderField(_Tr("Preferences", "HUD Color"), "cg_hudColor",
-			0, 10, 1, ConfigHUDColorFormatter());
-			layouter.AddRGBSlider(_Tr("Preferences", "Custom Color"),
-			array<string> = { "cg_hudColorR", "cg_hudColorG", "cg_hudColorB"});
 			layouter.AddSliderField(_Tr("Preferences", "Chat Height"), "cg_chatHeight",
-			10, 100, 1, ConfigNumberFormatter(0, "px"));
-			layouter.AddSliderField(_Tr("Preferences", "Killfeed Height"), "cg_killfeedHeight",
 			10, 100, 1, ConfigNumberFormatter(0, "px"));
 			layouter.AddSliderField(_Tr("Preferences", "Chat Fade Time"), "cg_chatFadeTime",
 			5, 20, 1, ConfigNumberFormatter(0, "s"));
+			layouter.AddSliderField(_Tr("Preferences", "Killfeed Height"), "cg_killfeedHeight",
+			10, 100, 1, ConfigNumberFormatter(0, "px"));
 			layouter.AddSliderField(_Tr("Preferences", "Killfeed Fade Time"), "cg_killfeedFadeTime",
 			5, 20, 1, ConfigNumberFormatter(0, "s"));
 			layouter.AddToggleField(_Tr("Preferences", "Killfeed Icons"), "cg_killfeedIcons");
 			layouter.AddToggleField(_Tr("Preferences", "Show Dominations"), "cg_killfeedStreaks");
-			layouter.AddToggleField(_Tr("Preferences", "Small HUD Font"), "cg_smallFont", not options.GameActive);
 
 			layouter.AddHeading(_Tr("Preferences", "Minimap"));
 			layouter.AddSliderField(_Tr("Preferences", "Minimap Size"), "cg_minimapSize",
@@ -1440,9 +1691,10 @@ namespace spades {
 			1, 4, 1, ConfigNumberFormatter(0, "px"));
 			layouter.AddToggleField(_Tr("Preferences", "T Style"), "cg_scopeTStyle");
 
-			layouter.AddHeading(_Tr("Preferences", "AoS 0.75/0.76 Compatibility"));
-			layouter.AddToggleField(_Tr("Preferences", "Allow Unicode"), "cg_unicode");
-			layouter.AddToggleField(_Tr("Preferences", "Server Alert"), "cg_serverAlert");
+			layouter.AddHeading(_Tr("Preferences", "World"));
+			layouter.AddToggleField(_Tr("Preferences", "Damage Indicators"), "cg_damageIndicators");
+			layouter.AddToggleField(_Tr("Preferences", "Show Hover Player Names"), "cg_playerNames");
+			layouter.AddToggleField(_Tr("Preferences", "Show Dead Player Names"), "cg_playerNamesDead");
 
 			layouter.FinishLayout();
 		}
@@ -1450,12 +1702,17 @@ namespace spades {
 
 	class RendererOptionsPanel : spades::ui::UIElement {
 		RendererOptionsPanel(spades::ui::UIManager@ manager,
-			PreferenceViewOptions@ options, FontManager@ fontManager) {
+			PreferenceViewOptions@ options, FontManager@ fontManager,
+			HeadingNavIndex@ nav = null) {
 			super(manager);
 
 			StandardPreferenceLayouter layouter(this, fontManager);
+			@layouter.HeadingNav = nav;
 
 			layouter.AddHeading(_Tr("Preferences", "General"));
+			ConfigSlider@ fpsSlider = layouter.AddSliderField(_Tr("Preferences", "FPS Limit"), "cl_fps",
+			0, 300, 1, ConfigFPSFormatter());
+			@fpsSlider.mapper = FPSValueMapper();
 			layouter.AddSliderField(_Tr("Preferences", "Render Scale"), "r_scale",
 			0.2, 1, 0.01, ConfigNumberFormatter(0, "%", "", 100));
 			layouter.AddSliderField(_Tr("Preferences", "Render Scaling Filter"), "r_scaleFilter",
@@ -1469,7 +1726,7 @@ namespace spades {
 			layouter.AddToggleField(_Tr("Preferences", "Depth Prepass"), "r_depthPrepass");
 			layouter.AddToggleField(_Tr("Preferences", "Occlusion Querying"), "r_occlusionQuery");
 			layouter.AddToggleField(_Tr("Preferences", "Object Outlines"), "r_outlines");
-			
+
 			layouter.AddHeading(_Tr("Preferences", "Post-processing"));
 			layouter.AddToggleField(_Tr("Preferences", "Depth Of Field"), "r_depthOfField");
 			layouter.AddToggleField(_Tr("Preferences", "Camera Blur"), "r_cameraBlur");
@@ -1496,10 +1753,12 @@ namespace spades {
 
 	class ControlOptionsPanel : spades::ui::UIElement {
 		ControlOptionsPanel(spades::ui::UIManager@ manager,
-			PreferenceViewOptions@ options, FontManager@ fontManager) {
+			PreferenceViewOptions@ options, FontManager@ fontManager,
+			HeadingNavIndex@ nav = null) {
 			super(manager);
 
 			StandardPreferenceLayouter layouter(this, fontManager);
+			@layouter.HeadingNav = nav;
 
 			layouter.AddHeading(_Tr("Preferences", "Weapons/Tools"));
 			layouter.AddControl(_Tr("Preferences", "Attack"), "cg_keyAttack");
@@ -1557,61 +1816,35 @@ namespace spades {
 			layouter.AddControl(_Tr("Preferences", "Master Volume Up"), "cg_keyVolumeUp");
 			layouter.AddControl(_Tr("Preferences", "Master Volume Down"), "cg_keyVolumeDown");
 			layouter.AddControl(_Tr("Preferences", "Force Spectator Mode"), "cg_keyStaffSpectating");
-			
+
 			layouter.FinishLayout();
 		}
 	}
 
 	class MiscOptionsPanel : spades::ui::UIElement {
-		spades::ui::Label@ msgLabel;
-		spades::ui::Button@ enableButton;
-
-		private ConfigItem cl_showStartupWindow("cl_showStartupWindow");
-
 		MiscOptionsPanel(spades::ui::UIManager@ manager,
-			PreferenceViewOptions@ options, FontManager@ fontManager) {
+			PreferenceViewOptions@ options, FontManager@ fontManager,
+			HeadingNavIndex@ nav = null) {
 			super(manager);
 
 			StandardPreferenceLayouter layouter(this, fontManager);
-			
-			float panelX = layouter.FieldX;
-			float panelWidth = layouter.FieldWidth;
-			float panelHeight = layouter.FieldHeight - 250.0F;
-			
-			// button
-			{
-				spades::ui::Button e(Manager);
-				e.Bounds = AABB2(panelX * 0.5F, panelHeight - 50.0F, panelWidth, 30.0F);
-				e.Caption = _Tr("Preferences", "Enable Startup Window");
-				@e.Activated = spades::ui::EventHandler(this.OnEnableClicked);
-				AddChild(e);
-				@enableButton = e;
-			}
-			
-			// label
-			{
-				spades::ui::Label label(Manager);
-				label.Text = "Hoge";
-				label.Alignment = Vector2(0.5F, 0.5F);
-				label.Bounds = AABB2(panelX * 0.5F, panelHeight, panelWidth, 0.0F);
-				AddChild(label);
-				@msgLabel = label;
-			}
+			@layouter.HeadingNav = nav;
 
-			UpdateState();
-		}
+			layouter.AddHeading(_Tr("Preferences", "General"));
+			ConfigField@ urlField = layouter.AddInputField(_Tr("Preferences", "Server List URL"), "cl_serverListUrl", true, true);
+			layouter.AddToggleField(_Tr("Preferences", "Allow Unicode"), "cg_unicode");
+			layouter.AddSliderField(_Tr("Preferences", "Console Scrollback Lines"), "cl_consoleScrollbackLines",
+			100, 2000, 100, ConfigNumberFormatter(0, ""));
+			layouter.AddChoiceStringField(_Tr("Preferences", "Screenshot Format"), "cg_screenshotFormat",
+					 array<string> = { "PNG", "JPEG", "TGA" },
+					 array<string> = { "png", "jpeg", "tga" });
+			layouter.AddSliderField(_Tr("Preferences", "JPEG Quality"), "core_jpegQuality",
+			1, 100, 1, ConfigNumberFormatter(0, "%"));
 
-		void UpdateState() {
-			bool enabled = cl_showStartupWindow.BoolValue;
-			msgLabel.Text = enabled
-				? _Tr("Preferences", "Quit and restart OpenSpades to access the startup window.")
-				: _Tr("Preferences", "Some settings only can be changed in the startup window.");
-			enableButton.Enable = not enabled;
-		}
+			layouter.AddHeading(_Tr("Preferences", "Startup"));
+			layouter.AddToggleField(_Tr("Preferences", "Enable Startup Window"), "cl_showStartupWindow");
 
-		private void OnEnableClicked(spades::ui::UIElement@) {
-			cl_showStartupWindow.IntValue = 1;
-			UpdateState();
+			layouter.FinishLayout();
 		}
 	}
 }
