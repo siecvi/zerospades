@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -500,13 +500,13 @@ namespace spades {
 	static inline Vector3 MakeVector3(IntVector3 v) {
 		return Vector3::Make(static_cast<float>(v.x), static_cast<float>(v.y), static_cast<float>(v.z));
 	}
-	
+
 	static inline uint32_t DarkenColor(uint32_t col, uint32_t f) {
 		uint32_t rb = ((col & 0xFF00FF) * f) >> 8;
 		uint32_t g = ((col & 0xFF00) * f) >> 8;
 		return (rb & 0xFF00FF) | (g & 0xFF00) | (col & 0xFF000000);
 	}
-	
+
 	static inline uint32_t swapColor(uint32_t col) {
 		return ((col & 0xFF) << 16) | (col & 0xFF00) | ((col >> 16) & 0xFF);
 	}
@@ -618,9 +618,9 @@ namespace spades {
 		Matrix4(const Matrix4&) = default;
 		Matrix4& operator=(const Matrix4&) = default;
 		explicit Matrix4(float* elms);
-		Matrix4(float m00, float m10, float m20, float m30, 
-				float m01, float m11, float m21, float m31, 
-				float m02, float m12, float m22, float m32, 
+		Matrix4(float m00, float m10, float m20, float m30,
+				float m01, float m11, float m21, float m31,
+				float m02, float m12, float m22, float m32,
 				float m03, float m13, float m23, float m33);
 
 		static Matrix4 Identity();
@@ -662,7 +662,7 @@ namespace spades {
 		AABB2(Vector2 minVector, Vector2 maxVector) : min(minVector), max(maxVector) {}
 
 		AABB2(float minX, float minY, float width, float height)
-		    : min(Vector2::Make(minX, minY)), max(Vector2::Make(minX + width, minY + height)) {}
+			: min(Vector2::Make(minX, minY)), max(Vector2::Make(minX + width, minY + height)) {}
 
 		AABB2 Inflate(float amount) const {
 			return AABB2(min - Vector2::Make(amount, amount), max + Vector2::Make(amount, amount));
@@ -724,12 +724,12 @@ namespace spades {
 		AABB3(Vector3 minVector, Vector3 maxVector) : min(minVector), max(maxVector) {}
 
 		AABB3(float minX, float minY, float minZ, float width, float height, float depth)
-		    : min(Vector3::Make(minX, minY, minZ)),
-		      max(Vector3::Make(minX + width, minY + height, minZ + depth)) {}
+			: min(Vector3::Make(minX, minY, minZ)),
+			  max(Vector3::Make(minX + width, minY + height, minZ + depth)) {}
 
 		AABB3 Inflate(float amount) const {
 			return AABB3(min - Vector3::Make(amount, amount, amount),
-			             max + Vector3::Make(amount, amount, amount));
+						 max + Vector3::Make(amount, amount, amount));
 		}
 
 		float GetMinX() const { return min.x; }
@@ -829,9 +829,9 @@ namespace spades {
 			const auto& a = v;
 			const auto& b = o.v;
 			return Quaternion(a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
-			                  a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
-			                  a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
-			                  a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z);
+							  a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+							  a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
+							  a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z);
 		}
 
 		inline Quaternion& operator*=(const Quaternion& o) {
@@ -886,9 +886,9 @@ namespace spades {
 			auto a = v.w, b = v.x, c = v.y, d = v.z;
 			auto aa = a * a, bb = b * b, cc = c * c, dd = d * d;
 			return Matrix4(aa + bb - cc - dd, 2.0F * (b * c + a * d), 2.0F * (b * d - a * c), 0.0F,
-			               2.0F * (b * c - a * d), aa - bb + cc - dd, 2.0F * (c * d + a * b), 0.0F,
-			               2.0F * (b * d + a * c), 2.0F * (c * d - a * b), aa - bb - cc + dd, 0.0F,
-			               0.0F, 0.0F, 0.0F, 1.0F);
+						   2.0F * (b * c - a * d), aa - bb + cc - dd, 2.0F * (c * d + a * b), 0.0F,
+						   2.0F * (b * d + a * c), 2.0F * (c * d - a * b), aa - bb - cc + dd, 0.0F,
+						   0.0F, 0.0F, 0.0F, 1.0F);
 		}
 
 		static inline Quaternion FromRotationMatrix(const Matrix4& m, bool normalize = true) {
@@ -908,12 +908,12 @@ namespace spades {
 				auto w = 0.5F * sqrtf(trace);
 				auto s = 0.25F / w;
 				return Quaternion(s * (axis2.z - axis3.y), s * (axis3.x - axis1.z),
-				                  s * (axis1.y - axis2.x), w);
+								  s * (axis1.y - axis2.x), w);
 			} else {
 				auto w = 0.5F * sqrtf(trace2);
 				auto s = 0.25F / w;
 				return Quaternion(w, s * (axis1.y + axis2.x), s * (axis3.x + axis1.z),
-				                  s * (axis2.z - axis3.y));
+								  s * (axis2.z - axis3.y));
 			}
 		}
 	};
@@ -928,12 +928,12 @@ namespace spades {
 	inline float DEG2RAD(float deg) { return deg * (M_PI_F / 180.0F); }
 	inline float RAD2DEG(float rad) { return rad * (180.0F / M_PI_F); }
 
-	template <class T> 
+	template <class T>
 	inline T Clamp(const T& val, const T& minVal, const T& maxVal) {
 		return (val < minVal) ? minVal : (val > maxVal) ? maxVal : val;
 	}
 
-	template <typename T> 
+	template <typename T>
 	inline void FastErase(std::vector<T>& vec, size_t index) {
 		SPAssert(index < vec.size());
 		if (index < vec.size() - 1)
@@ -1014,13 +1014,14 @@ namespace spades {
 	std::vector<std::string> Split(const std::string&, const std::string&);
 	std::vector<std::string> SplitIntoLines(const std::string&);
 	std::string Replace(const std::string&, const std::string&, const std::string&);
+	std::string StripNewlines(const std::string&);
 	std::string TrimSpaces(const std::string&);
 	std::string ToLowerCase(const std::string&);
 	std::string ToUpperCase(const std::string&);
 	std::string EscapeControlCharacters(const std::string&);
 
 	uint32_t GetCodePointFromUTF8String(const std::string&, size_t start = 0, size_t* outNumBytes = nullptr);
-	template <typename Iterator> 
+	template <typename Iterator>
 	inline Iterator CodePointToUTF8(Iterator output, uint32_t cp) {
 		if (cp < 0x80) {
 			*(output++) = static_cast<char>(cp);

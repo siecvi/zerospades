@@ -87,6 +87,7 @@ namespace spades {
 				@nameField.Changed = spades::ui::EventHandler(this.OnNameChanged);
 				nameField.MaxLength = 15;
 				nameField.DenyNonAscii = false;
+				nameField.RemoveNewlines = true;
 				AddChild(nameField);
 			}
 			{

@@ -1437,6 +1437,7 @@ namespace spades {
 				"cg_playerName", not options.GameActive);
 			nameField.MaxLength = 15;
 			nameField.DenyNonAscii = false;
+			nameField.RemoveNewlines = true;
 
 			layouter.AddHeading(_Tr("Preferences", "Gameplay"));
 			layouter.AddChoiceField(_Tr("Preferences", "Aiming Animation"), "cg_animations",

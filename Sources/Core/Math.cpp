@@ -14,7 +14,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -54,7 +54,7 @@ namespace spades {
 			uint64_t x = s[0];
 			uint64_t y = s[1];
 			s[0] = y;
-			x ^= x << 23;                         // a
+			x ^= x << 23;						  // a
 			s[1] = x ^ y ^ (x >> 17) ^ (y >> 26); // b, c
 			return s[1] + y;
 		}
@@ -95,7 +95,7 @@ namespace spades {
 	}
 
 	// Note: `uniform_int_distribution` does not accept `char` nor `unsigned char`
-	//       (N4659 29.6.1.1 [rand.req.genl])
+	//		 (N4659 29.6.1.1 [rand.req.genl])
 	template short SampleRandomInt(short a, short b);
 	template unsigned short SampleRandomInt(unsigned short a, unsigned short b);
 	template int SampleRandomInt(int a, int b);
@@ -133,8 +133,8 @@ namespace spades {
 	}
 
 	Matrix4::Matrix4(float m00, float m10, float m20, float m30, float m01, float m11, float m21,
-	                 float m31, float m02, float m12, float m22, float m32, float m03, float m13,
-	                 float m23, float m33) {
+					 float m31, float m02, float m12, float m22, float m32, float m03, float m13,
+					 float m23, float m33) {
 		m[0] = m00;
 		m[1] = m10;
 		m[2] = m20;
@@ -196,9 +196,9 @@ namespace spades {
 	}
 
 	Matrix4 Matrix4::FromAxis(spades::Vector3 a1, spades::Vector3 a2, spades::Vector3 a3,
-	                          spades::Vector3 origin) {
+							  spades::Vector3 origin) {
 		return Matrix4(a1.x, a1.y, a1.z, 0, a2.x, a2.y, a2.z, 0, a3.x, a3.y, a3.z, 0, origin.x,
-		               origin.y, origin.z, 1);
+					   origin.y, origin.z, 1);
 	}
 
 	Matrix4 Matrix4::Identity() { return Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
@@ -216,8 +216,8 @@ namespace spades {
 		float x = axis.x, y = axis.y, z = axis.z;
 
 		return Matrix4(x * x * ic + c, x * y * ic + z * s, x * z * ic - y * s, 0,
-		               x * y * ic - z * s, y * y * ic + c, y * z * ic + x * s, 0,
-		               x * z * ic + y * s, y * z * ic - x * s, z * z * ic + c, 0, 0, 0, 0, 1);
+					   x * y * ic - z * s, y * y * ic + c, y * z * ic + x * s, 0,
+					   x * z * ic + y * s, y * z * ic - x * s, z * z * ic + c, 0, 0, 0, 0, 1);
 	}
 	Matrix4 Matrix4::Scale(float f) { return Scale(f, f, f); }
 	Matrix4 Matrix4::Scale(spades::Vector3 v) { return Scale(v.x, v.y, v.z); }
@@ -226,7 +226,7 @@ namespace spades {
 	}
 	Matrix4 Matrix4::Transposed() const {
 		return Matrix4(m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14],
-		               m[3], m[7], m[11], m[15]);
+					   m[3], m[7], m[11], m[15]);
 	}
 
 	static void inverseMatrix4(float* matrix) {
@@ -239,37 +239,37 @@ namespace spades {
 		float n41 = matrix[3], n42 = matrix[7], n43 = matrix[11], n44 = matrix[15];
 
 		matrix[0] = n23 * n34 * n42 - n24 * n33 * n42 + n24 * n32 * n43 - n22 * n34 * n43 -
-		            n23 * n32 * n44 + n22 * n33 * n44;
+					n23 * n32 * n44 + n22 * n33 * n44;
 		matrix[4] = n14 * n33 * n42 - n13 * n34 * n42 - n14 * n32 * n43 + n12 * n34 * n43 +
-		            n13 * n32 * n44 - n12 * n33 * n44;
+					n13 * n32 * n44 - n12 * n33 * n44;
 		matrix[8] = n13 * n24 * n42 - n14 * n23 * n42 + n14 * n22 * n43 - n12 * n24 * n43 -
-		            n13 * n22 * n44 + n12 * n23 * n44;
+					n13 * n22 * n44 + n12 * n23 * n44;
 		matrix[12] = n14 * n23 * n32 - n13 * n24 * n32 - n14 * n22 * n33 + n12 * n24 * n33 +
-		             n13 * n22 * n34 - n12 * n23 * n34;
+					 n13 * n22 * n34 - n12 * n23 * n34;
 		matrix[1] = n24 * n33 * n41 - n23 * n34 * n41 - n24 * n31 * n43 + n21 * n34 * n43 +
-		            n23 * n31 * n44 - n21 * n33 * n44;
+					n23 * n31 * n44 - n21 * n33 * n44;
 		matrix[5] = n13 * n34 * n41 - n14 * n33 * n41 + n14 * n31 * n43 - n11 * n34 * n43 -
-		            n13 * n31 * n44 + n11 * n33 * n44;
+					n13 * n31 * n44 + n11 * n33 * n44;
 		matrix[9] = n14 * n23 * n41 - n13 * n24 * n41 - n14 * n21 * n43 + n11 * n24 * n43 +
-		            n13 * n21 * n44 - n11 * n23 * n44;
+					n13 * n21 * n44 - n11 * n23 * n44;
 		matrix[13] = n13 * n24 * n31 - n14 * n23 * n31 + n14 * n21 * n33 - n11 * n24 * n33 -
-		             n13 * n21 * n34 + n11 * n23 * n34;
+					 n13 * n21 * n34 + n11 * n23 * n34;
 		matrix[2] = n22 * n34 * n41 - n24 * n32 * n41 + n24 * n31 * n42 - n21 * n34 * n42 -
-		            n22 * n31 * n44 + n21 * n32 * n44;
+					n22 * n31 * n44 + n21 * n32 * n44;
 		matrix[6] = n14 * n32 * n41 - n12 * n34 * n41 - n14 * n31 * n42 + n11 * n34 * n42 +
-		            n12 * n31 * n44 - n11 * n32 * n44;
+					n12 * n31 * n44 - n11 * n32 * n44;
 		matrix[10] = n12 * n24 * n41 - n14 * n22 * n41 + n14 * n21 * n42 - n11 * n24 * n42 -
-		             n12 * n21 * n44 + n11 * n22 * n44;
+					 n12 * n21 * n44 + n11 * n22 * n44;
 		matrix[14] = n14 * n22 * n31 - n12 * n24 * n31 - n14 * n21 * n32 + n11 * n24 * n32 +
-		             n12 * n21 * n34 - n11 * n22 * n34;
+					 n12 * n21 * n34 - n11 * n22 * n34;
 		matrix[3] = n23 * n32 * n41 - n22 * n33 * n41 - n23 * n31 * n42 + n21 * n33 * n42 +
-		            n22 * n31 * n43 - n21 * n32 * n43;
+					n22 * n31 * n43 - n21 * n32 * n43;
 		matrix[7] = n12 * n33 * n41 - n13 * n32 * n41 + n13 * n31 * n42 - n11 * n33 * n42 -
-		            n12 * n31 * n43 + n11 * n32 * n43;
+					n12 * n31 * n43 + n11 * n32 * n43;
 		matrix[11] = n13 * n22 * n41 - n12 * n23 * n41 - n13 * n21 * n42 + n11 * n23 * n42 +
-		             n12 * n21 * n43 - n11 * n22 * n43;
+					 n12 * n21 * n43 - n11 * n22 * n43;
 		matrix[15] = n12 * n23 * n31 - n13 * n22 * n31 + n13 * n21 * n32 - n11 * n23 * n32 -
-		             n12 * n21 * n33 + n11 * n22 * n33;
+					 n12 * n21 * n33 + n11 * n22 * n33;
 
 		float det = n11 * matrix[0] + n21 * matrix[4] + n31 * matrix[8] + n41 * matrix[12];
 		float idet = 1.0F / det;
@@ -354,7 +354,7 @@ namespace spades {
 				float zd = Vector3::Dot(*hitPos, normZ);
 				if (yd >= 0 && zd >= 0 &&
 					yd <= normY.GetSquaredLength() &&
-				    zd <= normZ.GetSquaredLength()) {
+					zd <= normZ.GetSquaredLength()) {
 					// hit x-plane
 					*hitPos += origin;
 					return true;
@@ -371,9 +371,9 @@ namespace spades {
 			float hit; // 0=start, 1=end
 			if (startp < endp)
 				hit = startp / (startp - endp);
-			else 
+			else
 				hit = (boxp - startp) / (endp - startp);
-			
+
 			if (hit >= 0.0F) {
 				*hitPos = start + dir * hit;
 
@@ -381,7 +381,7 @@ namespace spades {
 				float zd = Vector3::Dot(*hitPos, normZ);
 				if (xd >= 0 && zd >= 0 &&
 					xd <= normX.GetSquaredLength() &&
-				    zd <= normZ.GetSquaredLength()) {
+					zd <= normZ.GetSquaredLength()) {
 					// hit y-plane
 					*hitPos += origin;
 					return true;
@@ -408,7 +408,7 @@ namespace spades {
 				float yd = Vector3::Dot(*hitPos, normY);
 				if (xd >= 0 && yd >= 0 &&
 					xd <= normX.GetSquaredLength() &&
-				    yd <= normY.GetSquaredLength()) {
+					yd <= normY.GetSquaredLength()) {
 					// hit z-plane
 					*hitPos += origin;
 					return true;
@@ -588,6 +588,22 @@ namespace spades {
 		return out;
 	}
 
+	std::string StripNewlines(const std::string& str) {
+		std::string out;
+		out.reserve(str.size());
+		for (size_t i = 0; i < str.size(); i++) {
+			if (str[i] == '\r' && i + 1 < str.size() && str[i + 1] == '\n') {
+				out += ' ';
+				i++;
+			} else if (str[i] == '\r' || str[i] == '\n') {
+				out += ' ';
+			} else {
+				out += str[i];
+			}
+		}
+		return out;
+	}
+
 	std::string TrimSpaces(const std::string& str) {
 		size_t pos = str.find_first_not_of(" \t\n\r");
 		if (pos == std::string::npos)
@@ -606,7 +622,6 @@ namespace spades {
 
 		return output;
 	}
-
 	std::string ToLowerCase(const std::string& str) {
 		std::string output;
 		output.resize(str.size());

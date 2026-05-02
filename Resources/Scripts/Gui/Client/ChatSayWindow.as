@@ -199,7 +199,8 @@ namespace spades {
 				@field = CommandField(Manager, ui.chatHistory);
 				field.Bounds = AABB2(winX, winY, winW, 30.0F);
 				field.Placeholder = _Tr("Client", "Chat Text");
-				field.MaxLength = 90; // more like 95, but just to make sure
+				field.MaxLength = 90;
+				field.RemoveNewlines = true;
 				@field.Changed = spades::ui::EventHandler(this.OnFieldChanged);
 				AddChild(field);
 			}
@@ -242,17 +243,7 @@ namespace spades {
 		private void OnSetGlobal(spades::ui::UIElement@ sender) { IsTeamChat = false; }
 		private void OnSetTeam(spades::ui::UIElement@ sender) { IsTeamChat = true; }
 
-		string StripNewlines(string msg) {
-			msg = Replace(msg, "\r\n", " ");
-			msg = Replace(msg, "\r", " ");
-			msg = Replace(msg, "\n", " ");
-			return msg;
-		}
-		private void OnFieldChanged(spades::ui::UIElement@ sender) {
-			field.Text = StripNewlines(field.Text);
-			UpdateState();
-		}
-
+		private void OnFieldChanged(spades::ui::UIElement@ sender) { UpdateState(); }
 		private void Close() { @ui.ActiveUI = null; }
 		private void OnCancel(spades::ui::UIElement@ sender) {
 			field.Cancelled();

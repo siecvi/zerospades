@@ -37,6 +37,7 @@ namespace spades {
 			int CursorPosition = 0;
 			int MaxLength = 255;
 			bool DenyNonAscii = false;
+			bool RemoveNewlines = false;
 
 			private string text;
 			private FieldCommand @[] history;
@@ -246,6 +247,10 @@ namespace spades {
 			void Insert(string text) {
 				if (not CheckCharType(text))
 					return;
+
+				if (RemoveNewlines)
+					text = StripNewlines(text);
+
 				string oldText = SelectedText;
 				SelectedText = text;
 
