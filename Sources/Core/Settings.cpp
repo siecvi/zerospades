@@ -158,7 +158,7 @@ namespace spades {
 	void Settings::Save() {
 		try {
 			std::string buffer;
-			buffer = "# OpenSpades config file\n"
+			buffer = "# ZeroSpades config file\n"
 			         "#\n"
 			         "\n";
 

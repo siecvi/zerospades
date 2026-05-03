@@ -192,7 +192,7 @@ namespace spades {
 			}
 
 			bool capable = true;
-			SDL_Window* window = SDL_CreateWindow("OpenSpades: Please wait...", 1, 1, 1, 1,
+			SDL_Window* window = SDL_CreateWindow("ZeroSpades: Please wait...", 1, 1, 1, 1,
 												  SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS);
 			if (window == nullptr)
 				SPLog("Failed to create SDL window: %s", SDL_GetError());
