@@ -588,11 +588,15 @@ namespace spades {
 			float fade = (sqrtf(dist) - fadeStart) / (fadeEnd - fadeStart);
 			float alpha = Clamp(1.0F - fade, 0.1F, 1.0F);
 
-			dir = dir.Normalize();
-
-			// do map raycast
+			// camera coincides with the player's eye (e.g. mid-spectator-switch);
+			// skip the raycast since direction is undefined
 			GameMap::RayCastResult mapResult;
-			mapResult = map->CastRay2(eye, dir, 256);
+			if (dir.GetSquaredLength() < 1.0e-6F) {
+				mapResult.hit = false;
+			} else {
+				dir = dir.Normalize();
+				mapResult = map->CastRay2(eye, dir, 256);
+			}
 
 			if (dist > FOG_DISTANCE_SQ) {
 				playerColor = MakeVector4(1, 0.75, 0, 1);
