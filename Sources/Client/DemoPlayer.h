@@ -49,6 +49,7 @@ namespace spades {
 			static constexpr uint8_t FILE_VERSION = 1;
 
 			using PacketHandler = std::function<void(const std::vector<char>&)>;
+			using TimedPacketHandler = std::function<void(const std::vector<char>&, float dt)>;
 
 			DemoPlayer();
 			~DemoPlayer();
@@ -153,12 +154,15 @@ namespace spades {
 
 			/**
 			 * Calls handler for every packet whose timestamp is <= targetTime, in order.
+			 * The handler also receives the time delta from the previous packet (or 0
+			 * for the first), so callers can age the world in step with playback time
+			 * (e.g. to fire grenade fuses silently during a forward seek).
 			 * Does NOT modify playbackTime, currentPacketIndex, or paused state; safe to
 			 * call during a backward-seek reset without disrupting normal playback state.
 			 * @param targetTime Upper bound (inclusive) on packet timestamps to replay
-			 * @param handler    Callback invoked for each matching packet
+			 * @param handler    Callback invoked for each matching packet, with dt
 			 */
-			void ReplayUpTo(float targetTime, const PacketHandler& handler) const;
+			void ReplayUpTo(float targetTime, const TimedPacketHandler& handler) const;
 
 			/**
 			 * Resets playback to the beginning.

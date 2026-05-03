@@ -220,11 +220,15 @@ namespace spades {
 			speed = std::max(0.1f, std::min(s, 10.0f));
 		}
 
-		void DemoPlayer::ReplayUpTo(float targetTime, const PacketHandler& handler) const {
+		void DemoPlayer::ReplayUpTo(float targetTime, const TimedPacketHandler& handler) const {
 			auto end = std::upper_bound(packets.begin(), packets.end(), targetTime,
 			    [](float t, const DemoPacket& p) { return t < p.timestamp; });
-			for (auto it = packets.begin(); it != end; ++it)
-				handler(it->data);
+			float prev = 0.0f;
+			for (auto it = packets.begin(); it != end; ++it) {
+				float dt = std::max(0.0f, it->timestamp - prev);
+				handler(it->data, dt);
+				prev = it->timestamp;
+			}
 		}
 
 		void DemoPlayer::Reset() {

@@ -931,9 +931,22 @@ namespace spades {
 			}
 
 			try {
-				demoPlayer->ReplayUpTo(targetTime, [this](const std::vector<char>& data) {
-					ProcessPacket(data);
-				});
+				demoPlayer->ReplayUpTo(targetTime,
+				    [this](const std::vector<char>& data, float dt) {
+					    ProcessPacket(data);
+					    // Age world physics in fixed steps so grenade fuses, falling
+					    // blocks, etc. resolve at their correct demo timestamps under
+					    // the silent listener instead of firing after replay finishes.
+					    if (auto w = GetWorld()) {
+						    const float step = 1.0f / 60.0f;
+						    while (dt >= step) {
+							    w->Advance(step);
+							    dt -= step;
+						    }
+						    if (dt > 0.0f)
+							    w->Advance(dt);
+					    }
+				    });
 			} catch (...) {
 				if (GetWorld())
 					GetWorld()->SetListener(savedListener);
