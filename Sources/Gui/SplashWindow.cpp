@@ -37,7 +37,7 @@ namespace spades
 		bmp = spades::Bitmap::Load(stream);
 
 		SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_TIMER);
-		window = SDL_CreateWindow("OpenSpades Splash Window", SDL_WINDOWPOS_CENTERED,
+		window = SDL_CreateWindow("ZeroSpades Splash Window", SDL_WINDOWPOS_CENTERED,
 								  SDL_WINDOWPOS_CENTERED, bmp->GetWidth(), bmp->GetHeight(),
 								  SDL_WINDOW_BORDERLESS);
 		if (window == nullptr) {

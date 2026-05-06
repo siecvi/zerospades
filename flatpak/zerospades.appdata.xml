@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>jp.yvt.OpenSpades.desktop</id>
+  <id>io.zerospades.ZeroSpades.desktop</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0+</project_license>
   <project_license>OpenSpades Non-GPL Pak License</project_license>
-  <name>OpenSpades</name>
+  <name>ZeroSpades</name>
 
   <summary>Open Source voxel shooter</summary>
 
   <description>
-    <p> OpenSpades is a clone of Ace of Spades 0.75, which is a free online
+    <p> ZeroSpades is a fork of OpenSpades, a clone of Ace of Spades 0.75, which is a free online
     first-person shooter created by Ben Aksoy, featuring fully destructible
     terrain and plenty of game modes (including the well-known Capture the
     Flag) created by the community.</p>
@@ -31,7 +31,7 @@
     <content_attribute id="social-chat">intense</content_attribute>
   </content_rating>
 
-  <launchable type="desktop-id">jp.yvt.OpenSpades.desktop</launchable>
+  <launchable type="desktop-id">io.zerospades.ZeroSpades.desktop</launchable>
 
   <url type="homepage">http://openspades.yvt.jp/</url>
   <url type="bugtracker">https://github.com/yvt/openspades/issues</url>

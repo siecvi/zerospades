@@ -5,23 +5,23 @@ set(COMPILED_PAK_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/pak050-Locales.pak
 	${CMAKE_CURRENT_BINARY_DIR}/pak999-References.pak)
 
-if(OPENSPADES_RESOURCES AND OPENSPADES_NONFREE_RESOURCES)
+if(ZEROSPADES_RESOURCES AND ZEROSPADES_NONFREE_RESOURCES)
 	set(NONFREE_PAK_FILES
 		${CMAKE_CURRENT_BINARY_DIR}/pak000-Nonfree.pak
 		${CMAKE_CURRENT_BINARY_DIR}/font-unifont.pak)
-endif(OPENSPADES_RESOURCES AND OPENSPADES_NONFREE_RESOURCES)
+endif(ZEROSPADES_RESOURCES AND ZEROSPADES_NONFREE_RESOURCES)
 
 set(PAK_FILES
 	${COMPILED_PAK_FILES}
 	${NONFREE_PAK_FILES}
 	PARENT_SCOPE)
 
-if(OPENSPADES_RESOURCES)
-	if(OPENSPADES_NONFREE_RESOURCES)
+if(ZEROSPADES_RESOURCES)
+	if(ZEROSPADES_NONFREE_RESOURCES)
 		if (WIN32)
 			# No automatic downloading for Windows (for now)
 		elseif (UNIX)
-			add_custom_target(OpenSpades_Resources_DevPaks ALL COMMENT "Downloading non-GPL assets"
+			add_custom_target(ZeroSpades_Resources_DevPaks ALL COMMENT "Downloading non-GPL assets"
 				DEPENDS
 					${CMAKE_CURRENT_BINARY_DIR}/pak000-Nonfree.pak
 					${CMAKE_CURRENT_BINARY_DIR}/font-unifont.pak)
@@ -32,7 +32,7 @@ if(OPENSPADES_RESOURCES)
 					${CMAKE_CURRENT_BINARY_DIR}/font-unifont.pak
 				WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 		endif()
-	endif(OPENSPADES_NONFREE_RESOURCES)
+	endif(ZEROSPADES_NONFREE_RESOURCES)
 
 	file(GLOB_RECURSE GFX_FILES ${CMAKE_CURRENT_SOURCE_DIR}/Gfx/*)
 	file(GLOB_RECURSE LICENSE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/License/*)
@@ -60,7 +60,7 @@ if(OPENSPADES_RESOURCES)
 	source_group("Sounds" FILES ${SOUND_FILES})
 	source_group("Textures" FILES ${TEXTURE_FILES})
 
-	add_custom_target(OpenSpades_Resources ALL
+	add_custom_target(ZeroSpades_Resources ALL
 		COMMENT "Building assets"
 		SOURCES ${PAK_IN_FILES}
 		DEPENDS ${COMPILED_PAK_FILES})
@@ -88,7 +88,7 @@ if(OPENSPADES_RESOURCES)
 		# (you can't use generator expressions (`$<...>`) in `add_custom_command`'s
 		#  `OUTPUT` parameter; it's not supported by CMake.)
 		add_custom_command(
-			TARGET OpenSpades_Resources POST_BUILD
+			TARGET ZeroSpades_Resources POST_BUILD
 			COMMENT "Copying assets to the currently-selected configuration's build directory"
 			COMMAND
 				${CMAKE_COMMAND} -E make_directory
@@ -101,11 +101,11 @@ if(OPENSPADES_RESOURCES)
 endif()
 
 if(UNIX AND NOT APPLE)
-	add_custom_target(OpenSpades_Unix ALL COMMENT "Process unix stuff")
+	add_custom_target(ZeroSpades_Unix ALL COMMENT "Process unix stuff")
 
 	file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Icons)
 	add_custom_command(
-		TARGET OpenSpades_Unix
+		TARGET ZeroSpades_Unix
 		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/Icons/converticons.sh ${CMAKE_CURRENT_SOURCE_DIR}/Icons
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Icons)
 
@@ -114,16 +114,16 @@ if(UNIX AND NOT APPLE)
 	file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Unix/Man)
 
 	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Unix/Debian/copyright.in" "${CMAKE_CURRENT_BINARY_DIR}/Unix/Debian/copyright")
-	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Unix/Man/openspades.6.in" "${CMAKE_CURRENT_BINARY_DIR}/Unix/Man/openspades.6")
+	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Unix/Man/zerospades.6.in" "${CMAKE_CURRENT_BINARY_DIR}/Unix/Man/zerospades.6")
 
 	add_custom_command(
-		TARGET OpenSpades_Unix
+		TARGET ZeroSpades_Unix
 		COMMAND sh -c \"gzip -9 -c ${CMAKE_CURRENT_SOURCE_DIR}/Unix/Debian/changelog > changelog.gz\"
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Unix/Debian
 	)
 	add_custom_command(
-		TARGET OpenSpades_Unix
-		COMMAND sh -c \"gzip -9 -c ${CMAKE_CURRENT_BINARY_DIR}/Unix/Man/openspades.6 > openspades.6.gz\"
+		TARGET ZeroSpades_Unix
+		COMMAND sh -c \"gzip -9 -c ${CMAKE_CURRENT_BINARY_DIR}/Unix/Man/zerospades.6 > zerospades.6.gz\"
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Unix/Man
 	)
 endif(UNIX AND NOT APPLE)

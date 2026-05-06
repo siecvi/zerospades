@@ -38,7 +38,7 @@
 #include <Core/VersionInfo.h>
 #include <Gui/Icon.h>
 #include <Gui/Main.h>
-#include <OpenSpades.h>
+#include <ZeroSpades.h>
 
 SPADES_SETTING(r_bloom);
 SPADES_SETTING(r_cameraBlur);
@@ -192,7 +192,7 @@ namespace spades {
 			}
 
 			bool capable = true;
-			SDL_Window* window = SDL_CreateWindow("OpenSpades: Please wait...", 1, 1, 1, 1,
+			SDL_Window* window = SDL_CreateWindow("ZeroSpades: Please wait...", 1, 1, 1, 1,
 												  SDL_WINDOW_OPENGL | SDL_WINDOW_BORDERLESS);
 			if (window == nullptr)
 				SPLog("Failed to create SDL window: %s", SDL_GetError());

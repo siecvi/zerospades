@@ -1,23 +1,11 @@
 #pragma once
 
-#define ZEROSPADES_VERSION_MAJOR 0
-#define ZEROSPADES_VERSION_MINOR 0
-#define ZEROSPADES_VERSION_PATCH 8
-
-#define ZEROSPADES_VERSION_FULL \
-	OS_STRINGIFY(ZEROSPADES_VERSION_MAJOR) "." \
-	OS_STRINGIFY(ZEROSPADES_VERSION_MINOR) "." \
-	OS_STRINGIFY(ZEROSPADES_VERSION_PATCH)
-
-#ifdef GIT_COMMIT_HASH
-	#define ZEROSPADES_VER_STR "ZeroSpades " ZEROSPADES_VERSION_FULL " " GIT_COMMIT_HASH
-#else
-	#define ZEROSPADES_VER_STR "ZeroSpades " ZEROSPADES_VERSION_FULL
-#endif
+// Version macros (ZEROSPADES_VERSION_*, ZEROSPADES_VER_STR)
+// live in ZeroSpades.h, which is included by every TU that needs them.
 
 #if __linux__
 	#define OS_PLATFORM_LINUX
-#elif TARGET_OS_MAC
+#elif defined(__APPLE__)
 	#define OS_PLATFORM_MAC
 #elif defined _WIN32 || defined _WIN64
 	#define OS_PLATFORM_WINDOWS

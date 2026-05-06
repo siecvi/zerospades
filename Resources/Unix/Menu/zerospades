@@ -1,0 +1,2 @@
+?package(zerospades):needs="X11" section="Games/Action"\
+  title="ZeroSpades" command="/usr/games/zerospades" icon="/usr/share/pixmaps/zerospades.xpm"

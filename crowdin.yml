@@ -1,7 +1,7 @@
 #
 # Your crowdin's credentials
 #
-"project_identifier" : "openspades"
+"project_identifier" : "zerospades"
 "project_id" : "246828"
 "api_key" : ""
 "base_path" : ""
@@ -22,13 +22,13 @@ files: [
   # Source files filter
   # e.g. "/resources/en/*.json"
   #
-  "source" : "/Resources/Locales/pot/openspades.pot",
+  "source" : "/Resources/Locales/pot/zerospades.pot",
 
   #
   # where translations live
   # e.g. "/resources/%two_letters_code%/%original_file_name%"
   #
-  "translation" : "/Resources/Locales/%locale_with_underscore%/openspades.po",
+  "translation" : "/Resources/Locales/%locale_with_underscore%/zerospades.po",
 
   #
   # files or directories for ignore
