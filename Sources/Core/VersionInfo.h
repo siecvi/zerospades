@@ -1,6 +1,6 @@
 #pragma once
 
-// Version macros (ZEROSPADES_VERSION_*, ZEROSPADES_FULL_VERSION, ZEROSPADES_VER_STR)
+// Version macros (ZEROSPADES_VERSION_*, ZEROSPADES_VER_STR)
 // live in ZeroSpades.h, which is included by every TU that needs them.
 
 #if __linux__
