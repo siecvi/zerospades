@@ -17,11 +17,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>@ZEROSPADES_FULL_VERSION@</string>
+	<string>@ZEROSPADES_VERSION_FULL@</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>@ZEROSPADES_FULL_VERSION@</string>
+	<string>@ZEROSPADES_VERSION_FULL@</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.action-games</string>
 	<key>LSMinimumSystemVersion</key>
