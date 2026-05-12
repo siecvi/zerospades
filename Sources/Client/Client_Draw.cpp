@@ -730,7 +730,10 @@ namespace spades {
 			bool isFollowingNonLocal = FollowsNonLocalPlayer(cameraMode);
 
 			int focusPlayerId = GetCameraTargetPlayerId();
-			auto maybeFocusPlayer = world->GetPlayer(focusPlayerId);
+			stmp::optional<Player&> maybeFocusPlayer;
+			if (focusPlayerId >= 0
+			 && static_cast<size_t>(focusPlayerId) < world->GetNumPlayerSlots())
+				maybeFocusPlayer = world->GetPlayer(static_cast<unsigned int>(focusPlayerId));
 
 			for (size_t i = 0; i < world->GetNumPlayerSlots(); i++) {
 				auto maybePlayer = world->GetPlayer(static_cast<unsigned int>(i));
