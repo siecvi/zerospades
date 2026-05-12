@@ -153,6 +153,19 @@ namespace spades {
 			size_t GetCurrentPacketIndex() const { return currentPacketIndex; }
 
 			/**
+			 * Timestamp of the last packet that is part of the initial-state stream
+			 * (MapStart / MapChunk / StateData / ExistingPlayer). These packets are
+			 * written by the recorder immediately after the stopwatch starts, so
+			 * they always carry tiny but strictly positive timestamps; seek logic
+			 * uses this value to ensure they are always re-applied when rebuilding
+			 * the world.
+			 *
+			 * @return Bootstrap-end timestamp in seconds, or 0 if there is no
+			 *         identifiable bootstrap prefix.
+			 */
+			float GetBootstrapEndTime() const { return bootstrapEndTime; }
+
+			/**
 			 * Calls handler for every packet whose timestamp is <= targetTime, in order.
 			 * The handler also receives the time delta from the previous packet (or 0
 			 * for the first), so callers can age the world in step with playback time
@@ -184,6 +197,7 @@ namespace spades {
 			float playbackTime;
 			float duration;
 			float speed;
+			float bootstrapEndTime;
 
 			// Pre-loaded packets for seeking
 			std::vector<DemoPacket> packets;

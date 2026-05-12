@@ -962,10 +962,17 @@ namespace spades {
 		void DemoNetClient::Seek(float time) {
 			if (!demoPlayer) return;
 
+			// FastReplay must always cover the bootstrap region so that the
+			// rebuilt world has its game mode, teams and players (and so that
+			// recordedLocalPlayerId is restored) — otherwise seeking back to
+			// t=0 would leave the world empty and crash any subsequent draw
+			// that dereferences the camera-target player.
+			float replayTime = std::max(time, demoPlayer->GetBootstrapEndTime());
+
 			if (initialMap) {
 				auto view = client->SaveViewState();
 				ResetWorldForReplay();
-				FastReplay(time);
+				FastReplay(replayTime);
 				client->RestoreViewState(view);
 			}
 
@@ -984,7 +991,7 @@ namespace spades {
 			if (initialMap && demoPlayer->GetTime() > 0.0f) {
 				auto view = client->SaveViewState();
 				ResetWorldForReplay();
-				FastReplay(0.0f);
+				FastReplay(demoPlayer->GetBootstrapEndTime());
 				client->RestoreViewState(view);
 			}
 

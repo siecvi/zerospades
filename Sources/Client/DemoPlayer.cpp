@@ -21,6 +21,7 @@
 #include <algorithm>
 
 #include "DemoPlayer.h"
+#include "NetProtocol.h"
 #include <Core/Debug.h>
 
 namespace spades {
@@ -34,6 +35,7 @@ namespace spades {
 		      playbackTime(0.0f),
 		      duration(0.0f),
 		      speed(1.0f),
+		      bootstrapEndTime(0.0f),
 		      currentPacketIndex(0) {}
 
 		DemoPlayer::~DemoPlayer() {
@@ -86,6 +88,7 @@ namespace spades {
 			finished = false;
 			playbackTime = 0.0f;
 			duration = 0.0f;
+			bootstrapEndTime = 0.0f;
 			currentPacketIndex = 0;
 			packets.clear();
 			filename.clear();
@@ -156,6 +159,26 @@ namespace spades {
 				return false;
 			}
 
+			// Identify the prefix that constitutes the initial-state stream so
+			// backward seeks can clamp to it: the recorder writes MapStart,
+			// MapChunk, StateData and ExistingPlayer back-to-back at the very
+			// start of a demo, each timestamped with the running stopwatch (so
+			// strictly > 0). Without this clamp, Seek(0) would land before the
+			// bootstrap and leave the world in an empty state on rebuild.
+			bootstrapEndTime = 0.0f;
+			for (const auto& pkt : packets) {
+				if (pkt.data.empty())
+					break;
+				uint8_t type = static_cast<uint8_t>(pkt.data[0]);
+				if (type != PacketTypeMapStart
+				 && type != PacketTypeMapChunk
+				 && type != PacketTypeStateData
+				 && type != PacketTypeExistingPlayer) {
+					break;
+				}
+				bootstrapEndTime = pkt.timestamp;
+			}
+
 			// All data is preloaded; release the file handle.
 			file.close();
 
@@ -188,6 +211,11 @@ namespace spades {
 		void DemoPlayer::Seek(float time) {
 			if (!isOpen)
 				return;
+
+			// Refuse to land before the bootstrap region. Anything earlier
+			// would correspond to an empty world (no map metadata, no game
+			// mode, no players), which is never a valid playback state.
+			time = std::max(time, bootstrapEndTime);
 
 			playbackTime = std::max(0.0f, std::min(time, duration));
 			finished = false;
