@@ -433,10 +433,14 @@ namespace spades {
 					if (CheckKey(cg_keyDemoSeekForward, name)) {
 						if (demoNet) {
 							if (down) {
-								demoSeekForwardHeld = true;
-								demoSeekRepeatTimer = 0.0f;
-								demoSeekPendingTime = demoNet->GetTime() + 5.0f;
-								demoNet->SeekPreview(demoSeekPendingTime);
+								float duration = demoNet->GetDuration();
+								float target = std::min(duration, demoNet->GetTime() + 5.0f);
+								if (target > demoNet->GetTime()) {
+									demoSeekForwardHeld = true;
+									demoSeekRepeatTimer = 0.0f;
+									demoSeekPendingTime = target;
+									demoNet->SeekPreview(demoSeekPendingTime);
+								}
 							} else {
 								demoSeekForwardHeld = false;
 								demoNet->Seek(demoSeekPendingTime);
@@ -447,10 +451,13 @@ namespace spades {
 					if (CheckKey(cg_keyDemoSeekBackward, name)) {
 						if (demoNet) {
 							if (down) {
-								demoSeekBackwardHeld = true;
-								demoSeekRepeatTimer = 0.0f;
-								demoSeekPendingTime = std::max(0.0f, demoNet->GetTime() - 5.0f);
-								demoNet->SeekPreview(demoSeekPendingTime);
+								float target = std::max(0.0f, demoNet->GetTime() - 5.0f);
+								if (target < demoNet->GetTime()) {
+									demoSeekBackwardHeld = true;
+									demoSeekRepeatTimer = 0.0f;
+									demoSeekPendingTime = target;
+									demoNet->SeekPreview(demoSeekPendingTime);
+								}
 							} else {
 								demoSeekBackwardHeld = false;
 								demoNet->Seek(demoSeekPendingTime);

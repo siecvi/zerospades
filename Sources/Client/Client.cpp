@@ -671,11 +671,14 @@ namespace spades {
 				demoSeekRepeatTimer += dt;
 				while (demoSeekRepeatTimer >= kRepeatInterval) {
 					demoSeekRepeatTimer -= kRepeatInterval;
+					float prev = demoSeekPendingTime;
+					float duration = demoNet->GetDuration();
 					if (demoSeekForwardHeld)
-						demoSeekPendingTime = demoSeekPendingTime + kSeekStep;
+						demoSeekPendingTime = std::min(duration, demoSeekPendingTime + kSeekStep);
 					if (demoSeekBackwardHeld)
 						demoSeekPendingTime = std::max(0.0f, demoSeekPendingTime - kSeekStep);
-					demoNet->SeekPreview(demoSeekPendingTime);
+					if (demoSeekPendingTime != prev)
+						demoNet->SeekPreview(demoSeekPendingTime);
 				}
 			}
 
