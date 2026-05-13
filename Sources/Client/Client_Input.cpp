@@ -626,6 +626,8 @@ namespace spades {
 						}
 					} else if (CheckKey(cg_keyScoreboard, name)) {
 						scoreboardVisible = down;
+					} else if (CheckKey(cg_keyZoomChatLog, name)) {
+						chatWindow->SetExpanded(down);
 					}
 					return;
 				}
