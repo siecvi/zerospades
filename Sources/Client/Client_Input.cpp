@@ -21,6 +21,8 @@
 
 #include "Client.h"
 
+#include <cstdio>
+
 #include <Core/Settings.h>
 #include <Core/Strings.h>
 
@@ -402,6 +404,7 @@ namespace spades {
 				bool isStaff = net ? net->GetGameProperties()->isStaff : false;
 
 				// Pie menu: hold to open, release to commit.
+				// Aim at a teammate to send a DM; otherwise broadcast on team chat.
 				if (CheckKey(cg_keyPieMenu, name) && localPlayerIsAlive && !localPlayerIsSpectating) {
 					if (down && !pieMenuView->IsOpen()) {
 						auto hot = HotTrackedPlayer();
@@ -413,7 +416,21 @@ namespace spades {
 						}
 						weapInput = WeaponInput();
 					} else if (!down && pieMenuView->IsOpen()) {
-						pieMenuView->Close();
+						PieMenuView::Variant v = pieMenuView->GetVariant();
+						int targetId = pieMenuView->GetTargetPlayerId();
+						const auto& labels = pieMenuView->GetLabels();
+						int sel = pieMenuView->Close();
+						if (sel >= 0 && sel < PieMenuView::kSliceCount && net) {
+							const std::string& msg = labels[static_cast<size_t>(sel)];
+							if (v == PieMenuView::Variant::Player && targetId >= 0) {
+								char cmd[128];
+								std::snprintf(cmd, sizeof(cmd), "/pm #%d %s",
+								              targetId, msg.c_str());
+								net->SendChat(cmd, false);
+							} else if (v == PieMenuView::Variant::World) {
+								net->SendChat(msg, false);
+							}
+						}
 					}
 					return;
 				}
