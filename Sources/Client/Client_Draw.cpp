@@ -45,6 +45,7 @@
 #include "LimboView.h"
 #include "MapView.h"
 #include "PaletteView.h"
+#include "PieMenuView.h"
 #include "ScoreboardView.h"
 #include "TCProgressView.h"
 
@@ -1638,6 +1639,9 @@ namespace spades {
 					scoreboard->Draw();
 					DrawPlayingTime();
 				}
+
+				if (pieMenuView && pieMenuView->IsOpen())
+					pieMenuView->Draw();
 
 				// --- end "player is there" render
 			} else {

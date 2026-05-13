@@ -34,6 +34,7 @@
 #include "LimboView.h"
 #include "MapView.h"
 #include "PaletteView.h"
+#include "PieMenuView.h"
 
 #include "GameMap.h"
 #include "Weapon.h"
@@ -89,6 +90,8 @@ DEFINE_SPADES_SETTING(cg_keySaveMap, "8");
 DEFINE_SPADES_SETTING(cg_switchToolByWheel, "1");
 DEFINE_SPADES_SETTING(cg_debugCorpse, "0");
 
+DEFINE_SPADES_SETTING(cg_keyPieMenu, "MiddleMouseButton");
+
 SPADES_SETTING(cg_manualFocus);
 DEFINE_SPADES_SETTING(cg_keyAutoFocus, "MiddleMouseButton");
 
@@ -137,6 +140,11 @@ namespace spades {
 
 			if (IsLimboViewActive()) {
 				limbo->MouseEvent(x, y);
+				return;
+			}
+
+			if (pieMenuView && pieMenuView->IsOpen()) {
+				pieMenuView->HandleMouseDelta(x, y);
 				return;
 			}
 
@@ -392,6 +400,29 @@ namespace spades {
 				bool localPlayerIsSpectator = p.IsSpectator();
 				bool localPlayerIsSpectating = localPlayerIsSpectator || staffSpectating;
 				bool isStaff = net ? net->GetGameProperties()->isStaff : false;
+
+				// Pie menu: hold to open, release to commit.
+				if (CheckKey(cg_keyPieMenu, name) && localPlayerIsAlive && !localPlayerIsSpectating) {
+					if (down && !pieMenuView->IsOpen()) {
+						auto hot = HotTrackedPlayer();
+						if (hot) {
+							Player& target = std::get<0>(*hot);
+							pieMenuView->Open(PieMenuView::Variant::Player, target.GetId());
+						} else {
+							pieMenuView->Open(PieMenuView::Variant::World);
+						}
+						weapInput = WeaponInput();
+					} else if (!down && pieMenuView->IsOpen()) {
+						pieMenuView->Close();
+					}
+					return;
+				}
+
+				// Swallow attack inputs while the pie menu is open
+				if (pieMenuView->IsOpen()) {
+					if (CheckKey(cg_keyAttack, name) || CheckKey(cg_keyAltAttack, name))
+						return;
+				}
 
 				switch (cameraMode) {
 					case ClientCameraMode::None:
