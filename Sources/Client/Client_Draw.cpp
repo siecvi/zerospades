@@ -272,9 +272,13 @@ namespace spades {
 			// --- progress bar geometry ---
 			// Reserve a strip below the bar so it sits above the bottom-anchored
 			// FPS/stats line (DrawStats with cg_stats == 1) instead of overlapping it.
+			// When cg_hudPlayerCount == 2 the alive-count team bar also anchors at the
+			// bottom-center, so lift the demo HUD above it as well.
 			const float barH = 4.0F;
 			const float margin = 8.0F;
-			const float bottomReserve = font.Measure("X").y + 4.0F;
+			float bottomReserve = font.Measure("X").y + 4.0F;
+			if ((int)cg_hudPlayerCount == 2)
+				bottomReserve += 48.0F; // clears the 40px team bar plus padding
 			const float barY = sh - margin - barH - bottomReserve;
 			const float barW = sw - 2.0F * margin;
 
