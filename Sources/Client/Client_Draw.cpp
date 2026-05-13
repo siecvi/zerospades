@@ -753,9 +753,10 @@ namespace spades {
 					continue;
 
 				const auto& color = GetPlayerColor(p);
-				if (staffSpectating)
+				if (staffSpectating || demoNet)
 					DrawPlayerBox(p, color);
-				DrawPlayerName(p, color);
+				if (spectatorPlayerNames)
+					DrawPlayerName(p, color);
 			}
 		}
 
@@ -1788,9 +1789,9 @@ namespace spades {
 				// world exists, but no local player: not joined (or demo mode)
 
 				if (IsDemoMode() && shouldDrawHUD) {
-					// Draw spectator HUD elements in demo mode
-					if (spectatorPlayerNames)
-						DrawPubOVL();
+					// Draw spectator HUD elements in demo mode.
+					// Boxes always render (staff use); names follow the toggle.
+					DrawPubOVL();
 
 					tcView->Draw();
 
