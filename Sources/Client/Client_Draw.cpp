@@ -319,15 +319,6 @@ namespace spades {
 			Vector2 durSize = font.Measure(durStr);
 			font.DrawShadow(durStr, MakeVector2(margin + barW - durSize.x, textY), 1.0F, white, shadow);
 
-			// ESP-toggle hint stacked above the time row
-			std::string espStr = _Tr("Client", "[{0}] ESP: {1}",
-				TrKey(cg_keyStaffSpectating), staffSpectating ? "ON" : "OFF");
-			float hintY = textY - font.Measure(espStr).y - 2.0F;
-			Vector4 hintCol = staffSpectating
-				? MakeVector4(0.2F, 1.0F, 0.4F, 1)
-				: MakeVector4(0.85F, 0.85F, 0.85F, 1);
-			font.DrawShadow(espStr, MakeVector2(margin, hintY), 1.0F, hintCol, shadow);
-
 			// speed indicator (center)
 			char speedBuf[16];
 			float spd = demoNet->GetSpeed();
@@ -1544,9 +1535,12 @@ namespace spades {
 				addLine(_Tr("Client", "[{0}/{1}] Go up/down",
 					TrKey(cg_keyJump), TrKey(cg_keyCrouch)));
 
-			if (localPlayerIsSpectator)
+			if (localPlayerIsSpectator) {
 				addLine(_Tr("Client", "[{0}] Toggle player names",
 					TrKey(cg_keyToggleSpectatorNames)));
+				addLine(_Tr("Client", "[{0}] Toggle ESP",
+					TrKey(cg_keyStaffSpectating)));
+			}
 
 			y += lh * 0.5F;
 
