@@ -178,7 +178,10 @@ namespace spades {
 			// reset on new map
 			placedBlocks = 0;
 
-			staffSpectating = false;
+			// In demo replay, every seek calls SetWorld via ResetWorldForReplay;
+			// preserve the staff/ESP toggle across seeks.
+			if (!IsDemoMode())
+				staffSpectating = false;
 			reloadKeyPressed = false;
 			scoreboardVisible = false;
 			flashlightOn = false;
