@@ -63,6 +63,7 @@ SPADES_SETTING(cg_keyAltAttack);
 SPADES_SETTING(cg_keyCrouch);
 SPADES_SETTING(cg_keyLimbo);
 SPADES_SETTING(cg_keyToggleSpectatorNames);
+SPADES_SETTING(cg_keyStaffSpectating);
 SPADES_SETTING(cg_keyDemoPlayPause);
 SPADES_SETTING(cg_keyDemoSeekForward);
 SPADES_SETTING(cg_keyDemoSeekBackward);
@@ -317,6 +318,15 @@ namespace spades {
 			// duration (right)
 			Vector2 durSize = font.Measure(durStr);
 			font.DrawShadow(durStr, MakeVector2(margin + barW - durSize.x, textY), 1.0F, white, shadow);
+
+			// ESP-toggle hint stacked above the time row
+			std::string espStr = _Tr("Client", "[{0}] ESP: {1}",
+				TrKey(cg_keyStaffSpectating), staffSpectating ? "ON" : "OFF");
+			float hintY = textY - font.Measure(espStr).y - 2.0F;
+			Vector4 hintCol = staffSpectating
+				? MakeVector4(0.2F, 1.0F, 0.4F, 1)
+				: MakeVector4(0.85F, 0.85F, 0.85F, 1);
+			font.DrawShadow(espStr, MakeVector2(margin, hintY), 1.0F, hintCol, shadow);
 
 			// speed indicator (center)
 			char speedBuf[16];
@@ -757,7 +767,7 @@ namespace spades {
 					continue;
 
 				const auto& color = GetPlayerColor(p);
-				if (staffSpectating || demoNet)
+				if (staffSpectating)
 					DrawPlayerBox(p, color);
 				if (spectatorPlayerNames)
 					DrawPlayerName(p, color);

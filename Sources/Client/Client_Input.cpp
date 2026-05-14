@@ -409,6 +409,15 @@ namespace spades {
 						return;
 					}
 
+					// Toggle ESP boxes (same surface as the staff-spectate toggle in live).
+					if (CheckKey(cg_keyStaffSpectating, name) && down) {
+						staffSpectating = !staffSpectating;
+						Handle<IAudioChunk> c =
+						  audioDevice->RegisterSound("Sounds/Player/Flashlight.opus");
+						audioDevice->PlayLocal(c.GetPointerOrNull(), AudioParam());
+						return;
+					}
+
 					// Handle demo playback controls (play/pause)
 					if (CheckKey(cg_keyDemoPlayPause, name) && down) {
 						if (demoNet) {
