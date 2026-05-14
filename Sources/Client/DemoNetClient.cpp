@@ -115,10 +115,13 @@ namespace spades {
 				return false;
 			}
 
-			// Create game properties based on protocol version
+			// Create game properties based on protocol version.
+			// The demo viewer is always considered staff so admin-only
+			// tools (free third-person, ESP boxes) are available for review.
 			ProtocolVersion protoVer = (demoPlayer->GetProtocolVersion() == 4)
 				? ProtocolVersion::v076 : ProtocolVersion::v075;
 			properties.reset(new GameProperties(protoVer));
+			properties->isStaff = true;
 
 			status = NetClientStatusConnecting;
 			statusString = _Tr("NetClient", "Loading demo");
