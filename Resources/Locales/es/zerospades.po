@@ -2779,6 +2779,10 @@ msgctxt "Client"
 msgid "[{0}] Toggle extended palette"
 msgstr "[{0}] Alternar paleta extendida"
 
+msgctxt "Client"
+msgid "You are taking damage. Find solid ground!"
+msgstr "Estás recibiendo daño. ¡Busca un terreno firme!"
+
 #: Sources/Client/Client_NetHandler.cpp:111
 msgctxt "Client"
 msgid "You are connected with {0} ({2}) on {1}"

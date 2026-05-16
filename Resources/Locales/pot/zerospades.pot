@@ -2698,6 +2698,10 @@ msgctxt "Client"
 msgid "[{0}] Toggle extended palette"
 msgstr ""
 
+msgctxt "Client"
+msgid "You are taking damage. Find solid ground!"
+msgstr ""
+
 #: Sources/Client/Client_NetHandler.cpp:111
 msgctxt "Client"
 msgid "You are connected with {0} ({2}) on {1}"

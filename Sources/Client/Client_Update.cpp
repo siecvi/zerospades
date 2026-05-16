@@ -1594,8 +1594,12 @@ namespace spades {
 		void Client::LocalPlayerHurt(HurtType type, spades::Vector3 source) {
 			SPADES_MARK_FUNCTION();
 
-			if (source.GetSquaredLength() < 0.01F)
+			if (source.GetSquaredLength() < 0.01F) {
+				stmp::optional<Player&> p = world->GetLocalPlayer();
+				if (p && p->GetWade())
+					ShowAlert(_Tr("Client", "You are taking damage. Find solid ground!"), AlertType::Warning, 1.5F, true);
 				return;
+			}
 
 			stmp::optional<Player&> p = world->GetLocalPlayer();
 			if (!p)
