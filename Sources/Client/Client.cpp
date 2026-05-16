@@ -935,16 +935,16 @@ namespace spades {
 			scriptedUI->RecordChatLog(msg);
 
 			if (cg_serverAlert) {
-				if (msg.substr(0, 3) == "C% ") {
+				if (msg.substr(0, 3) == CHATPREFIX_BIG) {
 					centerMessageView->AddMessage(msg.substr(3));
 					return;
-				} else if (msg.substr(0, 3) == "N% ") {
+				} else if (msg.substr(0, 3) == CHATPREFIX_NOTICE) {
 					ShowAlert(msg.substr(3), AlertType::Notice);
 					return;
-				} else if (msg.substr(0, 3) == "%% ") {
+				} else if (msg.substr(0, 3) == CHATPREFIX_WARNING) {
 					ShowAlert(msg.substr(3), AlertType::Warning);
 					return;
-				} else if (msg.substr(0, 3) == "!% ") {
+				} else if (msg.substr(0, 3) == CHATPREFIX_ERROR) {
 					ShowAlert(msg.substr(3), AlertType::Error);
 					return;
 				}

@@ -15,7 +15,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -103,6 +103,7 @@ namespace spades {
 			std::unordered_map<uint8_t, uint8_t> implementedExtensions{
 			  {ExtensionTypePlayerProperties, 1},
 			  {ExtensionTypePlayerLimit, 1},
+			  {ExtensionTypeMessageTypes, 1},
 			  {ExtensionTypeKickReason, 1}};
 
 			class BandwidthMonitor {

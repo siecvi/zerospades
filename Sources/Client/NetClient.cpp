@@ -1244,6 +1244,14 @@ namespace spades {
 						} else {
 							client->ServerSentMessage((type == ChatTypeTeam), msg);
 						}
+					} else if (type == ChatTypeBig) {
+						client->ServerSentMessage(false, CHATPREFIX_BIG + msg);
+					} else if (type == ChatTypeInfo) {
+						client->ServerSentMessage(false, CHATPREFIX_NOTICE + msg);
+					} else if (type == ChatTypeWarning) {
+						client->ServerSentMessage(false, CHATPREFIX_WARNING + msg);
+					} else if (type == ChatTypeError) {
+						client->ServerSentMessage(false, CHATPREFIX_ERROR + msg);
 					}
 				} break;
 				case PacketTypeMapStart: {

@@ -15,7 +15,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -44,6 +44,11 @@
 #define MELEE_DISTANCE 3
 #define MAX_BLOCK_DISTANCE 3
 #define MAX_DIG_DISTANCE 3
+
+#define CHATPREFIX_BIG	   "C% "
+#define CHATPREFIX_NOTICE  "N% "
+#define CHATPREFIX_WARNING "%% "
+#define CHATPREFIX_ERROR   "!% "
 
 enum ChatType {
 	ChatTypeAll = 0,
