@@ -44,7 +44,7 @@ jobs:
           parallel: 8
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: zerospades-windows-x86
           path: |
@@ -95,7 +95,7 @@ jobs:
           parallel: 8
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: zerospades-windows-x64
           path: |
@@ -115,7 +115,7 @@ jobs:
           submodules: true
 
       - name: Cache vcpkg and dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             vcpkg/installed
@@ -149,7 +149,7 @@ jobs:
         run: codesign --force --deep --sign - ${{ runner.workspace }}/zerospades.mk/bin/ZeroSpades.app
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: zerospades-macos-intel
           path: |
@@ -166,7 +166,7 @@ jobs:
           submodules: recursive
 
       - name: Cache vcpkg and dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             vcpkg/installed
@@ -200,7 +200,7 @@ jobs:
         run: codesign --force --deep --sign - ${{ runner.workspace }}/zerospades.mk/bin/ZeroSpades.app
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: zerospades-macos-arm64
           path: |
@@ -223,7 +223,7 @@ jobs:
         run: nix build
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: zerospades-linux-nix
           path: |
@@ -265,7 +265,7 @@ jobs:
           make -j$(nproc)
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: zerospades-linux-ubuntu
           path: |
