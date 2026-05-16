@@ -21,27 +21,25 @@ jobs:
             vcpkg/installed
             vcpkg/buildtrees
           key: windows-x86-${{ hashFiles('vcpkg_x86-windows.txt', '.gitmodules') }}
-          restore-keys: |
-            windows-x86-
+          restore-keys: windows-x86-
 
       - name: Bootstrap vcpkg
         run: vcpkg\bootstrap-vcpkg.bat -disableMetrics
 
-      - name: Build dependencies
+      - name: Install dependencies
         run: vcpkg\vcpkg install @vcpkg_x86-windows.txt
 
-      - name: Build application
-        uses: ashutoshvarma/action-cmake-build@master
-        with:
-          build-dir: ${{ runner.workspace }}\zerospades.mk
-          build-type: Release
-          configure-options: >
-            -A Win32
-            -D CMAKE_BUILD_TYPE=Release
-            -D CMAKE_TOOLCHAIN_FILE=${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake
-            -D VCPKG_TARGET_TRIPLET=x86-windows-static
+      - name: Configure CMake
+        run: |
+          cmake -S . -B "${{ runner.workspace }}\zerospades.mk" `
+            -A Win32 `
+            -D CMAKE_BUILD_TYPE=Release `
+            -D CMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake" `
+            -D VCPKG_TARGET_TRIPLET=x86-windows-static `
             -D CMAKE_CXX_STANDARD=17
-          parallel: 8
+
+      - name: Build application
+        run: cmake --build "${{ runner.workspace }}\zerospades.mk" --config Release --parallel 8
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
@@ -70,29 +68,27 @@ jobs:
             vcpkg/installed
             vcpkg/buildtrees
           key: windows-x64-${{ hashFiles('vcpkg_x86-windows.txt', '.gitmodules') }}
-          restore-keys: |
-            windows-x64-
+          restore-keys: windows-x64-
 
       - name: Bootstrap vcpkg
         run: vcpkg\bootstrap-vcpkg.bat -disableMetrics
 
-      - name: Build dependencies
+      - name: Install dependencies
         run: |
           (Get-Content vcpkg_x86-windows.txt) -replace 'x86-windows-static', 'x64-windows-static' | Set-Content vcpkg_x64-windows.txt
           vcpkg\vcpkg install @vcpkg_x64-windows.txt
 
-      - name: Build application
-        uses: ashutoshvarma/action-cmake-build@master
-        with:
-          build-dir: ${{ runner.workspace }}\zerospades.mk
-          build-type: Release
-          configure-options: >
-            -A x64
-            -D CMAKE_BUILD_TYPE=Release
-            -D CMAKE_TOOLCHAIN_FILE=${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake
-            -D VCPKG_TARGET_TRIPLET=x64-windows-static
+      - name: Configure CMake
+        run: |
+          cmake -S . -B "${{ runner.workspace }}\zerospades.mk" `
+            -A x64 `
+            -D CMAKE_BUILD_TYPE=Release `
+            -D CMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake" `
+            -D VCPKG_TARGET_TRIPLET=x64-windows-static `
             -D CMAKE_CXX_STANDARD=17
-          parallel: 8
+
+      - name: Build application
+        run: cmake --build "${{ runner.workspace }}\zerospades.mk" --config Release --parallel 8
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
@@ -121,29 +117,27 @@ jobs:
             vcpkg/installed
             vcpkg/buildtrees
           key: macos-intel-${{ hashFiles('vcpkg_x86_64-darwin.txt', '.gitmodules') }}
-          restore-keys: |
-            macos-intel-
+          restore-keys: macos-intel-
 
       - name: Bootstrap vcpkg
         run: vcpkg/bootstrap-vcpkg.sh -disableMetrics
 
-      - name: Build dependencies
+      - name: Install dependencies
         run: |
           sed 's/$/:x64-osx/' vcpkg_x86_64-darwin.txt > vcpkg_x64-osx.txt
           vcpkg/vcpkg install --recurse @vcpkg_x64-osx.txt
 
-      - name: Build application
-        uses: ashutoshvarma/action-cmake-build@master
-        with:
-          build-dir: ${{ runner.workspace }}/zerospades.mk
-          build-type: Release
-          configure-options: >
-            -D CMAKE_BUILD_TYPE=Release
-            -D CMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
-            -D VCPKG_TARGET_TRIPLET=x64-osx
-            -D CMAKE_OSX_ARCHITECTURES=x86_64
+      - name: Configure CMake
+        run: |
+          cmake -S . -B "${{ runner.workspace }}/zerospades.mk" \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D CMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake" \
+            -D VCPKG_TARGET_TRIPLET=x64-osx \
+            -D CMAKE_OSX_ARCHITECTURES=x86_64 \
             -D CMAKE_CXX_STANDARD=17
-          parallel: 8
+
+      - name: Build application
+        run: cmake --build "${{ runner.workspace }}/zerospades.mk" --config Release --parallel 8
 
       - name: Sign application bundle
         run: codesign --force --deep --sign - ${{ runner.workspace }}/zerospades.mk/bin/ZeroSpades.app
@@ -152,8 +146,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: zerospades-macos-intel
-          path: |
-            ${{ runner.workspace }}/zerospades.mk/bin
+          path: ${{ runner.workspace }}/zerospades.mk/bin
           if-no-files-found: warn
 
   build-macos-arm:
@@ -172,29 +165,27 @@ jobs:
             vcpkg/installed
             vcpkg/buildtrees
           key: macos-arm-${{ hashFiles('vcpkg_x86_64-darwin.txt', '.gitmodules') }}
-          restore-keys: |
-            macos-arm-
+          restore-keys: macos-arm-
 
       - name: Bootstrap vcpkg
         run: vcpkg/bootstrap-vcpkg.sh -disableMetrics
 
-      - name: Build dependencies
+      - name: Install dependencies
         run: |
           sed 's/$/:arm64-osx/' vcpkg_x86_64-darwin.txt > vcpkg_arm64-osx.txt
           vcpkg/vcpkg install --recurse @vcpkg_arm64-osx.txt
 
-      - name: Build application
-        uses: ashutoshvarma/action-cmake-build@master
-        with:
-          build-dir: ${{ runner.workspace }}/zerospades.mk
-          build-type: Release
-          configure-options: >
-            -D CMAKE_BUILD_TYPE=Release
-            -D CMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
-            -D VCPKG_TARGET_TRIPLET=arm64-osx
-            -D CMAKE_OSX_ARCHITECTURES=arm64
+      - name: Configure CMake
+        run: |
+          cmake -S . -B "${{ runner.workspace }}/zerospades.mk" \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D CMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake" \
+            -D VCPKG_TARGET_TRIPLET=arm64-osx \
+            -D CMAKE_OSX_ARCHITECTURES=arm64 \
             -D CMAKE_CXX_STANDARD=17
-          parallel: 8
+
+      - name: Build application
+        run: cmake --build "${{ runner.workspace }}/zerospades.mk" --config Release --parallel 8
 
       - name: Sign application bundle
         run: codesign --force --deep --sign - ${{ runner.workspace }}/zerospades.mk/bin/ZeroSpades.app
@@ -203,8 +194,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: zerospades-macos-arm64
-          path: |
-            ${{ runner.workspace }}/zerospades.mk/bin
+          path: ${{ runner.workspace }}/zerospades.mk/bin
           if-no-files-found: warn
 
   build-linux-nix:
@@ -226,8 +216,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: zerospades-linux-nix
-          path: |
-            result/
+          path: result/
           if-no-files-found: warn
 
   build-linux-ubuntu:
@@ -268,6 +257,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: zerospades-linux-ubuntu
-          path: |
-            build/bin/
+          path: build/bin/
           if-no-files-found: warn
