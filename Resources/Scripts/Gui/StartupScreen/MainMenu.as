@@ -64,9 +64,18 @@ namespace spades {
 				spades::ui::SimpleButton button(Manager);
 				button.Caption = _Tr("StartupScreen", "GitHub Repository");
 				Vector2 size = Font.Measure(button.Caption);
-				button.Bounds = AABB2(sw - (size.x + 16.0F) - 22.0F, 55.0F, size.x + 16.0F, size.y);
+				button.Bounds = AABB2(sw - 170.0F - (size.x + 16.0F) - 10.0F, 20.0F, size.x + 16.0F, size.y);
 				button.TextColor = Vector4(0.1F, 0.7F, 1, 1);
 				@button.Activated = spades::ui::EventHandler(this.OnGithubRepositoryPressed);
+				AddChild(button);
+			}
+			{
+				spades::ui::SimpleButton button(Manager);
+				button.Caption = _Tr("StartupScreen", "Compatible Mods");
+				Vector2 size = Font.Measure(button.Caption);
+				button.Bounds = AABB2(sw - 170.0F - (size.x + 16.0F) - 10.0F, 44.0F, size.x + 16.0F, size.y);
+				button.TextColor = Vector4(0.1F, 0.7F, 1, 1);
+				@button.Activated = spades::ui::EventHandler(this.OnGithubPaksRepositoryPressed);
 				AddChild(button);
 			}
 			
@@ -123,7 +132,17 @@ namespace spades {
 		}
 
 		private void OnGithubRepositoryPressed(spades::ui::UIElement@) {
-			if (helper.OpenLinkInBrowser("https://github.com/siecvi/zerospades"))
+			if (helper.OpenLinkInBrowser("https://github.com/zerospades/zerospades"))
+				return;
+
+			string msg = _Tr("StartupScreen",
+							 "An unknown error has occurred while opening this url.");
+			AlertScreen al(Parent, msg, 100.0F);
+			al.Run();
+		}
+
+		private void OnGithubPaksRepositoryPressed(spades::ui::UIElement@) {
+			if (helper.OpenLinkInBrowser("https://github.com/zerospades/zerospades-paks"))
 				return;
 
 			string msg = _Tr("StartupScreen",

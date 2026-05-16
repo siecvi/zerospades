@@ -2595,10 +2595,13 @@ msgctxt "Preferences"
 msgid "Show Dead Player Names"
 msgstr "Nombres de jugadores muertos"
 
-#: Resources/Scripts/Gui/StartupScreen/MainMenu.as:65
 msgctxt "StartupScreen"
 msgid "GitHub Repository"
 msgstr "Página de GitHub"
+
+msgctxt "StartupScreen"
+msgid "Compatible Mods"
+msgstr "Mods Compatibles"
 
 #: Resources/Scripts/Gui/StartupScreen/MainMenu.as:127
 msgctxt "StartupScreen"
