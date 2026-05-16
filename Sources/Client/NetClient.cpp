@@ -15,7 +15,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with OpenSpades.  If not, see <http://www.gnu.org/licenses/>.
+ along with OpenSpades.	 If not, see <http://www.gnu.org/licenses/>.
 
  */
 
@@ -231,7 +231,7 @@ namespace spades {
 			}
 
 			std::size_t GetLength() { return data.size(); }
-			std::size_t GetPosition() { return pos; }  
+			std::size_t GetPosition() { return pos; }
 			std::size_t GetNumRemainingBytes() { return data.size() - pos; }
 			std::vector<char> GetData() { return data; }
 
@@ -359,7 +359,7 @@ namespace spades {
 
 				if (position + 4 > data.size()) {
 					SPRaise("Invalid write (%d should be less than or equal to %d)",
-					        (int)(position + 4), (int)data.size());
+							(int)(position + 4), (int)data.size());
 				}
 
 				// Assuming the target platform is little endian and supports
@@ -594,22 +594,22 @@ namespace spades {
 							//
 							// A number of other packets can also be received while loading the map:
 							//
-							//  - World update packets (WorldUpdate, ExistingPlayer, and
-							//    CreatePlayer) for the current round. We must store such packets
-							//    temporarily and process them later when a `World` is created.
+							//	- World update packets (WorldUpdate, ExistingPlayer, and
+							//	  CreatePlayer) for the current round. We must store such packets
+							//	  temporarily and process them later when a `World` is created.
 							//
-							//  - Leftover reload packet from the previous round. This happens when
-							//    you initiate the reload action and a map change occurs before it
-							//    is completed. In pyspades, sending a reload packet is implemented
-							//    by registering a callback function to the Twisted reactor. This
-							//    callback function sends a reload packet, but it does not check if
-							//    the current game round is finished, nor is it unregistered on a
-							//    map change.
+							//	- Leftover reload packet from the previous round. This happens when
+							//	  you initiate the reload action and a map change occurs before it
+							//	  is completed. In pyspades, sending a reload packet is implemented
+							//	  by registering a callback function to the Twisted reactor. This
+							//	  callback function sends a reload packet, but it does not check if
+							//	  the current game round is finished, nor is it unregistered on a
+							//	  map change.
 							//
-							//    Such a reload packet would not (and should not) have any effect on
-							//    the current round. Also, an attempt to process it would result in
-							//    an "invalid player ID" exception, so we simply drop it during
-							//    map load sequence.
+							//	  Such a reload packet would not (and should not) have any effect on
+							//	  the current round. Also, an attempt to process it would result in
+							//	  an "invalid player ID" exception, so we simply drop it during
+							//	  map load sequence.
 							//
 							if (type == PacketTypeStateData) {
 								status = NetClientStatusConnected;
@@ -619,7 +619,7 @@ namespace spades {
 									MapLoaded();
 								} catch (const std::exception& ex) {
 									if (strstr(ex.what(), "File truncated") ||
-									    strstr(ex.what(), "EOF reached")) {
+										strstr(ex.what(), "EOF reached")) {
 										SPLog("Map decoder returned error:\n%s", ex.what());
 										Disconnect();
 										statusString = _Tr("NetClient", "Error");
@@ -913,8 +913,7 @@ namespace spades {
 						int tool = r.ReadByte();
 						int score = r.ReadInt();
 						IntVector3 color = r.ReadIntColor(); // block color
-						std::string name = TrimSpaces(r.ReadRemainingString());
-						// TODO: decode name?
+						std::string name = StripNewlines(TrimSpaces(r.ReadRemainingString()));
 
 						WeaponType wType;
 						switch (weapon) {
@@ -999,8 +998,7 @@ namespace spades {
 					int weapon = r.ReadByte();
 					int team = r.ReadByte();
 					Vector3 pos = r.ReadVector3();
-					std::string name = TrimSpaces(r.ReadRemainingString());
-					// TODO: decode name?
+					std::string name = StripNewlines(TrimSpaces(r.ReadRemainingString()));
 
 					if (pId < 0 || pId >= properties->GetMaxNumPlayerSlots()) {
 						SPLog("Ignoring invalid player ID %d (pyspades bug?: %s)", pId, name.c_str());
@@ -1101,7 +1099,7 @@ namespace spades {
 					for (const auto& c : cells) {
 						if (!GetWorld()->GetMap()->IsSolid(c.x, c.y, c.z))
 							GetWorld()->CreateBlock(c, p ? p->GetBlockColor()
-							                             : temporaryPlayerBlockColor);
+														 : temporaryPlayerBlockColor);
 					}
 
 					if (p) {
@@ -1227,7 +1225,7 @@ namespace spades {
 					// might be wrong player id for server message
 					int playerId = r.ReadByte();
 					int type = r.ReadByte();
-					std::string msg = TrimSpaces(r.ReadRemainingString());
+					std::string msg = StripNewlines(TrimSpaces(r.ReadRemainingString()));
 
 					if (type == ChatTypeSystem) {
 						if (playerId == 255) {
@@ -1284,7 +1282,7 @@ namespace spades {
 					stmp::optional<IGameMode&> mode = GetWorld()->GetMode();
 					if (!mode) {
 						SPLog("Ignoring PacketTypeTerritoryCapture"
-						      "because game mode isn't specified yet");
+							  "because game mode isn't specified yet");
 						break;
 					}
 					if (mode->ModeType() != IGameMode::m_TC)
@@ -1319,7 +1317,7 @@ namespace spades {
 					stmp::optional<IGameMode&> mode = GetWorld()->GetMode();
 					if (!mode) {
 						SPLog("Ignoring PacketTypeProgressBar"
-						      "because game mode isn't specified yet");
+							  "because game mode isn't specified yet");
 						break;
 					}
 					if (mode->ModeType() != IGameMode::m_TC)
@@ -1349,7 +1347,7 @@ namespace spades {
 					stmp::optional<IGameMode&> mode = GetWorld()->GetMode();
 					if (!mode) {
 						SPLog("Ignoring PacketTypeIntelCapture"
-						      "because game mode isn't specified yet");
+							  "because game mode isn't specified yet");
 						break;
 					}
 					if (mode->ModeType() != IGameMode::m_CTF)
@@ -1377,7 +1375,7 @@ namespace spades {
 					stmp::optional<IGameMode&> mode = GetWorld()->GetMode();
 					if (!mode) {
 						SPLog("Ignoring PacketTypeIntelPickup"
-						      "because game mode isn't specified yet");
+							  "because game mode isn't specified yet");
 						break;
 					}
 					if (mode->ModeType() != IGameMode::m_CTF)
@@ -1396,7 +1394,7 @@ namespace spades {
 					stmp::optional<IGameMode&> mode = GetWorld()->GetMode();
 					if (!mode) {
 						SPLog("Ignoring PacketTypeIntelDrop"
-						      "because game mode isn't specified yet");
+							  "because game mode isn't specified yet");
 						break;
 					}
 					if (mode->ModeType() != IGameMode::m_CTF)
@@ -1745,7 +1743,7 @@ namespace spades {
 
 			osInfo.append(" | " ZEROSPADES_VER_STR);
 			osInfo.append(" (" + archInfo + ")");
-			
+
 			NetPacketWriter w(PacketTypeVersionSend);
 			w.WriteByte((uint8_t)'o');
 			w.WriteByte((uint8_t)OPENSPADES_VERSION_MAJOR);
@@ -1763,7 +1761,7 @@ namespace spades {
 			NetPacketWriter w(PacketTypeExtensionInfo);
 			w.WriteByte(static_cast<uint8_t>(extensions.size()));
 			for (const auto& i : extensions) {
-				w.WriteByte(static_cast<uint8_t>(i.first));  // ext id
+				w.WriteByte(static_cast<uint8_t>(i.first));	 // ext id
 				w.WriteByte(static_cast<uint8_t>(i.second)); // ext version
 			}
 
@@ -1833,7 +1831,7 @@ namespace spades {
 		}
 
 		NetClient::BandwidthMonitor::BandwidthMonitor(ENetHost* host)
-		    : host(host), lastDown(0.0), lastUp(0.0) {
+			: host(host), lastDown(0.0), lastUp(0.0) {
 			sw.Reset();
 		}
 
@@ -1848,7 +1846,7 @@ namespace spades {
 		}
 
 		NetClient::MapDownloadMonitor::MapDownloadMonitor(GameMapLoader& mapLoader)
-		    : numBytesDownloaded{0}, mapLoader{mapLoader}, receivedFirstByte{false} {}
+			: numBytesDownloaded{0}, mapLoader{mapLoader}, receivedFirstByte{false} {}
 
 		void NetClient::MapDownloadMonitor::AccumulateBytes(unsigned int numBytes) {
 			// It might take a while before receiving the first byte. Take this into account to
