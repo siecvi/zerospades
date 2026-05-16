@@ -1749,6 +1749,18 @@ msgctxt "Preferences"
 msgid "Viewmodel Alignment"
 msgstr ""
 
+msgctxt "Preferences"
+msgid "Viewmodel Position"
+msgstr ""
+
+msgctxt "Preferences"
+msgid "Balanced"
+msgstr ""
+
+msgctxt "Preferences"
+msgid "Minimal"
+msgstr ""
+
 #: Resources/Scripts/Gui/Preferences.as:1232
 msgctxt "Preferences"
 msgid "Switch Viewmodel Handedness"

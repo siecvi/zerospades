@@ -777,53 +777,75 @@ namespace spades {
 		}
 	}
 
-	class ConfigSimpleToggleButton : spades::ui::RadioButton {
-		ConfigItem@ config;
-		int value;
-		ConfigSimpleToggleButton(spades::ui::UIManager manager,
-			string caption, string configName, int value) {
+	class ConfigToggleButtonBase : spades::ui::RadioButton {
+		ConfigToggleButtonBase(spades::ui::UIManager@ manager, string caption) {
 			super(manager);
-			@config = ConfigItem(configName);
 			this.Caption = caption;
-			this.value = value;
 			this.Toggle = true;
-			this.Toggled = config.IntValue == value;
 		}
-
+		bool IsSelected() { return false; }
+		void SetValue() {}
 		void OnActivated() {
 			RadioButton::OnActivated();
-			this.Toggled = true;
-			config = value;
+			SetValue();
 		}
-
 		void Render() {
-			this.Toggled = config.IntValue == value;
+			this.Toggled = IsSelected();
 			RadioButton::Render();
 		}
 	}
-
-	class ConfigSimpleToggleStringButton : spades::ui::RadioButton {
+	class ConfigSimpleToggleButton : ConfigToggleButtonBase {
+		ConfigItem@ config;
+		int value;
+		ConfigSimpleToggleButton(spades::ui::UIManager@ manager,
+			string caption, string configName, int value) {
+			super(manager, caption);
+			@config = ConfigItem(configName);
+			this.value = value;
+			this.Toggled = config.IntValue == value;
+		}
+		bool IsSelected() { return config.IntValue == value; }
+		void SetValue() { config = value; }
+	}
+	class ConfigSimpleToggleStringButton : ConfigToggleButtonBase {
 		ConfigItem@ config;
 		string value;
 		ConfigSimpleToggleStringButton(spades::ui::UIManager@ manager,
 			string caption, string configName, string value) {
-			super(manager);
+			super(manager, caption);
 			@config = ConfigItem(configName);
-			this.Caption = caption;
 			this.value = value;
-			this.Toggle = true;
 			this.Toggled = config.StringValue == value;
 		}
+		bool IsSelected() { return config.StringValue == value; }
+		void SetValue() { config = value; }
+	}
 
-		void OnActivated() {
-			RadioButton::OnActivated();
-			this.Toggled = true;
-			config = value;
+	class ViewmodelPositionPresetButton : ConfigToggleButtonBase {
+		ConfigItem@ cfgX;
+		ConfigItem@ cfgY;
+		ConfigItem@ cfgZ;
+		float presetX, presetY, presetZ;
+		ViewmodelPositionPresetButton(spades::ui::UIManager@ manager,
+			string caption, string groupName, float x, float y, float z) {
+			super(manager, caption);
+			@cfgX = ConfigItem("cg_viewWeaponX");
+			@cfgY = ConfigItem("cg_viewWeaponY");
+			@cfgZ = ConfigItem("cg_viewWeaponZ");
+			this.GroupName = groupName;
+			this.presetX = x;
+			this.presetY = y;
+			this.presetZ = z;
 		}
-
-		void Render() {
-			this.Toggled = config.StringValue == value;
-			RadioButton::Render();
+		bool IsSelected() {
+			return cfgX.FloatValue == presetX
+				and cfgY.FloatValue == presetY
+				and cfgZ.FloatValue == presetZ;
+		}
+		void SetValue() {
+			cfgX = presetX;
+			cfgY = presetY;
+			cfgZ = presetZ;
 		}
 	}
 
@@ -1349,6 +1371,21 @@ namespace spades {
 			}
 		}
 
+		void AddViewmodelPresetField(string caption,
+			array<string>@ labels,
+			array<float>@ xs, array<float>@ ys, array<float>@ zs,
+			bool enabled = true) {
+			spades::ui::UIElement@ container = CreateBasicLabel(caption, enabled);
+
+			float width = (FieldWidth - (labels.length - 1)) / labels.length;
+			for (uint i = 0; i < labels.length; ++i) {
+				ViewmodelPositionPresetButton btn(Parent.Manager, labels[i], caption, xs[i], ys[i], zs[i]);
+				btn.Bounds = AABB2(FieldX + float(i) * (width + 1.0F), 2.0F, width, 28.0F);
+				btn.Enable = enabled;
+				container.AddChild(btn);
+			}
+		}
+
 		void AddToggleField(string caption, string configName, bool enabled = true) {
 			AddChoiceField(caption, configName,
 						   array<string> = {_Tr("Preferences", "ON"),
@@ -1509,6 +1546,17 @@ namespace spades {
 
 			layouter.AddHeading(_Tr("Preferences", "Viewmodel"));
 			layouter.AddToggleField(_Tr("Preferences", "Weapon Keychains"), "cg_weaponCharms");
+			layouter.AddViewmodelPresetField(
+				_Tr("Preferences", "Viewmodel Position"),
+				array<string> = {
+					_Tr("Preferences", "Default"),
+					_Tr("Preferences", "Balanced"),
+					_Tr("Preferences", "Minimal")
+				},
+				array<float> = {  0.0F, -0.1F, -0.25F },
+				array<float> = {  0.0F,	 0.05F, 0.25F },
+				array<float> = {  0.0F,	 0.12F, 0.3F }
+			);
 			layouter.AddSliderField(_Tr("Preferences", "Viewmodel Alignment"), "cg_viewWeaponSide",
 			-1, 1, 0.1, ConfigViewmodelSideFormatter());
 			layouter.AddControl(_Tr("Preferences", "Switch Viewmodel Handedness"), "cg_keyToggleLeftHand");
