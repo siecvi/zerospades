@@ -28,7 +28,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "PhysicsConstants.h"
+#include "GameConstants.h"
 #include "Player.h"
 #include <Core/Debug.h>
 #include <Core/Math.h>

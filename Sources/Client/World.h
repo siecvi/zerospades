@@ -29,8 +29,8 @@
 #include <unordered_set>
 #include <vector>
 
+#include "GameConstants.h"
 #include "GameMapWrapper.h"
-#include "PhysicsConstants.h"
 #include <Core/Debug.h>
 #include <Core/Math.h>
 #include <Core/RefCountedObject.h>

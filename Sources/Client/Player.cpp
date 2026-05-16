@@ -21,13 +21,13 @@
 
 #include "Player.h"
 
+#include "GameConstants.h"
 #include "GameMap.h"
 #include "GameMapWrapper.h"
 #include "GameProperties.h"
 #include "Grenade.h"
 #include "HitTestDebugger.h"
 #include "IWorldListener.h"
-#include "PhysicsConstants.h"
 #include "Weapon.h"
 #include "World.h"
 #include <Core/Debug.h>

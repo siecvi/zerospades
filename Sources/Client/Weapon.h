@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "PhysicsConstants.h"
+#include "GameConstants.h"
 #include "Player.h"
 
 namespace spades {

@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "PhysicsConstants.h"
+#include "GameConstants.h"
 #include <Core/Math.h>
 #include <Core/TMPUtils.h>
 #include <memory>

@@ -23,7 +23,7 @@
 
 #include <memory>
 
-#include "PhysicsConstants.h"
+#include "GameConstants.h"
 #include <Core/Math.h>
 
 namespace spades {
