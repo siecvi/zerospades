@@ -70,6 +70,7 @@ namespace spades {
 		class ClientPlayer;
 		class BloodMarks;
 		class ClientUI;
+		class PieMenuView;
 
 		class Client : public IWorldListener, public gui::View {
 			friend class ScoreboardView;
@@ -143,6 +144,9 @@ namespace spades {
 			// chat
 			std::unique_ptr<ChatWindow> chatWindow;
 			std::unique_ptr<ChatWindow> killfeedWindow;
+
+			// pie menu
+			std::unique_ptr<PieMenuView> pieMenuView;
 
 			// player state
 			PlayerInput playerInput;

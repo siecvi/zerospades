@@ -41,6 +41,7 @@
 #include "LimboView.h"
 #include "MapView.h"
 #include "PaletteView.h"
+#include "PieMenuView.h"
 #include "ScoreboardView.h"
 #include "TCProgressView.h"
 
@@ -145,6 +146,8 @@ namespace spades {
 			scoreboard = stmp::make_unique<ScoreboardView>(this);
 			limbo = stmp::make_unique<LimboView>(this);
 			paletteView = stmp::make_unique<PaletteView>(this);
+			pieMenuView = stmp::make_unique<PieMenuView>(this, chatFont,
+				&fontManager->GetHeadingFont());
 			tcView = stmp::make_unique<TCProgressView>(*this);
 			scriptedUI = Handle<ClientUI>::New(renderer.GetPointerOrNull(),
 				audioDev.GetPointerOrNull(), fontManager.GetPointerOrNull(), this);
@@ -605,6 +608,23 @@ namespace spades {
 			mapView->Update(dt);
 			largeMapView->Update(dt);
 			paletteView->Update(dt);
+
+			// Close the pie menu if the conditions that let it open no longer hold
+			// (player died, changed team to spectator, entered limbo, opened scripted UI).
+			if (pieMenuView->IsOpen()) {
+				bool shouldClose = true;
+				if (world && !scriptedUI->NeedsInput() && !inGameLimbo && !staffSpectating) {
+					auto maybePlayer = world->GetLocalPlayer();
+					if (maybePlayer) {
+						Player& lp = maybePlayer.value();
+						if (lp.IsAlive() && !lp.IsSpectator())
+							shouldClose = false;
+					}
+				}
+				if (shouldClose)
+					pieMenuView->Close();
+			}
+			pieMenuView->Update(dt);
 
 			UpdateDamageIndicators(dt);
 			UpdateAutoFocus(dt);

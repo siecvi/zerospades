@@ -1830,6 +1830,7 @@ namespace spades {
 			layouter.AddControl(_Tr("Preferences", "Equip Grenade"), "cg_keyToolGrenade");
 			layouter.AddControl(_Tr("Preferences", "Last Used Tool"), "cg_keyLastTool");
 			layouter.AddPlusMinusField(_Tr("Preferences", "Switch Tools by Wheel"), "cg_switchToolByWheel");
+			layouter.AddControl(_Tr("Preferences", "Pie Menu"), "cg_keyPieMenu");
 
 			layouter.AddHeading(_Tr("Preferences", "Movement"));
 			layouter.AddControl(_Tr("Preferences", "Move Forward"), "cg_keyMoveForward");
