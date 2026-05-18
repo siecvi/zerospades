@@ -723,6 +723,7 @@ namespace spades {
 				if (CheckKey(cg_keyDemoRecord, name) && down && !IsDemoMode()) {
 					if (net->IsDemoRecording()) {
 						net->StopDemoRecording();
+						ShowAlert(_Tr("Client", "Recording stopped"), AlertType::Notice);
 					} else {
 						if (net->StartDemoRecording("", BuildDemoContext())) {
 							if ((int)cg_demoAutoPrune != 0) {
@@ -731,9 +732,10 @@ namespace spades {
 									DemoRecorder::PruneOldRecordings(static_cast<size_t>(maxDemos));
 							}
 							SPLog("Demo recording started: %s", net->GetDemoFilename().c_str());
+							ShowAlert(_Tr("Client", "Recording demo"), AlertType::Notice);
 						} else {
-							chatWindow->AddMessage(ChatWindow::ColoredMessage(
-							  _Tr("Client", "Failed to start demo recording."), MsgColorSysInfo));
+							ShowAlert(_Tr("Client", "Failed to start demo recording"),
+							          AlertType::Error);
 						}
 					}
 					return;

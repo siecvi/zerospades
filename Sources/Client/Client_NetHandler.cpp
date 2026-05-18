@@ -156,6 +156,7 @@ namespace spades {
 			if (net && (int)cg_demoAutoRecord != 0) {
 				if (net->StartDemoRecording("", BuildDemoContext())) {
 					SPLog("Started auto-recording demo: %s", net->GetDemoFilename().c_str());
+					ShowAlert(_Tr("Client", "Recording demo"), AlertType::Notice);
 					if ((int)cg_demoAutoPrune != 0) {
 						int maxDemos = (int)cg_demoMaxFiles;
 						if (maxDemos >= 1)
