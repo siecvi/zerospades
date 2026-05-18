@@ -42,6 +42,8 @@ namespace spades {
 			void AlertNotice(const std::string&);
 			void AlertWarning(const std::string&);
 			void AlertError(const std::string&);
+
+			bool IsDemoMode() const;
 		};
 	} // namespace client
 } // namespace spades

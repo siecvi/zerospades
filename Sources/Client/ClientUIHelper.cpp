@@ -20,6 +20,7 @@
  */
 
 #include "ClientUIHelper.h"
+#include "Client.h"
 #include "ClientUI.h"
 
 namespace spades {
@@ -54,6 +55,10 @@ namespace spades {
 			if (!ui)
 				return;
 			ui->AlertError(text);
+		}
+
+		bool ClientUIHelper::IsDemoMode() const {
+			return ui && ui->client && ui->client->IsDemoMode();
 		}
 	} // namespace client
 } // namespace spades

@@ -51,8 +51,8 @@ namespace spades {
 			@manager = spades::ui::UIManager(renderer, audioDevice);
 			@manager.RootElement.Font = fontManager.GuiFont;
 
-			@clientMenu = ClientMenu(this);
-			clientMenu.Bounds = manager.RootElement.Bounds;
+			// clientMenu is built lazily in EnterClientMenu() so that helper.IsDemoMode()
+			// reflects the demo flag, which isn't set until after Client::DoInit runs.
 
 			@chatLogWindow = ChatLogWindow(this);
 		}
@@ -96,7 +96,13 @@ namespace spades {
 		}
 		spades::ui::UIElement@ get_ActiveUI() property { return activeUI; }
 
-		void EnterClientMenu() { @ActiveUI = clientMenu; }
+		void EnterClientMenu() {
+			if (clientMenu is null) {
+				@clientMenu = ClientMenu(this);
+				clientMenu.Bounds = manager.RootElement.Bounds;
+			}
+			@ActiveUI = clientMenu;
+		}
 		void EnterTeamChatWindow() {
 			ClientChatWindow wnd(this, true);
 			@ActiveUI = wnd;
